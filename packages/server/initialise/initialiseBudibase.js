@@ -49,7 +49,7 @@ const question = async (q) => {
     if(!username) throw new Error("Username not supplied!");
     if(!password) throw new Error("Password not supplied!");
 
-    var datastoreModule = require("../datastores/datastores/" + datastore);
+    var datastoreModule = require("../../datastores/datastores/" + datastore);
 
     const rootconfig = {};
     for(let parameter in datastoreModule.configParameters) {

@@ -1,4 +1,4 @@
-const crypto = require("../server/nodeCrypto");
+const crypto = require("../nodeCrypto");
 const {getDatabaseManager, getAppApis} = require("budibase-core");
 
 module.exports.getApisWithFullAccess = async (datastore) => {
