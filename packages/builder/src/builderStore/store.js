@@ -50,7 +50,6 @@ export const getStore = () => {
         currentNodeIsNew: false,
         errors: [],
         activeNav: "database",
-        isBackend:true,
         hasAppPackage: false,
         accessLevels: [],
         currentNode: null,
@@ -88,8 +87,6 @@ export const getStore = () => {
     store.removeComponentLibrary =removeComponentLibrary(store);
     store.addStylesheet = addStylesheet(store);
     store.removeStylesheet = removeStylesheet(store);
-    store.showFrontend = showFrontend(store);
-    store.showBackend = showBackend(store);
     return store;
 } 
 
@@ -134,20 +131,6 @@ const initialise = (store, initial) => async () => {
     }
     store.set(initial);
     return initial;
-}
-
-const showBackend = store => () => {
-    store.update(s => {
-        s.isBackend = true;
-        return s;
-    })
-}
-
-const showFrontend = store => () => {
-    store.update(s => {
-        s.isBackend = false;
-        return s;
-    })
 }
 
 const combineComponents = (root, derived) => {
@@ -525,14 +508,6 @@ const removeComponentLibrary = store => lib => {
 const addStylesheet = store => stylesheet => {
     store.update(s => {
         s.pages.stylesheets.push(stylesheet);
-
-        const styles = document.createElement('link');
-        styles.rel = 'stylesheet';
-        styles.type = 'text/css';
-        styles.media = 'screen';
-        styles.href = stylesheet;
-        document.getElementsByTagName('head')[0].appendChild(styles);
-
         savePackage(store, s);
         return s;
     })
@@ -571,14 +546,14 @@ const savePackage = (store, s) => {
         hierarchy:s.hierarchy,
         triggers:s.triggers,
         actions: groupBy("name")(s.actions),
-        pages:s.pages,
         mainUi: s.mainUi,
         unauthenticatedUi: s.unauthenticatedUi
     };
 
     const data = {
         appDefinition,
-        accessLevels:s.accessLevels
+        accessLevels:s.accessLevels,
+        pages:s.pages,
     }
 
     api.post(`/_builder/api/${s.appname}/appPackage`, data);
