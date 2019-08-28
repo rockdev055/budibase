@@ -8,8 +8,7 @@ import {
     filter,
     reduce,
     cloneDeep,
-    includes,
-    last
+    includes
 } from "lodash/fp";
 import { types, expandPropsDefinition } from "./types";
 import { assign } from "lodash";
@@ -75,13 +74,9 @@ export const getComponentInfo = (allComponents, comp, stack=[], subComponentProp
     if(isRootComponent(component)) {
         subComponentProps = subComponentProps||{};
         const p = createProps(cname, component.props, subComponentProps);
-        const rootProps = createProps(cname, component.props);
         const inheritedProps = [];
-        const targetComponent = stack.length > 0
-                                ? last(stack)
-                                : component;
         if(stack.length > 0) {
-            
+            const targetComponent = stack[0];
             for(let prop in subComponentProps) {
                 const hasProp = pipe(targetComponent.props, [
                                         keys,
@@ -93,27 +88,24 @@ export const getComponentInfo = (allComponents, comp, stack=[], subComponentProp
         }
         const unsetProps = pipe(p.props, [
             keys,
-            filter(k => !includes(k)(keys(subComponentProps)) && k !== "_component")
+            filter(k => !includes(k)(keys(subComponentProps)))
         ]);
-
-        const fullProps = cloneDeep(p.props);
-        fullProps._component = targetComponent.name;
 
         return ({
             propsDefinition:expandPropsDefinition(component.props), 
             inheritedProps,
-            rootDefaultProps: rootProps.props,
+            rootDefaultProps: p.props,
             unsetProps,
-            fullProps: fullProps,
+            fullProps: p.props,
             errors: p.errors,
-            component: targetComponent,
+            component: stack.length > 0 ? stack[0] : component,
             rootComponent: component
         });
     }
     return getComponentInfo(
         allComponents, 
         component.inherits, 
-        [component, ...stack],
+        [...stack, component],
         {...component.props, ...subComponentProps});
 }
 

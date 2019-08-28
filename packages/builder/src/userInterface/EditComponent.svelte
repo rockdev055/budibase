@@ -162,7 +162,6 @@ const componentInstancePropsChanged = (instanceProps) => {
             <Textbox label="Name" 
                     infoText="use forward slash to store in subfolders"
                     bind:text={name}
-                    disabled={!$store.currentComponentIsNew}
                     hasError={!!nameInvalid}/>
             <div class="info-text"></div>
             <Textbox label="Description"
