@@ -39,11 +39,12 @@
             throw new Error(`'${name}' is not a store with a 'subscribe' method`);
         }
     }
-    function subscribe(component, store, callback) {
+    function subscribe(store, callback) {
         const unsub = store.subscribe(callback);
-        component.$$.on_destroy.push(unsub.unsubscribe
-            ? () => unsub.unsubscribe()
-            : unsub);
+        return unsub.unsubscribe ? () => unsub.unsubscribe() : unsub;
+    }
+    function component_subscribe(component, store, callback) {
+        component.$$.on_destroy.push(subscribe(store, callback));
     }
     function create_slot(definition, ctx, fn) {
         if (definition) {
@@ -66,7 +67,7 @@
     let now = is_client
         ? () => window.performance.now()
         : () => Date.now();
-    let raf = cb => requestAnimationFrame(cb);
+    let raf = is_client ? cb => requestAnimationFrame(cb) : noop;
 
     const tasks = new Set();
     let running = false;
@@ -105,11 +106,6 @@
     }
     function detach(node) {
         node.parentNode.removeChild(node);
-    }
-    function detach_before(after) {
-        while (after.previousSibling) {
-            after.parentNode.removeChild(after.previousSibling);
-        }
     }
     function destroy_each(iterations, detaching) {
         for (let i = 0; i < iterations.length; i += 1) {
@@ -154,8 +150,13 @@
         if (text.data !== data)
             text.data = data;
     }
-    function set_style(node, key, value) {
-        node.style.setProperty(key, value);
+    function set_input_value(input, value) {
+        if (value != null || input.value) {
+            input.value = value;
+        }
+    }
+    function set_style(node, key, value, important) {
+        node.style.setProperty(key, value, important ? 'important' : '');
     }
     function select_option(select, value) {
         for (let i = 0; i < select.options.length; i += 1) {
@@ -186,6 +187,31 @@
         const e = document.createEvent('CustomEvent');
         e.initCustomEvent(type, false, false, detail);
         return e;
+    }
+    class HtmlTag {
+        constructor(html, anchor = null) {
+            this.e = element('div');
+            this.a = anchor;
+            this.u(html);
+        }
+        m(target, anchor = null) {
+            for (let i = 0; i < this.n.length; i += 1) {
+                insert(target, this.n[i], anchor);
+            }
+            this.t = target;
+        }
+        u(html) {
+            this.e.innerHTML = html;
+            this.n = Array.from(this.e.childNodes);
+        }
+        p(html) {
+            this.d();
+            this.u(html);
+            this.m(this.t, this.a);
+        }
+        d() {
+            this.n.forEach(detach);
+        }
     }
 
     let stylesheet;
@@ -374,6 +400,7 @@
             block.o(local);
         }
     }
+    const null_transition = { duration: 0 };
     function create_in_transition(node, fn, params) {
         let config = fn(node, params);
         let running = false;
@@ -385,7 +412,7 @@
                 delete_rule(node, animation_name);
         }
         function go() {
-            const { delay = 0, duration = 300, easing = identity, tick = noop, css } = config;
+            const { delay = 0, duration = 300, easing = identity, tick = noop, css } = config || null_transition;
             if (css)
                 animation_name = create_rule(node, 0, 1, duration, delay, easing, css, uid++);
             tick(0, 1);
@@ -443,7 +470,7 @@
         const group = outros;
         group.r += 1;
         function go() {
-            const { delay = 0, duration = 300, easing = identity, tick = noop, css } = config;
+            const { delay = 0, duration = 300, easing = identity, tick = noop, css } = config || null_transition;
             if (css)
                 animation_name = create_rule(node, 1, 0, duration, delay, easing, css);
             const start_time = now() + delay;
@@ -526,10 +553,15 @@
                 info.blocks[index] = block;
         }
         if (is_promise(promise)) {
+            const current_component = get_current_component();
             promise.then(value => {
+                set_current_component(current_component);
                 update(info.then, 1, info.value, value);
+                set_current_component(null);
             }, error => {
+                set_current_component(current_component);
                 update(info.catch, 2, info.error, error);
+                set_current_component(null);
             });
             // if we previously had a then/catch block, destroy it
             if (info.current !== info.pending) {
@@ -544,40 +576,6 @@
             }
             info.resolved = { [info.value]: promise };
         }
-    }
-
-    function get_spread_update(levels, updates) {
-        const update = {};
-        const to_null_out = {};
-        const accounted_for = { $$scope: 1 };
-        let i = levels.length;
-        while (i--) {
-            const o = levels[i];
-            const n = updates[i];
-            if (n) {
-                for (const key in o) {
-                    if (!(key in n))
-                        to_null_out[key] = 1;
-                }
-                for (const key in n) {
-                    if (!accounted_for[key]) {
-                        update[key] = n[key];
-                        accounted_for[key] = 1;
-                    }
-                }
-                levels[i] = n;
-            }
-            else {
-                for (const key in o) {
-                    accounted_for[key] = 1;
-                }
-            }
-        }
-        for (const key in to_null_out) {
-            if (!(key in update))
-                update[key] = undefined;
-        }
-        return update;
     }
 
     function bind(component, name, callback) {
@@ -708,15 +706,15 @@
         }
     }
 
-    /* src\common\Button.svelte generated by Svelte v3.6.9 */
+    /* src\common\Button.svelte generated by Svelte v3.9.1 */
 
     const file = "src\\common\\Button.svelte";
 
     function create_fragment(ctx) {
     	var button, button_class_value, current, dispose;
 
-    	const default_slot_1 = ctx.$$slots.default;
-    	const default_slot = create_slot(default_slot_1, ctx, null);
+    	const default_slot_template = ctx.$$slots.default;
+    	const default_slot = create_slot(default_slot_template, ctx, null);
 
     	return {
     		c: function create() {
@@ -747,7 +745,10 @@
 
     		p: function update(changed, ctx) {
     			if (default_slot && default_slot.p && changed.$$scope) {
-    				default_slot.p(get_slot_changes(default_slot_1, ctx, changed, null), get_slot_context(default_slot_1, ctx, null));
+    				default_slot.p(
+    					get_slot_changes(default_slot_template, ctx, changed, null),
+    					get_slot_context(default_slot_template, ctx, null)
+    				);
     			}
 
     			if ((!current || changed.color || changed.className || changed.borderClass || changed.grouped) && button_class_value !== (button_class_value = "" + ctx.color + " " + ctx.className + " " + ctx.borderClass + " " + (ctx.grouped ? "grouped" : "") + " svelte-7rfkdx")) {
@@ -28183,9 +28184,13 @@
         if(isRootComponent(component)) {
             subComponentProps = subComponentProps||{};
             const p = createProps(cname, component.props, subComponentProps);
+            const rootProps = createProps(cname, component.props);
             const inheritedProps = [];
+            const targetComponent = stack.length > 0
+                                    ? fp_12(stack)
+                                    : component;
             if(stack.length > 0) {
-                const targetComponent = stack[0];
+                
                 for(let prop in subComponentProps) {
                     const hasProp = pipe(targetComponent.props, [
                                             fp_30,
@@ -28197,24 +28202,27 @@
             }
             const unsetProps = pipe(p.props, [
                 fp_30,
-                fp_8(k => !fp_11(k)(fp_30(subComponentProps)))
+                fp_8(k => !fp_11(k)(fp_30(subComponentProps)) && k !== "_component")
             ]);
+
+            const fullProps = fp_4(p.props);
+            fullProps._component = targetComponent.name;
 
             return ({
                 propsDefinition:expandPropsDefinition(component.props), 
                 inheritedProps,
-                rootDefaultProps: p.props,
+                rootDefaultProps: rootProps.props,
                 unsetProps,
-                fullProps: p.props,
+                fullProps: fullProps,
                 errors: p.errors,
-                component: stack.length > 0 ? stack[0] : component,
+                component: targetComponent,
                 rootComponent: component
             });
         }
         return getComponentInfo(
             allComponents, 
             component.inherits, 
-            [...stack, component],
+            [component, ...stack],
             {...component.props, ...subComponentProps});
     };
 
@@ -28284,17 +28292,17 @@
 
     const loadLibs = async (appName, appPackage) => {
 
-        const makeUrl = l => 
-            `/_builder/api/${appName}/componentlibrary?lib=${encodeURI(l)}`;
-
         const allLibraries = {};
         for(let lib of appPackage.pages.componentLibraries) {
-            const libModule = await import(makeUrl(lib));
+            const libModule = await import(makeLibraryUrl(appName, lib));
             allLibraries[lib] = libModule;
         }
 
         return allLibraries;
     };
+
+    const makeLibraryUrl = (appName, lib) => 
+        `/_builder/api/${appName}/componentlibrary?lib=${encodeURI(lib)}`;
 
     const getStore = () => {
 
@@ -28311,6 +28319,7 @@
             currentFrontEndItem:null,
             currentComponentInfo:null,
             currentComponentIsNew:false,
+            currentPageName: "",
             currentNodeIsNew: false,
             errors: [],
             activeNav: "database",
@@ -28352,6 +28361,7 @@
         store.removeComponentLibrary =removeComponentLibrary(store);
         store.addStylesheet = addStylesheet(store);
         store.removeStylesheet = removeStylesheet(store);
+        store.savePage = savePage(store);
         store.showFrontend = showFrontend(store);
         store.showBackend = showBackend(store);
         return store;
@@ -28378,6 +28388,7 @@
         initial.hasAppPackage = true;
         initial.hierarchy = pkg.appDefinition.hierarchy;
         initial.accessLevels = pkg.accessLevels;
+        initial.derivedComponents = pkg.derivedComponents;
         initial.allComponents = combineComponents(
             pkg.derivedComponents, pkg.rootComponents);
         initial.actions = fp_2((arr, action) => {
@@ -28447,6 +28458,7 @@
             );
             s.currentNodeIsNew = false;
             s.errors = [];
+            s.activeNav = "database";
             return s;
         });
     };
@@ -28735,6 +28747,18 @@
         });
     };
 
+    const savePage = store => async page => {
+        store.update(s => {
+            if(s.currentFrontEndIsComponent || !s.currentFrontEndItem) {
+                return;
+            }
+
+            s.pages[currentPageName] = page;
+            savePackage();
+
+        });
+    };
+
     const addComponentLibrary = store => async lib => {
 
         const response = 
@@ -28787,14 +28811,6 @@
     const addStylesheet = store => stylesheet => {
         store.update(s => {
             s.pages.stylesheets.push(stylesheet);
-
-            const styles = document.createElement('link');
-            styles.rel = 'stylesheet';
-            styles.type = 'text/css';
-            styles.media = 'screen';
-            styles.href = stylesheet;
-            document.getElementsByTagName('head')[0].appendChild(styles);
-
             savePackage(store, s);
             return s;
         });
@@ -28833,14 +28849,14 @@
             hierarchy:s.hierarchy,
             triggers:s.triggers,
             actions: fp_45("name")(s.actions),
-            pages:s.pages,
             mainUi: s.mainUi,
             unauthenticatedUi: s.unauthenticatedUi
         };
 
         const data = {
             appDefinition,
-            accessLevels:s.accessLevels
+            accessLevels:s.accessLevels,
+            pages:s.pages,
         };
 
         api$1.post(`/_builder/api/${s.appname}/appPackage`, data);
@@ -28858,9 +28874,9 @@
 
     const setCurrentPage = store => pageName => {
         store.update(s => {
-            const props = s.pages[pageName];
-            s.currentFrontEndItem = {props, name:pageName};
+            s.currentFrontEndItem = s.pages[pageName];
             s.currentFrontEndIsComponent = false;
+            s.currentPageName = pageName;
             return s;
         });
     };
@@ -28889,7 +28905,7 @@
         });
     };
 
-    /* src\NoPackage.svelte generated by Svelte v3.6.9 */
+    /* src\NoPackage.svelte generated by Svelte v3.9.1 */
 
     const file$2 = "src\\NoPackage.svelte";
 
@@ -28901,7 +28917,7 @@
 
     // (17:16) {#each $store.apps as app}
     function create_each_block(ctx) {
-    	var a, t_value = ctx.app, t, a_href_value;
+    	var a, t_value = ctx.app + "", t, a_href_value;
 
     	return {
     		c: function create() {
@@ -28918,7 +28934,7 @@
     		},
 
     		p: function update(changed, ctx) {
-    			if ((changed.$store) && t_value !== (t_value = ctx.app)) {
+    			if ((changed.$store) && t_value !== (t_value = ctx.app + "")) {
     				set_data(t, t_value);
     			}
 
@@ -29034,7 +29050,7 @@
     	let $store;
 
     	validate_store(store, 'store');
-    	subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
+    	component_subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
 
     	return { $store };
     }
@@ -29127,10 +29143,10 @@
     /*!*************************!*\
       !*** ./dist/icons.json ***!
       \*************************/
-    /*! exports provided: activity, airplay, alert-circle, alert-octagon, alert-triangle, align-center, align-justify, align-left, align-right, anchor, aperture, archive, arrow-down-circle, arrow-down-left, arrow-down-right, arrow-down, arrow-left-circle, arrow-left, arrow-right-circle, arrow-right, arrow-up-circle, arrow-up-left, arrow-up-right, arrow-up, at-sign, award, bar-chart-2, bar-chart, battery-charging, battery, bell-off, bell, bluetooth, bold, book-open, book, bookmark, box, briefcase, calendar, camera-off, camera, cast, check-circle, check-square, check, chevron-down, chevron-left, chevron-right, chevron-up, chevrons-down, chevrons-left, chevrons-right, chevrons-up, chrome, circle, clipboard, clock, cloud-drizzle, cloud-lightning, cloud-off, cloud-rain, cloud-snow, cloud, code, codepen, codesandbox, coffee, columns, command, compass, copy, corner-down-left, corner-down-right, corner-left-down, corner-left-up, corner-right-down, corner-right-up, corner-up-left, corner-up-right, cpu, credit-card, crop, crosshair, database, delete, disc, dollar-sign, download-cloud, download, droplet, edit-2, edit-3, edit, external-link, eye-off, eye, facebook, fast-forward, feather, figma, file-minus, file-plus, file-text, file, film, filter, flag, folder-minus, folder-plus, folder, framer, frown, gift, git-branch, git-commit, git-merge, git-pull-request, github, gitlab, globe, grid, hard-drive, hash, headphones, heart, help-circle, hexagon, home, image, inbox, info, instagram, italic, key, layers, layout, life-buoy, link-2, link, linkedin, list, loader, lock, log-in, log-out, mail, map-pin, map, maximize-2, maximize, meh, menu, message-circle, message-square, mic-off, mic, minimize-2, minimize, minus-circle, minus-square, minus, monitor, moon, more-horizontal, more-vertical, mouse-pointer, move, music, navigation-2, navigation, octagon, package, paperclip, pause-circle, pause, pen-tool, percent, phone-call, phone-forwarded, phone-incoming, phone-missed, phone-off, phone-outgoing, phone, pie-chart, play-circle, play, plus-circle, plus-square, plus, pocket, power, printer, radio, refresh-ccw, refresh-cw, repeat, rewind, rotate-ccw, rotate-cw, rss, save, scissors, search, send, server, settings, share-2, share, shield-off, shield, shopping-bag, shopping-cart, shuffle, sidebar, skip-back, skip-forward, slack, slash, sliders, smartphone, smile, speaker, square, star, stop-circle, sun, sunrise, sunset, tablet, tag, target, terminal, thermometer, thumbs-down, thumbs-up, toggle-left, toggle-right, trash-2, trash, trello, trending-down, trending-up, triangle, truck, tv, twitter, type, umbrella, underline, unlock, upload-cloud, upload, user-check, user-minus, user-plus, user-x, user, users, video-off, video, voicemail, volume-1, volume-2, volume-x, volume, watch, wifi-off, wifi, wind, x-circle, x-octagon, x-square, x, youtube, zap-off, zap, zoom-in, zoom-out, default */
+    /*! exports provided: activity, airplay, alert-circle, alert-octagon, alert-triangle, align-center, align-justify, align-left, align-right, anchor, aperture, archive, arrow-down-circle, arrow-down-left, arrow-down-right, arrow-down, arrow-left-circle, arrow-left, arrow-right-circle, arrow-right, arrow-up-circle, arrow-up-left, arrow-up-right, arrow-up, at-sign, award, bar-chart-2, bar-chart, battery-charging, battery, bell-off, bell, bluetooth, bold, book-open, book, bookmark, box, briefcase, calendar, camera-off, camera, cast, check-circle, check-square, check, chevron-down, chevron-left, chevron-right, chevron-up, chevrons-down, chevrons-left, chevrons-right, chevrons-up, chrome, circle, clipboard, clock, cloud-drizzle, cloud-lightning, cloud-off, cloud-rain, cloud-snow, cloud, code, codepen, codesandbox, coffee, columns, command, compass, copy, corner-down-left, corner-down-right, corner-left-down, corner-left-up, corner-right-down, corner-right-up, corner-up-left, corner-up-right, cpu, credit-card, crop, crosshair, database, delete, disc, dollar-sign, download-cloud, download, droplet, edit-2, edit-3, edit, external-link, eye-off, eye, facebook, fast-forward, feather, figma, file-minus, file-plus, file-text, file, film, filter, flag, folder-minus, folder-plus, folder, framer, frown, gift, git-branch, git-commit, git-merge, git-pull-request, github, gitlab, globe, grid, hard-drive, hash, headphones, heart, help-circle, hexagon, home, image, inbox, info, instagram, italic, key, layers, layout, life-buoy, link-2, link, linkedin, list, loader, lock, log-in, log-out, mail, map-pin, map, maximize-2, maximize, meh, menu, message-circle, message-square, mic-off, mic, minimize-2, minimize, minus-circle, minus-square, minus, monitor, moon, more-horizontal, more-vertical, mouse-pointer, move, music, navigation-2, navigation, octagon, package, paperclip, pause-circle, pause, pen-tool, percent, phone-call, phone-forwarded, phone-incoming, phone-missed, phone-off, phone-outgoing, phone, pie-chart, play-circle, play, plus-circle, plus-square, plus, pocket, power, printer, radio, refresh-ccw, refresh-cw, repeat, rewind, rotate-ccw, rotate-cw, rss, save, scissors, search, send, server, settings, share-2, share, shield-off, shield, shopping-bag, shopping-cart, shuffle, sidebar, skip-back, skip-forward, slack, slash, sliders, smartphone, smile, speaker, square, star, stop-circle, sun, sunrise, sunset, tablet, tag, target, terminal, thermometer, thumbs-down, thumbs-up, toggle-left, toggle-right, tool, trash-2, trash, trello, trending-down, trending-up, triangle, truck, tv, twitch, twitter, type, umbrella, underline, unlock, upload-cloud, upload, user-check, user-minus, user-plus, user-x, user, users, video-off, video, voicemail, volume-1, volume-2, volume-x, volume, watch, wifi-off, wifi, wind, x-circle, x-octagon, x-square, x, youtube, zap-off, zap, zoom-in, zoom-out, default */
     /***/ (function(module) {
 
-    module.exports = {"activity":"<polyline points=\"22 12 18 12 15 21 9 3 6 12 2 12\"></polyline>","airplay":"<path d=\"M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1\"></path><polygon points=\"12 15 17 21 7 21 12 15\"></polygon>","alert-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"></line><line x1=\"12\" y1=\"16\" x2=\"12\" y2=\"16\"></line>","alert-octagon":"<polygon points=\"7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2\"></polygon><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"></line><line x1=\"12\" y1=\"16\" x2=\"12\" y2=\"16\"></line>","alert-triangle":"<path d=\"M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z\"></path><line x1=\"12\" y1=\"9\" x2=\"12\" y2=\"13\"></line><line x1=\"12\" y1=\"17\" x2=\"12\" y2=\"17\"></line>","align-center":"<line x1=\"18\" y1=\"10\" x2=\"6\" y2=\"10\"></line><line x1=\"21\" y1=\"6\" x2=\"3\" y2=\"6\"></line><line x1=\"21\" y1=\"14\" x2=\"3\" y2=\"14\"></line><line x1=\"18\" y1=\"18\" x2=\"6\" y2=\"18\"></line>","align-justify":"<line x1=\"21\" y1=\"10\" x2=\"3\" y2=\"10\"></line><line x1=\"21\" y1=\"6\" x2=\"3\" y2=\"6\"></line><line x1=\"21\" y1=\"14\" x2=\"3\" y2=\"14\"></line><line x1=\"21\" y1=\"18\" x2=\"3\" y2=\"18\"></line>","align-left":"<line x1=\"17\" y1=\"10\" x2=\"3\" y2=\"10\"></line><line x1=\"21\" y1=\"6\" x2=\"3\" y2=\"6\"></line><line x1=\"21\" y1=\"14\" x2=\"3\" y2=\"14\"></line><line x1=\"17\" y1=\"18\" x2=\"3\" y2=\"18\"></line>","align-right":"<line x1=\"21\" y1=\"10\" x2=\"7\" y2=\"10\"></line><line x1=\"21\" y1=\"6\" x2=\"3\" y2=\"6\"></line><line x1=\"21\" y1=\"14\" x2=\"3\" y2=\"14\"></line><line x1=\"21\" y1=\"18\" x2=\"7\" y2=\"18\"></line>","anchor":"<circle cx=\"12\" cy=\"5\" r=\"3\"></circle><line x1=\"12\" y1=\"22\" x2=\"12\" y2=\"8\"></line><path d=\"M5 12H2a10 10 0 0 0 20 0h-3\"></path>","aperture":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"14.31\" y1=\"8\" x2=\"20.05\" y2=\"17.94\"></line><line x1=\"9.69\" y1=\"8\" x2=\"21.17\" y2=\"8\"></line><line x1=\"7.38\" y1=\"12\" x2=\"13.12\" y2=\"2.06\"></line><line x1=\"9.69\" y1=\"16\" x2=\"3.95\" y2=\"6.06\"></line><line x1=\"14.31\" y1=\"16\" x2=\"2.83\" y2=\"16\"></line><line x1=\"16.62\" y1=\"12\" x2=\"10.88\" y2=\"21.94\"></line>","archive":"<polyline points=\"21 8 21 21 3 21 3 8\"></polyline><rect x=\"1\" y=\"3\" width=\"22\" height=\"5\"></rect><line x1=\"10\" y1=\"12\" x2=\"14\" y2=\"12\"></line>","arrow-down-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polyline points=\"8 12 12 16 16 12\"></polyline><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"16\"></line>","arrow-down-left":"<line x1=\"17\" y1=\"7\" x2=\"7\" y2=\"17\"></line><polyline points=\"17 17 7 17 7 7\"></polyline>","arrow-down-right":"<line x1=\"7\" y1=\"7\" x2=\"17\" y2=\"17\"></line><polyline points=\"17 7 17 17 7 17\"></polyline>","arrow-down":"<line x1=\"12\" y1=\"5\" x2=\"12\" y2=\"19\"></line><polyline points=\"19 12 12 19 5 12\"></polyline>","arrow-left-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polyline points=\"12 8 8 12 12 16\"></polyline><line x1=\"16\" y1=\"12\" x2=\"8\" y2=\"12\"></line>","arrow-left":"<line x1=\"19\" y1=\"12\" x2=\"5\" y2=\"12\"></line><polyline points=\"12 19 5 12 12 5\"></polyline>","arrow-right-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polyline points=\"12 16 16 12 12 8\"></polyline><line x1=\"8\" y1=\"12\" x2=\"16\" y2=\"12\"></line>","arrow-right":"<line x1=\"5\" y1=\"12\" x2=\"19\" y2=\"12\"></line><polyline points=\"12 5 19 12 12 19\"></polyline>","arrow-up-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polyline points=\"16 12 12 8 8 12\"></polyline><line x1=\"12\" y1=\"16\" x2=\"12\" y2=\"8\"></line>","arrow-up-left":"<line x1=\"17\" y1=\"17\" x2=\"7\" y2=\"7\"></line><polyline points=\"7 17 7 7 17 7\"></polyline>","arrow-up-right":"<line x1=\"7\" y1=\"17\" x2=\"17\" y2=\"7\"></line><polyline points=\"7 7 17 7 17 17\"></polyline>","arrow-up":"<line x1=\"12\" y1=\"19\" x2=\"12\" y2=\"5\"></line><polyline points=\"5 12 12 5 19 12\"></polyline>","at-sign":"<circle cx=\"12\" cy=\"12\" r=\"4\"></circle><path d=\"M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94\"></path>","award":"<circle cx=\"12\" cy=\"8\" r=\"7\"></circle><polyline points=\"8.21 13.89 7 23 12 20 17 23 15.79 13.88\"></polyline>","bar-chart-2":"<line x1=\"18\" y1=\"20\" x2=\"18\" y2=\"10\"></line><line x1=\"12\" y1=\"20\" x2=\"12\" y2=\"4\"></line><line x1=\"6\" y1=\"20\" x2=\"6\" y2=\"14\"></line>","bar-chart":"<line x1=\"12\" y1=\"20\" x2=\"12\" y2=\"10\"></line><line x1=\"18\" y1=\"20\" x2=\"18\" y2=\"4\"></line><line x1=\"6\" y1=\"20\" x2=\"6\" y2=\"16\"></line>","battery-charging":"<path d=\"M5 18H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.19M15 6h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-3.19\"></path><line x1=\"23\" y1=\"13\" x2=\"23\" y2=\"11\"></line><polyline points=\"11 6 7 12 13 12 9 18\"></polyline>","battery":"<rect x=\"1\" y=\"6\" width=\"18\" height=\"12\" rx=\"2\" ry=\"2\"></rect><line x1=\"23\" y1=\"13\" x2=\"23\" y2=\"11\"></line>","bell-off":"<path d=\"M13.73 21a2 2 0 0 1-3.46 0\"></path><path d=\"M18.63 13A17.89 17.89 0 0 1 18 8\"></path><path d=\"M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14\"></path><path d=\"M18 8a6 6 0 0 0-9.33-5\"></path><line x1=\"1\" y1=\"1\" x2=\"23\" y2=\"23\"></line>","bell":"<path d=\"M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9\"></path><path d=\"M13.73 21a2 2 0 0 1-3.46 0\"></path>","bluetooth":"<polyline points=\"6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5\"></polyline>","bold":"<path d=\"M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z\"></path><path d=\"M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z\"></path>","book-open":"<path d=\"M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z\"></path><path d=\"M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z\"></path>","book":"<path d=\"M4 19.5A2.5 2.5 0 0 1 6.5 17H20\"></path><path d=\"M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z\"></path>","bookmark":"<path d=\"M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z\"></path>","box":"<path d=\"M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z\"></path><polyline points=\"3.27 6.96 12 12.01 20.73 6.96\"></polyline><line x1=\"12\" y1=\"22.08\" x2=\"12\" y2=\"12\"></line>","briefcase":"<rect x=\"2\" y=\"7\" width=\"20\" height=\"14\" rx=\"2\" ry=\"2\"></rect><path d=\"M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16\"></path>","calendar":"<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"></rect><line x1=\"16\" y1=\"2\" x2=\"16\" y2=\"6\"></line><line x1=\"8\" y1=\"2\" x2=\"8\" y2=\"6\"></line><line x1=\"3\" y1=\"10\" x2=\"21\" y2=\"10\"></line>","camera-off":"<line x1=\"1\" y1=\"1\" x2=\"23\" y2=\"23\"></line><path d=\"M21 21H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3m3-3h6l2 3h4a2 2 0 0 1 2 2v9.34m-7.72-2.06a4 4 0 1 1-5.56-5.56\"></path>","camera":"<path d=\"M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z\"></path><circle cx=\"12\" cy=\"13\" r=\"4\"></circle>","cast":"<path d=\"M2 16.1A5 5 0 0 1 5.9 20M2 12.05A9 9 0 0 1 9.95 20M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6\"></path><line x1=\"2\" y1=\"20\" x2=\"2\" y2=\"20\"></line>","check-circle":"<path d=\"M22 11.08V12a10 10 0 1 1-5.93-9.14\"></path><polyline points=\"22 4 12 14.01 9 11.01\"></polyline>","check-square":"<polyline points=\"9 11 12 14 22 4\"></polyline><path d=\"M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11\"></path>","check":"<polyline points=\"20 6 9 17 4 12\"></polyline>","chevron-down":"<polyline points=\"6 9 12 15 18 9\"></polyline>","chevron-left":"<polyline points=\"15 18 9 12 15 6\"></polyline>","chevron-right":"<polyline points=\"9 18 15 12 9 6\"></polyline>","chevron-up":"<polyline points=\"18 15 12 9 6 15\"></polyline>","chevrons-down":"<polyline points=\"7 13 12 18 17 13\"></polyline><polyline points=\"7 6 12 11 17 6\"></polyline>","chevrons-left":"<polyline points=\"11 17 6 12 11 7\"></polyline><polyline points=\"18 17 13 12 18 7\"></polyline>","chevrons-right":"<polyline points=\"13 17 18 12 13 7\"></polyline><polyline points=\"6 17 11 12 6 7\"></polyline>","chevrons-up":"<polyline points=\"17 11 12 6 7 11\"></polyline><polyline points=\"17 18 12 13 7 18\"></polyline>","chrome":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><circle cx=\"12\" cy=\"12\" r=\"4\"></circle><line x1=\"21.17\" y1=\"8\" x2=\"12\" y2=\"8\"></line><line x1=\"3.95\" y1=\"6.06\" x2=\"8.54\" y2=\"14\"></line><line x1=\"10.88\" y1=\"21.94\" x2=\"15.46\" y2=\"14\"></line>","circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle>","clipboard":"<path d=\"M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2\"></path><rect x=\"8\" y=\"2\" width=\"8\" height=\"4\" rx=\"1\" ry=\"1\"></rect>","clock":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polyline points=\"12 6 12 12 16 14\"></polyline>","cloud-drizzle":"<line x1=\"8\" y1=\"19\" x2=\"8\" y2=\"21\"></line><line x1=\"8\" y1=\"13\" x2=\"8\" y2=\"15\"></line><line x1=\"16\" y1=\"19\" x2=\"16\" y2=\"21\"></line><line x1=\"16\" y1=\"13\" x2=\"16\" y2=\"15\"></line><line x1=\"12\" y1=\"21\" x2=\"12\" y2=\"23\"></line><line x1=\"12\" y1=\"15\" x2=\"12\" y2=\"17\"></line><path d=\"M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25\"></path>","cloud-lightning":"<path d=\"M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9\"></path><polyline points=\"13 11 9 17 15 17 11 23\"></polyline>","cloud-off":"<path d=\"M22.61 16.95A5 5 0 0 0 18 10h-1.26a8 8 0 0 0-7.05-6M5 5a8 8 0 0 0 4 15h9a5 5 0 0 0 1.7-.3\"></path><line x1=\"1\" y1=\"1\" x2=\"23\" y2=\"23\"></line>","cloud-rain":"<line x1=\"16\" y1=\"13\" x2=\"16\" y2=\"21\"></line><line x1=\"8\" y1=\"13\" x2=\"8\" y2=\"21\"></line><line x1=\"12\" y1=\"15\" x2=\"12\" y2=\"23\"></line><path d=\"M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25\"></path>","cloud-snow":"<path d=\"M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25\"></path><line x1=\"8\" y1=\"16\" x2=\"8\" y2=\"16\"></line><line x1=\"8\" y1=\"20\" x2=\"8\" y2=\"20\"></line><line x1=\"12\" y1=\"18\" x2=\"12\" y2=\"18\"></line><line x1=\"12\" y1=\"22\" x2=\"12\" y2=\"22\"></line><line x1=\"16\" y1=\"16\" x2=\"16\" y2=\"16\"></line><line x1=\"16\" y1=\"20\" x2=\"16\" y2=\"20\"></line>","cloud":"<path d=\"M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z\"></path>","code":"<polyline points=\"16 18 22 12 16 6\"></polyline><polyline points=\"8 6 2 12 8 18\"></polyline>","codepen":"<polygon points=\"12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2\"></polygon><line x1=\"12\" y1=\"22\" x2=\"12\" y2=\"15.5\"></line><polyline points=\"22 8.5 12 15.5 2 8.5\"></polyline><polyline points=\"2 15.5 12 8.5 22 15.5\"></polyline><line x1=\"12\" y1=\"2\" x2=\"12\" y2=\"8.5\"></line>","codesandbox":"<path d=\"M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z\"></path><polyline points=\"7.5 4.21 12 6.81 16.5 4.21\"></polyline><polyline points=\"7.5 19.79 7.5 14.6 3 12\"></polyline><polyline points=\"21 12 16.5 14.6 16.5 19.79\"></polyline><polyline points=\"3.27 6.96 12 12.01 20.73 6.96\"></polyline><line x1=\"12\" y1=\"22.08\" x2=\"12\" y2=\"12\"></line>","coffee":"<path d=\"M18 8h1a4 4 0 0 1 0 8h-1\"></path><path d=\"M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z\"></path><line x1=\"6\" y1=\"1\" x2=\"6\" y2=\"4\"></line><line x1=\"10\" y1=\"1\" x2=\"10\" y2=\"4\"></line><line x1=\"14\" y1=\"1\" x2=\"14\" y2=\"4\"></line>","columns":"<path d=\"M12 3h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7m0-18H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7m0-18v18\"></path>","command":"<path d=\"M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z\"></path>","compass":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polygon points=\"16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76\"></polygon>","copy":"<rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"></rect><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"></path>","corner-down-left":"<polyline points=\"9 10 4 15 9 20\"></polyline><path d=\"M20 4v7a4 4 0 0 1-4 4H4\"></path>","corner-down-right":"<polyline points=\"15 10 20 15 15 20\"></polyline><path d=\"M4 4v7a4 4 0 0 0 4 4h12\"></path>","corner-left-down":"<polyline points=\"14 15 9 20 4 15\"></polyline><path d=\"M20 4h-7a4 4 0 0 0-4 4v12\"></path>","corner-left-up":"<polyline points=\"14 9 9 4 4 9\"></polyline><path d=\"M20 20h-7a4 4 0 0 1-4-4V4\"></path>","corner-right-down":"<polyline points=\"10 15 15 20 20 15\"></polyline><path d=\"M4 4h7a4 4 0 0 1 4 4v12\"></path>","corner-right-up":"<polyline points=\"10 9 15 4 20 9\"></polyline><path d=\"M4 20h7a4 4 0 0 0 4-4V4\"></path>","corner-up-left":"<polyline points=\"9 14 4 9 9 4\"></polyline><path d=\"M20 20v-7a4 4 0 0 0-4-4H4\"></path>","corner-up-right":"<polyline points=\"15 14 20 9 15 4\"></polyline><path d=\"M4 20v-7a4 4 0 0 1 4-4h12\"></path>","cpu":"<rect x=\"4\" y=\"4\" width=\"16\" height=\"16\" rx=\"2\" ry=\"2\"></rect><rect x=\"9\" y=\"9\" width=\"6\" height=\"6\"></rect><line x1=\"9\" y1=\"1\" x2=\"9\" y2=\"4\"></line><line x1=\"15\" y1=\"1\" x2=\"15\" y2=\"4\"></line><line x1=\"9\" y1=\"20\" x2=\"9\" y2=\"23\"></line><line x1=\"15\" y1=\"20\" x2=\"15\" y2=\"23\"></line><line x1=\"20\" y1=\"9\" x2=\"23\" y2=\"9\"></line><line x1=\"20\" y1=\"14\" x2=\"23\" y2=\"14\"></line><line x1=\"1\" y1=\"9\" x2=\"4\" y2=\"9\"></line><line x1=\"1\" y1=\"14\" x2=\"4\" y2=\"14\"></line>","credit-card":"<rect x=\"1\" y=\"4\" width=\"22\" height=\"16\" rx=\"2\" ry=\"2\"></rect><line x1=\"1\" y1=\"10\" x2=\"23\" y2=\"10\"></line>","crop":"<path d=\"M6.13 1L6 16a2 2 0 0 0 2 2h15\"></path><path d=\"M1 6.13L16 6a2 2 0 0 1 2 2v15\"></path>","crosshair":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"22\" y1=\"12\" x2=\"18\" y2=\"12\"></line><line x1=\"6\" y1=\"12\" x2=\"2\" y2=\"12\"></line><line x1=\"12\" y1=\"6\" x2=\"12\" y2=\"2\"></line><line x1=\"12\" y1=\"22\" x2=\"12\" y2=\"18\"></line>","database":"<ellipse cx=\"12\" cy=\"5\" rx=\"9\" ry=\"3\"></ellipse><path d=\"M21 12c0 1.66-4 3-9 3s-9-1.34-9-3\"></path><path d=\"M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5\"></path>","delete":"<path d=\"M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z\"></path><line x1=\"18\" y1=\"9\" x2=\"12\" y2=\"15\"></line><line x1=\"12\" y1=\"9\" x2=\"18\" y2=\"15\"></line>","disc":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><circle cx=\"12\" cy=\"12\" r=\"3\"></circle>","dollar-sign":"<line x1=\"12\" y1=\"1\" x2=\"12\" y2=\"23\"></line><path d=\"M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6\"></path>","download-cloud":"<polyline points=\"8 17 12 21 16 17\"></polyline><line x1=\"12\" y1=\"12\" x2=\"12\" y2=\"21\"></line><path d=\"M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29\"></path>","download":"<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"></path><polyline points=\"7 10 12 15 17 10\"></polyline><line x1=\"12\" y1=\"15\" x2=\"12\" y2=\"3\"></line>","droplet":"<path d=\"M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z\"></path>","edit-2":"<path d=\"M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z\"></path>","edit-3":"<path d=\"M12 20h9\"></path><path d=\"M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z\"></path>","edit":"<path d=\"M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\"></path><path d=\"M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z\"></path>","external-link":"<path d=\"M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6\"></path><polyline points=\"15 3 21 3 21 9\"></polyline><line x1=\"10\" y1=\"14\" x2=\"21\" y2=\"3\"></line>","eye-off":"<path d=\"M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24\"></path><line x1=\"1\" y1=\"1\" x2=\"23\" y2=\"23\"></line>","eye":"<path d=\"M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z\"></path><circle cx=\"12\" cy=\"12\" r=\"3\"></circle>","facebook":"<path d=\"M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z\"></path>","fast-forward":"<polygon points=\"13 19 22 12 13 5 13 19\"></polygon><polygon points=\"2 19 11 12 2 5 2 19\"></polygon>","feather":"<path d=\"M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z\"></path><line x1=\"16\" y1=\"8\" x2=\"2\" y2=\"22\"></line><line x1=\"17.5\" y1=\"15\" x2=\"9\" y2=\"15\"></line>","figma":"<path d=\"M5 5.5A3.5 3.5 0 0 1 8.5 2H12v7H8.5A3.5 3.5 0 0 1 5 5.5z\"></path><path d=\"M12 2h3.5a3.5 3.5 0 1 1 0 7H12V2z\"></path><path d=\"M12 12.5a3.5 3.5 0 1 1 7 0 3.5 3.5 0 1 1-7 0z\"></path><path d=\"M5 19.5A3.5 3.5 0 0 1 8.5 16H12v3.5a3.5 3.5 0 1 1-7 0z\"></path><path d=\"M5 12.5A3.5 3.5 0 0 1 8.5 9H12v7H8.5A3.5 3.5 0 0 1 5 12.5z\"></path>","file-minus":"<path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"></path><polyline points=\"14 2 14 8 20 8\"></polyline><line x1=\"9\" y1=\"15\" x2=\"15\" y2=\"15\"></line>","file-plus":"<path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"></path><polyline points=\"14 2 14 8 20 8\"></polyline><line x1=\"12\" y1=\"18\" x2=\"12\" y2=\"12\"></line><line x1=\"9\" y1=\"15\" x2=\"15\" y2=\"15\"></line>","file-text":"<path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"></path><polyline points=\"14 2 14 8 20 8\"></polyline><line x1=\"16\" y1=\"13\" x2=\"8\" y2=\"13\"></line><line x1=\"16\" y1=\"17\" x2=\"8\" y2=\"17\"></line><polyline points=\"10 9 9 9 8 9\"></polyline>","file":"<path d=\"M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\"></path><polyline points=\"13 2 13 9 20 9\"></polyline>","film":"<rect x=\"2\" y=\"2\" width=\"20\" height=\"20\" rx=\"2.18\" ry=\"2.18\"></rect><line x1=\"7\" y1=\"2\" x2=\"7\" y2=\"22\"></line><line x1=\"17\" y1=\"2\" x2=\"17\" y2=\"22\"></line><line x1=\"2\" y1=\"12\" x2=\"22\" y2=\"12\"></line><line x1=\"2\" y1=\"7\" x2=\"7\" y2=\"7\"></line><line x1=\"2\" y1=\"17\" x2=\"7\" y2=\"17\"></line><line x1=\"17\" y1=\"17\" x2=\"22\" y2=\"17\"></line><line x1=\"17\" y1=\"7\" x2=\"22\" y2=\"7\"></line>","filter":"<polygon points=\"22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3\"></polygon>","flag":"<path d=\"M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z\"></path><line x1=\"4\" y1=\"22\" x2=\"4\" y2=\"15\"></line>","folder-minus":"<path d=\"M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z\"></path><line x1=\"9\" y1=\"14\" x2=\"15\" y2=\"14\"></line>","folder-plus":"<path d=\"M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z\"></path><line x1=\"12\" y1=\"11\" x2=\"12\" y2=\"17\"></line><line x1=\"9\" y1=\"14\" x2=\"15\" y2=\"14\"></line>","folder":"<path d=\"M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z\"></path>","framer":"<path d=\"M5 16V9h14V2H5l14 14h-7m-7 0l7 7v-7m-7 0h7\"></path>","frown":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><path d=\"M16 16s-1.5-2-4-2-4 2-4 2\"></path><line x1=\"9\" y1=\"9\" x2=\"9.01\" y2=\"9\"></line><line x1=\"15\" y1=\"9\" x2=\"15.01\" y2=\"9\"></line>","gift":"<polyline points=\"20 12 20 22 4 22 4 12\"></polyline><rect x=\"2\" y=\"7\" width=\"20\" height=\"5\"></rect><line x1=\"12\" y1=\"22\" x2=\"12\" y2=\"7\"></line><path d=\"M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z\"></path><path d=\"M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z\"></path>","git-branch":"<line x1=\"6\" y1=\"3\" x2=\"6\" y2=\"15\"></line><circle cx=\"18\" cy=\"6\" r=\"3\"></circle><circle cx=\"6\" cy=\"18\" r=\"3\"></circle><path d=\"M18 9a9 9 0 0 1-9 9\"></path>","git-commit":"<circle cx=\"12\" cy=\"12\" r=\"4\"></circle><line x1=\"1.05\" y1=\"12\" x2=\"7\" y2=\"12\"></line><line x1=\"17.01\" y1=\"12\" x2=\"22.96\" y2=\"12\"></line>","git-merge":"<circle cx=\"18\" cy=\"18\" r=\"3\"></circle><circle cx=\"6\" cy=\"6\" r=\"3\"></circle><path d=\"M6 21V9a9 9 0 0 0 9 9\"></path>","git-pull-request":"<circle cx=\"18\" cy=\"18\" r=\"3\"></circle><circle cx=\"6\" cy=\"6\" r=\"3\"></circle><path d=\"M13 6h3a2 2 0 0 1 2 2v7\"></path><line x1=\"6\" y1=\"9\" x2=\"6\" y2=\"21\"></line>","github":"<path d=\"M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22\"></path>","gitlab":"<path d=\"M22.65 14.39L12 22.13 1.35 14.39a.84.84 0 0 1-.3-.94l1.22-3.78 2.44-7.51A.42.42 0 0 1 4.82 2a.43.43 0 0 1 .58 0 .42.42 0 0 1 .11.18l2.44 7.49h8.1l2.44-7.51A.42.42 0 0 1 18.6 2a.43.43 0 0 1 .58 0 .42.42 0 0 1 .11.18l2.44 7.51L23 13.45a.84.84 0 0 1-.35.94z\"></path>","globe":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"2\" y1=\"12\" x2=\"22\" y2=\"12\"></line><path d=\"M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z\"></path>","grid":"<rect x=\"3\" y=\"3\" width=\"7\" height=\"7\"></rect><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\"></rect><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\"></rect><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\"></rect>","hard-drive":"<line x1=\"22\" y1=\"12\" x2=\"2\" y2=\"12\"></line><path d=\"M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z\"></path><line x1=\"6\" y1=\"16\" x2=\"6\" y2=\"16\"></line><line x1=\"10\" y1=\"16\" x2=\"10\" y2=\"16\"></line>","hash":"<line x1=\"4\" y1=\"9\" x2=\"20\" y2=\"9\"></line><line x1=\"4\" y1=\"15\" x2=\"20\" y2=\"15\"></line><line x1=\"10\" y1=\"3\" x2=\"8\" y2=\"21\"></line><line x1=\"16\" y1=\"3\" x2=\"14\" y2=\"21\"></line>","headphones":"<path d=\"M3 18v-6a9 9 0 0 1 18 0v6\"></path><path d=\"M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z\"></path>","heart":"<path d=\"M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z\"></path>","help-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><path d=\"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3\"></path><line x1=\"12\" y1=\"17\" x2=\"12\" y2=\"17\"></line>","hexagon":"<path d=\"M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z\"></path>","home":"<path d=\"M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"></path><polyline points=\"9 22 9 12 15 12 15 22\"></polyline>","image":"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"></rect><circle cx=\"8.5\" cy=\"8.5\" r=\"1.5\"></circle><polyline points=\"21 15 16 10 5 21\"></polyline>","inbox":"<polyline points=\"22 12 16 12 14 15 10 15 8 12 2 12\"></polyline><path d=\"M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z\"></path>","info":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"12\" y1=\"16\" x2=\"12\" y2=\"12\"></line><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"8\"></line>","instagram":"<rect x=\"2\" y=\"2\" width=\"20\" height=\"20\" rx=\"5\" ry=\"5\"></rect><path d=\"M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z\"></path><line x1=\"17.5\" y1=\"6.5\" x2=\"17.5\" y2=\"6.5\"></line>","italic":"<line x1=\"19\" y1=\"4\" x2=\"10\" y2=\"4\"></line><line x1=\"14\" y1=\"20\" x2=\"5\" y2=\"20\"></line><line x1=\"15\" y1=\"4\" x2=\"9\" y2=\"20\"></line>","key":"<path d=\"M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4\"></path>","layers":"<polygon points=\"12 2 2 7 12 12 22 7 12 2\"></polygon><polyline points=\"2 17 12 22 22 17\"></polyline><polyline points=\"2 12 12 17 22 12\"></polyline>","layout":"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"></rect><line x1=\"3\" y1=\"9\" x2=\"21\" y2=\"9\"></line><line x1=\"9\" y1=\"21\" x2=\"9\" y2=\"9\"></line>","life-buoy":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><circle cx=\"12\" cy=\"12\" r=\"4\"></circle><line x1=\"4.93\" y1=\"4.93\" x2=\"9.17\" y2=\"9.17\"></line><line x1=\"14.83\" y1=\"14.83\" x2=\"19.07\" y2=\"19.07\"></line><line x1=\"14.83\" y1=\"9.17\" x2=\"19.07\" y2=\"4.93\"></line><line x1=\"14.83\" y1=\"9.17\" x2=\"18.36\" y2=\"5.64\"></line><line x1=\"4.93\" y1=\"19.07\" x2=\"9.17\" y2=\"14.83\"></line>","link-2":"<path d=\"M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3\"></path><line x1=\"8\" y1=\"12\" x2=\"16\" y2=\"12\"></line>","link":"<path d=\"M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71\"></path><path d=\"M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71\"></path>","linkedin":"<path d=\"M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z\"></path><rect x=\"2\" y=\"9\" width=\"4\" height=\"12\"></rect><circle cx=\"4\" cy=\"4\" r=\"2\"></circle>","list":"<line x1=\"8\" y1=\"6\" x2=\"21\" y2=\"6\"></line><line x1=\"8\" y1=\"12\" x2=\"21\" y2=\"12\"></line><line x1=\"8\" y1=\"18\" x2=\"21\" y2=\"18\"></line><line x1=\"3\" y1=\"6\" x2=\"3\" y2=\"6\"></line><line x1=\"3\" y1=\"12\" x2=\"3\" y2=\"12\"></line><line x1=\"3\" y1=\"18\" x2=\"3\" y2=\"18\"></line>","loader":"<line x1=\"12\" y1=\"2\" x2=\"12\" y2=\"6\"></line><line x1=\"12\" y1=\"18\" x2=\"12\" y2=\"22\"></line><line x1=\"4.93\" y1=\"4.93\" x2=\"7.76\" y2=\"7.76\"></line><line x1=\"16.24\" y1=\"16.24\" x2=\"19.07\" y2=\"19.07\"></line><line x1=\"2\" y1=\"12\" x2=\"6\" y2=\"12\"></line><line x1=\"18\" y1=\"12\" x2=\"22\" y2=\"12\"></line><line x1=\"4.93\" y1=\"19.07\" x2=\"7.76\" y2=\"16.24\"></line><line x1=\"16.24\" y1=\"7.76\" x2=\"19.07\" y2=\"4.93\"></line>","lock":"<rect x=\"3\" y=\"11\" width=\"18\" height=\"11\" rx=\"2\" ry=\"2\"></rect><path d=\"M7 11V7a5 5 0 0 1 10 0v4\"></path>","log-in":"<path d=\"M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4\"></path><polyline points=\"10 17 15 12 10 7\"></polyline><line x1=\"15\" y1=\"12\" x2=\"3\" y2=\"12\"></line>","log-out":"<path d=\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4\"></path><polyline points=\"16 17 21 12 16 7\"></polyline><line x1=\"21\" y1=\"12\" x2=\"9\" y2=\"12\"></line>","mail":"<path d=\"M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z\"></path><polyline points=\"22,6 12,13 2,6\"></polyline>","map-pin":"<path d=\"M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z\"></path><circle cx=\"12\" cy=\"10\" r=\"3\"></circle>","map":"<polygon points=\"1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6\"></polygon><line x1=\"8\" y1=\"2\" x2=\"8\" y2=\"18\"></line><line x1=\"16\" y1=\"6\" x2=\"16\" y2=\"22\"></line>","maximize-2":"<polyline points=\"15 3 21 3 21 9\"></polyline><polyline points=\"9 21 3 21 3 15\"></polyline><line x1=\"21\" y1=\"3\" x2=\"14\" y2=\"10\"></line><line x1=\"3\" y1=\"21\" x2=\"10\" y2=\"14\"></line>","maximize":"<path d=\"M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3\"></path>","meh":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"8\" y1=\"15\" x2=\"16\" y2=\"15\"></line><line x1=\"9\" y1=\"9\" x2=\"9.01\" y2=\"9\"></line><line x1=\"15\" y1=\"9\" x2=\"15.01\" y2=\"9\"></line>","menu":"<line x1=\"3\" y1=\"12\" x2=\"21\" y2=\"12\"></line><line x1=\"3\" y1=\"6\" x2=\"21\" y2=\"6\"></line><line x1=\"3\" y1=\"18\" x2=\"21\" y2=\"18\"></line>","message-circle":"<path d=\"M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z\"></path>","message-square":"<path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"></path>","mic-off":"<line x1=\"1\" y1=\"1\" x2=\"23\" y2=\"23\"></line><path d=\"M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6\"></path><path d=\"M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23\"></path><line x1=\"12\" y1=\"19\" x2=\"12\" y2=\"23\"></line><line x1=\"8\" y1=\"23\" x2=\"16\" y2=\"23\"></line>","mic":"<path d=\"M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z\"></path><path d=\"M19 10v2a7 7 0 0 1-14 0v-2\"></path><line x1=\"12\" y1=\"19\" x2=\"12\" y2=\"23\"></line><line x1=\"8\" y1=\"23\" x2=\"16\" y2=\"23\"></line>","minimize-2":"<polyline points=\"4 14 10 14 10 20\"></polyline><polyline points=\"20 10 14 10 14 4\"></polyline><line x1=\"14\" y1=\"10\" x2=\"21\" y2=\"3\"></line><line x1=\"3\" y1=\"21\" x2=\"10\" y2=\"14\"></line>","minimize":"<path d=\"M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3\"></path>","minus-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"8\" y1=\"12\" x2=\"16\" y2=\"12\"></line>","minus-square":"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"></rect><line x1=\"8\" y1=\"12\" x2=\"16\" y2=\"12\"></line>","minus":"<line x1=\"5\" y1=\"12\" x2=\"19\" y2=\"12\"></line>","monitor":"<rect x=\"2\" y=\"3\" width=\"20\" height=\"14\" rx=\"2\" ry=\"2\"></rect><line x1=\"8\" y1=\"21\" x2=\"16\" y2=\"21\"></line><line x1=\"12\" y1=\"17\" x2=\"12\" y2=\"21\"></line>","moon":"<path d=\"M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z\"></path>","more-horizontal":"<circle cx=\"12\" cy=\"12\" r=\"1\"></circle><circle cx=\"19\" cy=\"12\" r=\"1\"></circle><circle cx=\"5\" cy=\"12\" r=\"1\"></circle>","more-vertical":"<circle cx=\"12\" cy=\"12\" r=\"1\"></circle><circle cx=\"12\" cy=\"5\" r=\"1\"></circle><circle cx=\"12\" cy=\"19\" r=\"1\"></circle>","mouse-pointer":"<path d=\"M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z\"></path><path d=\"M13 13l6 6\"></path>","move":"<polyline points=\"5 9 2 12 5 15\"></polyline><polyline points=\"9 5 12 2 15 5\"></polyline><polyline points=\"15 19 12 22 9 19\"></polyline><polyline points=\"19 9 22 12 19 15\"></polyline><line x1=\"2\" y1=\"12\" x2=\"22\" y2=\"12\"></line><line x1=\"12\" y1=\"2\" x2=\"12\" y2=\"22\"></line>","music":"<path d=\"M9 18V5l12-2v13\"></path><circle cx=\"6\" cy=\"18\" r=\"3\"></circle><circle cx=\"18\" cy=\"16\" r=\"3\"></circle>","navigation-2":"<polygon points=\"12 2 19 21 12 17 5 21 12 2\"></polygon>","navigation":"<polygon points=\"3 11 22 2 13 21 11 13 3 11\"></polygon>","octagon":"<polygon points=\"7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2\"></polygon>","package":"<line x1=\"16.5\" y1=\"9.4\" x2=\"7.5\" y2=\"4.21\"></line><path d=\"M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z\"></path><polyline points=\"3.27 6.96 12 12.01 20.73 6.96\"></polyline><line x1=\"12\" y1=\"22.08\" x2=\"12\" y2=\"12\"></line>","paperclip":"<path d=\"M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48\"></path>","pause-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"10\" y1=\"15\" x2=\"10\" y2=\"9\"></line><line x1=\"14\" y1=\"15\" x2=\"14\" y2=\"9\"></line>","pause":"<rect x=\"6\" y=\"4\" width=\"4\" height=\"16\"></rect><rect x=\"14\" y=\"4\" width=\"4\" height=\"16\"></rect>","pen-tool":"<path d=\"M12 19l7-7 3 3-7 7-3-3z\"></path><path d=\"M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z\"></path><path d=\"M2 2l7.586 7.586\"></path><circle cx=\"11\" cy=\"11\" r=\"2\"></circle>","percent":"<line x1=\"19\" y1=\"5\" x2=\"5\" y2=\"19\"></line><circle cx=\"6.5\" cy=\"6.5\" r=\"2.5\"></circle><circle cx=\"17.5\" cy=\"17.5\" r=\"2.5\"></circle>","phone-call":"<path d=\"M15.05 5A5 5 0 0 1 19 8.95M15.05 1A9 9 0 0 1 23 8.94m-1 7.98v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z\"></path>","phone-forwarded":"<polyline points=\"19 1 23 5 19 9\"></polyline><line x1=\"15\" y1=\"5\" x2=\"23\" y2=\"5\"></line><path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z\"></path>","phone-incoming":"<polyline points=\"16 2 16 8 22 8\"></polyline><line x1=\"23\" y1=\"1\" x2=\"16\" y2=\"8\"></line><path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z\"></path>","phone-missed":"<line x1=\"23\" y1=\"1\" x2=\"17\" y2=\"7\"></line><line x1=\"17\" y1=\"1\" x2=\"23\" y2=\"7\"></line><path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z\"></path>","phone-off":"<path d=\"M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91\"></path><line x1=\"23\" y1=\"1\" x2=\"1\" y2=\"23\"></line>","phone-outgoing":"<polyline points=\"23 7 23 1 17 1\"></polyline><line x1=\"16\" y1=\"8\" x2=\"23\" y2=\"1\"></line><path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z\"></path>","phone":"<path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z\"></path>","pie-chart":"<path d=\"M21.21 15.89A10 10 0 1 1 8 2.83\"></path><path d=\"M22 12A10 10 0 0 0 12 2v10z\"></path>","play-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polygon points=\"10 8 16 12 10 16 10 8\"></polygon>","play":"<polygon points=\"5 3 19 12 5 21 5 3\"></polygon>","plus-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"16\"></line><line x1=\"8\" y1=\"12\" x2=\"16\" y2=\"12\"></line>","plus-square":"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"></rect><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"16\"></line><line x1=\"8\" y1=\"12\" x2=\"16\" y2=\"12\"></line>","plus":"<line x1=\"12\" y1=\"5\" x2=\"12\" y2=\"19\"></line><line x1=\"5\" y1=\"12\" x2=\"19\" y2=\"12\"></line>","pocket":"<path d=\"M4 3h16a2 2 0 0 1 2 2v6a10 10 0 0 1-10 10A10 10 0 0 1 2 11V5a2 2 0 0 1 2-2z\"></path><polyline points=\"8 10 12 14 16 10\"></polyline>","power":"<path d=\"M18.36 6.64a9 9 0 1 1-12.73 0\"></path><line x1=\"12\" y1=\"2\" x2=\"12\" y2=\"12\"></line>","printer":"<polyline points=\"6 9 6 2 18 2 18 9\"></polyline><path d=\"M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2\"></path><rect x=\"6\" y=\"14\" width=\"12\" height=\"8\"></rect>","radio":"<circle cx=\"12\" cy=\"12\" r=\"2\"></circle><path d=\"M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14\"></path>","refresh-ccw":"<polyline points=\"1 4 1 10 7 10\"></polyline><polyline points=\"23 20 23 14 17 14\"></polyline><path d=\"M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15\"></path>","refresh-cw":"<polyline points=\"23 4 23 10 17 10\"></polyline><polyline points=\"1 20 1 14 7 14\"></polyline><path d=\"M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15\"></path>","repeat":"<polyline points=\"17 1 21 5 17 9\"></polyline><path d=\"M3 11V9a4 4 0 0 1 4-4h14\"></path><polyline points=\"7 23 3 19 7 15\"></polyline><path d=\"M21 13v2a4 4 0 0 1-4 4H3\"></path>","rewind":"<polygon points=\"11 19 2 12 11 5 11 19\"></polygon><polygon points=\"22 19 13 12 22 5 22 19\"></polygon>","rotate-ccw":"<polyline points=\"1 4 1 10 7 10\"></polyline><path d=\"M3.51 15a9 9 0 1 0 2.13-9.36L1 10\"></path>","rotate-cw":"<polyline points=\"23 4 23 10 17 10\"></polyline><path d=\"M20.49 15a9 9 0 1 1-2.12-9.36L23 10\"></path>","rss":"<path d=\"M4 11a9 9 0 0 1 9 9\"></path><path d=\"M4 4a16 16 0 0 1 16 16\"></path><circle cx=\"5\" cy=\"19\" r=\"1\"></circle>","save":"<path d=\"M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z\"></path><polyline points=\"17 21 17 13 7 13 7 21\"></polyline><polyline points=\"7 3 7 8 15 8\"></polyline>","scissors":"<circle cx=\"6\" cy=\"6\" r=\"3\"></circle><circle cx=\"6\" cy=\"18\" r=\"3\"></circle><line x1=\"20\" y1=\"4\" x2=\"8.12\" y2=\"15.88\"></line><line x1=\"14.47\" y1=\"14.48\" x2=\"20\" y2=\"20\"></line><line x1=\"8.12\" y1=\"8.12\" x2=\"12\" y2=\"12\"></line>","search":"<circle cx=\"11\" cy=\"11\" r=\"8\"></circle><line x1=\"21\" y1=\"21\" x2=\"16.65\" y2=\"16.65\"></line>","send":"<line x1=\"22\" y1=\"2\" x2=\"11\" y2=\"13\"></line><polygon points=\"22 2 15 22 11 13 2 9 22 2\"></polygon>","server":"<rect x=\"2\" y=\"2\" width=\"20\" height=\"8\" rx=\"2\" ry=\"2\"></rect><rect x=\"2\" y=\"14\" width=\"20\" height=\"8\" rx=\"2\" ry=\"2\"></rect><line x1=\"6\" y1=\"6\" x2=\"6\" y2=\"6\"></line><line x1=\"6\" y1=\"18\" x2=\"6\" y2=\"18\"></line>","settings":"<circle cx=\"12\" cy=\"12\" r=\"3\"></circle><path d=\"M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z\"></path>","share-2":"<circle cx=\"18\" cy=\"5\" r=\"3\"></circle><circle cx=\"6\" cy=\"12\" r=\"3\"></circle><circle cx=\"18\" cy=\"19\" r=\"3\"></circle><line x1=\"8.59\" y1=\"13.51\" x2=\"15.42\" y2=\"17.49\"></line><line x1=\"15.41\" y1=\"6.51\" x2=\"8.59\" y2=\"10.49\"></line>","share":"<path d=\"M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8\"></path><polyline points=\"16 6 12 2 8 6\"></polyline><line x1=\"12\" y1=\"2\" x2=\"12\" y2=\"15\"></line>","shield-off":"<path d=\"M19.69 14a6.9 6.9 0 0 0 .31-2V5l-8-3-3.16 1.18\"></path><path d=\"M4.73 4.73L4 5v7c0 6 8 10 8 10a20.29 20.29 0 0 0 5.62-4.38\"></path><line x1=\"1\" y1=\"1\" x2=\"23\" y2=\"23\"></line>","shield":"<path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"></path>","shopping-bag":"<path d=\"M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z\"></path><line x1=\"3\" y1=\"6\" x2=\"21\" y2=\"6\"></line><path d=\"M16 10a4 4 0 0 1-8 0\"></path>","shopping-cart":"<circle cx=\"9\" cy=\"21\" r=\"1\"></circle><circle cx=\"20\" cy=\"21\" r=\"1\"></circle><path d=\"M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6\"></path>","shuffle":"<polyline points=\"16 3 21 3 21 8\"></polyline><line x1=\"4\" y1=\"20\" x2=\"21\" y2=\"3\"></line><polyline points=\"21 16 21 21 16 21\"></polyline><line x1=\"15\" y1=\"15\" x2=\"21\" y2=\"21\"></line><line x1=\"4\" y1=\"4\" x2=\"9\" y2=\"9\"></line>","sidebar":"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"></rect><line x1=\"9\" y1=\"3\" x2=\"9\" y2=\"21\"></line>","skip-back":"<polygon points=\"19 20 9 12 19 4 19 20\"></polygon><line x1=\"5\" y1=\"19\" x2=\"5\" y2=\"5\"></line>","skip-forward":"<polygon points=\"5 4 15 12 5 20 5 4\"></polygon><line x1=\"19\" y1=\"5\" x2=\"19\" y2=\"19\"></line>","slack":"<path d=\"M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z\"></path><path d=\"M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z\"></path><path d=\"M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z\"></path><path d=\"M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z\"></path><path d=\"M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z\"></path><path d=\"M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z\"></path><path d=\"M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z\"></path><path d=\"M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z\"></path>","slash":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"4.93\" y1=\"4.93\" x2=\"19.07\" y2=\"19.07\"></line>","sliders":"<line x1=\"4\" y1=\"21\" x2=\"4\" y2=\"14\"></line><line x1=\"4\" y1=\"10\" x2=\"4\" y2=\"3\"></line><line x1=\"12\" y1=\"21\" x2=\"12\" y2=\"12\"></line><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"3\"></line><line x1=\"20\" y1=\"21\" x2=\"20\" y2=\"16\"></line><line x1=\"20\" y1=\"12\" x2=\"20\" y2=\"3\"></line><line x1=\"1\" y1=\"14\" x2=\"7\" y2=\"14\"></line><line x1=\"9\" y1=\"8\" x2=\"15\" y2=\"8\"></line><line x1=\"17\" y1=\"16\" x2=\"23\" y2=\"16\"></line>","smartphone":"<rect x=\"5\" y=\"2\" width=\"14\" height=\"20\" rx=\"2\" ry=\"2\"></rect><line x1=\"12\" y1=\"18\" x2=\"12\" y2=\"18\"></line>","smile":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><path d=\"M8 14s1.5 2 4 2 4-2 4-2\"></path><line x1=\"9\" y1=\"9\" x2=\"9.01\" y2=\"9\"></line><line x1=\"15\" y1=\"9\" x2=\"15.01\" y2=\"9\"></line>","speaker":"<rect x=\"4\" y=\"2\" width=\"16\" height=\"20\" rx=\"2\" ry=\"2\"></rect><circle cx=\"12\" cy=\"14\" r=\"4\"></circle><line x1=\"12\" y1=\"6\" x2=\"12\" y2=\"6\"></line>","square":"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"></rect>","star":"<polygon points=\"12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2\"></polygon>","stop-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><rect x=\"9\" y=\"9\" width=\"6\" height=\"6\"></rect>","sun":"<circle cx=\"12\" cy=\"12\" r=\"5\"></circle><line x1=\"12\" y1=\"1\" x2=\"12\" y2=\"3\"></line><line x1=\"12\" y1=\"21\" x2=\"12\" y2=\"23\"></line><line x1=\"4.22\" y1=\"4.22\" x2=\"5.64\" y2=\"5.64\"></line><line x1=\"18.36\" y1=\"18.36\" x2=\"19.78\" y2=\"19.78\"></line><line x1=\"1\" y1=\"12\" x2=\"3\" y2=\"12\"></line><line x1=\"21\" y1=\"12\" x2=\"23\" y2=\"12\"></line><line x1=\"4.22\" y1=\"19.78\" x2=\"5.64\" y2=\"18.36\"></line><line x1=\"18.36\" y1=\"5.64\" x2=\"19.78\" y2=\"4.22\"></line>","sunrise":"<path d=\"M17 18a5 5 0 0 0-10 0\"></path><line x1=\"12\" y1=\"2\" x2=\"12\" y2=\"9\"></line><line x1=\"4.22\" y1=\"10.22\" x2=\"5.64\" y2=\"11.64\"></line><line x1=\"1\" y1=\"18\" x2=\"3\" y2=\"18\"></line><line x1=\"21\" y1=\"18\" x2=\"23\" y2=\"18\"></line><line x1=\"18.36\" y1=\"11.64\" x2=\"19.78\" y2=\"10.22\"></line><line x1=\"23\" y1=\"22\" x2=\"1\" y2=\"22\"></line><polyline points=\"8 6 12 2 16 6\"></polyline>","sunset":"<path d=\"M17 18a5 5 0 0 0-10 0\"></path><line x1=\"12\" y1=\"9\" x2=\"12\" y2=\"2\"></line><line x1=\"4.22\" y1=\"10.22\" x2=\"5.64\" y2=\"11.64\"></line><line x1=\"1\" y1=\"18\" x2=\"3\" y2=\"18\"></line><line x1=\"21\" y1=\"18\" x2=\"23\" y2=\"18\"></line><line x1=\"18.36\" y1=\"11.64\" x2=\"19.78\" y2=\"10.22\"></line><line x1=\"23\" y1=\"22\" x2=\"1\" y2=\"22\"></line><polyline points=\"16 5 12 9 8 5\"></polyline>","tablet":"<rect x=\"4\" y=\"2\" width=\"16\" height=\"20\" rx=\"2\" ry=\"2\" transform=\"rotate(180 12 12)\"></rect><line x1=\"12\" y1=\"18\" x2=\"12\" y2=\"18\"></line>","tag":"<path d=\"M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z\"></path><line x1=\"7\" y1=\"7\" x2=\"7\" y2=\"7\"></line>","target":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><circle cx=\"12\" cy=\"12\" r=\"6\"></circle><circle cx=\"12\" cy=\"12\" r=\"2\"></circle>","terminal":"<polyline points=\"4 17 10 11 4 5\"></polyline><line x1=\"12\" y1=\"19\" x2=\"20\" y2=\"19\"></line>","thermometer":"<path d=\"M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z\"></path>","thumbs-down":"<path d=\"M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17\"></path>","thumbs-up":"<path d=\"M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3\"></path>","toggle-left":"<rect x=\"1\" y=\"5\" width=\"22\" height=\"14\" rx=\"7\" ry=\"7\"></rect><circle cx=\"8\" cy=\"12\" r=\"3\"></circle>","toggle-right":"<rect x=\"1\" y=\"5\" width=\"22\" height=\"14\" rx=\"7\" ry=\"7\"></rect><circle cx=\"16\" cy=\"12\" r=\"3\"></circle>","trash-2":"<polyline points=\"3 6 5 6 21 6\"></polyline><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\"></path><line x1=\"10\" y1=\"11\" x2=\"10\" y2=\"17\"></line><line x1=\"14\" y1=\"11\" x2=\"14\" y2=\"17\"></line>","trash":"<polyline points=\"3 6 5 6 21 6\"></polyline><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\"></path>","trello":"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"></rect><rect x=\"7\" y=\"7\" width=\"3\" height=\"9\"></rect><rect x=\"14\" y=\"7\" width=\"3\" height=\"5\"></rect>","trending-down":"<polyline points=\"23 18 13.5 8.5 8.5 13.5 1 6\"></polyline><polyline points=\"17 18 23 18 23 12\"></polyline>","trending-up":"<polyline points=\"23 6 13.5 15.5 8.5 10.5 1 18\"></polyline><polyline points=\"17 6 23 6 23 12\"></polyline>","triangle":"<path d=\"M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z\"></path>","truck":"<rect x=\"1\" y=\"3\" width=\"15\" height=\"13\"></rect><polygon points=\"16 8 20 8 23 11 23 16 16 16 16 8\"></polygon><circle cx=\"5.5\" cy=\"18.5\" r=\"2.5\"></circle><circle cx=\"18.5\" cy=\"18.5\" r=\"2.5\"></circle>","tv":"<rect x=\"2\" y=\"7\" width=\"20\" height=\"15\" rx=\"2\" ry=\"2\"></rect><polyline points=\"17 2 12 7 7 2\"></polyline>","twitter":"<path d=\"M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z\"></path>","type":"<polyline points=\"4 7 4 4 20 4 20 7\"></polyline><line x1=\"9\" y1=\"20\" x2=\"15\" y2=\"20\"></line><line x1=\"12\" y1=\"4\" x2=\"12\" y2=\"20\"></line>","umbrella":"<path d=\"M23 12a11.05 11.05 0 0 0-22 0zm-5 7a3 3 0 0 1-6 0v-7\"></path>","underline":"<path d=\"M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3\"></path><line x1=\"4\" y1=\"21\" x2=\"20\" y2=\"21\"></line>","unlock":"<rect x=\"3\" y=\"11\" width=\"18\" height=\"11\" rx=\"2\" ry=\"2\"></rect><path d=\"M7 11V7a5 5 0 0 1 9.9-1\"></path>","upload-cloud":"<polyline points=\"16 16 12 12 8 16\"></polyline><line x1=\"12\" y1=\"12\" x2=\"12\" y2=\"21\"></line><path d=\"M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3\"></path><polyline points=\"16 16 12 12 8 16\"></polyline>","upload":"<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"></path><polyline points=\"17 8 12 3 7 8\"></polyline><line x1=\"12\" y1=\"3\" x2=\"12\" y2=\"15\"></line>","user-check":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2\"></path><circle cx=\"8.5\" cy=\"7\" r=\"4\"></circle><polyline points=\"17 11 19 13 23 9\"></polyline>","user-minus":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2\"></path><circle cx=\"8.5\" cy=\"7\" r=\"4\"></circle><line x1=\"23\" y1=\"11\" x2=\"17\" y2=\"11\"></line>","user-plus":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2\"></path><circle cx=\"8.5\" cy=\"7\" r=\"4\"></circle><line x1=\"20\" y1=\"8\" x2=\"20\" y2=\"14\"></line><line x1=\"23\" y1=\"11\" x2=\"17\" y2=\"11\"></line>","user-x":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2\"></path><circle cx=\"8.5\" cy=\"7\" r=\"4\"></circle><line x1=\"18\" y1=\"8\" x2=\"23\" y2=\"13\"></line><line x1=\"23\" y1=\"8\" x2=\"18\" y2=\"13\"></line>","user":"<path d=\"M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2\"></path><circle cx=\"12\" cy=\"7\" r=\"4\"></circle>","users":"<path d=\"M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2\"></path><circle cx=\"9\" cy=\"7\" r=\"4\"></circle><path d=\"M23 21v-2a4 4 0 0 0-3-3.87\"></path><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"></path>","video-off":"<path d=\"M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10\"></path><line x1=\"1\" y1=\"1\" x2=\"23\" y2=\"23\"></line>","video":"<polygon points=\"23 7 16 12 23 17 23 7\"></polygon><rect x=\"1\" y=\"5\" width=\"15\" height=\"14\" rx=\"2\" ry=\"2\"></rect>","voicemail":"<circle cx=\"5.5\" cy=\"11.5\" r=\"4.5\"></circle><circle cx=\"18.5\" cy=\"11.5\" r=\"4.5\"></circle><line x1=\"5.5\" y1=\"16\" x2=\"18.5\" y2=\"16\"></line>","volume-1":"<polygon points=\"11 5 6 9 2 9 2 15 6 15 11 19 11 5\"></polygon><path d=\"M15.54 8.46a5 5 0 0 1 0 7.07\"></path>","volume-2":"<polygon points=\"11 5 6 9 2 9 2 15 6 15 11 19 11 5\"></polygon><path d=\"M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07\"></path>","volume-x":"<polygon points=\"11 5 6 9 2 9 2 15 6 15 11 19 11 5\"></polygon><line x1=\"23\" y1=\"9\" x2=\"17\" y2=\"15\"></line><line x1=\"17\" y1=\"9\" x2=\"23\" y2=\"15\"></line>","volume":"<polygon points=\"11 5 6 9 2 9 2 15 6 15 11 19 11 5\"></polygon>","watch":"<circle cx=\"12\" cy=\"12\" r=\"7\"></circle><polyline points=\"12 9 12 12 13.5 13.5\"></polyline><path d=\"M16.51 17.35l-.35 3.83a2 2 0 0 1-2 1.82H9.83a2 2 0 0 1-2-1.82l-.35-3.83m.01-10.7l.35-3.83A2 2 0 0 1 9.83 1h4.35a2 2 0 0 1 2 1.82l.35 3.83\"></path>","wifi-off":"<line x1=\"1\" y1=\"1\" x2=\"23\" y2=\"23\"></line><path d=\"M16.72 11.06A10.94 10.94 0 0 1 19 12.55\"></path><path d=\"M5 12.55a10.94 10.94 0 0 1 5.17-2.39\"></path><path d=\"M10.71 5.05A16 16 0 0 1 22.58 9\"></path><path d=\"M1.42 9a15.91 15.91 0 0 1 4.7-2.88\"></path><path d=\"M8.53 16.11a6 6 0 0 1 6.95 0\"></path><line x1=\"12\" y1=\"20\" x2=\"12\" y2=\"20\"></line>","wifi":"<path d=\"M5 12.55a11 11 0 0 1 14.08 0\"></path><path d=\"M1.42 9a16 16 0 0 1 21.16 0\"></path><path d=\"M8.53 16.11a6 6 0 0 1 6.95 0\"></path><line x1=\"12\" y1=\"20\" x2=\"12\" y2=\"20\"></line>","wind":"<path d=\"M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2\"></path>","x-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"15\" y1=\"9\" x2=\"9\" y2=\"15\"></line><line x1=\"9\" y1=\"9\" x2=\"15\" y2=\"15\"></line>","x-octagon":"<polygon points=\"7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2\"></polygon><line x1=\"15\" y1=\"9\" x2=\"9\" y2=\"15\"></line><line x1=\"9\" y1=\"9\" x2=\"15\" y2=\"15\"></line>","x-square":"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"></rect><line x1=\"9\" y1=\"9\" x2=\"15\" y2=\"15\"></line><line x1=\"15\" y1=\"9\" x2=\"9\" y2=\"15\"></line>","x":"<line x1=\"18\" y1=\"6\" x2=\"6\" y2=\"18\"></line><line x1=\"6\" y1=\"6\" x2=\"18\" y2=\"18\"></line>","youtube":"<path d=\"M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z\"></path><polygon points=\"9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02\"></polygon>","zap-off":"<polyline points=\"12.41 6.75 13 2 10.57 4.92\"></polyline><polyline points=\"18.57 12.91 21 10 15.66 10\"></polyline><polyline points=\"8 8 3 14 12 14 11 22 16 16\"></polyline><line x1=\"1\" y1=\"1\" x2=\"23\" y2=\"23\"></line>","zap":"<polygon points=\"13 2 3 14 12 14 11 22 21 10 12 10 13 2\"></polygon>","zoom-in":"<circle cx=\"11\" cy=\"11\" r=\"8\"></circle><line x1=\"21\" y1=\"21\" x2=\"16.65\" y2=\"16.65\"></line><line x1=\"11\" y1=\"8\" x2=\"11\" y2=\"14\"></line><line x1=\"8\" y1=\"11\" x2=\"14\" y2=\"11\"></line>","zoom-out":"<circle cx=\"11\" cy=\"11\" r=\"8\"></circle><line x1=\"21\" y1=\"21\" x2=\"16.65\" y2=\"16.65\"></line><line x1=\"8\" y1=\"11\" x2=\"14\" y2=\"11\"></line>"};
+    module.exports = {"activity":"<polyline points=\"22 12 18 12 15 21 9 3 6 12 2 12\"></polyline>","airplay":"<path d=\"M5 17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-1\"></path><polygon points=\"12 15 17 21 7 21 12 15\"></polygon>","alert-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"></line><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"></line>","alert-octagon":"<polygon points=\"7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2\"></polygon><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"></line><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"></line>","alert-triangle":"<path d=\"M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z\"></path><line x1=\"12\" y1=\"9\" x2=\"12\" y2=\"13\"></line><line x1=\"12\" y1=\"17\" x2=\"12.01\" y2=\"17\"></line>","align-center":"<line x1=\"18\" y1=\"10\" x2=\"6\" y2=\"10\"></line><line x1=\"21\" y1=\"6\" x2=\"3\" y2=\"6\"></line><line x1=\"21\" y1=\"14\" x2=\"3\" y2=\"14\"></line><line x1=\"18\" y1=\"18\" x2=\"6\" y2=\"18\"></line>","align-justify":"<line x1=\"21\" y1=\"10\" x2=\"3\" y2=\"10\"></line><line x1=\"21\" y1=\"6\" x2=\"3\" y2=\"6\"></line><line x1=\"21\" y1=\"14\" x2=\"3\" y2=\"14\"></line><line x1=\"21\" y1=\"18\" x2=\"3\" y2=\"18\"></line>","align-left":"<line x1=\"17\" y1=\"10\" x2=\"3\" y2=\"10\"></line><line x1=\"21\" y1=\"6\" x2=\"3\" y2=\"6\"></line><line x1=\"21\" y1=\"14\" x2=\"3\" y2=\"14\"></line><line x1=\"17\" y1=\"18\" x2=\"3\" y2=\"18\"></line>","align-right":"<line x1=\"21\" y1=\"10\" x2=\"7\" y2=\"10\"></line><line x1=\"21\" y1=\"6\" x2=\"3\" y2=\"6\"></line><line x1=\"21\" y1=\"14\" x2=\"3\" y2=\"14\"></line><line x1=\"21\" y1=\"18\" x2=\"7\" y2=\"18\"></line>","anchor":"<circle cx=\"12\" cy=\"5\" r=\"3\"></circle><line x1=\"12\" y1=\"22\" x2=\"12\" y2=\"8\"></line><path d=\"M5 12H2a10 10 0 0 0 20 0h-3\"></path>","aperture":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"14.31\" y1=\"8\" x2=\"20.05\" y2=\"17.94\"></line><line x1=\"9.69\" y1=\"8\" x2=\"21.17\" y2=\"8\"></line><line x1=\"7.38\" y1=\"12\" x2=\"13.12\" y2=\"2.06\"></line><line x1=\"9.69\" y1=\"16\" x2=\"3.95\" y2=\"6.06\"></line><line x1=\"14.31\" y1=\"16\" x2=\"2.83\" y2=\"16\"></line><line x1=\"16.62\" y1=\"12\" x2=\"10.88\" y2=\"21.94\"></line>","archive":"<polyline points=\"21 8 21 21 3 21 3 8\"></polyline><rect x=\"1\" y=\"3\" width=\"22\" height=\"5\"></rect><line x1=\"10\" y1=\"12\" x2=\"14\" y2=\"12\"></line>","arrow-down-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polyline points=\"8 12 12 16 16 12\"></polyline><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"16\"></line>","arrow-down-left":"<line x1=\"17\" y1=\"7\" x2=\"7\" y2=\"17\"></line><polyline points=\"17 17 7 17 7 7\"></polyline>","arrow-down-right":"<line x1=\"7\" y1=\"7\" x2=\"17\" y2=\"17\"></line><polyline points=\"17 7 17 17 7 17\"></polyline>","arrow-down":"<line x1=\"12\" y1=\"5\" x2=\"12\" y2=\"19\"></line><polyline points=\"19 12 12 19 5 12\"></polyline>","arrow-left-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polyline points=\"12 8 8 12 12 16\"></polyline><line x1=\"16\" y1=\"12\" x2=\"8\" y2=\"12\"></line>","arrow-left":"<line x1=\"19\" y1=\"12\" x2=\"5\" y2=\"12\"></line><polyline points=\"12 19 5 12 12 5\"></polyline>","arrow-right-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polyline points=\"12 16 16 12 12 8\"></polyline><line x1=\"8\" y1=\"12\" x2=\"16\" y2=\"12\"></line>","arrow-right":"<line x1=\"5\" y1=\"12\" x2=\"19\" y2=\"12\"></line><polyline points=\"12 5 19 12 12 19\"></polyline>","arrow-up-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polyline points=\"16 12 12 8 8 12\"></polyline><line x1=\"12\" y1=\"16\" x2=\"12\" y2=\"8\"></line>","arrow-up-left":"<line x1=\"17\" y1=\"17\" x2=\"7\" y2=\"7\"></line><polyline points=\"7 17 7 7 17 7\"></polyline>","arrow-up-right":"<line x1=\"7\" y1=\"17\" x2=\"17\" y2=\"7\"></line><polyline points=\"7 7 17 7 17 17\"></polyline>","arrow-up":"<line x1=\"12\" y1=\"19\" x2=\"12\" y2=\"5\"></line><polyline points=\"5 12 12 5 19 12\"></polyline>","at-sign":"<circle cx=\"12\" cy=\"12\" r=\"4\"></circle><path d=\"M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94\"></path>","award":"<circle cx=\"12\" cy=\"8\" r=\"7\"></circle><polyline points=\"8.21 13.89 7 23 12 20 17 23 15.79 13.88\"></polyline>","bar-chart-2":"<line x1=\"18\" y1=\"20\" x2=\"18\" y2=\"10\"></line><line x1=\"12\" y1=\"20\" x2=\"12\" y2=\"4\"></line><line x1=\"6\" y1=\"20\" x2=\"6\" y2=\"14\"></line>","bar-chart":"<line x1=\"12\" y1=\"20\" x2=\"12\" y2=\"10\"></line><line x1=\"18\" y1=\"20\" x2=\"18\" y2=\"4\"></line><line x1=\"6\" y1=\"20\" x2=\"6\" y2=\"16\"></line>","battery-charging":"<path d=\"M5 18H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.19M15 6h2a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-3.19\"></path><line x1=\"23\" y1=\"13\" x2=\"23\" y2=\"11\"></line><polyline points=\"11 6 7 12 13 12 9 18\"></polyline>","battery":"<rect x=\"1\" y=\"6\" width=\"18\" height=\"12\" rx=\"2\" ry=\"2\"></rect><line x1=\"23\" y1=\"13\" x2=\"23\" y2=\"11\"></line>","bell-off":"<path d=\"M13.73 21a2 2 0 0 1-3.46 0\"></path><path d=\"M18.63 13A17.89 17.89 0 0 1 18 8\"></path><path d=\"M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14\"></path><path d=\"M18 8a6 6 0 0 0-9.33-5\"></path><line x1=\"1\" y1=\"1\" x2=\"23\" y2=\"23\"></line>","bell":"<path d=\"M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9\"></path><path d=\"M13.73 21a2 2 0 0 1-3.46 0\"></path>","bluetooth":"<polyline points=\"6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5\"></polyline>","bold":"<path d=\"M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z\"></path><path d=\"M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z\"></path>","book-open":"<path d=\"M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z\"></path><path d=\"M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z\"></path>","book":"<path d=\"M4 19.5A2.5 2.5 0 0 1 6.5 17H20\"></path><path d=\"M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z\"></path>","bookmark":"<path d=\"M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z\"></path>","box":"<path d=\"M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z\"></path><polyline points=\"3.27 6.96 12 12.01 20.73 6.96\"></polyline><line x1=\"12\" y1=\"22.08\" x2=\"12\" y2=\"12\"></line>","briefcase":"<rect x=\"2\" y=\"7\" width=\"20\" height=\"14\" rx=\"2\" ry=\"2\"></rect><path d=\"M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16\"></path>","calendar":"<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"></rect><line x1=\"16\" y1=\"2\" x2=\"16\" y2=\"6\"></line><line x1=\"8\" y1=\"2\" x2=\"8\" y2=\"6\"></line><line x1=\"3\" y1=\"10\" x2=\"21\" y2=\"10\"></line>","camera-off":"<line x1=\"1\" y1=\"1\" x2=\"23\" y2=\"23\"></line><path d=\"M21 21H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3m3-3h6l2 3h4a2 2 0 0 1 2 2v9.34m-7.72-2.06a4 4 0 1 1-5.56-5.56\"></path>","camera":"<path d=\"M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z\"></path><circle cx=\"12\" cy=\"13\" r=\"4\"></circle>","cast":"<path d=\"M2 16.1A5 5 0 0 1 5.9 20M2 12.05A9 9 0 0 1 9.95 20M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6\"></path><line x1=\"2\" y1=\"20\" x2=\"2.01\" y2=\"20\"></line>","check-circle":"<path d=\"M22 11.08V12a10 10 0 1 1-5.93-9.14\"></path><polyline points=\"22 4 12 14.01 9 11.01\"></polyline>","check-square":"<polyline points=\"9 11 12 14 22 4\"></polyline><path d=\"M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11\"></path>","check":"<polyline points=\"20 6 9 17 4 12\"></polyline>","chevron-down":"<polyline points=\"6 9 12 15 18 9\"></polyline>","chevron-left":"<polyline points=\"15 18 9 12 15 6\"></polyline>","chevron-right":"<polyline points=\"9 18 15 12 9 6\"></polyline>","chevron-up":"<polyline points=\"18 15 12 9 6 15\"></polyline>","chevrons-down":"<polyline points=\"7 13 12 18 17 13\"></polyline><polyline points=\"7 6 12 11 17 6\"></polyline>","chevrons-left":"<polyline points=\"11 17 6 12 11 7\"></polyline><polyline points=\"18 17 13 12 18 7\"></polyline>","chevrons-right":"<polyline points=\"13 17 18 12 13 7\"></polyline><polyline points=\"6 17 11 12 6 7\"></polyline>","chevrons-up":"<polyline points=\"17 11 12 6 7 11\"></polyline><polyline points=\"17 18 12 13 7 18\"></polyline>","chrome":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><circle cx=\"12\" cy=\"12\" r=\"4\"></circle><line x1=\"21.17\" y1=\"8\" x2=\"12\" y2=\"8\"></line><line x1=\"3.95\" y1=\"6.06\" x2=\"8.54\" y2=\"14\"></line><line x1=\"10.88\" y1=\"21.94\" x2=\"15.46\" y2=\"14\"></line>","circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle>","clipboard":"<path d=\"M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2\"></path><rect x=\"8\" y=\"2\" width=\"8\" height=\"4\" rx=\"1\" ry=\"1\"></rect>","clock":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polyline points=\"12 6 12 12 16 14\"></polyline>","cloud-drizzle":"<line x1=\"8\" y1=\"19\" x2=\"8\" y2=\"21\"></line><line x1=\"8\" y1=\"13\" x2=\"8\" y2=\"15\"></line><line x1=\"16\" y1=\"19\" x2=\"16\" y2=\"21\"></line><line x1=\"16\" y1=\"13\" x2=\"16\" y2=\"15\"></line><line x1=\"12\" y1=\"21\" x2=\"12\" y2=\"23\"></line><line x1=\"12\" y1=\"15\" x2=\"12\" y2=\"17\"></line><path d=\"M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25\"></path>","cloud-lightning":"<path d=\"M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9\"></path><polyline points=\"13 11 9 17 15 17 11 23\"></polyline>","cloud-off":"<path d=\"M22.61 16.95A5 5 0 0 0 18 10h-1.26a8 8 0 0 0-7.05-6M5 5a8 8 0 0 0 4 15h9a5 5 0 0 0 1.7-.3\"></path><line x1=\"1\" y1=\"1\" x2=\"23\" y2=\"23\"></line>","cloud-rain":"<line x1=\"16\" y1=\"13\" x2=\"16\" y2=\"21\"></line><line x1=\"8\" y1=\"13\" x2=\"8\" y2=\"21\"></line><line x1=\"12\" y1=\"15\" x2=\"12\" y2=\"23\"></line><path d=\"M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25\"></path>","cloud-snow":"<path d=\"M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25\"></path><line x1=\"8\" y1=\"16\" x2=\"8.01\" y2=\"16\"></line><line x1=\"8\" y1=\"20\" x2=\"8.01\" y2=\"20\"></line><line x1=\"12\" y1=\"18\" x2=\"12.01\" y2=\"18\"></line><line x1=\"12\" y1=\"22\" x2=\"12.01\" y2=\"22\"></line><line x1=\"16\" y1=\"16\" x2=\"16.01\" y2=\"16\"></line><line x1=\"16\" y1=\"20\" x2=\"16.01\" y2=\"20\"></line>","cloud":"<path d=\"M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z\"></path>","code":"<polyline points=\"16 18 22 12 16 6\"></polyline><polyline points=\"8 6 2 12 8 18\"></polyline>","codepen":"<polygon points=\"12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2\"></polygon><line x1=\"12\" y1=\"22\" x2=\"12\" y2=\"15.5\"></line><polyline points=\"22 8.5 12 15.5 2 8.5\"></polyline><polyline points=\"2 15.5 12 8.5 22 15.5\"></polyline><line x1=\"12\" y1=\"2\" x2=\"12\" y2=\"8.5\"></line>","codesandbox":"<path d=\"M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z\"></path><polyline points=\"7.5 4.21 12 6.81 16.5 4.21\"></polyline><polyline points=\"7.5 19.79 7.5 14.6 3 12\"></polyline><polyline points=\"21 12 16.5 14.6 16.5 19.79\"></polyline><polyline points=\"3.27 6.96 12 12.01 20.73 6.96\"></polyline><line x1=\"12\" y1=\"22.08\" x2=\"12\" y2=\"12\"></line>","coffee":"<path d=\"M18 8h1a4 4 0 0 1 0 8h-1\"></path><path d=\"M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z\"></path><line x1=\"6\" y1=\"1\" x2=\"6\" y2=\"4\"></line><line x1=\"10\" y1=\"1\" x2=\"10\" y2=\"4\"></line><line x1=\"14\" y1=\"1\" x2=\"14\" y2=\"4\"></line>","columns":"<path d=\"M12 3h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7m0-18H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h7m0-18v18\"></path>","command":"<path d=\"M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z\"></path>","compass":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polygon points=\"16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76\"></polygon>","copy":"<rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"></rect><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"></path>","corner-down-left":"<polyline points=\"9 10 4 15 9 20\"></polyline><path d=\"M20 4v7a4 4 0 0 1-4 4H4\"></path>","corner-down-right":"<polyline points=\"15 10 20 15 15 20\"></polyline><path d=\"M4 4v7a4 4 0 0 0 4 4h12\"></path>","corner-left-down":"<polyline points=\"14 15 9 20 4 15\"></polyline><path d=\"M20 4h-7a4 4 0 0 0-4 4v12\"></path>","corner-left-up":"<polyline points=\"14 9 9 4 4 9\"></polyline><path d=\"M20 20h-7a4 4 0 0 1-4-4V4\"></path>","corner-right-down":"<polyline points=\"10 15 15 20 20 15\"></polyline><path d=\"M4 4h7a4 4 0 0 1 4 4v12\"></path>","corner-right-up":"<polyline points=\"10 9 15 4 20 9\"></polyline><path d=\"M4 20h7a4 4 0 0 0 4-4V4\"></path>","corner-up-left":"<polyline points=\"9 14 4 9 9 4\"></polyline><path d=\"M20 20v-7a4 4 0 0 0-4-4H4\"></path>","corner-up-right":"<polyline points=\"15 14 20 9 15 4\"></polyline><path d=\"M4 20v-7a4 4 0 0 1 4-4h12\"></path>","cpu":"<rect x=\"4\" y=\"4\" width=\"16\" height=\"16\" rx=\"2\" ry=\"2\"></rect><rect x=\"9\" y=\"9\" width=\"6\" height=\"6\"></rect><line x1=\"9\" y1=\"1\" x2=\"9\" y2=\"4\"></line><line x1=\"15\" y1=\"1\" x2=\"15\" y2=\"4\"></line><line x1=\"9\" y1=\"20\" x2=\"9\" y2=\"23\"></line><line x1=\"15\" y1=\"20\" x2=\"15\" y2=\"23\"></line><line x1=\"20\" y1=\"9\" x2=\"23\" y2=\"9\"></line><line x1=\"20\" y1=\"14\" x2=\"23\" y2=\"14\"></line><line x1=\"1\" y1=\"9\" x2=\"4\" y2=\"9\"></line><line x1=\"1\" y1=\"14\" x2=\"4\" y2=\"14\"></line>","credit-card":"<rect x=\"1\" y=\"4\" width=\"22\" height=\"16\" rx=\"2\" ry=\"2\"></rect><line x1=\"1\" y1=\"10\" x2=\"23\" y2=\"10\"></line>","crop":"<path d=\"M6.13 1L6 16a2 2 0 0 0 2 2h15\"></path><path d=\"M1 6.13L16 6a2 2 0 0 1 2 2v15\"></path>","crosshair":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"22\" y1=\"12\" x2=\"18\" y2=\"12\"></line><line x1=\"6\" y1=\"12\" x2=\"2\" y2=\"12\"></line><line x1=\"12\" y1=\"6\" x2=\"12\" y2=\"2\"></line><line x1=\"12\" y1=\"22\" x2=\"12\" y2=\"18\"></line>","database":"<ellipse cx=\"12\" cy=\"5\" rx=\"9\" ry=\"3\"></ellipse><path d=\"M21 12c0 1.66-4 3-9 3s-9-1.34-9-3\"></path><path d=\"M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5\"></path>","delete":"<path d=\"M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z\"></path><line x1=\"18\" y1=\"9\" x2=\"12\" y2=\"15\"></line><line x1=\"12\" y1=\"9\" x2=\"18\" y2=\"15\"></line>","disc":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><circle cx=\"12\" cy=\"12\" r=\"3\"></circle>","dollar-sign":"<line x1=\"12\" y1=\"1\" x2=\"12\" y2=\"23\"></line><path d=\"M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6\"></path>","download-cloud":"<polyline points=\"8 17 12 21 16 17\"></polyline><line x1=\"12\" y1=\"12\" x2=\"12\" y2=\"21\"></line><path d=\"M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29\"></path>","download":"<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"></path><polyline points=\"7 10 12 15 17 10\"></polyline><line x1=\"12\" y1=\"15\" x2=\"12\" y2=\"3\"></line>","droplet":"<path d=\"M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z\"></path>","edit-2":"<path d=\"M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z\"></path>","edit-3":"<path d=\"M12 20h9\"></path><path d=\"M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z\"></path>","edit":"<path d=\"M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\"></path><path d=\"M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z\"></path>","external-link":"<path d=\"M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6\"></path><polyline points=\"15 3 21 3 21 9\"></polyline><line x1=\"10\" y1=\"14\" x2=\"21\" y2=\"3\"></line>","eye-off":"<path d=\"M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24\"></path><line x1=\"1\" y1=\"1\" x2=\"23\" y2=\"23\"></line>","eye":"<path d=\"M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z\"></path><circle cx=\"12\" cy=\"12\" r=\"3\"></circle>","facebook":"<path d=\"M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z\"></path>","fast-forward":"<polygon points=\"13 19 22 12 13 5 13 19\"></polygon><polygon points=\"2 19 11 12 2 5 2 19\"></polygon>","feather":"<path d=\"M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z\"></path><line x1=\"16\" y1=\"8\" x2=\"2\" y2=\"22\"></line><line x1=\"17.5\" y1=\"15\" x2=\"9\" y2=\"15\"></line>","figma":"<path d=\"M5 5.5A3.5 3.5 0 0 1 8.5 2H12v7H8.5A3.5 3.5 0 0 1 5 5.5z\"></path><path d=\"M12 2h3.5a3.5 3.5 0 1 1 0 7H12V2z\"></path><path d=\"M12 12.5a3.5 3.5 0 1 1 7 0 3.5 3.5 0 1 1-7 0z\"></path><path d=\"M5 19.5A3.5 3.5 0 0 1 8.5 16H12v3.5a3.5 3.5 0 1 1-7 0z\"></path><path d=\"M5 12.5A3.5 3.5 0 0 1 8.5 9H12v7H8.5A3.5 3.5 0 0 1 5 12.5z\"></path>","file-minus":"<path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"></path><polyline points=\"14 2 14 8 20 8\"></polyline><line x1=\"9\" y1=\"15\" x2=\"15\" y2=\"15\"></line>","file-plus":"<path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"></path><polyline points=\"14 2 14 8 20 8\"></polyline><line x1=\"12\" y1=\"18\" x2=\"12\" y2=\"12\"></line><line x1=\"9\" y1=\"15\" x2=\"15\" y2=\"15\"></line>","file-text":"<path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"></path><polyline points=\"14 2 14 8 20 8\"></polyline><line x1=\"16\" y1=\"13\" x2=\"8\" y2=\"13\"></line><line x1=\"16\" y1=\"17\" x2=\"8\" y2=\"17\"></line><polyline points=\"10 9 9 9 8 9\"></polyline>","file":"<path d=\"M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z\"></path><polyline points=\"13 2 13 9 20 9\"></polyline>","film":"<rect x=\"2\" y=\"2\" width=\"20\" height=\"20\" rx=\"2.18\" ry=\"2.18\"></rect><line x1=\"7\" y1=\"2\" x2=\"7\" y2=\"22\"></line><line x1=\"17\" y1=\"2\" x2=\"17\" y2=\"22\"></line><line x1=\"2\" y1=\"12\" x2=\"22\" y2=\"12\"></line><line x1=\"2\" y1=\"7\" x2=\"7\" y2=\"7\"></line><line x1=\"2\" y1=\"17\" x2=\"7\" y2=\"17\"></line><line x1=\"17\" y1=\"17\" x2=\"22\" y2=\"17\"></line><line x1=\"17\" y1=\"7\" x2=\"22\" y2=\"7\"></line>","filter":"<polygon points=\"22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3\"></polygon>","flag":"<path d=\"M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z\"></path><line x1=\"4\" y1=\"22\" x2=\"4\" y2=\"15\"></line>","folder-minus":"<path d=\"M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z\"></path><line x1=\"9\" y1=\"14\" x2=\"15\" y2=\"14\"></line>","folder-plus":"<path d=\"M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z\"></path><line x1=\"12\" y1=\"11\" x2=\"12\" y2=\"17\"></line><line x1=\"9\" y1=\"14\" x2=\"15\" y2=\"14\"></line>","folder":"<path d=\"M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z\"></path>","framer":"<path d=\"M5 16V9h14V2H5l14 14h-7m-7 0l7 7v-7m-7 0h7\"></path>","frown":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><path d=\"M16 16s-1.5-2-4-2-4 2-4 2\"></path><line x1=\"9\" y1=\"9\" x2=\"9.01\" y2=\"9\"></line><line x1=\"15\" y1=\"9\" x2=\"15.01\" y2=\"9\"></line>","gift":"<polyline points=\"20 12 20 22 4 22 4 12\"></polyline><rect x=\"2\" y=\"7\" width=\"20\" height=\"5\"></rect><line x1=\"12\" y1=\"22\" x2=\"12\" y2=\"7\"></line><path d=\"M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z\"></path><path d=\"M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z\"></path>","git-branch":"<line x1=\"6\" y1=\"3\" x2=\"6\" y2=\"15\"></line><circle cx=\"18\" cy=\"6\" r=\"3\"></circle><circle cx=\"6\" cy=\"18\" r=\"3\"></circle><path d=\"M18 9a9 9 0 0 1-9 9\"></path>","git-commit":"<circle cx=\"12\" cy=\"12\" r=\"4\"></circle><line x1=\"1.05\" y1=\"12\" x2=\"7\" y2=\"12\"></line><line x1=\"17.01\" y1=\"12\" x2=\"22.96\" y2=\"12\"></line>","git-merge":"<circle cx=\"18\" cy=\"18\" r=\"3\"></circle><circle cx=\"6\" cy=\"6\" r=\"3\"></circle><path d=\"M6 21V9a9 9 0 0 0 9 9\"></path>","git-pull-request":"<circle cx=\"18\" cy=\"18\" r=\"3\"></circle><circle cx=\"6\" cy=\"6\" r=\"3\"></circle><path d=\"M13 6h3a2 2 0 0 1 2 2v7\"></path><line x1=\"6\" y1=\"9\" x2=\"6\" y2=\"21\"></line>","github":"<path d=\"M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22\"></path>","gitlab":"<path d=\"M22.65 14.39L12 22.13 1.35 14.39a.84.84 0 0 1-.3-.94l1.22-3.78 2.44-7.51A.42.42 0 0 1 4.82 2a.43.43 0 0 1 .58 0 .42.42 0 0 1 .11.18l2.44 7.49h8.1l2.44-7.51A.42.42 0 0 1 18.6 2a.43.43 0 0 1 .58 0 .42.42 0 0 1 .11.18l2.44 7.51L23 13.45a.84.84 0 0 1-.35.94z\"></path>","globe":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"2\" y1=\"12\" x2=\"22\" y2=\"12\"></line><path d=\"M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z\"></path>","grid":"<rect x=\"3\" y=\"3\" width=\"7\" height=\"7\"></rect><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\"></rect><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\"></rect><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\"></rect>","hard-drive":"<line x1=\"22\" y1=\"12\" x2=\"2\" y2=\"12\"></line><path d=\"M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z\"></path><line x1=\"6\" y1=\"16\" x2=\"6.01\" y2=\"16\"></line><line x1=\"10\" y1=\"16\" x2=\"10.01\" y2=\"16\"></line>","hash":"<line x1=\"4\" y1=\"9\" x2=\"20\" y2=\"9\"></line><line x1=\"4\" y1=\"15\" x2=\"20\" y2=\"15\"></line><line x1=\"10\" y1=\"3\" x2=\"8\" y2=\"21\"></line><line x1=\"16\" y1=\"3\" x2=\"14\" y2=\"21\"></line>","headphones":"<path d=\"M3 18v-6a9 9 0 0 1 18 0v6\"></path><path d=\"M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z\"></path>","heart":"<path d=\"M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z\"></path>","help-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><path d=\"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3\"></path><line x1=\"12\" y1=\"17\" x2=\"12.01\" y2=\"17\"></line>","hexagon":"<path d=\"M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z\"></path>","home":"<path d=\"M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"></path><polyline points=\"9 22 9 12 15 12 15 22\"></polyline>","image":"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"></rect><circle cx=\"8.5\" cy=\"8.5\" r=\"1.5\"></circle><polyline points=\"21 15 16 10 5 21\"></polyline>","inbox":"<polyline points=\"22 12 16 12 14 15 10 15 8 12 2 12\"></polyline><path d=\"M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z\"></path>","info":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"12\" y1=\"16\" x2=\"12\" y2=\"12\"></line><line x1=\"12\" y1=\"8\" x2=\"12.01\" y2=\"8\"></line>","instagram":"<rect x=\"2\" y=\"2\" width=\"20\" height=\"20\" rx=\"5\" ry=\"5\"></rect><path d=\"M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z\"></path><line x1=\"17.5\" y1=\"6.5\" x2=\"17.51\" y2=\"6.5\"></line>","italic":"<line x1=\"19\" y1=\"4\" x2=\"10\" y2=\"4\"></line><line x1=\"14\" y1=\"20\" x2=\"5\" y2=\"20\"></line><line x1=\"15\" y1=\"4\" x2=\"9\" y2=\"20\"></line>","key":"<path d=\"M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4\"></path>","layers":"<polygon points=\"12 2 2 7 12 12 22 7 12 2\"></polygon><polyline points=\"2 17 12 22 22 17\"></polyline><polyline points=\"2 12 12 17 22 12\"></polyline>","layout":"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"></rect><line x1=\"3\" y1=\"9\" x2=\"21\" y2=\"9\"></line><line x1=\"9\" y1=\"21\" x2=\"9\" y2=\"9\"></line>","life-buoy":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><circle cx=\"12\" cy=\"12\" r=\"4\"></circle><line x1=\"4.93\" y1=\"4.93\" x2=\"9.17\" y2=\"9.17\"></line><line x1=\"14.83\" y1=\"14.83\" x2=\"19.07\" y2=\"19.07\"></line><line x1=\"14.83\" y1=\"9.17\" x2=\"19.07\" y2=\"4.93\"></line><line x1=\"14.83\" y1=\"9.17\" x2=\"18.36\" y2=\"5.64\"></line><line x1=\"4.93\" y1=\"19.07\" x2=\"9.17\" y2=\"14.83\"></line>","link-2":"<path d=\"M15 7h3a5 5 0 0 1 5 5 5 5 0 0 1-5 5h-3m-6 0H6a5 5 0 0 1-5-5 5 5 0 0 1 5-5h3\"></path><line x1=\"8\" y1=\"12\" x2=\"16\" y2=\"12\"></line>","link":"<path d=\"M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71\"></path><path d=\"M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71\"></path>","linkedin":"<path d=\"M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z\"></path><rect x=\"2\" y=\"9\" width=\"4\" height=\"12\"></rect><circle cx=\"4\" cy=\"4\" r=\"2\"></circle>","list":"<line x1=\"8\" y1=\"6\" x2=\"21\" y2=\"6\"></line><line x1=\"8\" y1=\"12\" x2=\"21\" y2=\"12\"></line><line x1=\"8\" y1=\"18\" x2=\"21\" y2=\"18\"></line><line x1=\"3\" y1=\"6\" x2=\"3.01\" y2=\"6\"></line><line x1=\"3\" y1=\"12\" x2=\"3.01\" y2=\"12\"></line><line x1=\"3\" y1=\"18\" x2=\"3.01\" y2=\"18\"></line>","loader":"<line x1=\"12\" y1=\"2\" x2=\"12\" y2=\"6\"></line><line x1=\"12\" y1=\"18\" x2=\"12\" y2=\"22\"></line><line x1=\"4.93\" y1=\"4.93\" x2=\"7.76\" y2=\"7.76\"></line><line x1=\"16.24\" y1=\"16.24\" x2=\"19.07\" y2=\"19.07\"></line><line x1=\"2\" y1=\"12\" x2=\"6\" y2=\"12\"></line><line x1=\"18\" y1=\"12\" x2=\"22\" y2=\"12\"></line><line x1=\"4.93\" y1=\"19.07\" x2=\"7.76\" y2=\"16.24\"></line><line x1=\"16.24\" y1=\"7.76\" x2=\"19.07\" y2=\"4.93\"></line>","lock":"<rect x=\"3\" y=\"11\" width=\"18\" height=\"11\" rx=\"2\" ry=\"2\"></rect><path d=\"M7 11V7a5 5 0 0 1 10 0v4\"></path>","log-in":"<path d=\"M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4\"></path><polyline points=\"10 17 15 12 10 7\"></polyline><line x1=\"15\" y1=\"12\" x2=\"3\" y2=\"12\"></line>","log-out":"<path d=\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4\"></path><polyline points=\"16 17 21 12 16 7\"></polyline><line x1=\"21\" y1=\"12\" x2=\"9\" y2=\"12\"></line>","mail":"<path d=\"M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z\"></path><polyline points=\"22,6 12,13 2,6\"></polyline>","map-pin":"<path d=\"M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z\"></path><circle cx=\"12\" cy=\"10\" r=\"3\"></circle>","map":"<polygon points=\"1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6\"></polygon><line x1=\"8\" y1=\"2\" x2=\"8\" y2=\"18\"></line><line x1=\"16\" y1=\"6\" x2=\"16\" y2=\"22\"></line>","maximize-2":"<polyline points=\"15 3 21 3 21 9\"></polyline><polyline points=\"9 21 3 21 3 15\"></polyline><line x1=\"21\" y1=\"3\" x2=\"14\" y2=\"10\"></line><line x1=\"3\" y1=\"21\" x2=\"10\" y2=\"14\"></line>","maximize":"<path d=\"M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3\"></path>","meh":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"8\" y1=\"15\" x2=\"16\" y2=\"15\"></line><line x1=\"9\" y1=\"9\" x2=\"9.01\" y2=\"9\"></line><line x1=\"15\" y1=\"9\" x2=\"15.01\" y2=\"9\"></line>","menu":"<line x1=\"3\" y1=\"12\" x2=\"21\" y2=\"12\"></line><line x1=\"3\" y1=\"6\" x2=\"21\" y2=\"6\"></line><line x1=\"3\" y1=\"18\" x2=\"21\" y2=\"18\"></line>","message-circle":"<path d=\"M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z\"></path>","message-square":"<path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"></path>","mic-off":"<line x1=\"1\" y1=\"1\" x2=\"23\" y2=\"23\"></line><path d=\"M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6\"></path><path d=\"M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23\"></path><line x1=\"12\" y1=\"19\" x2=\"12\" y2=\"23\"></line><line x1=\"8\" y1=\"23\" x2=\"16\" y2=\"23\"></line>","mic":"<path d=\"M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z\"></path><path d=\"M19 10v2a7 7 0 0 1-14 0v-2\"></path><line x1=\"12\" y1=\"19\" x2=\"12\" y2=\"23\"></line><line x1=\"8\" y1=\"23\" x2=\"16\" y2=\"23\"></line>","minimize-2":"<polyline points=\"4 14 10 14 10 20\"></polyline><polyline points=\"20 10 14 10 14 4\"></polyline><line x1=\"14\" y1=\"10\" x2=\"21\" y2=\"3\"></line><line x1=\"3\" y1=\"21\" x2=\"10\" y2=\"14\"></line>","minimize":"<path d=\"M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3\"></path>","minus-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"8\" y1=\"12\" x2=\"16\" y2=\"12\"></line>","minus-square":"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"></rect><line x1=\"8\" y1=\"12\" x2=\"16\" y2=\"12\"></line>","minus":"<line x1=\"5\" y1=\"12\" x2=\"19\" y2=\"12\"></line>","monitor":"<rect x=\"2\" y=\"3\" width=\"20\" height=\"14\" rx=\"2\" ry=\"2\"></rect><line x1=\"8\" y1=\"21\" x2=\"16\" y2=\"21\"></line><line x1=\"12\" y1=\"17\" x2=\"12\" y2=\"21\"></line>","moon":"<path d=\"M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z\"></path>","more-horizontal":"<circle cx=\"12\" cy=\"12\" r=\"1\"></circle><circle cx=\"19\" cy=\"12\" r=\"1\"></circle><circle cx=\"5\" cy=\"12\" r=\"1\"></circle>","more-vertical":"<circle cx=\"12\" cy=\"12\" r=\"1\"></circle><circle cx=\"12\" cy=\"5\" r=\"1\"></circle><circle cx=\"12\" cy=\"19\" r=\"1\"></circle>","mouse-pointer":"<path d=\"M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z\"></path><path d=\"M13 13l6 6\"></path>","move":"<polyline points=\"5 9 2 12 5 15\"></polyline><polyline points=\"9 5 12 2 15 5\"></polyline><polyline points=\"15 19 12 22 9 19\"></polyline><polyline points=\"19 9 22 12 19 15\"></polyline><line x1=\"2\" y1=\"12\" x2=\"22\" y2=\"12\"></line><line x1=\"12\" y1=\"2\" x2=\"12\" y2=\"22\"></line>","music":"<path d=\"M9 18V5l12-2v13\"></path><circle cx=\"6\" cy=\"18\" r=\"3\"></circle><circle cx=\"18\" cy=\"16\" r=\"3\"></circle>","navigation-2":"<polygon points=\"12 2 19 21 12 17 5 21 12 2\"></polygon>","navigation":"<polygon points=\"3 11 22 2 13 21 11 13 3 11\"></polygon>","octagon":"<polygon points=\"7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2\"></polygon>","package":"<line x1=\"16.5\" y1=\"9.4\" x2=\"7.5\" y2=\"4.21\"></line><path d=\"M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z\"></path><polyline points=\"3.27 6.96 12 12.01 20.73 6.96\"></polyline><line x1=\"12\" y1=\"22.08\" x2=\"12\" y2=\"12\"></line>","paperclip":"<path d=\"M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48\"></path>","pause-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"10\" y1=\"15\" x2=\"10\" y2=\"9\"></line><line x1=\"14\" y1=\"15\" x2=\"14\" y2=\"9\"></line>","pause":"<rect x=\"6\" y=\"4\" width=\"4\" height=\"16\"></rect><rect x=\"14\" y=\"4\" width=\"4\" height=\"16\"></rect>","pen-tool":"<path d=\"M12 19l7-7 3 3-7 7-3-3z\"></path><path d=\"M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z\"></path><path d=\"M2 2l7.586 7.586\"></path><circle cx=\"11\" cy=\"11\" r=\"2\"></circle>","percent":"<line x1=\"19\" y1=\"5\" x2=\"5\" y2=\"19\"></line><circle cx=\"6.5\" cy=\"6.5\" r=\"2.5\"></circle><circle cx=\"17.5\" cy=\"17.5\" r=\"2.5\"></circle>","phone-call":"<path d=\"M15.05 5A5 5 0 0 1 19 8.95M15.05 1A9 9 0 0 1 23 8.94m-1 7.98v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z\"></path>","phone-forwarded":"<polyline points=\"19 1 23 5 19 9\"></polyline><line x1=\"15\" y1=\"5\" x2=\"23\" y2=\"5\"></line><path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z\"></path>","phone-incoming":"<polyline points=\"16 2 16 8 22 8\"></polyline><line x1=\"23\" y1=\"1\" x2=\"16\" y2=\"8\"></line><path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z\"></path>","phone-missed":"<line x1=\"23\" y1=\"1\" x2=\"17\" y2=\"7\"></line><line x1=\"17\" y1=\"1\" x2=\"23\" y2=\"7\"></line><path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z\"></path>","phone-off":"<path d=\"M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91\"></path><line x1=\"23\" y1=\"1\" x2=\"1\" y2=\"23\"></line>","phone-outgoing":"<polyline points=\"23 7 23 1 17 1\"></polyline><line x1=\"16\" y1=\"8\" x2=\"23\" y2=\"1\"></line><path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z\"></path>","phone":"<path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z\"></path>","pie-chart":"<path d=\"M21.21 15.89A10 10 0 1 1 8 2.83\"></path><path d=\"M22 12A10 10 0 0 0 12 2v10z\"></path>","play-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><polygon points=\"10 8 16 12 10 16 10 8\"></polygon>","play":"<polygon points=\"5 3 19 12 5 21 5 3\"></polygon>","plus-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"16\"></line><line x1=\"8\" y1=\"12\" x2=\"16\" y2=\"12\"></line>","plus-square":"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"></rect><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"16\"></line><line x1=\"8\" y1=\"12\" x2=\"16\" y2=\"12\"></line>","plus":"<line x1=\"12\" y1=\"5\" x2=\"12\" y2=\"19\"></line><line x1=\"5\" y1=\"12\" x2=\"19\" y2=\"12\"></line>","pocket":"<path d=\"M4 3h16a2 2 0 0 1 2 2v6a10 10 0 0 1-10 10A10 10 0 0 1 2 11V5a2 2 0 0 1 2-2z\"></path><polyline points=\"8 10 12 14 16 10\"></polyline>","power":"<path d=\"M18.36 6.64a9 9 0 1 1-12.73 0\"></path><line x1=\"12\" y1=\"2\" x2=\"12\" y2=\"12\"></line>","printer":"<polyline points=\"6 9 6 2 18 2 18 9\"></polyline><path d=\"M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2\"></path><rect x=\"6\" y=\"14\" width=\"12\" height=\"8\"></rect>","radio":"<circle cx=\"12\" cy=\"12\" r=\"2\"></circle><path d=\"M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14\"></path>","refresh-ccw":"<polyline points=\"1 4 1 10 7 10\"></polyline><polyline points=\"23 20 23 14 17 14\"></polyline><path d=\"M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15\"></path>","refresh-cw":"<polyline points=\"23 4 23 10 17 10\"></polyline><polyline points=\"1 20 1 14 7 14\"></polyline><path d=\"M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15\"></path>","repeat":"<polyline points=\"17 1 21 5 17 9\"></polyline><path d=\"M3 11V9a4 4 0 0 1 4-4h14\"></path><polyline points=\"7 23 3 19 7 15\"></polyline><path d=\"M21 13v2a4 4 0 0 1-4 4H3\"></path>","rewind":"<polygon points=\"11 19 2 12 11 5 11 19\"></polygon><polygon points=\"22 19 13 12 22 5 22 19\"></polygon>","rotate-ccw":"<polyline points=\"1 4 1 10 7 10\"></polyline><path d=\"M3.51 15a9 9 0 1 0 2.13-9.36L1 10\"></path>","rotate-cw":"<polyline points=\"23 4 23 10 17 10\"></polyline><path d=\"M20.49 15a9 9 0 1 1-2.12-9.36L23 10\"></path>","rss":"<path d=\"M4 11a9 9 0 0 1 9 9\"></path><path d=\"M4 4a16 16 0 0 1 16 16\"></path><circle cx=\"5\" cy=\"19\" r=\"1\"></circle>","save":"<path d=\"M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z\"></path><polyline points=\"17 21 17 13 7 13 7 21\"></polyline><polyline points=\"7 3 7 8 15 8\"></polyline>","scissors":"<circle cx=\"6\" cy=\"6\" r=\"3\"></circle><circle cx=\"6\" cy=\"18\" r=\"3\"></circle><line x1=\"20\" y1=\"4\" x2=\"8.12\" y2=\"15.88\"></line><line x1=\"14.47\" y1=\"14.48\" x2=\"20\" y2=\"20\"></line><line x1=\"8.12\" y1=\"8.12\" x2=\"12\" y2=\"12\"></line>","search":"<circle cx=\"11\" cy=\"11\" r=\"8\"></circle><line x1=\"21\" y1=\"21\" x2=\"16.65\" y2=\"16.65\"></line>","send":"<line x1=\"22\" y1=\"2\" x2=\"11\" y2=\"13\"></line><polygon points=\"22 2 15 22 11 13 2 9 22 2\"></polygon>","server":"<rect x=\"2\" y=\"2\" width=\"20\" height=\"8\" rx=\"2\" ry=\"2\"></rect><rect x=\"2\" y=\"14\" width=\"20\" height=\"8\" rx=\"2\" ry=\"2\"></rect><line x1=\"6\" y1=\"6\" x2=\"6.01\" y2=\"6\"></line><line x1=\"6\" y1=\"18\" x2=\"6.01\" y2=\"18\"></line>","settings":"<circle cx=\"12\" cy=\"12\" r=\"3\"></circle><path d=\"M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z\"></path>","share-2":"<circle cx=\"18\" cy=\"5\" r=\"3\"></circle><circle cx=\"6\" cy=\"12\" r=\"3\"></circle><circle cx=\"18\" cy=\"19\" r=\"3\"></circle><line x1=\"8.59\" y1=\"13.51\" x2=\"15.42\" y2=\"17.49\"></line><line x1=\"15.41\" y1=\"6.51\" x2=\"8.59\" y2=\"10.49\"></line>","share":"<path d=\"M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8\"></path><polyline points=\"16 6 12 2 8 6\"></polyline><line x1=\"12\" y1=\"2\" x2=\"12\" y2=\"15\"></line>","shield-off":"<path d=\"M19.69 14a6.9 6.9 0 0 0 .31-2V5l-8-3-3.16 1.18\"></path><path d=\"M4.73 4.73L4 5v7c0 6 8 10 8 10a20.29 20.29 0 0 0 5.62-4.38\"></path><line x1=\"1\" y1=\"1\" x2=\"23\" y2=\"23\"></line>","shield":"<path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"></path>","shopping-bag":"<path d=\"M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z\"></path><line x1=\"3\" y1=\"6\" x2=\"21\" y2=\"6\"></line><path d=\"M16 10a4 4 0 0 1-8 0\"></path>","shopping-cart":"<circle cx=\"9\" cy=\"21\" r=\"1\"></circle><circle cx=\"20\" cy=\"21\" r=\"1\"></circle><path d=\"M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6\"></path>","shuffle":"<polyline points=\"16 3 21 3 21 8\"></polyline><line x1=\"4\" y1=\"20\" x2=\"21\" y2=\"3\"></line><polyline points=\"21 16 21 21 16 21\"></polyline><line x1=\"15\" y1=\"15\" x2=\"21\" y2=\"21\"></line><line x1=\"4\" y1=\"4\" x2=\"9\" y2=\"9\"></line>","sidebar":"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"></rect><line x1=\"9\" y1=\"3\" x2=\"9\" y2=\"21\"></line>","skip-back":"<polygon points=\"19 20 9 12 19 4 19 20\"></polygon><line x1=\"5\" y1=\"19\" x2=\"5\" y2=\"5\"></line>","skip-forward":"<polygon points=\"5 4 15 12 5 20 5 4\"></polygon><line x1=\"19\" y1=\"5\" x2=\"19\" y2=\"19\"></line>","slack":"<path d=\"M14.5 10c-.83 0-1.5-.67-1.5-1.5v-5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5z\"></path><path d=\"M20.5 10H19V8.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z\"></path><path d=\"M9.5 14c.83 0 1.5.67 1.5 1.5v5c0 .83-.67 1.5-1.5 1.5S8 21.33 8 20.5v-5c0-.83.67-1.5 1.5-1.5z\"></path><path d=\"M3.5 14H5v1.5c0 .83-.67 1.5-1.5 1.5S2 16.33 2 15.5 2.67 14 3.5 14z\"></path><path d=\"M14 14.5c0-.83.67-1.5 1.5-1.5h5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5h-5c-.83 0-1.5-.67-1.5-1.5z\"></path><path d=\"M15.5 19H14v1.5c0 .83.67 1.5 1.5 1.5s1.5-.67 1.5-1.5-.67-1.5-1.5-1.5z\"></path><path d=\"M10 9.5C10 8.67 9.33 8 8.5 8h-5C2.67 8 2 8.67 2 9.5S2.67 11 3.5 11h5c.83 0 1.5-.67 1.5-1.5z\"></path><path d=\"M8.5 5H10V3.5C10 2.67 9.33 2 8.5 2S7 2.67 7 3.5 7.67 5 8.5 5z\"></path>","slash":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"4.93\" y1=\"4.93\" x2=\"19.07\" y2=\"19.07\"></line>","sliders":"<line x1=\"4\" y1=\"21\" x2=\"4\" y2=\"14\"></line><line x1=\"4\" y1=\"10\" x2=\"4\" y2=\"3\"></line><line x1=\"12\" y1=\"21\" x2=\"12\" y2=\"12\"></line><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"3\"></line><line x1=\"20\" y1=\"21\" x2=\"20\" y2=\"16\"></line><line x1=\"20\" y1=\"12\" x2=\"20\" y2=\"3\"></line><line x1=\"1\" y1=\"14\" x2=\"7\" y2=\"14\"></line><line x1=\"9\" y1=\"8\" x2=\"15\" y2=\"8\"></line><line x1=\"17\" y1=\"16\" x2=\"23\" y2=\"16\"></line>","smartphone":"<rect x=\"5\" y=\"2\" width=\"14\" height=\"20\" rx=\"2\" ry=\"2\"></rect><line x1=\"12\" y1=\"18\" x2=\"12.01\" y2=\"18\"></line>","smile":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><path d=\"M8 14s1.5 2 4 2 4-2 4-2\"></path><line x1=\"9\" y1=\"9\" x2=\"9.01\" y2=\"9\"></line><line x1=\"15\" y1=\"9\" x2=\"15.01\" y2=\"9\"></line>","speaker":"<rect x=\"4\" y=\"2\" width=\"16\" height=\"20\" rx=\"2\" ry=\"2\"></rect><circle cx=\"12\" cy=\"14\" r=\"4\"></circle><line x1=\"12\" y1=\"6\" x2=\"12.01\" y2=\"6\"></line>","square":"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"></rect>","star":"<polygon points=\"12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2\"></polygon>","stop-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><rect x=\"9\" y=\"9\" width=\"6\" height=\"6\"></rect>","sun":"<circle cx=\"12\" cy=\"12\" r=\"5\"></circle><line x1=\"12\" y1=\"1\" x2=\"12\" y2=\"3\"></line><line x1=\"12\" y1=\"21\" x2=\"12\" y2=\"23\"></line><line x1=\"4.22\" y1=\"4.22\" x2=\"5.64\" y2=\"5.64\"></line><line x1=\"18.36\" y1=\"18.36\" x2=\"19.78\" y2=\"19.78\"></line><line x1=\"1\" y1=\"12\" x2=\"3\" y2=\"12\"></line><line x1=\"21\" y1=\"12\" x2=\"23\" y2=\"12\"></line><line x1=\"4.22\" y1=\"19.78\" x2=\"5.64\" y2=\"18.36\"></line><line x1=\"18.36\" y1=\"5.64\" x2=\"19.78\" y2=\"4.22\"></line>","sunrise":"<path d=\"M17 18a5 5 0 0 0-10 0\"></path><line x1=\"12\" y1=\"2\" x2=\"12\" y2=\"9\"></line><line x1=\"4.22\" y1=\"10.22\" x2=\"5.64\" y2=\"11.64\"></line><line x1=\"1\" y1=\"18\" x2=\"3\" y2=\"18\"></line><line x1=\"21\" y1=\"18\" x2=\"23\" y2=\"18\"></line><line x1=\"18.36\" y1=\"11.64\" x2=\"19.78\" y2=\"10.22\"></line><line x1=\"23\" y1=\"22\" x2=\"1\" y2=\"22\"></line><polyline points=\"8 6 12 2 16 6\"></polyline>","sunset":"<path d=\"M17 18a5 5 0 0 0-10 0\"></path><line x1=\"12\" y1=\"9\" x2=\"12\" y2=\"2\"></line><line x1=\"4.22\" y1=\"10.22\" x2=\"5.64\" y2=\"11.64\"></line><line x1=\"1\" y1=\"18\" x2=\"3\" y2=\"18\"></line><line x1=\"21\" y1=\"18\" x2=\"23\" y2=\"18\"></line><line x1=\"18.36\" y1=\"11.64\" x2=\"19.78\" y2=\"10.22\"></line><line x1=\"23\" y1=\"22\" x2=\"1\" y2=\"22\"></line><polyline points=\"16 5 12 9 8 5\"></polyline>","tablet":"<rect x=\"4\" y=\"2\" width=\"16\" height=\"20\" rx=\"2\" ry=\"2\"></rect><line x1=\"12\" y1=\"18\" x2=\"12.01\" y2=\"18\"></line>","tag":"<path d=\"M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z\"></path><line x1=\"7\" y1=\"7\" x2=\"7.01\" y2=\"7\"></line>","target":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><circle cx=\"12\" cy=\"12\" r=\"6\"></circle><circle cx=\"12\" cy=\"12\" r=\"2\"></circle>","terminal":"<polyline points=\"4 17 10 11 4 5\"></polyline><line x1=\"12\" y1=\"19\" x2=\"20\" y2=\"19\"></line>","thermometer":"<path d=\"M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z\"></path>","thumbs-down":"<path d=\"M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17\"></path>","thumbs-up":"<path d=\"M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3\"></path>","toggle-left":"<rect x=\"1\" y=\"5\" width=\"22\" height=\"14\" rx=\"7\" ry=\"7\"></rect><circle cx=\"8\" cy=\"12\" r=\"3\"></circle>","toggle-right":"<rect x=\"1\" y=\"5\" width=\"22\" height=\"14\" rx=\"7\" ry=\"7\"></rect><circle cx=\"16\" cy=\"12\" r=\"3\"></circle>","tool":"<path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z\"></path>","trash-2":"<polyline points=\"3 6 5 6 21 6\"></polyline><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\"></path><line x1=\"10\" y1=\"11\" x2=\"10\" y2=\"17\"></line><line x1=\"14\" y1=\"11\" x2=\"14\" y2=\"17\"></line>","trash":"<polyline points=\"3 6 5 6 21 6\"></polyline><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\"></path>","trello":"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"></rect><rect x=\"7\" y=\"7\" width=\"3\" height=\"9\"></rect><rect x=\"14\" y=\"7\" width=\"3\" height=\"5\"></rect>","trending-down":"<polyline points=\"23 18 13.5 8.5 8.5 13.5 1 6\"></polyline><polyline points=\"17 18 23 18 23 12\"></polyline>","trending-up":"<polyline points=\"23 6 13.5 15.5 8.5 10.5 1 18\"></polyline><polyline points=\"17 6 23 6 23 12\"></polyline>","triangle":"<path d=\"M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z\"></path>","truck":"<rect x=\"1\" y=\"3\" width=\"15\" height=\"13\"></rect><polygon points=\"16 8 20 8 23 11 23 16 16 16 16 8\"></polygon><circle cx=\"5.5\" cy=\"18.5\" r=\"2.5\"></circle><circle cx=\"18.5\" cy=\"18.5\" r=\"2.5\"></circle>","tv":"<rect x=\"2\" y=\"7\" width=\"20\" height=\"15\" rx=\"2\" ry=\"2\"></rect><polyline points=\"17 2 12 7 7 2\"></polyline>","twitch":"<path d=\"M21 2H3v16h5v4l4-4h5l4-4V2zm-10 9V7m5 4V7\"></path>","twitter":"<path d=\"M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z\"></path>","type":"<polyline points=\"4 7 4 4 20 4 20 7\"></polyline><line x1=\"9\" y1=\"20\" x2=\"15\" y2=\"20\"></line><line x1=\"12\" y1=\"4\" x2=\"12\" y2=\"20\"></line>","umbrella":"<path d=\"M23 12a11.05 11.05 0 0 0-22 0zm-5 7a3 3 0 0 1-6 0v-7\"></path>","underline":"<path d=\"M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3\"></path><line x1=\"4\" y1=\"21\" x2=\"20\" y2=\"21\"></line>","unlock":"<rect x=\"3\" y=\"11\" width=\"18\" height=\"11\" rx=\"2\" ry=\"2\"></rect><path d=\"M7 11V7a5 5 0 0 1 9.9-1\"></path>","upload-cloud":"<polyline points=\"16 16 12 12 8 16\"></polyline><line x1=\"12\" y1=\"12\" x2=\"12\" y2=\"21\"></line><path d=\"M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3\"></path><polyline points=\"16 16 12 12 8 16\"></polyline>","upload":"<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\"></path><polyline points=\"17 8 12 3 7 8\"></polyline><line x1=\"12\" y1=\"3\" x2=\"12\" y2=\"15\"></line>","user-check":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2\"></path><circle cx=\"8.5\" cy=\"7\" r=\"4\"></circle><polyline points=\"17 11 19 13 23 9\"></polyline>","user-minus":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2\"></path><circle cx=\"8.5\" cy=\"7\" r=\"4\"></circle><line x1=\"23\" y1=\"11\" x2=\"17\" y2=\"11\"></line>","user-plus":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2\"></path><circle cx=\"8.5\" cy=\"7\" r=\"4\"></circle><line x1=\"20\" y1=\"8\" x2=\"20\" y2=\"14\"></line><line x1=\"23\" y1=\"11\" x2=\"17\" y2=\"11\"></line>","user-x":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2\"></path><circle cx=\"8.5\" cy=\"7\" r=\"4\"></circle><line x1=\"18\" y1=\"8\" x2=\"23\" y2=\"13\"></line><line x1=\"23\" y1=\"8\" x2=\"18\" y2=\"13\"></line>","user":"<path d=\"M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2\"></path><circle cx=\"12\" cy=\"7\" r=\"4\"></circle>","users":"<path d=\"M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2\"></path><circle cx=\"9\" cy=\"7\" r=\"4\"></circle><path d=\"M23 21v-2a4 4 0 0 0-3-3.87\"></path><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"></path>","video-off":"<path d=\"M16 16v1a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L23 7v10\"></path><line x1=\"1\" y1=\"1\" x2=\"23\" y2=\"23\"></line>","video":"<polygon points=\"23 7 16 12 23 17 23 7\"></polygon><rect x=\"1\" y=\"5\" width=\"15\" height=\"14\" rx=\"2\" ry=\"2\"></rect>","voicemail":"<circle cx=\"5.5\" cy=\"11.5\" r=\"4.5\"></circle><circle cx=\"18.5\" cy=\"11.5\" r=\"4.5\"></circle><line x1=\"5.5\" y1=\"16\" x2=\"18.5\" y2=\"16\"></line>","volume-1":"<polygon points=\"11 5 6 9 2 9 2 15 6 15 11 19 11 5\"></polygon><path d=\"M15.54 8.46a5 5 0 0 1 0 7.07\"></path>","volume-2":"<polygon points=\"11 5 6 9 2 9 2 15 6 15 11 19 11 5\"></polygon><path d=\"M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07\"></path>","volume-x":"<polygon points=\"11 5 6 9 2 9 2 15 6 15 11 19 11 5\"></polygon><line x1=\"23\" y1=\"9\" x2=\"17\" y2=\"15\"></line><line x1=\"17\" y1=\"9\" x2=\"23\" y2=\"15\"></line>","volume":"<polygon points=\"11 5 6 9 2 9 2 15 6 15 11 19 11 5\"></polygon>","watch":"<circle cx=\"12\" cy=\"12\" r=\"7\"></circle><polyline points=\"12 9 12 12 13.5 13.5\"></polyline><path d=\"M16.51 17.35l-.35 3.83a2 2 0 0 1-2 1.82H9.83a2 2 0 0 1-2-1.82l-.35-3.83m.01-10.7l.35-3.83A2 2 0 0 1 9.83 1h4.35a2 2 0 0 1 2 1.82l.35 3.83\"></path>","wifi-off":"<line x1=\"1\" y1=\"1\" x2=\"23\" y2=\"23\"></line><path d=\"M16.72 11.06A10.94 10.94 0 0 1 19 12.55\"></path><path d=\"M5 12.55a10.94 10.94 0 0 1 5.17-2.39\"></path><path d=\"M10.71 5.05A16 16 0 0 1 22.58 9\"></path><path d=\"M1.42 9a15.91 15.91 0 0 1 4.7-2.88\"></path><path d=\"M8.53 16.11a6 6 0 0 1 6.95 0\"></path><line x1=\"12\" y1=\"20\" x2=\"12.01\" y2=\"20\"></line>","wifi":"<path d=\"M5 12.55a11 11 0 0 1 14.08 0\"></path><path d=\"M1.42 9a16 16 0 0 1 21.16 0\"></path><path d=\"M8.53 16.11a6 6 0 0 1 6.95 0\"></path><line x1=\"12\" y1=\"20\" x2=\"12.01\" y2=\"20\"></line>","wind":"<path d=\"M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2\"></path>","x-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"></circle><line x1=\"15\" y1=\"9\" x2=\"9\" y2=\"15\"></line><line x1=\"9\" y1=\"9\" x2=\"15\" y2=\"15\"></line>","x-octagon":"<polygon points=\"7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2\"></polygon><line x1=\"15\" y1=\"9\" x2=\"9\" y2=\"15\"></line><line x1=\"9\" y1=\"9\" x2=\"15\" y2=\"15\"></line>","x-square":"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\" ry=\"2\"></rect><line x1=\"9\" y1=\"9\" x2=\"15\" y2=\"15\"></line><line x1=\"15\" y1=\"9\" x2=\"9\" y2=\"15\"></line>","x":"<line x1=\"18\" y1=\"6\" x2=\"6\" y2=\"18\"></line><line x1=\"6\" y1=\"6\" x2=\"18\" y2=\"18\"></line>","youtube":"<path d=\"M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33A2.78 2.78 0 0 0 3.4 19c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.25 29 29 0 0 0-.46-5.33z\"></path><polygon points=\"9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02\"></polygon>","zap-off":"<polyline points=\"12.41 6.75 13 2 10.57 4.92\"></polyline><polyline points=\"18.57 12.91 21 10 15.66 10\"></polyline><polyline points=\"8 8 3 14 12 14 11 22 16 16\"></polyline><line x1=\"1\" y1=\"1\" x2=\"23\" y2=\"23\"></line>","zap":"<polygon points=\"13 2 3 14 12 14 11 22 21 10 12 10 13 2\"></polygon>","zoom-in":"<circle cx=\"11\" cy=\"11\" r=\"8\"></circle><line x1=\"21\" y1=\"21\" x2=\"16.65\" y2=\"16.65\"></line><line x1=\"11\" y1=\"8\" x2=\"11\" y2=\"14\"></line><line x1=\"8\" y1=\"11\" x2=\"14\" y2=\"11\"></line>","zoom-out":"<circle cx=\"11\" cy=\"11\" r=\"8\"></circle><line x1=\"21\" y1=\"21\" x2=\"16.65\" y2=\"16.65\"></line><line x1=\"8\" y1=\"11\" x2=\"14\" y2=\"11\"></line>"};
 
     /***/ }),
 
@@ -31433,19 +31449,19 @@
 
     const getIcon = (icon, size) => feather$1.icons[icon].toSvg({height:size||"24", width:size||"24"});
 
-    /* src\common\IconButton.svelte generated by Svelte v3.6.9 */
+    /* src\common\IconButton.svelte generated by Svelte v3.9.1 */
 
     const file$3 = "src\\common\\IconButton.svelte";
 
     function create_fragment$2(ctx) {
-    	var button, raw_value = getIcon(ctx.icon, ctx.size), button_style_value, addAttributes_action, dispose;
+    	var button, raw_value = getIcon(ctx.icon, ctx.size) + "", button_style_value, addAttributes_action, dispose;
 
     	return {
     		c: function create() {
     			button = element("button");
-    			attr(button, "style", button_style_value = "" + ctx.style + " color:" + ctx.color + " --hovercolor:" + ctx.hoverColor);
+    			attr(button, "style", button_style_value = "" + ctx.style + (ctx.style ? ";" : "") + " color:" + ctx.color + "; --hovercolor:" + ctx.hoverColor);
     			attr(button, "class", "svelte-4po3k2");
-    			add_location(button, file$3, 42, 0, 926);
+    			add_location(button, file$3, 42, 0, 963);
     			dispose = listen(button, "click", ctx.click_handler);
     		},
 
@@ -31460,11 +31476,11 @@
     		},
 
     		p: function update(changed, ctx) {
-    			if ((changed.icon || changed.size) && raw_value !== (raw_value = getIcon(ctx.icon, ctx.size))) {
+    			if ((changed.icon || changed.size) && raw_value !== (raw_value = getIcon(ctx.icon, ctx.size) + "")) {
     				button.innerHTML = raw_value;
     			}
 
-    			if ((changed.style || changed.color || changed.hoverColor) && button_style_value !== (button_style_value = "" + ctx.style + " color:" + ctx.color + " --hovercolor:" + ctx.hoverColor)) {
+    			if ((changed.style || changed.color || changed.hoverColor) && button_style_value !== (button_style_value = "" + ctx.style + (ctx.style ? ";" : "") + " color:" + ctx.color + "; --hovercolor:" + ctx.hoverColor)) {
     				attr(button, "style", button_style_value);
     			}
 
@@ -31488,7 +31504,7 @@
     }
 
     function instance$2($$self, $$props, $$invalidate) {
-    	let { size = 18, icon = "", style = "", color = "", hoverColor = "", attributes = {} } = $$props;
+    	let { size = 18, icon = "", style = "", color = "var(--secondary100)", hoverColor = "var(--secondary75)", attributes = {} } = $$props;
 
     let currentAttributes = [];
     const addAttributes = (node, attributes) => {
@@ -31601,7 +31617,7 @@
     	}
     }
 
-    /* src\userInterface\ComponentsHierarchy.svelte generated by Svelte v3.6.9 */
+    /* src\userInterface\ComponentsHierarchy.svelte generated by Svelte v3.9.1 */
 
     const file$4 = "src\\userInterface\\ComponentsHierarchy.svelte";
 
@@ -31666,7 +31682,7 @@
 
     // (124:4) {#each subfolders as folder}
     function create_each_block_1(ctx) {
-    	var div, span0, raw_value = getIcon(ctx.folder.isExpanded ? "chevron-down" : "chevron-right", "16"), t0, span1, t1_value = ctx.folder.name, t1, t2, current, dispose;
+    	var div, span0, raw_value = getIcon(ctx.folder.isExpanded ? "chevron-down" : "chevron-right", "16") + "", t0, span1, t1_value = ctx.folder.name + "", t1, t2, current, dispose;
 
     	var if_block = (ctx.folder.isExpanded) && create_if_block(ctx);
 
@@ -31706,11 +31722,11 @@
 
     		p: function update(changed, new_ctx) {
     			ctx = new_ctx;
-    			if ((!current || changed.subfolders) && raw_value !== (raw_value = getIcon(ctx.folder.isExpanded ? "chevron-down" : "chevron-right", "16"))) {
+    			if ((!current || changed.subfolders) && raw_value !== (raw_value = getIcon(ctx.folder.isExpanded ? "chevron-down" : "chevron-right", "16") + "")) {
     				span0.innerHTML = raw_value;
     			}
 
-    			if ((!current || changed.subfolders) && t1_value !== (t1_value = ctx.folder.name)) {
+    			if ((!current || changed.subfolders) && t1_value !== (t1_value = ctx.folder.name + "")) {
     				set_data(t1, t1_value);
     			}
 
@@ -31761,7 +31777,7 @@
 
     // (136:4) {#each componentsThisLevel as component}
     function create_each_block$1(ctx) {
-    	var div, span0, raw_value = getIcon("circle", "7"), t0, span1, t1_value = ctx.component.title, t1, t2, dispose;
+    	var div, span0, raw_value = getIcon("circle", "7") + "", t0, span1, t1_value = ctx.component.title + "", t1, t2, dispose;
 
     	function click_handler_1() {
     		return ctx.click_handler_1(ctx);
@@ -31796,7 +31812,7 @@
 
     		p: function update(changed, new_ctx) {
     			ctx = new_ctx;
-    			if ((changed.componentsThisLevel) && t1_value !== (t1_value = ctx.component.title)) {
+    			if ((changed.componentsThisLevel) && t1_value !== (t1_value = ctx.component.title + "")) {
     				set_data(t1, t1_value);
     			}
 
@@ -31955,7 +31971,7 @@
     	let $store;
 
     	validate_store(store, 'store');
-    	subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
+    	component_subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
 
     	
 
@@ -32109,12 +32125,12 @@
     	}
     }
 
-    /* src\userInterface\PagesList.svelte generated by Svelte v3.6.9 */
+    /* src\userInterface\PagesList.svelte generated by Svelte v3.9.1 */
 
     const file$5 = "src\\userInterface\\PagesList.svelte";
 
     function create_fragment$4(ctx) {
-    	var div2, div0, span0, raw0_value = getIcon("circle", "7"), t0, span1, t2, div1, span2, raw1_value = getIcon("circle", "7"), t3, span3, dispose;
+    	var div2, div0, span0, raw0_value = getIcon("circle", "7") + "", t0, span1, t2, div1, span2, raw1_value = getIcon("circle", "7") + "", t3, span3, dispose;
 
     	return {
     		c: function create() {
@@ -32194,7 +32210,7 @@
     	let $store;
 
     	validate_store(store, 'store');
-    	subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
+    	component_subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
 
     	function click_handler() {
     		return store.setCurrentPage("main");
@@ -32214,7 +32230,7 @@
     	}
     }
 
-    /* src\common\Checkbox.svelte generated by Svelte v3.6.9 */
+    /* src\common\Checkbox.svelte generated by Svelte v3.9.1 */
 
     const file$6 = "src\\common\\Checkbox.svelte";
 
@@ -32322,7 +32338,7 @@
     	}
     }
 
-    /* src\common\Textbox.svelte generated by Svelte v3.6.9 */
+    /* src\common\Textbox.svelte generated by Svelte v3.9.1 */
 
     const file$7 = "src\\common\\Textbox.svelte";
 
@@ -32401,7 +32417,7 @@
     			append(div1, div0);
     			append(div0, input);
 
-    			input.value = ctx.text;
+    			set_input_value(input, ctx.text);
 
     			append(div1, t2);
     			if (if_block) if_block.m(div1, null);
@@ -32412,7 +32428,7 @@
     				set_data(t0, ctx.label);
     			}
 
-    			if (changed.text && (input.value !== ctx.text)) input.value = ctx.text;
+    			if (changed.text && (input.value !== ctx.text)) set_input_value(input, ctx.text);
 
     			if ((changed.width || changed.size) && input_class_value !== (input_class_value = "uk-input uk-form-width-" + ctx.width + " uk-form-" + ctx.size + " svelte-um9cf7")) {
     				attr(input, "class", input_class_value);
@@ -32571,7 +32587,7 @@
     	}
     }
 
-    /* src\common\Dropdown.svelte generated by Svelte v3.6.9 */
+    /* src\common\Dropdown.svelte generated by Svelte v3.9.1 */
 
     const file$8 = "src\\common\\Dropdown.svelte";
 
@@ -32750,7 +32766,7 @@
 
     // (33:12) {#each options as option}
     function create_each_block_1$1(ctx) {
-    	var option, t_value = !ctx.textMember ? ctx.option : ctx.textMember(ctx.option), t, option_value_value;
+    	var option, t_value = !ctx.textMember ? ctx.option : ctx.textMember(ctx.option) + "", t, option_value_value;
 
     	return {
     		c: function create() {
@@ -32767,7 +32783,7 @@
     		},
 
     		p: function update(changed, ctx) {
-    			if ((changed.textMember || changed.options) && t_value !== (t_value = !ctx.textMember ? ctx.option : ctx.textMember(ctx.option))) {
+    			if ((changed.textMember || changed.options) && t_value !== (t_value = !ctx.textMember ? ctx.option : ctx.textMember(ctx.option) + "")) {
     				set_data(t, t_value);
     			}
 
@@ -32788,7 +32804,7 @@
 
     // (25:12) {#each options as option}
     function create_each_block$2(ctx) {
-    	var option, t_value = !ctx.textMember ? ctx.option : ctx.textMember(ctx.option), t, option_value_value;
+    	var option, t_value = !ctx.textMember ? ctx.option : ctx.textMember(ctx.option) + "", t, option_value_value;
 
     	return {
     		c: function create() {
@@ -32805,7 +32821,7 @@
     		},
 
     		p: function update(changed, ctx) {
-    			if ((changed.textMember || changed.options) && t_value !== (t_value = !ctx.textMember ? ctx.option : ctx.textMember(ctx.option))) {
+    			if ((changed.textMember || changed.options) && t_value !== (t_value = !ctx.textMember ? ctx.option : ctx.textMember(ctx.option) + "")) {
     				set_data(t, t_value);
     			}
 
@@ -32827,12 +32843,12 @@
     function create_fragment$7(ctx) {
     	var div1, label_1, t0, t1, div0;
 
-    	function select_block_type(ctx) {
+    	function select_block_type(changed, ctx) {
     		if (ctx.multiple) return create_if_block$2;
     		return create_else_block;
     	}
 
-    	var current_block_type = select_block_type(ctx);
+    	var current_block_type = select_block_type(null, ctx);
     	var if_block = current_block_type(ctx);
 
     	return {
@@ -32869,7 +32885,7 @@
     				set_data(t0, ctx.label);
     			}
 
-    			if (current_block_type === (current_block_type = select_block_type(ctx)) && if_block) {
+    			if (current_block_type === (current_block_type = select_block_type(changed, ctx)) && if_block) {
     				if_block.p(changed, ctx);
     			} else {
     				if_block.d(1);
@@ -33137,7 +33153,7 @@
         return errors;
     };
 
-    /* src\userInterface\ComponentSearch.svelte generated by Svelte v3.6.9 */
+    /* src\userInterface\ComponentSearch.svelte generated by Svelte v3.9.1 */
 
     const file$9 = "src\\userInterface\\ComponentSearch.svelte";
 
@@ -33149,7 +33165,7 @@
 
     // (33:8) {#each filteredComponents as component}
     function create_each_block$3(ctx) {
-    	var div2, div0, t0_value = ctx.component.name, t0, t1, div1, t2_value = ctx.component.description, t2, t3, dispose;
+    	var div2, div0, t0_value = ctx.component.name + "", t0, t1, div1, t2_value = ctx.component.description + "", t2, t3, dispose;
 
     	function click_handler() {
     		return ctx.click_handler(ctx);
@@ -33185,11 +33201,11 @@
 
     		p: function update(changed, new_ctx) {
     			ctx = new_ctx;
-    			if ((changed.filteredComponents) && t0_value !== (t0_value = ctx.component.name)) {
+    			if ((changed.filteredComponents) && t0_value !== (t0_value = ctx.component.name + "")) {
     				set_data(t0, t0_value);
     			}
 
-    			if ((changed.filteredComponents) && t2_value !== (t2_value = ctx.component.description)) {
+    			if ((changed.filteredComponents) && t2_value !== (t2_value = ctx.component.description + "")) {
     				set_data(t2, t2_value);
     			}
     		},
@@ -33253,7 +33269,7 @@
     			append(form, t0);
     			append(form, input);
 
-    			input.value = ctx.phrase;
+    			set_input_value(input, ctx.phrase);
 
     			append(div1, t1);
     			append(div1, div0);
@@ -33264,7 +33280,7 @@
     		},
 
     		p: function update(changed, ctx) {
-    			if (changed.phrase) input.value = ctx.phrase;
+    			if (changed.phrase) set_input_value(input, ctx.phrase);
 
     			if (changed.filteredComponents) {
     				each_value = ctx.filteredComponents;
@@ -33366,15 +33382,15 @@
     	}
     }
 
-    /* src\common\ButtonGroup.svelte generated by Svelte v3.6.9 */
+    /* src\common\ButtonGroup.svelte generated by Svelte v3.9.1 */
 
     const file$a = "src\\common\\ButtonGroup.svelte";
 
     function create_fragment$9(ctx) {
     	var div, current;
 
-    	const default_slot_1 = ctx.$$slots.default;
-    	const default_slot = create_slot(default_slot_1, ctx, null);
+    	const default_slot_template = ctx.$$slots.default;
+    	const default_slot = create_slot(default_slot_template, ctx, null);
 
     	return {
     		c: function create() {
@@ -33404,7 +33420,10 @@
 
     		p: function update(changed, ctx) {
     			if (default_slot && default_slot.p && changed.$$scope) {
-    				default_slot.p(get_slot_changes(default_slot_1, ctx, changed, null), get_slot_context(default_slot_1, ctx, null));
+    				default_slot.p(
+    					get_slot_changes(default_slot_template, ctx, changed, null),
+    					get_slot_context(default_slot_template, ctx, null)
+    				);
     			}
 
     			if (!current || changed.style) {
@@ -45721,7 +45740,7 @@
     }));
     });
 
-    /* src\userInterface\ComponentPropSelector.svelte generated by Svelte v3.6.9 */
+    /* src\userInterface\ComponentPropSelector.svelte generated by Svelte v3.9.1 */
 
     const file$b = "src\\userInterface\\ComponentPropSelector.svelte";
 
@@ -46044,7 +46063,7 @@
     }
 
     function create_fragment$a(ctx) {
-    	var label_1, t0, t1, div2, div0, t2_value = ctx.componentSelected ?  ctx.shortName : "(none)", t2, t3, div1, current_block_type_index, if_block0, t4, div4, div3, current_block_type_index_1, if_block1, current;
+    	var label_1, t0, t1, div2, div0, t2_value = ctx.componentSelected ?  ctx.shortName : "(none)" + "", t2, t3, div1, current_block_type_index, if_block0, t4, div4, div3, current_block_type_index_1, if_block1, current;
 
     	var if_block_creators = [
     		create_if_block_2,
@@ -46053,13 +46072,13 @@
 
     	var if_blocks = [];
 
-    	function select_block_type(ctx) {
+    	function select_block_type(changed, ctx) {
     		if (!ctx.disabled && ctx.componentSelected) return 0;
     		if (!ctx.disabled && !ctx.componentSelected) return 1;
     		return -1;
     	}
 
-    	if (~(current_block_type_index = select_block_type(ctx))) {
+    	if (~(current_block_type_index = select_block_type(null, ctx))) {
     		if_block0 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
     	}
 
@@ -46070,13 +46089,13 @@
 
     	var if_blocks_1 = [];
 
-    	function select_block_type_1(ctx) {
+    	function select_block_type_1(changed, ctx) {
     		if (ctx.modalAction === CHOOSE_COMPONENT) return 0;
     		if (ctx.modalAction === CLEAR_COMPONENT) return 1;
     		return -1;
     	}
 
-    	if (~(current_block_type_index_1 = select_block_type_1(ctx))) {
+    	if (~(current_block_type_index_1 = select_block_type_1(null, ctx))) {
     		if_block1 = if_blocks_1[current_block_type_index_1] = if_block_creators_1[current_block_type_index_1](ctx);
     	}
 
@@ -46138,7 +46157,7 @@
     				set_data(t0, ctx.label);
     			}
 
-    			if ((!current || changed.componentSelected || changed.shortName) && t2_value !== (t2_value = ctx.componentSelected ?  ctx.shortName : "(none)")) {
+    			if ((!current || changed.componentSelected || changed.shortName) && t2_value !== (t2_value = ctx.componentSelected ?  ctx.shortName : "(none)" + "")) {
     				set_data(t2, t2_value);
     			}
 
@@ -46147,7 +46166,7 @@
     			}
 
     			var previous_block_index = current_block_type_index;
-    			current_block_type_index = select_block_type(ctx);
+    			current_block_type_index = select_block_type(changed, ctx);
     			if (current_block_type_index !== previous_block_index) {
     				if (if_block0) {
     					group_outros();
@@ -46171,7 +46190,7 @@
     			}
 
     			var previous_block_index_1 = current_block_type_index_1;
-    			current_block_type_index_1 = select_block_type_1(ctx);
+    			current_block_type_index_1 = select_block_type_1(changed, ctx);
     			if (current_block_type_index_1 === previous_block_index_1) {
     				if (~current_block_type_index_1) if_blocks_1[current_block_type_index_1].p(changed, ctx);
     			} else {
@@ -46386,7 +46405,7 @@
     	}
     }
 
-    /* src\userInterface\PropControl.svelte generated by Svelte v3.6.9 */
+    /* src\userInterface\PropControl.svelte generated by Svelte v3.9.1 */
 
     const file$c = "src\\userInterface\\PropControl.svelte";
 
@@ -46612,14 +46631,14 @@
 
     	var if_blocks = [];
 
-    	function select_block_type(ctx) {
+    	function select_block_type(changed, ctx) {
     		if (ctx.propDef.type === "bool") return 0;
     		if (ctx.propDef.type === "options") return 1;
     		if (ctx.propDef.type === "component") return 2;
     		return 3;
     	}
 
-    	current_block_type_index = select_block_type(ctx);
+    	current_block_type_index = select_block_type(null, ctx);
     	if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
 
     	return {
@@ -46642,7 +46661,7 @@
 
     		p: function update(changed, ctx) {
     			var previous_block_index = current_block_type_index;
-    			current_block_type_index = select_block_type(ctx);
+    			current_block_type_index = select_block_type(changed, ctx);
     			if (current_block_type_index === previous_block_index) {
     				if_blocks[current_block_type_index].p(changed, ctx);
     			} else {
@@ -46822,7 +46841,7 @@
     	}
     }
 
-    /* src\userInterface\PropsView.svelte generated by Svelte v3.6.9 */
+    /* src\userInterface\PropsView.svelte generated by Svelte v3.9.1 */
 
     const file$d = "src\\userInterface\\PropsView.svelte";
 
@@ -47465,7 +47484,7 @@
         };
     }
 
-    /* src\userInterface\ComponentInstanceEditor.svelte generated by Svelte v3.6.9 */
+    /* src\userInterface\ComponentInstanceEditor.svelte generated by Svelte v3.9.1 */
 
     const file$e = "src\\userInterface\\ComponentInstanceEditor.svelte";
 
@@ -47608,12 +47627,12 @@
 
     	var if_blocks = [];
 
-    	function select_block_type(ctx) {
+    	function select_block_type(changed, ctx) {
     		if (ctx.editingSubComponentName) return 0;
     		return 1;
     	}
 
-    	current_block_type_index = select_block_type(ctx);
+    	current_block_type_index = select_block_type(null, ctx);
     	if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
 
     	return {
@@ -47655,7 +47674,7 @@
     			}
 
     			var previous_block_index = current_block_type_index;
-    			current_block_type_index = select_block_type(ctx);
+    			current_block_type_index = select_block_type(changed, ctx);
     			if (current_block_type_index === previous_block_index) {
     				if_blocks[current_block_type_index].p(changed, ctx);
     			} else {
@@ -47813,7 +47832,7 @@
     	}
     }
 
-    /* src\userInterface\EditComponent.svelte generated by Svelte v3.6.9 */
+    /* src\userInterface\EditComponent.svelte generated by Svelte v3.9.1 */
 
     const file$f = "src\\userInterface\\EditComponent.svelte";
 
@@ -47855,13 +47874,13 @@
     			t5 = space();
     			propsview.$$.fragment.c();
     			set_style(span0, "margin-right", "7px");
-    			add_location(span0, file$f, 155, 12, 4277);
-    			attr(div0, "class", "section-header padding svelte-xai2hc");
-    			add_location(div0, file$f, 154, 8, 4157);
-    			add_location(span1, file$f, 176, 12, 5092);
-    			attr(div1, "class", "section-header padding svelte-xai2hc");
-    			add_location(div1, file$f, 175, 8, 5042);
-    			add_location(div2, file$f, 152, 4, 4140);
+    			add_location(span0, file$f, 155, 12, 4122);
+    			attr(div0, "class", "section-header padding svelte-183dehm");
+    			add_location(div0, file$f, 154, 8, 4003);
+    			add_location(span1, file$f, 177, 12, 4977);
+    			attr(div1, "class", "section-header padding svelte-183dehm");
+    			add_location(div1, file$f, 176, 8, 4928);
+    			add_location(div2, file$f, 152, 4, 3988);
     			dispose = listen(div0, "click", ctx.click_handler);
     		},
 
@@ -48010,6 +48029,7 @@
     	let textbox0_props = {
     		label: "Name",
     		infoText: "use forward slash to store in subfolders",
+    		disabled: !ctx.$store.currentComponentIsNew,
     		hasError: !!ctx.nameInvalid
     	};
     	if (ctx.name !== void 0) {
@@ -48061,9 +48081,9 @@
     			t2 = space();
     			textbox2.$$.fragment.c();
     			attr(div0, "class", "info-text");
-    			add_location(div0, file$f, 165, 12, 4725);
-    			attr(div1, "class", "padding svelte-xai2hc");
-    			add_location(div1, file$f, 160, 8, 4495);
+    			add_location(div0, file$f, 166, 12, 4621);
+    			attr(div1, "class", "padding svelte-183dehm");
+    			add_location(div1, file$f, 160, 8, 4335);
     		},
 
     		m: function mount(target, anchor) {
@@ -48080,6 +48100,7 @@
 
     		p: function update(changed, ctx) {
     			var textbox0_changes = {};
+    			if (changed.$store) textbox0_changes.disabled = !ctx.$store.currentComponentIsNew;
     			if (changed.nameInvalid) textbox0_changes.hasError = !!ctx.nameInvalid;
     			if (!updating_text && changed.name) {
     				textbox0_changes.text = ctx.name;
@@ -48131,7 +48152,7 @@
     	};
     }
 
-    // (206:16) <Button grouped                           on:click={confirmDeleteComponent}>
+    // (207:16) <Button grouped                          on:click={confirmDeleteComponent}>
     function create_default_slot_2$1(ctx) {
     	var t;
 
@@ -48152,7 +48173,7 @@
     	};
     }
 
-    // (210:16) <Button grouped                           on:click={hideDialog}                           color="secondary" >
+    // (211:16) <Button grouped                          on:click={hideDialog}                          color="secondary" >
     function create_default_slot_1$1(ctx) {
     	var t;
 
@@ -48173,7 +48194,7 @@
     	};
     }
 
-    // (205:12) <ButtonGroup>
+    // (206:12) <ButtonGroup>
     function create_default_slot$1(ctx) {
     	var t, current;
 
@@ -48250,7 +48271,7 @@
     }
 
     function create_fragment$e(ctx) {
-    	var div3, div2, div0, t0, t1, div1, t2, t3, current_block_type_index, if_block, t4, div8, div7, div4, t5, t6_value = ctx.component.name, t6, t7, t8, div5, t10, div6, current;
+    	var div3, div2, div0, t0, t1, div1, t2, t3, current_block_type_index, if_block, t4, div8, div7, div4, t5, t6_value = ctx.component.name + "", t6, t7, t8, div5, t10, div6, current;
 
     	var iconbutton0 = new IconButton({
     		props: {
@@ -48279,12 +48300,12 @@
 
     	var if_blocks = [];
 
-    	function select_block_type(ctx) {
+    	function select_block_type(changed, ctx) {
     		if (ctx.editingComponentInstance) return 0;
     		return 1;
     	}
 
-    	current_block_type_index = select_block_type(ctx);
+    	current_block_type_index = select_block_type(null, ctx);
     	if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
 
     	var buttongroup = new ButtonGroup({
@@ -48321,25 +48342,25 @@
     			t10 = space();
     			div6 = element("div");
     			buttongroup.$$.fragment.c();
-    			attr(div0, "class", "svelte-xai2hc");
-    			add_location(div0, file$f, 133, 8, 3359);
-    			attr(div1, "class", "svelte-xai2hc");
-    			add_location(div1, file$f, 134, 8, 3391);
-    			attr(div2, "class", "title svelte-xai2hc");
-    			add_location(div2, file$f, 132, 4, 3330);
-    			attr(div3, "class", "root svelte-xai2hc");
-    			add_location(div3, file$f, 130, 0, 3304);
+    			attr(div0, "class", "svelte-183dehm");
+    			add_location(div0, file$f, 133, 8, 3226);
+    			attr(div1, "class", "svelte-183dehm");
+    			add_location(div1, file$f, 134, 8, 3257);
+    			attr(div2, "class", "title svelte-183dehm");
+    			add_location(div2, file$f, 132, 4, 3198);
+    			attr(div3, "class", "root svelte-183dehm");
+    			add_location(div3, file$f, 130, 0, 3174);
     			attr(div4, "class", "uk-modal-header");
-    			add_location(div4, file$f, 195, 8, 5436);
+    			add_location(div4, file$f, 196, 8, 5302);
     			attr(div5, "class", "uk-modal-body");
-    			add_location(div5, file$f, 199, 8, 5533);
+    			add_location(div5, file$f, 200, 8, 5395);
     			attr(div6, "class", "uk-modal-footer");
-    			add_location(div6, file$f, 203, 8, 5650);
+    			add_location(div6, file$f, 204, 8, 5508);
     			attr(div7, "class", "uk-modal-dialog");
-    			add_location(div7, file$f, 193, 4, 5395);
+    			add_location(div7, file$f, 194, 4, 5263);
     			attr(div8, "uk-modal", "");
-    			attr(div8, "class", "svelte-xai2hc");
-    			add_location(div8, file$f, 192, 0, 5350);
+    			attr(div8, "class", "svelte-183dehm");
+    			add_location(div8, file$f, 193, 0, 5219);
     		},
 
     		l: function claim(nodes) {
@@ -48380,7 +48401,7 @@
     			}
 
     			var previous_block_index = current_block_type_index;
-    			current_block_type_index = select_block_type(ctx);
+    			current_block_type_index = select_block_type(changed, ctx);
     			if (current_block_type_index === previous_block_index) {
     				if_blocks[current_block_type_index].p(changed, ctx);
     			} else {
@@ -48399,7 +48420,7 @@
     				if_block.m(div3, null);
     			}
 
-    			if ((!current || changed.component) && t6_value !== (t6_value = ctx.component.name)) {
+    			if ((!current || changed.component) && t6_value !== (t6_value = ctx.component.name + "")) {
     				set_data(t6, t6_value);
     			}
 
@@ -48453,6 +48474,11 @@
     }
 
     function instance$e($$self, $$props, $$invalidate) {
+    	let $store;
+
+    	validate_store(store, 'store');
+    	component_subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
+
     	
 
     let component;
@@ -48604,6 +48630,7 @@
     		componentInstanceCancelEdit,
     		componentInstancePropsChanged,
     		shortName,
+    		$store,
     		click_handler,
     		textbox0_text_binding,
     		textbox1_text_binding,
@@ -48619,15 +48646,15 @@
     	}
     }
 
-    /* src\common\Modal.svelte generated by Svelte v3.6.9 */
+    /* src\common\Modal.svelte generated by Svelte v3.9.1 */
 
     const file$g = "src\\common\\Modal.svelte";
 
     function create_fragment$f(ctx) {
     	var div1, div0, current;
 
-    	const default_slot_1 = ctx.$$slots.default;
-    	const default_slot = create_slot(default_slot_1, ctx, null);
+    	const default_slot_template = ctx.$$slots.default;
+    	const default_slot = create_slot(default_slot_template, ctx, null);
 
     	return {
     		c: function create() {
@@ -48663,7 +48690,10 @@
 
     		p: function update(changed, ctx) {
     			if (default_slot && default_slot.p && changed.$$scope) {
-    				default_slot.p(get_slot_changes(default_slot_1, ctx, changed, null), get_slot_context(default_slot_1, ctx, null));
+    				default_slot.p(
+    					get_slot_changes(default_slot_template, ctx, changed, null),
+    					get_slot_context(default_slot_template, ctx, null)
+    				);
     			}
 
     			if (!current || changed.id) {
@@ -48778,7 +48808,7 @@
     	}
     }
 
-    /* src\userInterface\NewComponent.svelte generated by Svelte v3.6.9 */
+    /* src\userInterface\NewComponent.svelte generated by Svelte v3.9.1 */
 
     const file$h = "src\\userInterface\\NewComponent.svelte";
 
@@ -48934,100 +48964,45 @@
         return {libName, componentName}; 
     };
 
-    /* src\userInterface\CurrentItemPreview.svelte generated by Svelte v3.6.9 */
+    /* src\userInterface\CurrentItemPreview.svelte generated by Svelte v3.9.1 */
 
     const file$i = "src\\userInterface\\CurrentItemPreview.svelte";
 
-    function get_each_context$5(ctx, list, i) {
-    	const child_ctx = Object.create(ctx);
-    	child_ctx.stylesheet = list[i];
-    	return child_ctx;
-    }
-
-    // (26:20) {#each $store.pages.stylesheets as stylesheet}
-    function create_each_block$5(ctx) {
-    	var link, link_href_value;
-
-    	return {
-    		c: function create() {
-    			link = element("link");
-    			attr(link, "rel", "stylesheet");
-    			attr(link, "href", link_href_value = ctx.stylesheet);
-    			add_location(link, file$i, 26, 20, 665);
-    		},
-
-    		m: function mount(target, anchor) {
-    			insert(target, link, anchor);
-    		},
-
-    		p: function update(changed, ctx) {
-    			if ((changed.$store) && link_href_value !== (link_href_value = ctx.stylesheet)) {
-    				attr(link, "href", link_href_value);
-    			}
-    		},
-
-    		d: function destroy(detaching) {
-    			if (detaching) {
-    				detach(link);
-    			}
-    		}
-    	};
-    }
-
     function create_fragment$h(ctx) {
-    	var div1, div0, iframe, head, t, body, current;
-
-    	var each_value = ctx.$store.pages.stylesheets;
-
-    	var each_blocks = [];
-
-    	for (var i = 0; i < each_value.length; i += 1) {
-    		each_blocks[i] = create_each_block$5(get_each_context$5(ctx, each_value, i));
-    	}
-
-    	var switch_instance_spread_levels = [
-    		ctx.$store.currentComponentInfo.fullProps
-    	];
-
-    	var switch_value = ctx.component;
-
-    	function switch_props(ctx) {
-    		let switch_instance_props = {};
-    		for (var i = 0; i < switch_instance_spread_levels.length; i += 1) {
-    			switch_instance_props = assign(switch_instance_props, switch_instance_spread_levels[i]);
-    		}
-    		return {
-    			props: switch_instance_props,
-    			$$inline: true
-    		};
-    	}
-
-    	if (switch_value) {
-    		var switch_instance = new switch_value(switch_props());
-    	}
+    	var div1, div0, iframe_1, iframe_1_srcdoc_value, dispose;
 
     	return {
     		c: function create() {
     			div1 = element("div");
     			div0 = element("div");
-    			iframe = element("iframe");
-    			head = element("head");
-
-    			for (var i = 0; i < each_blocks.length; i += 1) {
-    				each_blocks[i].c();
-    			}
-
-    			t = space();
-    			body = element("body");
-    			if (switch_instance) switch_instance.$$.fragment.c();
-    			add_location(head, file$i, 24, 16, 569);
-    			add_location(body, file$i, 29, 16, 781);
-    			attr(iframe, "title", "componentPreview");
-    			add_location(iframe, file$i, 22, 8, 515);
-    			attr(div0, "class", "component-container svelte-1rf8xuh");
-    			add_location(div0, file$i, 21, 4, 472);
-    			attr(div1, "class", "component-preview svelte-1rf8xuh");
-    			add_location(div1, file$i, 20, 0, 434);
+    			iframe_1 = element("iframe");
+    			attr(iframe_1, "title", "componentPreview");
+    			attr(iframe_1, "srcdoc", iframe_1_srcdoc_value = `<html>
+    
+<head>
+    ${ctx.stylesheetLinks}
+    <script>
+    
+        import('${ctx.componentLibraryUrl}')
+        .then(module => {
+            const componentClass = module['${ctx.rootComponentName}'];
+            const instance = new componentClass({
+                target: document.body,
+                props: JSON.parse('${JSON.stringify(ctx.props)}')
+            }) ;
+        })
+        
+    </script>
+</head>
+<body>
+</body>
+</html>`);
+    			add_location(iframe_1, file$i, 52, 8, 1370);
+    			attr(div0, "class", "component-container svelte-3nuv7g");
+    			add_location(div0, file$i, 51, 4, 1328);
+    			attr(div1, "class", "component-preview svelte-3nuv7g");
+    			add_location(div1, file$i, 50, 0, 1291);
+    			dispose = listen(iframe_1, "load", ctx.iframeLoaded);
     		},
 
     		l: function claim(nodes) {
@@ -49037,117 +49012,101 @@
     		m: function mount(target, anchor) {
     			insert(target, div1, anchor);
     			append(div1, div0);
-    			append(div0, iframe);
-    			append(iframe, head);
-
-    			for (var i = 0; i < each_blocks.length; i += 1) {
-    				each_blocks[i].m(head, null);
-    			}
-
-    			append(iframe, t);
-    			append(iframe, body);
-
-    			if (switch_instance) {
-    				mount_component(switch_instance, body, null);
-    			}
-
-    			current = true;
+    			append(div0, iframe_1);
+    			ctx.iframe_1_binding(iframe_1);
     		},
 
     		p: function update(changed, ctx) {
-    			if (changed.$store) {
-    				each_value = ctx.$store.pages.stylesheets;
-
-    				for (var i = 0; i < each_value.length; i += 1) {
-    					const child_ctx = get_each_context$5(ctx, each_value, i);
-
-    					if (each_blocks[i]) {
-    						each_blocks[i].p(changed, child_ctx);
-    					} else {
-    						each_blocks[i] = create_each_block$5(child_ctx);
-    						each_blocks[i].c();
-    						each_blocks[i].m(head, null);
-    					}
-    				}
-
-    				for (; i < each_blocks.length; i += 1) {
-    					each_blocks[i].d(1);
-    				}
-    				each_blocks.length = each_value.length;
-    			}
-
-    			var switch_instance_changes = changed.$store ? get_spread_update(switch_instance_spread_levels, [
-    				ctx.$store.currentComponentInfo.fullProps
-    			]) : {};
-
-    			if (switch_value !== (switch_value = ctx.component)) {
-    				if (switch_instance) {
-    					group_outros();
-    					const old_component = switch_instance;
-    					transition_out(old_component.$$.fragment, 1, 0, () => {
-    						destroy_component(old_component, 1);
-    					});
-    					check_outros();
-    				}
-
-    				if (switch_value) {
-    					switch_instance = new switch_value(switch_props());
-
-    					switch_instance.$$.fragment.c();
-    					transition_in(switch_instance.$$.fragment, 1);
-    					mount_component(switch_instance, body, null);
-    				} else {
-    					switch_instance = null;
-    				}
-    			}
-
-    			else if (switch_value) {
-    				switch_instance.$set(switch_instance_changes);
+    			if ((changed.stylesheetLinks || changed.componentLibraryUrl || changed.rootComponentName || changed.props) && iframe_1_srcdoc_value !== (iframe_1_srcdoc_value = `<html>
+    
+<head>
+    ${ctx.stylesheetLinks}
+    <script>
+    
+        import('${ctx.componentLibraryUrl}')
+        .then(module => {
+            const componentClass = module['${ctx.rootComponentName}'];
+            const instance = new componentClass({
+                target: document.body,
+                props: JSON.parse('${JSON.stringify(ctx.props)}')
+            }) ;
+        })
+        
+    </script>
+</head>
+<body>
+</body>
+</html>`)) {
+    				attr(iframe_1, "srcdoc", iframe_1_srcdoc_value);
     			}
     		},
 
-    		i: function intro(local) {
-    			if (current) return;
-    			if (switch_instance) transition_in(switch_instance.$$.fragment, local);
-
-    			current = true;
-    		},
-
-    		o: function outro(local) {
-    			if (switch_instance) transition_out(switch_instance.$$.fragment, local);
-    			current = false;
-    		},
+    		i: noop,
+    		o: noop,
 
     		d: function destroy(detaching) {
     			if (detaching) {
     				detach(div1);
     			}
 
-    			destroy_each(each_blocks, detaching);
-
-    			if (switch_instance) destroy_component(switch_instance);
+    			ctx.iframe_1_binding(null);
+    			dispose();
     		}
     	};
     }
 
     function instance$h($$self, $$props, $$invalidate) {
-    	let $store;
-
-    	validate_store(store, 'store');
-    	subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
-
     	
 
     let component;
+    let stylesheetLinks = "";
+    let props;
+    let componentLibraryUrl = "";
+    let rootComponentName = "";
+    let iframe;
 
     store.subscribe(s => {
         const {componentName, libName} = splitName(
             s.currentComponentInfo.rootComponent.name);
 
-        $$invalidate('component', component = s.libraries[libName][componentName]);
+        $$invalidate('rootComponentName', rootComponentName = componentName);
+        $$invalidate('props', props = s.currentComponentInfo.fullProps);
+        component = s.libraries[libName][componentName];
+        $$invalidate('stylesheetLinks', stylesheetLinks = pipe(s.pages.stylesheets, [
+            fp_7(s => `<link rel="stylesheet" href="${s}"/>`),
+            fp_39("\n")
+        ]));
+        $$invalidate('componentLibraryUrl', componentLibraryUrl = makeLibraryUrl(s.appname, libName));
     });
 
-    	return { component, $store };
+    /*
+    afterUpdate(() => {
+        if(iframe) iframeLoaded();
+    });
+    */
+
+    const iframeLoaded = () => {
+        setTimeout(() => {
+            iframe.style.height = (iframe.contentWindow.document.body.scrollHeight + 1).toString() + "px"; $$invalidate('iframe', iframe);
+            iframe.style.width = (iframe.contentWindow.document.body.scrollWidth + 1).toString() + "px"; $$invalidate('iframe', iframe);
+        }, 100);
+    };
+
+    	function iframe_1_binding($$value) {
+    		binding_callbacks[$$value ? 'unshift' : 'push'](() => {
+    			$$invalidate('iframe', iframe = $$value);
+    		});
+    	}
+
+    	return {
+    		stylesheetLinks,
+    		props,
+    		componentLibraryUrl,
+    		rootComponentName,
+    		iframe,
+    		iframeLoaded,
+    		iframe_1_binding
+    	};
     }
 
     class CurrentItemPreview extends SvelteComponentDev {
@@ -49175,11 +49134,11 @@
         );
     };
 
-    /* src\userInterface\SettingsView.svelte generated by Svelte v3.6.9 */
+    /* src\userInterface\SettingsView.svelte generated by Svelte v3.9.1 */
 
     const file$j = "src\\userInterface\\SettingsView.svelte";
 
-    function get_each_context$6(ctx, list, i) {
+    function get_each_context$5(ctx, list, i) {
     	const child_ctx = Object.create(ctx);
     	child_ctx.stylesheet = list[i];
     	return child_ctx;
@@ -49214,7 +49173,7 @@
 
     // (73:16) {#each $store.pages.componentLibraries as lib}
     function create_each_block_1$3(ctx) {
-    	var div, span, t0_value = ctx.lib, t0, t1, t2, current;
+    	var div, span, t0_value = ctx.lib + "", t0, t1, t2, current;
 
     	function click_handler() {
     		return ctx.click_handler(ctx);
@@ -49248,7 +49207,7 @@
 
     		p: function update(changed, new_ctx) {
     			ctx = new_ctx;
-    			if ((!current || changed.$store) && t0_value !== (t0_value = ctx.lib)) {
+    			if ((!current || changed.$store) && t0_value !== (t0_value = ctx.lib + "")) {
     				set_data(t0, t0_value);
     			}
     		},
@@ -49297,8 +49256,8 @@
     }
 
     // (91:16) {#each $store.pages.stylesheets as stylesheet}
-    function create_each_block$6(ctx) {
-    	var div, span, t0_value = ctx.stylesheet, t0, t1, t2, current;
+    function create_each_block$5(ctx) {
+    	var div, span, t0_value = ctx.stylesheet + "", t0, t1, t2, current;
 
     	function click_handler_1() {
     		return ctx.click_handler_1(ctx);
@@ -49332,7 +49291,7 @@
 
     		p: function update(changed, new_ctx) {
     			ctx = new_ctx;
-    			if ((!current || changed.$store) && t0_value !== (t0_value = ctx.stylesheet)) {
+    			if ((!current || changed.$store) && t0_value !== (t0_value = ctx.stylesheet + "")) {
     				set_data(t0, t0_value);
     			}
     		},
@@ -49402,7 +49361,7 @@
     	var each_blocks = [];
 
     	for (var i = 0; i < each_value.length; i += 1) {
-    		each_blocks[i] = create_each_block$6(get_each_context$6(ctx, each_value, i));
+    		each_blocks[i] = create_each_block$5(get_each_context$5(ctx, each_value, i));
     	}
 
     	const out_1 = i => transition_out(each_blocks[i], 1, 1, () => {
@@ -49504,7 +49463,7 @@
     			append(p0, span0);
     			append(span0, input0);
 
-    			input0.value = ctx.addNewLib;
+    			set_input_value(input0, ctx.addNewLib);
 
     			append(span0, t4);
     			mount_component(button0, span0, null);
@@ -49521,7 +49480,7 @@
     			append(p1, span1);
     			append(span1, input1);
 
-    			input1.value = ctx.addNewStylesheet;
+    			set_input_value(input1, ctx.addNewStylesheet);
 
     			append(span1, t8);
     			mount_component(button1, span1, null);
@@ -49536,7 +49495,7 @@
     		},
 
     		p: function update(changed, ctx) {
-    			if (changed.addNewLib && (input0.value !== ctx.addNewLib)) input0.value = ctx.addNewLib;
+    			if (changed.addNewLib && (input0.value !== ctx.addNewLib)) set_input_value(input0, ctx.addNewLib);
 
     			var button0_changes = {};
     			if (changed.$$scope) button0_changes.$$scope = { changed, ctx };
@@ -49564,7 +49523,7 @@
     				check_outros();
     			}
 
-    			if (changed.addNewStylesheet && (input1.value !== ctx.addNewStylesheet)) input1.value = ctx.addNewStylesheet;
+    			if (changed.addNewStylesheet && (input1.value !== ctx.addNewStylesheet)) set_input_value(input1, ctx.addNewStylesheet);
 
     			var button1_changes = {};
     			if (changed.$$scope) button1_changes.$$scope = { changed, ctx };
@@ -49574,13 +49533,13 @@
     				each_value = ctx.$store.pages.stylesheets;
 
     				for (var i = 0; i < each_value.length; i += 1) {
-    					const child_ctx = get_each_context$6(ctx, each_value, i);
+    					const child_ctx = get_each_context$5(ctx, each_value, i);
 
     					if (each_blocks[i]) {
     						each_blocks[i].p(changed, child_ctx);
     						transition_in(each_blocks[i], 1);
     					} else {
-    						each_blocks[i] = create_each_block$6(child_ctx);
+    						each_blocks[i] = create_each_block$5(child_ctx);
     						each_blocks[i].c();
     						transition_in(each_blocks[i], 1);
     						each_blocks[i].m(div4, null);
@@ -49648,7 +49607,7 @@
     	let $store;
 
     	validate_store(store, 'store');
-    	subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
+    	component_subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
 
     	
 
@@ -49757,7 +49716,7 @@
     	}
     }
 
-    /* src\userInterface\UserInterfaceRoot.svelte generated by Svelte v3.6.9 */
+    /* src\userInterface\UserInterfaceRoot.svelte generated by Svelte v3.9.1 */
 
     const file$k = "src\\userInterface\\UserInterfaceRoot.svelte";
 
@@ -49830,7 +49789,7 @@
     }
 
     function create_fragment$j(ctx) {
-    	var div12, div9, div4, div2, div0, raw0_value = getIcon("sidebar","18"), t0, span0, t2, div1, t3, t4, div3, t5, div8, div6, div5, raw1_value = getIcon("grid","18"), t6, span1, t8, div7, t9, div10, t10, div11, t11, t12, current;
+    	var div12, div9, div4, div2, div0, raw0_value = getIcon("sidebar","18") + "", t0, span0, t2, div1, t3, t4, div3, t5, div8, div6, div5, raw1_value = getIcon("grid","18") + "", t6, span1, t8, div7, t9, div10, t10, div11, show_if = ctx.$store.currentFrontEndItem && !isRootComponent(ctx.$store.currentFrontEndItem), t11, t12, current;
 
     	var iconbutton0 = new IconButton({
     		props: { icon: "settings", size: "14" },
@@ -49842,7 +49801,7 @@
     	iconbutton1.$on("click", ctx.newComponent);
 
     	var componentshierarchy = new ComponentsHierarchy({
-    		props: { components: ctx.$store.allComponents },
+    		props: { components: ctx.$store.derivedComponents },
     		$$inline: true
     	});
 
@@ -49850,7 +49809,7 @@
 
     	var if_block0 = (ctx.$store.currentFrontEndItem) && create_if_block_1$4();
 
-    	var if_block1 = (ctx.$store.currentFrontEndItem && !isRootComponent(ctx.$store.currentFrontEndItem)) && create_if_block$8();
+    	var if_block1 = (show_if) && create_if_block$8();
 
     	let newcomponent_props = {};
     	var newcomponent = new NewComponent({
@@ -49919,20 +49878,20 @@
     			attr(div4, "class", "components-list-container");
     			add_location(div4, file$k, 30, 8, 805);
     			attr(div5, "class", "svelte-1dih19s");
-    			add_location(div5, file$k, 49, 16, 1555);
+    			add_location(div5, file$k, 49, 16, 1559);
     			attr(span1, "class", "svelte-1dih19s");
-    			add_location(span1, file$k, 50, 16, 1611);
+    			add_location(span1, file$k, 50, 16, 1615);
     			attr(div6, "class", "nav-group-header svelte-1dih19s");
-    			add_location(div6, file$k, 48, 12, 1508);
+    			add_location(div6, file$k, 48, 12, 1512);
     			attr(div7, "class", "nav-items-container svelte-1dih19s");
-    			add_location(div7, file$k, 52, 12, 1661);
+    			add_location(div7, file$k, 52, 12, 1665);
     			attr(div8, "class", "pages-list-container svelte-1dih19s");
-    			add_location(div8, file$k, 47, 8, 1461);
+    			add_location(div8, file$k, 47, 8, 1465);
     			attr(div9, "class", "ui-nav svelte-1dih19s");
     			add_location(div9, file$k, 28, 4, 775);
-    			add_location(div10, file$k, 59, 4, 1776);
+    			add_location(div10, file$k, 59, 4, 1780);
     			attr(div11, "class", "properties-pane svelte-1dih19s");
-    			add_location(div11, file$k, 65, 4, 1885);
+    			add_location(div11, file$k, 65, 4, 1889);
     			attr(div12, "class", "root svelte-1dih19s");
     			add_location(div12, file$k, 26, 0, 747);
     		},
@@ -49983,7 +49942,7 @@
 
     		p: function update(changed, ctx) {
     			var componentshierarchy_changes = {};
-    			if (changed.$store) componentshierarchy_changes.components = ctx.$store.allComponents;
+    			if (changed.$store) componentshierarchy_changes.components = ctx.$store.derivedComponents;
     			componentshierarchy.$set(componentshierarchy_changes);
 
     			if (ctx.$store.currentFrontEndItem) {
@@ -50003,7 +49962,9 @@
     				check_outros();
     			}
 
-    			if (ctx.$store.currentFrontEndItem && !isRootComponent(ctx.$store.currentFrontEndItem)) {
+    			if (changed.$store) show_if = ctx.$store.currentFrontEndItem && !isRootComponent(ctx.$store.currentFrontEndItem);
+
+    			if (show_if) {
     				if (!if_block1) {
     					if_block1 = create_if_block$8();
     					if_block1.c();
@@ -50098,7 +50059,7 @@
     	let $store;
 
     	validate_store(store, 'store');
-    	subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
+    	component_subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
 
     	
 
@@ -50142,281 +50103,32 @@
     	}
     }
 
-    /* src\nav\NavItem.svelte generated by Svelte v3.6.9 */
+    /* src\nav\HierarchyRow.svelte generated by Svelte v3.9.1 */
 
-    const file$l = "src\\nav\\NavItem.svelte";
+    const file$l = "src\\nav\\HierarchyRow.svelte";
 
-    function create_fragment$k(ctx) {
-    	var div3, div2, div1, div0, raw_value = getIcon(ctx.icon), dispose;
-
-    	return {
-    		c: function create() {
-    			div3 = element("div");
-    			div2 = element("div");
-    			div1 = element("div");
-    			div0 = element("div");
-    			attr(div0, "class", "icon svelte-5cf6ht");
-    			add_location(div0, file$l, 24, 12, 452);
-    			attr(div1, "class", "inner svelte-5cf6ht");
-    			add_location(div1, file$l, 23, 8, 420);
-    			attr(div2, "class", "nav-item svelte-5cf6ht");
-    			add_location(div2, file$l, 21, 4, 359);
-    			attr(div3, "class", "" + ctx.navActive + " svelte-5cf6ht");
-    			add_location(div3, file$l, 20, 0, 329);
-    			dispose = listen(div2, "click", ctx.setActive);
-    		},
-
-    		l: function claim(nodes) {
-    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
-    		},
-
-    		m: function mount(target, anchor) {
-    			insert(target, div3, anchor);
-    			append(div3, div2);
-    			append(div2, div1);
-    			append(div1, div0);
-    			div0.innerHTML = raw_value;
-    		},
-
-    		p: function update(changed, ctx) {
-    			if ((changed.icon) && raw_value !== (raw_value = getIcon(ctx.icon))) {
-    				div0.innerHTML = raw_value;
-    			}
-
-    			if (changed.navActive) {
-    				attr(div3, "class", "" + ctx.navActive + " svelte-5cf6ht");
-    			}
-    		},
-
-    		i: noop,
-    		o: noop,
-
-    		d: function destroy(detaching) {
-    			if (detaching) {
-    				detach(div3);
-    			}
-
-    			dispose();
-    		}
-    	};
+    function get_each_context$6(ctx, list, i) {
+    	const child_ctx = Object.create(ctx);
+    	child_ctx.index = list[i];
+    	return child_ctx;
     }
 
-    function instance$k($$self, $$props, $$invalidate) {
-    	
-
-    let { name = "", label = "", icon = "" } = $$props;
-
-    let navActive = "";
-
-    store.subscribe(db => {
-        $$invalidate('navActive', navActive = (db.activeNav === name ? "active" : ""));
-    });
-
-    const setActive = () => 
-        store.setActiveNav(name);
-
-    	const writable_props = ['name', 'label', 'icon'];
-    	Object.keys($$props).forEach(key => {
-    		if (!writable_props.includes(key) && !key.startsWith('$$')) console.warn(`<NavItem> was created with unknown prop '${key}'`);
-    	});
-
-    	$$self.$set = $$props => {
-    		if ('name' in $$props) $$invalidate('name', name = $$props.name);
-    		if ('label' in $$props) $$invalidate('label', label = $$props.label);
-    		if ('icon' in $$props) $$invalidate('icon', icon = $$props.icon);
-    	};
-
-    	return { name, label, icon, navActive, setActive };
-    }
-
-    class NavItem extends SvelteComponentDev {
-    	constructor(options) {
-    		super(options);
-    		init(this, options, instance$k, create_fragment$k, safe_not_equal, ["name", "label", "icon"]);
-    	}
-
-    	get name() {
-    		throw new Error("<NavItem>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set name(value) {
-    		throw new Error("<NavItem>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	get label() {
-    		throw new Error("<NavItem>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set label(value) {
-    		throw new Error("<NavItem>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	get icon() {
-    		throw new Error("<NavItem>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set icon(value) {
-    		throw new Error("<NavItem>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-    }
-
-    /* src\nav\Nav.svelte generated by Svelte v3.6.9 */
-
-    const file$m = "src\\nav\\Nav.svelte";
-
-    function create_fragment$l(ctx) {
-    	var nav, img, t0, t1, t2, current;
-
-    	var navitem0 = new NavItem({
-    		props: {
-    		name: "database",
-    		label: "Database",
-    		icon: "database"
-    	},
-    		$$inline: true
-    	});
-
-    	var navitem1 = new NavItem({
-    		props: {
-    		name: "actions",
-    		label: "Actions",
-    		icon: "zap"
-    	},
-    		$$inline: true
-    	});
-
-    	var navitem2 = new NavItem({
-    		props: {
-    		name: "access levels",
-    		label: "Access Levels",
-    		icon: "user"
-    	},
-    		$$inline: true
-    	});
-
-    	return {
-    		c: function create() {
-    			nav = element("nav");
-    			img = element("img");
-    			t0 = space();
-    			navitem0.$$.fragment.c();
-    			t1 = space();
-    			navitem1.$$.fragment.c();
-    			t2 = space();
-    			navitem2.$$.fragment.c();
-    			attr(img, "src", "/_builder/assets/budibase-logo-only.png");
-    			attr(img, "class", "logo svelte-lgepe1");
-    			attr(img, "alt", "budibase logo");
-    			add_location(img, file$m, 10, 4, 135);
-    			attr(nav, "class", "nav svelte-lgepe1");
-    			set_style(nav, "width", ctx.width);
-    			add_location(nav, file$m, 8, 0, 84);
-    		},
-
-    		l: function claim(nodes) {
-    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
-    		},
-
-    		m: function mount(target, anchor) {
-    			insert(target, nav, anchor);
-    			append(nav, img);
-    			append(nav, t0);
-    			mount_component(navitem0, nav, null);
-    			append(nav, t1);
-    			mount_component(navitem1, nav, null);
-    			append(nav, t2);
-    			mount_component(navitem2, nav, null);
-    			current = true;
-    		},
-
-    		p: function update(changed, ctx) {
-    			if (!current || changed.width) {
-    				set_style(nav, "width", ctx.width);
-    			}
-    		},
-
-    		i: function intro(local) {
-    			if (current) return;
-    			transition_in(navitem0.$$.fragment, local);
-
-    			transition_in(navitem1.$$.fragment, local);
-
-    			transition_in(navitem2.$$.fragment, local);
-
-    			current = true;
-    		},
-
-    		o: function outro(local) {
-    			transition_out(navitem0.$$.fragment, local);
-    			transition_out(navitem1.$$.fragment, local);
-    			transition_out(navitem2.$$.fragment, local);
-    			current = false;
-    		},
-
-    		d: function destroy(detaching) {
-    			if (detaching) {
-    				detach(nav);
-    			}
-
-    			destroy_component(navitem0);
-
-    			destroy_component(navitem1);
-
-    			destroy_component(navitem2);
-    		}
-    	};
-    }
-
-    function instance$l($$self, $$props, $$invalidate) {
-    	let { width=50 } = $$props;
-
-    	const writable_props = ['width'];
-    	Object.keys($$props).forEach(key => {
-    		if (!writable_props.includes(key) && !key.startsWith('$$')) console.warn(`<Nav> was created with unknown prop '${key}'`);
-    	});
-
-    	$$self.$set = $$props => {
-    		if ('width' in $$props) $$invalidate('width', width = $$props.width);
-    	};
-
-    	return { width };
-    }
-
-    class Nav extends SvelteComponentDev {
-    	constructor(options) {
-    		super(options);
-    		init(this, options, instance$l, create_fragment$l, safe_not_equal, ["width"]);
-    	}
-
-    	get width() {
-    		throw new Error("<Nav>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set width(value) {
-    		throw new Error("<Nav>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-    }
-
-    /* src\database\HierarchyRow.svelte generated by Svelte v3.6.9 */
-
-    const file$n = "src\\database\\HierarchyRow.svelte";
-
-    function get_each_context$7(ctx, list, i) {
+    function get_each_context_1$4(ctx, list, i) {
     	const child_ctx = Object.create(ctx);
     	child_ctx.child = list[i];
     	return child_ctx;
     }
 
-    // (14:4) {#if node.children}
-    function create_if_block$9(ctx) {
+    // (25:4) {#if node.children}
+    function create_if_block_1$5(ctx) {
     	var each_1_anchor, current;
 
-    	var each_value = ctx.node.children;
+    	var each_value_1 = ctx.node.children;
 
     	var each_blocks = [];
 
-    	for (var i = 0; i < each_value.length; i += 1) {
-    		each_blocks[i] = create_each_block$7(get_each_context$7(ctx, each_value, i));
+    	for (var i = 0; i < each_value_1.length; i += 1) {
+    		each_blocks[i] = create_each_block_1$4(get_each_context_1$4(ctx, each_value_1, i));
     	}
 
     	const out = i => transition_out(each_blocks[i], 1, 1, () => {
@@ -50443,16 +50155,16 @@
 
     		p: function update(changed, ctx) {
     			if (changed.node || changed.level) {
-    				each_value = ctx.node.children;
+    				each_value_1 = ctx.node.children;
 
-    				for (var i = 0; i < each_value.length; i += 1) {
-    					const child_ctx = get_each_context$7(ctx, each_value, i);
+    				for (var i = 0; i < each_value_1.length; i += 1) {
+    					const child_ctx = get_each_context_1$4(ctx, each_value_1, i);
 
     					if (each_blocks[i]) {
     						each_blocks[i].p(changed, child_ctx);
     						transition_in(each_blocks[i], 1);
     					} else {
-    						each_blocks[i] = create_each_block$7(child_ctx);
+    						each_blocks[i] = create_each_block_1$4(child_ctx);
     						each_blocks[i].c();
     						transition_in(each_blocks[i], 1);
     						each_blocks[i].m(each_1_anchor.parentNode, each_1_anchor);
@@ -50460,14 +50172,14 @@
     				}
 
     				group_outros();
-    				for (i = each_value.length; i < each_blocks.length; i += 1) out(i);
+    				for (i = each_value_1.length; i < each_blocks.length; i += 1) out(i);
     				check_outros();
     			}
     		},
 
     		i: function intro(local) {
     			if (current) return;
-    			for (var i = 0; i < each_value.length; i += 1) transition_in(each_blocks[i]);
+    			for (var i = 0; i < each_value_1.length; i += 1) transition_in(each_blocks[i]);
 
     			current = true;
     		},
@@ -50489,12 +50201,16 @@
     	};
     }
 
-    // (15:4) {#each node.children as child}
-    function create_each_block$7(ctx) {
+    // (26:8) {#each node.children as child}
+    function create_each_block_1$4(ctx) {
     	var current;
 
     	var hierarchyrow = new HierarchyRow({
-    		props: { node: ctx.child, level: ctx.level+1 },
+    		props: {
+    		node: ctx.child,
+    		level: ctx.level+1,
+    		type: "record"
+    	},
     		$$inline: true
     	});
 
@@ -50533,23 +50249,162 @@
     	};
     }
 
-    function create_fragment$m(ctx) {
-    	var div1, div0, t0_value = ctx.node.name, t0, t1, current, dispose;
+    // (32:4) {#if node.indexes}
+    function create_if_block$9(ctx) {
+    	var each_1_anchor, current;
 
-    	var if_block = (ctx.node.children) && create_if_block$9(ctx);
+    	var each_value = ctx.node.indexes;
+
+    	var each_blocks = [];
+
+    	for (var i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block$6(get_each_context$6(ctx, each_value, i));
+    	}
+
+    	const out = i => transition_out(each_blocks[i], 1, 1, () => {
+    		each_blocks[i] = null;
+    	});
+
+    	return {
+    		c: function create() {
+    			for (var i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			each_1_anchor = empty();
+    		},
+
+    		m: function mount(target, anchor) {
+    			for (var i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(target, anchor);
+    			}
+
+    			insert(target, each_1_anchor, anchor);
+    			current = true;
+    		},
+
+    		p: function update(changed, ctx) {
+    			if (changed.node || changed.level) {
+    				each_value = ctx.node.indexes;
+
+    				for (var i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context$6(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(changed, child_ctx);
+    						transition_in(each_blocks[i], 1);
+    					} else {
+    						each_blocks[i] = create_each_block$6(child_ctx);
+    						each_blocks[i].c();
+    						transition_in(each_blocks[i], 1);
+    						each_blocks[i].m(each_1_anchor.parentNode, each_1_anchor);
+    					}
+    				}
+
+    				group_outros();
+    				for (i = each_value.length; i < each_blocks.length; i += 1) out(i);
+    				check_outros();
+    			}
+    		},
+
+    		i: function intro(local) {
+    			if (current) return;
+    			for (var i = 0; i < each_value.length; i += 1) transition_in(each_blocks[i]);
+
+    			current = true;
+    		},
+
+    		o: function outro(local) {
+    			each_blocks = each_blocks.filter(Boolean);
+    			for (let i = 0; i < each_blocks.length; i += 1) transition_out(each_blocks[i]);
+
+    			current = false;
+    		},
+
+    		d: function destroy(detaching) {
+    			destroy_each(each_blocks, detaching);
+
+    			if (detaching) {
+    				detach(each_1_anchor);
+    			}
+    		}
+    	};
+    }
+
+    // (33:8) {#each node.indexes as index}
+    function create_each_block$6(ctx) {
+    	var current;
+
+    	var hierarchyrow = new HierarchyRow({
+    		props: {
+    		node: ctx.index,
+    		level: ctx.level+1,
+    		type: "index"
+    	},
+    		$$inline: true
+    	});
+
+    	return {
+    		c: function create() {
+    			hierarchyrow.$$.fragment.c();
+    		},
+
+    		m: function mount(target, anchor) {
+    			mount_component(hierarchyrow, target, anchor);
+    			current = true;
+    		},
+
+    		p: function update(changed, ctx) {
+    			var hierarchyrow_changes = {};
+    			if (changed.node) hierarchyrow_changes.node = ctx.index;
+    			if (changed.level) hierarchyrow_changes.level = ctx.level+1;
+    			hierarchyrow.$set(hierarchyrow_changes);
+    		},
+
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(hierarchyrow.$$.fragment, local);
+
+    			current = true;
+    		},
+
+    		o: function outro(local) {
+    			transition_out(hierarchyrow.$$.fragment, local);
+    			current = false;
+    		},
+
+    		d: function destroy(detaching) {
+    			destroy_component(hierarchyrow, detaching);
+    		}
+    	};
+    }
+
+    function create_fragment$k(ctx) {
+    	var div1, div0, html_tag, raw_value = getIcon(ctx.icon, 12) + "", t0, span, t1_value = ctx.node.name + "", t1, div0_class_value, t2, t3, current, dispose;
+
+    	var if_block0 = (ctx.node.children) && create_if_block_1$5(ctx);
+
+    	var if_block1 = (ctx.node.indexes) && create_if_block$9(ctx);
 
     	return {
     		c: function create() {
     			div1 = element("div");
     			div0 = element("div");
-    			t0 = text(t0_value);
-    			t1 = space();
-    			if (if_block) if_block.c();
-    			attr(div0, "class", "title svelte-1q40nqm");
+    			t0 = space();
+    			span = element("span");
+    			t1 = text(t1_value);
+    			t2 = space();
+    			if (if_block0) if_block0.c();
+    			t3 = space();
+    			if (if_block1) if_block1.c();
+    			html_tag = new HtmlTag(raw_value, t0);
+    			set_style(span, "margin-left", "5px");
+    			add_location(span, file$l, 22, 34, 617);
+    			attr(div0, "class", div0_class_value = "title " + ctx.navActive + " svelte-1bn4xbe");
     			set_style(div0, "padding-left", "" + (20 + (ctx.level * 20)) + "px");
-    			add_location(div0, file$n, 10, 4, 157);
-    			attr(div1, "class", "root svelte-1q40nqm");
-    			add_location(div1, file$n, 9, 0, 134);
+    			add_location(div0, file$l, 21, 4, 452);
+    			attr(div1, "class", "root svelte-1bn4xbe");
+    			add_location(div1, file$l, 20, 0, 429);
     			dispose = listen(div0, "click", ctx.click_handler);
     		},
 
@@ -50560,15 +50415,28 @@
     		m: function mount(target, anchor) {
     			insert(target, div1, anchor);
     			append(div1, div0);
+    			html_tag.m(div0);
     			append(div0, t0);
-    			append(div1, t1);
-    			if (if_block) if_block.m(div1, null);
+    			append(div0, span);
+    			append(span, t1);
+    			append(div1, t2);
+    			if (if_block0) if_block0.m(div1, null);
+    			append(div1, t3);
+    			if (if_block1) if_block1.m(div1, null);
     			current = true;
     		},
 
     		p: function update(changed, ctx) {
-    			if ((!current || changed.node) && t0_value !== (t0_value = ctx.node.name)) {
-    				set_data(t0, t0_value);
+    			if ((!current || changed.icon) && raw_value !== (raw_value = getIcon(ctx.icon, 12) + "")) {
+    				html_tag.p(raw_value);
+    			}
+
+    			if ((!current || changed.node) && t1_value !== (t1_value = ctx.node.name + "")) {
+    				set_data(t1, t1_value);
+    			}
+
+    			if ((!current || changed.navActive) && div0_class_value !== (div0_class_value = "title " + ctx.navActive + " svelte-1bn4xbe")) {
+    				attr(div0, "class", div0_class_value);
     			}
 
     			if (!current || changed.level) {
@@ -50576,19 +50444,37 @@
     			}
 
     			if (ctx.node.children) {
-    				if (if_block) {
-    					if_block.p(changed, ctx);
-    					transition_in(if_block, 1);
+    				if (if_block0) {
+    					if_block0.p(changed, ctx);
+    					transition_in(if_block0, 1);
     				} else {
-    					if_block = create_if_block$9(ctx);
-    					if_block.c();
-    					transition_in(if_block, 1);
-    					if_block.m(div1, null);
+    					if_block0 = create_if_block_1$5(ctx);
+    					if_block0.c();
+    					transition_in(if_block0, 1);
+    					if_block0.m(div1, t3);
     				}
-    			} else if (if_block) {
+    			} else if (if_block0) {
     				group_outros();
-    				transition_out(if_block, 1, 1, () => {
-    					if_block = null;
+    				transition_out(if_block0, 1, 1, () => {
+    					if_block0 = null;
+    				});
+    				check_outros();
+    			}
+
+    			if (ctx.node.indexes) {
+    				if (if_block1) {
+    					if_block1.p(changed, ctx);
+    					transition_in(if_block1, 1);
+    				} else {
+    					if_block1 = create_if_block$9(ctx);
+    					if_block1.c();
+    					transition_in(if_block1, 1);
+    					if_block1.m(div1, null);
+    				}
+    			} else if (if_block1) {
+    				group_outros();
+    				transition_out(if_block1, 1, 1, () => {
+    					if_block1 = null;
     				});
     				check_outros();
     			}
@@ -50596,12 +50482,14 @@
 
     		i: function intro(local) {
     			if (current) return;
-    			transition_in(if_block);
+    			transition_in(if_block0);
+    			transition_in(if_block1);
     			current = true;
     		},
 
     		o: function outro(local) {
-    			transition_out(if_block);
+    			transition_out(if_block0);
+    			transition_out(if_block1);
     			current = false;
     		},
 
@@ -50610,17 +50498,26 @@
     				detach(div1);
     			}
 
-    			if (if_block) if_block.d();
+    			if (if_block0) if_block0.d();
+    			if (if_block1) if_block1.d();
     			dispose();
     		}
     	};
     }
 
-    function instance$m($$self, $$props, $$invalidate) {
+    function instance$k($$self, $$props, $$invalidate) {
     	
-    let { level = 0, node } = $$props;
+    let { level = 0, node, type } = $$props;
 
-    	const writable_props = ['level', 'node'];
+    let navActive = "";
+
+    store.subscribe(s => {
+        if(s.currentNode)
+            $$invalidate('navActive', navActive = (s.activeNav === "database" && node.nodeId === s.currentNode.nodeId 
+                        ? "active" : ""));
+    });
+
+    	const writable_props = ['level', 'node', 'type'];
     	Object.keys($$props).forEach(key => {
     		if (!writable_props.includes(key) && !key.startsWith('$$')) console.warn(`<HierarchyRow> was created with unknown prop '${key}'`);
     	});
@@ -50632,20 +50529,37 @@
     	$$self.$set = $$props => {
     		if ('level' in $$props) $$invalidate('level', level = $$props.level);
     		if ('node' in $$props) $$invalidate('node', node = $$props.node);
+    		if ('type' in $$props) $$invalidate('type', type = $$props.type);
     	};
 
-    	return { level, node, click_handler };
+    	let icon;
+
+    	$$self.$$.update = ($$dirty = { type: 1 }) => {
+    		if ($$dirty.type) { $$invalidate('icon', icon = type==="index" ? "list" : "file"); }
+    	};
+
+    	return {
+    		level,
+    		node,
+    		type,
+    		navActive,
+    		icon,
+    		click_handler
+    	};
     }
 
     class HierarchyRow extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$m, create_fragment$m, safe_not_equal, ["level", "node"]);
+    		init(this, options, instance$k, create_fragment$k, safe_not_equal, ["level", "node", "type"]);
 
     		const { ctx } = this.$$;
     		const props = options.props || {};
     		if (ctx.node === undefined && !('node' in props)) {
     			console.warn("<HierarchyRow> was created without expected prop 'node'");
+    		}
+    		if (ctx.type === undefined && !('type' in props)) {
+    			console.warn("<HierarchyRow> was created without expected prop 'type'");
     		}
     	}
 
@@ -50664,13 +50578,706 @@
     	set node(value) {
     		throw new Error("<HierarchyRow>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
+
+    	get type() {
+    		throw new Error("<HierarchyRow>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set type(value) {
+    		throw new Error("<HierarchyRow>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
     }
 
-    /* src\common\NumberBox.svelte generated by Svelte v3.6.9 */
+    /* src\common\DropdownButton.svelte generated by Svelte v3.9.1 */
 
-    const file$o = "src\\common\\NumberBox.svelte";
+    const file$m = "src\\common\\DropdownButton.svelte";
+
+    function get_each_context$7(ctx, list, i) {
+    	const child_ctx = Object.create(ctx);
+    	child_ctx.action = list[i];
+    	return child_ctx;
+    }
+
+    // (17:8) {#each actions as action}
+    function create_each_block$7(ctx) {
+    	var div, t0_value = ctx.action.label + "", t0, t1, dispose;
+
+    	return {
+    		c: function create() {
+    			div = element("div");
+    			t0 = text(t0_value);
+    			t1 = space();
+    			attr(div, "class", "action-row svelte-179p8ge");
+    			add_location(div, file$m, 17, 8, 586);
+    			dispose = listen(div, "click", ctx.action.onclick);
+    		},
+
+    		m: function mount(target, anchor) {
+    			insert(target, div, anchor);
+    			append(div, t0);
+    			append(div, t1);
+    		},
+
+    		p: function update(changed, new_ctx) {
+    			ctx = new_ctx;
+    			if ((changed.actions) && t0_value !== (t0_value = ctx.action.label + "")) {
+    				set_data(t0, t0_value);
+    			}
+    		},
+
+    		d: function destroy(detaching) {
+    			if (detaching) {
+    				detach(div);
+    			}
+
+    			dispose();
+    		}
+    	};
+    }
+
+    function create_fragment$l(ctx) {
+    	var div2, html_tag, raw_value = getIcon(ctx.iconName) + "", t0, div0, t1, div1, dispose;
+
+    	var each_value = ctx.actions;
+
+    	var each_blocks = [];
+
+    	for (var i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block$7(get_each_context$7(ctx, each_value, i));
+    	}
+
+    	return {
+    		c: function create() {
+    			div2 = element("div");
+    			t0 = space();
+    			div0 = element("div");
+    			t1 = space();
+    			div1 = element("div");
+
+    			for (var i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+    			html_tag = new HtmlTag(raw_value, t0);
+    			attr(div0, "class", "dropdown-background svelte-179p8ge");
+    			set_style(div0, "display", (ctx.isDroppedDown ? 'block' : 'none'));
+    			add_location(div0, file$m, 13, 4, 298);
+    			attr(div1, "class", "dropdown-content svelte-179p8ge");
+    			set_style(div1, "display", (ctx.isDroppedDown ? 'inline-block' : 'none'));
+    			add_location(div1, file$m, 15, 4, 452);
+    			attr(div2, "class", "root svelte-179p8ge");
+    			add_location(div2, file$m, 10, 0, 189);
+
+    			dispose = [
+    				listen(div0, "click", stop_propagation(ctx.click_handler)),
+    				listen(div2, "click", ctx.click_handler_1)
+    			];
+    		},
+
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+
+    		m: function mount(target, anchor) {
+    			insert(target, div2, anchor);
+    			html_tag.m(div2);
+    			append(div2, t0);
+    			append(div2, div0);
+    			append(div2, t1);
+    			append(div2, div1);
+
+    			for (var i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(div1, null);
+    			}
+    		},
+
+    		p: function update(changed, ctx) {
+    			if ((changed.iconName) && raw_value !== (raw_value = getIcon(ctx.iconName) + "")) {
+    				html_tag.p(raw_value);
+    			}
+
+    			if (changed.isDroppedDown) {
+    				set_style(div0, "display", (ctx.isDroppedDown ? 'block' : 'none'));
+    			}
+
+    			if (changed.actions) {
+    				each_value = ctx.actions;
+
+    				for (var i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context$7(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(changed, child_ctx);
+    					} else {
+    						each_blocks[i] = create_each_block$7(child_ctx);
+    						each_blocks[i].c();
+    						each_blocks[i].m(div1, null);
+    					}
+    				}
+
+    				for (; i < each_blocks.length; i += 1) {
+    					each_blocks[i].d(1);
+    				}
+    				each_blocks.length = each_value.length;
+    			}
+
+    			if (changed.isDroppedDown) {
+    				set_style(div1, "display", (ctx.isDroppedDown ? 'inline-block' : 'none'));
+    			}
+    		},
+
+    		i: noop,
+    		o: noop,
+
+    		d: function destroy(detaching) {
+    			if (detaching) {
+    				detach(div2);
+    			}
+
+    			destroy_each(each_blocks, detaching);
+
+    			run_all(dispose);
+    		}
+    	};
+    }
+
+    function instance$l($$self, $$props, $$invalidate) {
+    	let { iconName, actions = [] } = $$props; // [ {label: "Action Name", onclick: () => {...} } ]
+    let isDroppedDown = false;
+
+    	const writable_props = ['iconName', 'actions'];
+    	Object.keys($$props).forEach(key => {
+    		if (!writable_props.includes(key) && !key.startsWith('$$')) console.warn(`<DropdownButton> was created with unknown prop '${key}'`);
+    	});
+
+    	function click_handler() {
+    		const $$result = isDroppedDown = false;
+    		$$invalidate('isDroppedDown', isDroppedDown);
+    		return $$result;
+    	}
+
+    	function click_handler_1() {
+    		const $$result = isDroppedDown = !isDroppedDown;
+    		$$invalidate('isDroppedDown', isDroppedDown);
+    		return $$result;
+    	}
+
+    	$$self.$set = $$props => {
+    		if ('iconName' in $$props) $$invalidate('iconName', iconName = $$props.iconName);
+    		if ('actions' in $$props) $$invalidate('actions', actions = $$props.actions);
+    	};
+
+    	return {
+    		iconName,
+    		actions,
+    		isDroppedDown,
+    		click_handler,
+    		click_handler_1
+    	};
+    }
+
+    class DropdownButton extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$l, create_fragment$l, safe_not_equal, ["iconName", "actions"]);
+
+    		const { ctx } = this.$$;
+    		const props = options.props || {};
+    		if (ctx.iconName === undefined && !('iconName' in props)) {
+    			console.warn("<DropdownButton> was created without expected prop 'iconName'");
+    		}
+    	}
+
+    	get iconName() {
+    		throw new Error("<DropdownButton>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set iconName(value) {
+    		throw new Error("<DropdownButton>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get actions() {
+    		throw new Error("<DropdownButton>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set actions(value) {
+    		throw new Error("<DropdownButton>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* src\nav\NavItem.svelte generated by Svelte v3.9.1 */
+
+    const file$n = "src\\nav\\NavItem.svelte";
+
+    function create_fragment$m(ctx) {
+    	var div, t, div_class_value, dispose;
+
+    	return {
+    		c: function create() {
+    			div = element("div");
+    			t = text(ctx.label);
+    			attr(div, "class", div_class_value = "nav-item " + ctx.navActive + " svelte-1y614ns");
+    			add_location(div, file$n, 19, 0, 307);
+    			dispose = listen(div, "click", ctx.setActive);
+    		},
+
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+
+    		m: function mount(target, anchor) {
+    			insert(target, div, anchor);
+    			append(div, t);
+    		},
+
+    		p: function update(changed, ctx) {
+    			if (changed.label) {
+    				set_data(t, ctx.label);
+    			}
+
+    			if ((changed.navActive) && div_class_value !== (div_class_value = "nav-item " + ctx.navActive + " svelte-1y614ns")) {
+    				attr(div, "class", div_class_value);
+    			}
+    		},
+
+    		i: noop,
+    		o: noop,
+
+    		d: function destroy(detaching) {
+    			if (detaching) {
+    				detach(div);
+    			}
+
+    			dispose();
+    		}
+    	};
+    }
+
+    function instance$m($$self, $$props, $$invalidate) {
+    	
+
+    let { name = "", label = "" } = $$props;
+
+    let navActive = "";
+
+    store.subscribe(db => {
+        $$invalidate('navActive', navActive = (db.activeNav === name ? "active" : ""));
+    });
+
+    const setActive = () => 
+        store.setActiveNav(name);
+
+    	const writable_props = ['name', 'label'];
+    	Object.keys($$props).forEach(key => {
+    		if (!writable_props.includes(key) && !key.startsWith('$$')) console.warn(`<NavItem> was created with unknown prop '${key}'`);
+    	});
+
+    	$$self.$set = $$props => {
+    		if ('name' in $$props) $$invalidate('name', name = $$props.name);
+    		if ('label' in $$props) $$invalidate('label', label = $$props.label);
+    	};
+
+    	return { name, label, navActive, setActive };
+    }
+
+    class NavItem extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$m, create_fragment$m, safe_not_equal, ["name", "label"]);
+    	}
+
+    	get name() {
+    		throw new Error("<NavItem>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set name(value) {
+    		throw new Error("<NavItem>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get label() {
+    		throw new Error("<NavItem>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set label(value) {
+    		throw new Error("<NavItem>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+    }
+
+    /* src\nav\BackendNav.svelte generated by Svelte v3.9.1 */
+
+    const file$o = "src\\nav\\BackendNav.svelte";
+
+    function get_each_context$8(ctx, list, i) {
+    	const child_ctx = Object.create(ctx);
+    	child_ctx.index = list[i];
+    	return child_ctx;
+    }
+
+    function get_each_context_1$5(ctx, list, i) {
+    	const child_ctx = Object.create(ctx);
+    	child_ctx.record = list[i];
+    	return child_ctx;
+    }
+
+    // (54:12) {#each $store.hierarchy.children as record}
+    function create_each_block_1$5(ctx) {
+    	var current;
+
+    	var hierarchyrow = new HierarchyRow({
+    		props: { node: ctx.record, type: "record" },
+    		$$inline: true
+    	});
+
+    	return {
+    		c: function create() {
+    			hierarchyrow.$$.fragment.c();
+    		},
+
+    		m: function mount(target, anchor) {
+    			mount_component(hierarchyrow, target, anchor);
+    			current = true;
+    		},
+
+    		p: function update(changed, ctx) {
+    			var hierarchyrow_changes = {};
+    			if (changed.$store) hierarchyrow_changes.node = ctx.record;
+    			hierarchyrow.$set(hierarchyrow_changes);
+    		},
+
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(hierarchyrow.$$.fragment, local);
+
+    			current = true;
+    		},
+
+    		o: function outro(local) {
+    			transition_out(hierarchyrow.$$.fragment, local);
+    			current = false;
+    		},
+
+    		d: function destroy(detaching) {
+    			destroy_component(hierarchyrow, detaching);
+    		}
+    	};
+    }
+
+    // (59:12) {#each $store.hierarchy.indexes as index}
+    function create_each_block$8(ctx) {
+    	var current;
+
+    	var hierarchyrow = new HierarchyRow({
+    		props: { node: ctx.index, type: "index" },
+    		$$inline: true
+    	});
+
+    	return {
+    		c: function create() {
+    			hierarchyrow.$$.fragment.c();
+    		},
+
+    		m: function mount(target, anchor) {
+    			mount_component(hierarchyrow, target, anchor);
+    			current = true;
+    		},
+
+    		p: function update(changed, ctx) {
+    			var hierarchyrow_changes = {};
+    			if (changed.$store) hierarchyrow_changes.node = ctx.index;
+    			hierarchyrow.$set(hierarchyrow_changes);
+    		},
+
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(hierarchyrow.$$.fragment, local);
+
+    			current = true;
+    		},
+
+    		o: function outro(local) {
+    			transition_out(hierarchyrow.$$.fragment, local);
+    			current = false;
+    		},
+
+    		d: function destroy(detaching) {
+    			destroy_component(hierarchyrow, detaching);
+    		}
+    	};
+    }
 
     function create_fragment$n(ctx) {
+    	var div5, div4, div2, div1, div0, t1, t2, t3, t4, t5, t6, div3, current;
+
+    	var dropdownbutton = new DropdownButton({
+    		props: { iconName: "plus", actions: ctx.newChildActions },
+    		$$inline: true
+    	});
+
+    	var each_value_1 = ctx.$store.hierarchy.children;
+
+    	var each_blocks_1 = [];
+
+    	for (var i = 0; i < each_value_1.length; i += 1) {
+    		each_blocks_1[i] = create_each_block_1$5(get_each_context_1$5(ctx, each_value_1, i));
+    	}
+
+    	const out = i => transition_out(each_blocks_1[i], 1, 1, () => {
+    		each_blocks_1[i] = null;
+    	});
+
+    	var each_value = ctx.$store.hierarchy.indexes;
+
+    	var each_blocks = [];
+
+    	for (var i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block$8(get_each_context$8(ctx, each_value, i));
+    	}
+
+    	const out_1 = i => transition_out(each_blocks[i], 1, 1, () => {
+    		each_blocks[i] = null;
+    	});
+
+    	var navitem0 = new NavItem({
+    		props: {
+    		name: "actions",
+    		label: "Actions and Triggers"
+    	},
+    		$$inline: true
+    	});
+
+    	var navitem1 = new NavItem({
+    		props: {
+    		name: "access levels",
+    		label: "User Levels"
+    	},
+    		$$inline: true
+    	});
+
+    	return {
+    		c: function create() {
+    			div5 = element("div");
+    			div4 = element("div");
+    			div2 = element("div");
+    			div1 = element("div");
+    			div0 = element("div");
+    			div0.textContent = "Database";
+    			t1 = space();
+    			dropdownbutton.$$.fragment.c();
+    			t2 = space();
+
+    			for (var i = 0; i < each_blocks_1.length; i += 1) {
+    				each_blocks_1[i].c();
+    			}
+
+    			t3 = space();
+
+    			for (var i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			t4 = space();
+    			navitem0.$$.fragment.c();
+    			t5 = space();
+    			navitem1.$$.fragment.c();
+    			t6 = space();
+    			div3 = element("div");
+    			attr(div0, "class", "hierarchy-title svelte-1py90dy");
+    			add_location(div0, file$o, 49, 16, 1381);
+    			attr(div1, "class", "hierarchy-title-row svelte-1py90dy");
+    			add_location(div1, file$o, 48, 12, 1330);
+    			attr(div2, "class", "hierarchy svelte-1py90dy");
+    			add_location(div2, file$o, 47, 8, 1293);
+    			attr(div3, "class", "space-filler svelte-1py90dy");
+    			add_location(div3, file$o, 67, 8, 1999);
+    			attr(div4, "class", "items-root svelte-1py90dy");
+    			add_location(div4, file$o, 46, 4, 1259);
+    			attr(div5, "class", "root svelte-1py90dy");
+    			add_location(div5, file$o, 45, 0, 1235);
+    		},
+
+    		l: function claim(nodes) {
+    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
+    		},
+
+    		m: function mount(target, anchor) {
+    			insert(target, div5, anchor);
+    			append(div5, div4);
+    			append(div4, div2);
+    			append(div2, div1);
+    			append(div1, div0);
+    			append(div1, t1);
+    			mount_component(dropdownbutton, div1, null);
+    			append(div2, t2);
+
+    			for (var i = 0; i < each_blocks_1.length; i += 1) {
+    				each_blocks_1[i].m(div2, null);
+    			}
+
+    			append(div2, t3);
+
+    			for (var i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(div2, null);
+    			}
+
+    			append(div4, t4);
+    			mount_component(navitem0, div4, null);
+    			append(div4, t5);
+    			mount_component(navitem1, div4, null);
+    			append(div4, t6);
+    			append(div4, div3);
+    			current = true;
+    		},
+
+    		p: function update(changed, ctx) {
+    			var dropdownbutton_changes = {};
+    			if (changed.newChildActions) dropdownbutton_changes.actions = ctx.newChildActions;
+    			dropdownbutton.$set(dropdownbutton_changes);
+
+    			if (changed.$store) {
+    				each_value_1 = ctx.$store.hierarchy.children;
+
+    				for (var i = 0; i < each_value_1.length; i += 1) {
+    					const child_ctx = get_each_context_1$5(ctx, each_value_1, i);
+
+    					if (each_blocks_1[i]) {
+    						each_blocks_1[i].p(changed, child_ctx);
+    						transition_in(each_blocks_1[i], 1);
+    					} else {
+    						each_blocks_1[i] = create_each_block_1$5(child_ctx);
+    						each_blocks_1[i].c();
+    						transition_in(each_blocks_1[i], 1);
+    						each_blocks_1[i].m(div2, t3);
+    					}
+    				}
+
+    				group_outros();
+    				for (i = each_value_1.length; i < each_blocks_1.length; i += 1) out(i);
+    				check_outros();
+    			}
+
+    			if (changed.$store) {
+    				each_value = ctx.$store.hierarchy.indexes;
+
+    				for (var i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context$8(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(changed, child_ctx);
+    						transition_in(each_blocks[i], 1);
+    					} else {
+    						each_blocks[i] = create_each_block$8(child_ctx);
+    						each_blocks[i].c();
+    						transition_in(each_blocks[i], 1);
+    						each_blocks[i].m(div2, null);
+    					}
+    				}
+
+    				group_outros();
+    				for (i = each_value.length; i < each_blocks.length; i += 1) out_1(i);
+    				check_outros();
+    			}
+    		},
+
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(dropdownbutton.$$.fragment, local);
+
+    			for (var i = 0; i < each_value_1.length; i += 1) transition_in(each_blocks_1[i]);
+
+    			for (var i = 0; i < each_value.length; i += 1) transition_in(each_blocks[i]);
+
+    			transition_in(navitem0.$$.fragment, local);
+
+    			transition_in(navitem1.$$.fragment, local);
+
+    			current = true;
+    		},
+
+    		o: function outro(local) {
+    			transition_out(dropdownbutton.$$.fragment, local);
+
+    			each_blocks_1 = each_blocks_1.filter(Boolean);
+    			for (let i = 0; i < each_blocks_1.length; i += 1) transition_out(each_blocks_1[i]);
+
+    			each_blocks = each_blocks.filter(Boolean);
+    			for (let i = 0; i < each_blocks.length; i += 1) transition_out(each_blocks[i]);
+
+    			transition_out(navitem0.$$.fragment, local);
+    			transition_out(navitem1.$$.fragment, local);
+    			current = false;
+    		},
+
+    		d: function destroy(detaching) {
+    			if (detaching) {
+    				detach(div5);
+    			}
+
+    			destroy_component(dropdownbutton);
+
+    			destroy_each(each_blocks_1, detaching);
+
+    			destroy_each(each_blocks, detaching);
+
+    			destroy_component(navitem0);
+
+    			destroy_component(navitem1);
+    		}
+    	};
+    }
+
+    function instance$n($$self, $$props, $$invalidate) {
+    	let $store;
+
+    	validate_store(store, 'store');
+    	component_subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
+
+    	
+
+    const defaultNewChildActions =  [
+        {
+            label:"New Root Index", 
+            onclick: store.newRootIndex
+        }, 
+        {
+            label:"New Root Record", 
+            onclick: store.newRootRecord
+        }
+    ];
+
+    let newChildActions = defaultNewChildActions;
+
+
+    store.subscribe(db => {
+        if(!db.currentNode || hierarchyFunctions.isIndex(db.currentNode)) {
+            $$invalidate('newChildActions', newChildActions = defaultNewChildActions);
+        } else {
+            $$invalidate('newChildActions', newChildActions = [
+                {label:"New Root Record", 
+                onclick: store.newRootRecord},
+                {label: `New Child Record of ${db.currentNode.name}`, 
+                onclick: store.newChildRecord},
+                {label:"New Root Index", 
+                onclick: store.newRootIndex},
+                {label: `New Index on ${db.currentNode.name}`, 
+                onclick: store.newChildIndex}
+            ]);
+        }
+    });
+
+    	return { newChildActions, $store };
+    }
+
+    class BackendNav extends SvelteComponentDev {
+    	constructor(options) {
+    		super(options);
+    		init(this, options, instance$n, create_fragment$n, safe_not_equal, []);
+    	}
+    }
+
+    /* src\common\NumberBox.svelte generated by Svelte v3.9.1 */
+
+    const file$p = "src\\common\\NumberBox.svelte";
+
+    function create_fragment$o(ctx) {
     	var div1, label_1, t0, t1, div0, input, dispose;
 
     	return {
@@ -50682,14 +51289,14 @@
     			div0 = element("div");
     			input = element("input");
     			attr(label_1, "class", "uk-form-label");
-    			add_location(label_1, file$o, 20, 4, 333);
+    			add_location(label_1, file$p, 20, 4, 333);
     			attr(input, "class", "uk-input");
     			input.value = ctx.value;
-    			add_location(input, file$o, 22, 8, 423);
+    			add_location(input, file$p, 22, 8, 423);
     			attr(div0, "class", "uk-form-controls");
-    			add_location(div0, file$o, 21, 4, 383);
+    			add_location(div0, file$p, 21, 4, 383);
     			attr(div1, "class", "uk-margin");
-    			add_location(div1, file$o, 19, 0, 304);
+    			add_location(div1, file$p, 19, 0, 304);
     			dispose = listen(input, "change", ctx.inputChanged);
     		},
 
@@ -50729,7 +51336,7 @@
     	};
     }
 
-    function instance$n($$self, $$props, $$invalidate) {
+    function instance$o($$self, $$props, $$invalidate) {
     	let { value, label } = $$props;
 
     const inputChanged = ev => {
@@ -50759,7 +51366,7 @@
     class NumberBox extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$n, create_fragment$n, safe_not_equal, ["value", "label"]);
+    		init(this, options, instance$o, create_fragment$o, safe_not_equal, ["value", "label"]);
 
     		const { ctx } = this.$$;
     		const props = options.props || {};
@@ -50788,11 +51395,11 @@
     	}
     }
 
-    /* src\common\ValuesList.svelte generated by Svelte v3.6.9 */
+    /* src\common\ValuesList.svelte generated by Svelte v3.9.1 */
 
-    const file$p = "src\\common\\ValuesList.svelte";
+    const file$q = "src\\common\\ValuesList.svelte";
 
-    function create_fragment$o(ctx) {
+    function create_fragment$p(ctx) {
     	var div1, label_1, t0, t1, div0, textarea, dispose;
 
     	return {
@@ -50804,14 +51411,14 @@
     			div0 = element("div");
     			textarea = element("textarea");
     			attr(label_1, "class", "uk-form-label");
-    			add_location(label_1, file$p, 21, 4, 311);
+    			add_location(label_1, file$q, 21, 4, 311);
     			textarea.value = ctx.valuesText;
     			attr(textarea, "class", "svelte-1wfv4cc");
-    			add_location(textarea, file$p, 23, 8, 401);
+    			add_location(textarea, file$q, 23, 8, 401);
     			attr(div0, "class", "uk-form-controls");
-    			add_location(div0, file$p, 22, 4, 361);
+    			add_location(div0, file$q, 22, 4, 361);
     			attr(div1, "class", "uk-margin");
-    			add_location(div1, file$p, 20, 0, 282);
+    			add_location(div1, file$q, 20, 0, 282);
     			dispose = listen(textarea, "change", ctx.inputChanged);
     		},
 
@@ -50851,7 +51458,7 @@
     	};
     }
 
-    function instance$o($$self, $$props, $$invalidate) {
+    function instance$p($$self, $$props, $$invalidate) {
     	let { values, label } = $$props;
 
     const inputChanged = ev => {
@@ -50884,7 +51491,7 @@
     class ValuesList extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$o, create_fragment$o, safe_not_equal, ["values", "label"]);
+    		init(this, options, instance$p, create_fragment$p, safe_not_equal, ["values", "label"]);
 
     		const { ctx } = this.$$;
     		const props = options.props || {};
@@ -50913,11 +51520,11 @@
     	}
     }
 
-    /* src\common\ErrorsBox.svelte generated by Svelte v3.6.9 */
+    /* src\common\ErrorsBox.svelte generated by Svelte v3.9.1 */
 
-    const file$q = "src\\common\\ErrorsBox.svelte";
+    const file$r = "src\\common\\ErrorsBox.svelte";
 
-    function get_each_context$8(ctx, list, i) {
+    function get_each_context$9(ctx, list, i) {
     	const child_ctx = Object.create(ctx);
     	child_ctx.error = list[i];
     	return child_ctx;
@@ -50932,7 +51539,7 @@
     	var each_blocks = [];
 
     	for (var i = 0; i < each_value.length; i += 1) {
-    		each_blocks[i] = create_each_block$8(get_each_context$8(ctx, each_value, i));
+    		each_blocks[i] = create_each_block$9(get_each_context$9(ctx, each_value, i));
     	}
 
     	return {
@@ -50943,7 +51550,7 @@
     				each_blocks[i].c();
     			}
     			attr(div, "class", "error-container svelte-jwy920");
-    			add_location(div, file$q, 7, 0, 101);
+    			add_location(div, file$r, 7, 0, 101);
     		},
 
     		m: function mount(target, anchor) {
@@ -50959,12 +51566,12 @@
     				each_value = ctx.errors;
 
     				for (var i = 0; i < each_value.length; i += 1) {
-    					const child_ctx = get_each_context$8(ctx, each_value, i);
+    					const child_ctx = get_each_context$9(ctx, each_value, i);
 
     					if (each_blocks[i]) {
     						each_blocks[i].p(changed, child_ctx);
     					} else {
-    						each_blocks[i] = create_each_block$8(child_ctx);
+    						each_blocks[i] = create_each_block$9(child_ctx);
     						each_blocks[i].c();
     						each_blocks[i].m(div, null);
     					}
@@ -50988,8 +51595,8 @@
     }
 
     // (9:4) {#each errors as error}
-    function create_each_block$8(ctx) {
-    	var div, t0_value = ctx.error.field ? `${ctx.error.field}: ` : "", t0, t1_value = ctx.error.error, t1;
+    function create_each_block$9(ctx) {
+    	var div, t0_value = ctx.error.field ? `${ctx.error.field}: ` : "" + "", t0, t1_value = ctx.error.error + "", t1;
 
     	return {
     		c: function create() {
@@ -50997,7 +51604,7 @@
     			t0 = text(t0_value);
     			t1 = text(t1_value);
     			attr(div, "class", "error-row svelte-jwy920");
-    			add_location(div, file$q, 9, 4, 165);
+    			add_location(div, file$r, 9, 4, 165);
     		},
 
     		m: function mount(target, anchor) {
@@ -51007,11 +51614,11 @@
     		},
 
     		p: function update(changed, ctx) {
-    			if ((changed.errors) && t0_value !== (t0_value = ctx.error.field ? `${ctx.error.field}: ` : "")) {
+    			if ((changed.errors) && t0_value !== (t0_value = ctx.error.field ? `${ctx.error.field}: ` : "" + "")) {
     				set_data(t0, t0_value);
     			}
 
-    			if ((changed.errors) && t1_value !== (t1_value = ctx.error.error)) {
+    			if ((changed.errors) && t1_value !== (t1_value = ctx.error.error + "")) {
     				set_data(t1, t1_value);
     			}
     		},
@@ -51024,7 +51631,7 @@
     	};
     }
 
-    function create_fragment$p(ctx) {
+    function create_fragment$q(ctx) {
     	var if_block_anchor;
 
     	var if_block = (ctx.hasErrors) && create_if_block$a(ctx);
@@ -51072,7 +51679,7 @@
     	};
     }
 
-    function instance$p($$self, $$props, $$invalidate) {
+    function instance$q($$self, $$props, $$invalidate) {
     	let { errors = [] } = $$props;
 
     	const writable_props = ['errors'];
@@ -51096,7 +51703,7 @@
     class ErrorsBox extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$p, create_fragment$p, safe_not_equal, ["errors"]);
+    		init(this, options, instance$q, create_fragment$q, safe_not_equal, ["errors"]);
     	}
 
     	get errors() {
@@ -53704,11 +54311,11 @@
     }));
     });
 
-    /* src\common\DatePicker.svelte generated by Svelte v3.6.9 */
+    /* src\common\DatePicker.svelte generated by Svelte v3.9.1 */
 
-    const file$r = "src\\common\\DatePicker.svelte";
+    const file$s = "src\\common\\DatePicker.svelte";
 
-    function create_fragment$q(ctx) {
+    function create_fragment$r(ctx) {
     	var div1, label_1, t0, t1, div0, input_1, input_1_class_value;
 
     	return {
@@ -53720,13 +54327,13 @@
     			div0 = element("div");
     			input_1 = element("input");
     			attr(label_1, "class", "uk-form-label");
-    			add_location(label_1, file$r, 30, 4, 589);
+    			add_location(label_1, file$s, 30, 4, 589);
     			attr(input_1, "class", input_1_class_value = "uk-input uk-form-width-" + ctx.width + " uk-form-" + ctx.size);
-    			add_location(input_1, file$r, 32, 8, 679);
+    			add_location(input_1, file$s, 32, 8, 679);
     			attr(div0, "class", "uk-form-controls");
-    			add_location(div0, file$r, 31, 4, 639);
+    			add_location(div0, file$s, 31, 4, 639);
     			attr(div1, "class", "uk-margin");
-    			add_location(div1, file$r, 29, 0, 560);
+    			add_location(div1, file$s, 29, 0, 560);
     		},
 
     		l: function claim(nodes) {
@@ -53766,7 +54373,7 @@
     	};
     }
 
-    function instance$q($$self, $$props, $$invalidate) {
+    function instance$r($$self, $$props, $$invalidate) {
     	
 
     let { value, label, width = "medium", size = "small" } = $$props;
@@ -53820,7 +54427,7 @@
     class DatePicker extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$q, create_fragment$q, safe_not_equal, ["value", "label", "width", "size"]);
+    		init(this, options, instance$r, create_fragment$r, safe_not_equal, ["value", "label", "width", "size"]);
 
     		const { ctx } = this.$$;
     		const props = options.props || {};
@@ -53865,20 +54472,20 @@
     	}
     }
 
-    /* src\database\FieldView.svelte generated by Svelte v3.6.9 */
+    /* src\database\FieldView.svelte generated by Svelte v3.9.1 */
 
-    const file$s = "src\\database\\FieldView.svelte";
+    const file$t = "src\\database\\FieldView.svelte";
 
     // (68:8) {:else}
     function create_else_block$4(ctx) {
-    	var div, t_value = ctx.clonedField.name, t;
+    	var div, t_value = ctx.clonedField.name + "", t;
 
     	return {
     		c: function create() {
     			div = element("div");
     			t = text(t_value);
     			set_style(div, "font-weight", "bold");
-    			add_location(div, file$s, 68, 8, 2004);
+    			add_location(div, file$t, 68, 8, 2004);
     		},
 
     		m: function mount(target, anchor) {
@@ -53887,7 +54494,7 @@
     		},
 
     		p: function update(changed, ctx) {
-    			if ((changed.clonedField) && t_value !== (t_value = ctx.clonedField.name)) {
+    			if ((changed.clonedField) && t_value !== (t_value = ctx.clonedField.name + "")) {
     				set_data(t, t_value);
     			}
     		},
@@ -54385,7 +54992,7 @@
     }
 
     // (78:46) 
-    function create_if_block_1$5(ctx) {
+    function create_if_block_1$6(ctx) {
     	var updating_checked, current;
 
     	function checkbox_checked_binding_1(value) {
@@ -54677,8 +55284,8 @@
     	};
     }
 
-    function create_fragment$r(ctx) {
-    	var div, t0, form, updating_selected, t1, current_block_type_index, if_block0, t2, updating_text, t3, current_block_type_index_1, if_block1, t4, current;
+    function create_fragment$s(ctx) {
+    	var div, t0, form, updating_selected, t1, current_block_type_index, if_block0, t2, updating_text, t3, show_if, current_block_type_index_1, if_block1, t4, current;
 
     	var errorsbox = new ErrorsBox({
     		props: { errors: ctx.errors },
@@ -54707,12 +55314,12 @@
 
     	var if_blocks = [];
 
-    	function select_block_type(ctx) {
+    	function select_block_type(changed, ctx) {
     		if (ctx.isNew) return 0;
     		return 1;
     	}
 
-    	current_block_type_index = select_block_type(ctx);
+    	current_block_type_index = select_block_type(null, ctx);
     	if_block0 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
 
     	function textbox_text_binding_1(value_1) {
@@ -54731,7 +55338,7 @@
 
     	var if_block_creators_1 = [
     		create_if_block$b,
-    		create_if_block_1$5,
+    		create_if_block_1$6,
     		create_if_block_2$2,
     		create_if_block_3$1,
     		create_if_block_4,
@@ -54740,17 +55347,18 @@
 
     	var if_blocks_1 = [];
 
-    	function select_block_type_1(ctx) {
+    	function select_block_type_1(changed, ctx) {
     		if (ctx.clonedField.type === "string") return 0;
     		if (ctx.clonedField.type === "bool") return 1;
     		if (ctx.clonedField.type === "datetime") return 2;
     		if (ctx.clonedField.type === "number") return 3;
     		if (ctx.clonedField.type === "reference") return 4;
-    		if (ctx.clonedField.type.startsWith("array")) return 5;
+    		if ((show_if == null) || changed.clonedField) show_if = !!(ctx.clonedField.type.startsWith("array"));
+    		if (show_if) return 5;
     		return -1;
     	}
 
-    	if (~(current_block_type_index_1 = select_block_type_1(ctx))) {
+    	if (~(current_block_type_index_1 = select_block_type_1(null, ctx))) {
     		if_block1 = if_blocks_1[current_block_type_index_1] = if_block_creators_1[current_block_type_index_1](ctx);
     	}
 
@@ -54779,9 +55387,9 @@
     			t4 = space();
     			buttongroup.$$.fragment.c();
     			attr(form, "class", "uk-form-horizontal");
-    			add_location(form, file$s, 61, 4, 1740);
+    			add_location(form, file$t, 61, 4, 1740);
     			attr(div, "class", "root");
-    			add_location(div, file$s, 57, 0, 1681);
+    			add_location(div, file$t, 57, 0, 1681);
     		},
 
     		l: function claim(nodes) {
@@ -54818,7 +55426,7 @@
     			dropdown.$set(dropdown_changes);
 
     			var previous_block_index = current_block_type_index;
-    			current_block_type_index = select_block_type(ctx);
+    			current_block_type_index = select_block_type(changed, ctx);
     			if (current_block_type_index === previous_block_index) {
     				if_blocks[current_block_type_index].p(changed, ctx);
     			} else {
@@ -54844,7 +55452,7 @@
     			textbox.$set(textbox_changes);
 
     			var previous_block_index_1 = current_block_type_index_1;
-    			current_block_type_index_1 = select_block_type_1(ctx);
+    			current_block_type_index_1 = select_block_type_1(changed, ctx);
     			if (current_block_type_index_1 === previous_block_index_1) {
     				if (~current_block_type_index_1) if_blocks_1[current_block_type_index_1].p(changed, ctx);
     			} else {
@@ -54937,7 +55545,7 @@
     	return n.name;
     }
 
-    function instance$r($$self, $$props, $$invalidate) {
+    function instance$s($$self, $$props, $$invalidate) {
     	
 
     let { field, allFields, onFinished = () => {} } = $$props;
@@ -55115,7 +55723,7 @@
     class FieldView extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$r, create_fragment$r, safe_not_equal, ["field", "allFields", "onFinished", "store"]);
+    		init(this, options, instance$s, create_fragment$s, safe_not_equal, ["field", "allFields", "onFinished", "store"]);
 
     		const { ctx } = this.$$;
     		const props = options.props || {};
@@ -55163,17 +55771,17 @@
     	}
     }
 
-    /* src\database\RecordView.svelte generated by Svelte v3.6.9 */
+    /* src\database\RecordView.svelte generated by Svelte v3.9.1 */
 
-    const file$t = "src\\database\\RecordView.svelte";
+    const file$u = "src\\database\\RecordView.svelte";
 
-    function get_each_context$9(ctx, list, i) {
+    function get_each_context$a(ctx, list, i) {
     	const child_ctx = Object.create(ctx);
     	child_ctx.index = list[i];
     	return child_ctx;
     }
 
-    function get_each_context_1$4(ctx, list, i) {
+    function get_each_context_1$6(ctx, list, i) {
     	const child_ctx = Object.create(ctx);
     	child_ctx.field = list[i];
     	return child_ctx;
@@ -55298,7 +55906,7 @@
     	var each_blocks = [];
 
     	for (var i = 0; i < each_value_1.length; i += 1) {
-    		each_blocks[i] = create_each_block_1$4(get_each_context_1$4(ctx, each_value_1, i));
+    		each_blocks[i] = create_each_block_1$6(get_each_context_1$6(ctx, each_value_1, i));
     	}
 
     	return {
@@ -55323,21 +55931,21 @@
     				each_blocks[i].c();
     			}
     			attr(th0, "class", "svelte-kswv5p");
-    			add_location(th0, file$t, 104, 16, 2855);
+    			add_location(th0, file$u, 104, 16, 2855);
     			attr(th1, "class", "svelte-kswv5p");
-    			add_location(th1, file$t, 105, 16, 2885);
+    			add_location(th1, file$u, 105, 16, 2885);
     			attr(th2, "class", "svelte-kswv5p");
-    			add_location(th2, file$t, 106, 16, 2915);
+    			add_location(th2, file$u, 106, 16, 2915);
     			attr(th3, "class", "svelte-kswv5p");
-    			add_location(th3, file$t, 107, 16, 2948);
+    			add_location(th3, file$u, 107, 16, 2948);
     			attr(tr, "class", "svelte-kswv5p");
-    			add_location(tr, file$t, 103, 12, 2834);
+    			add_location(tr, file$u, 103, 12, 2834);
     			attr(thead, "class", "svelte-kswv5p");
-    			add_location(thead, file$t, 102, 8, 2814);
+    			add_location(thead, file$u, 102, 8, 2814);
     			attr(tbody, "class", "svelte-kswv5p");
-    			add_location(tbody, file$t, 110, 8, 3001);
+    			add_location(tbody, file$u, 110, 8, 3001);
     			attr(table, "class", "fields-table uk-table svelte-kswv5p");
-    			add_location(table, file$t, 101, 4, 2768);
+    			add_location(table, file$u, 101, 4, 2768);
     		},
 
     		m: function mount(target, anchor) {
@@ -55364,12 +55972,12 @@
     				each_value_1 = ctx.record.fields;
 
     				for (var i = 0; i < each_value_1.length; i += 1) {
-    					const child_ctx = get_each_context_1$4(ctx, each_value_1, i);
+    					const child_ctx = get_each_context_1$6(ctx, each_value_1, i);
 
     					if (each_blocks[i]) {
     						each_blocks[i].p(changed, child_ctx);
     					} else {
-    						each_blocks[i] = create_each_block_1$4(child_ctx);
+    						each_blocks[i] = create_each_block_1$6(child_ctx);
     						each_blocks[i].c();
     						each_blocks[i].m(tbody, null);
     					}
@@ -55393,8 +56001,8 @@
     }
 
     // (112:12) {#each record.fields as field}
-    function create_each_block_1$4(ctx) {
-    	var tr, td0, div0, t0_value = ctx.field.label, t0, t1, div1, t2_value = ctx.field.name, t2, t3, td1, t4_value = ctx.field.type, t4, t5, td2, raw0_value = ctx.getTypeOptions(ctx.field.typeOptions), t6, td3, span0, raw1_value = getIcon("edit"), t7, span1, raw2_value = getIcon("trash"), t8, dispose;
+    function create_each_block_1$6(ctx) {
+    	var tr, td0, div0, t0_value = ctx.field.label + "", t0, t1, div1, t2_value = ctx.field.name + "", t2, t3, td1, t4_value = ctx.field.type + "", t4, t5, td2, raw0_value = ctx.getTypeOptions(ctx.field.typeOptions) + "", t6, td3, span0, raw1_value = getIcon("edit") + "", t7, span1, raw2_value = getIcon("trash") + "", t8, dispose;
 
     	function click_handler() {
     		return ctx.click_handler(ctx);
@@ -55424,24 +56032,24 @@
     			t7 = space();
     			span1 = element("span");
     			t8 = space();
-    			add_location(div0, file$t, 114, 20, 3111);
+    			add_location(div0, file$u, 114, 20, 3111);
     			set_style(div1, "font-size", "0.7em");
     			set_style(div1, "color", "var(--slate)");
-    			add_location(div1, file$t, 115, 20, 3156);
+    			add_location(div1, file$u, 115, 20, 3156);
     			attr(td0, "class", "svelte-kswv5p");
-    			add_location(td0, file$t, 113, 16, 3085);
+    			add_location(td0, file$u, 113, 16, 3085);
     			attr(td1, "class", "svelte-kswv5p");
-    			add_location(td1, file$t, 117, 16, 3264);
+    			add_location(td1, file$u, 117, 16, 3264);
     			attr(td2, "class", "svelte-kswv5p");
-    			add_location(td2, file$t, 118, 16, 3303);
+    			add_location(td2, file$u, 118, 16, 3303);
     			attr(span0, "class", "edit-button svelte-kswv5p");
-    			add_location(span0, file$t, 120, 20, 3396);
+    			add_location(span0, file$u, 120, 20, 3396);
     			attr(span1, "class", "edit-button svelte-kswv5p");
-    			add_location(span1, file$t, 121, 20, 3507);
+    			add_location(span1, file$u, 121, 20, 3507);
     			attr(td3, "class", "svelte-kswv5p");
-    			add_location(td3, file$t, 119, 16, 3371);
+    			add_location(td3, file$u, 119, 16, 3371);
     			attr(tr, "class", "svelte-kswv5p");
-    			add_location(tr, file$t, 112, 12, 3064);
+    			add_location(tr, file$u, 112, 12, 3064);
 
     			dispose = [
     				listen(span0, "click", click_handler),
@@ -55475,19 +56083,19 @@
 
     		p: function update(changed, new_ctx) {
     			ctx = new_ctx;
-    			if ((changed.record) && t0_value !== (t0_value = ctx.field.label)) {
+    			if ((changed.record) && t0_value !== (t0_value = ctx.field.label + "")) {
     				set_data(t0, t0_value);
     			}
 
-    			if ((changed.record) && t2_value !== (t2_value = ctx.field.name)) {
+    			if ((changed.record) && t2_value !== (t2_value = ctx.field.name + "")) {
     				set_data(t2, t2_value);
     			}
 
-    			if ((changed.record) && t4_value !== (t4_value = ctx.field.type)) {
+    			if ((changed.record) && t4_value !== (t4_value = ctx.field.type + "")) {
     				set_data(t4, t4_value);
     			}
 
-    			if ((changed.record) && raw0_value !== (raw0_value = ctx.getTypeOptions(ctx.field.typeOptions))) {
+    			if ((changed.record) && raw0_value !== (raw0_value = ctx.getTypeOptions(ctx.field.typeOptions) + "")) {
     				td2.innerHTML = raw0_value;
     			}
     		},
@@ -55503,7 +56111,7 @@
     }
 
     // (132:4) {#if editingField}
-    function create_if_block_1$6(ctx) {
+    function create_if_block_1$7(ctx) {
     	var updating_isOpen, current;
 
     	function modal_isOpen_binding(value) {
@@ -55634,7 +56242,7 @@
 
     // (161:8) {#if index.filter}
     function create_if_block$c(ctx) {
-    	var div, span, t1, code, t2_value = ctx.index.filter, t2;
+    	var div, span, t1, code, t2_value = ctx.index.filter + "", t2;
 
     	return {
     		c: function create() {
@@ -55645,11 +56253,11 @@
     			code = element("code");
     			t2 = text(t2_value);
     			attr(span, "class", "index-label svelte-kswv5p");
-    			add_location(span, file$t, 162, 12, 4820);
+    			add_location(span, file$u, 162, 12, 4820);
     			attr(code, "class", "index-mapfilter svelte-kswv5p");
-    			add_location(code, file$t, 163, 12, 4873);
+    			add_location(code, file$u, 163, 12, 4873);
     			attr(div, "class", "index-field-row svelte-kswv5p");
-    			add_location(div, file$t, 161, 8, 4778);
+    			add_location(div, file$u, 161, 8, 4778);
     		},
 
     		m: function mount(target, anchor) {
@@ -55661,7 +56269,7 @@
     		},
 
     		p: function update(changed, ctx) {
-    			if ((changed.record) && t2_value !== (t2_value = ctx.index.filter)) {
+    			if ((changed.record) && t2_value !== (t2_value = ctx.index.filter + "")) {
     				set_data(t2, t2_value);
     			}
     		},
@@ -55675,8 +56283,8 @@
     }
 
     // (145:4) {#each record.indexes as index}
-    function create_each_block$9(ctx) {
-    	var div3, div0, t0_value = ctx.index.name, t0, t1, span0, raw_value = getIcon("edit"), t2, div1, span1, t4, span2, t5_value = ctx.getIndexAllowedRecords(ctx.index), t5, t6, span3, t8, span4, t9_value = ctx.index.indexType, t9, t10, div2, span5, t12, code, t13_value = ctx.index.map, t13, t14, t15, dispose;
+    function create_each_block$a(ctx) {
+    	var div3, div0, t0_value = ctx.index.name + "", t0, t1, span0, raw_value = getIcon("edit") + "", t2, div1, span1, t4, span2, t5_value = ctx.getIndexAllowedRecords(ctx.index) + "", t5, t6, span3, t8, span4, t9_value = ctx.index.indexType + "", t9, t10, div2, span5, t12, code, t13_value = ctx.index.map + "", t13, t14, t15, dispose;
 
     	function click_handler_2() {
     		return ctx.click_handler_2(ctx);
@@ -55715,26 +56323,26 @@
     			if (if_block) if_block.c();
     			t15 = space();
     			set_style(span0, "margin-left", "7px");
-    			add_location(span0, file$t, 148, 12, 4173);
+    			add_location(span0, file$u, 148, 12, 4173);
     			attr(div0, "class", "index-name svelte-kswv5p");
-    			add_location(div0, file$t, 146, 8, 4111);
+    			add_location(div0, file$u, 146, 8, 4111);
     			attr(span1, "class", "index-label svelte-kswv5p");
-    			add_location(span1, file$t, 151, 12, 4334);
-    			add_location(span2, file$t, 152, 12, 4398);
+    			add_location(span1, file$u, 151, 12, 4334);
+    			add_location(span2, file$u, 152, 12, 4398);
     			attr(span3, "class", "index-label svelte-kswv5p");
     			set_style(span3, "margin-left", "15px");
-    			add_location(span3, file$t, 153, 12, 4455);
-    			add_location(span4, file$t, 154, 12, 4533);
+    			add_location(span3, file$u, 153, 12, 4455);
+    			add_location(span4, file$u, 154, 12, 4533);
     			attr(div1, "class", "index-field-row svelte-kswv5p");
-    			add_location(div1, file$t, 150, 8, 4292);
+    			add_location(div1, file$u, 150, 8, 4292);
     			attr(span5, "class", "index-label svelte-kswv5p");
-    			add_location(span5, file$t, 157, 12, 4629);
+    			add_location(span5, file$u, 157, 12, 4629);
     			attr(code, "class", "index-mapfilter svelte-kswv5p");
-    			add_location(code, file$t, 158, 12, 4679);
+    			add_location(code, file$u, 158, 12, 4679);
     			attr(div2, "class", "index-field-row svelte-kswv5p");
-    			add_location(div2, file$t, 156, 8, 4587);
+    			add_location(div2, file$u, 156, 8, 4587);
     			attr(div3, "class", "index-container svelte-kswv5p");
-    			add_location(div3, file$t, 145, 4, 4073);
+    			add_location(div3, file$u, 145, 4, 4073);
     			dispose = listen(span0, "click", click_handler_2);
     		},
 
@@ -55769,19 +56377,19 @@
 
     		p: function update(changed, new_ctx) {
     			ctx = new_ctx;
-    			if ((changed.record) && t0_value !== (t0_value = ctx.index.name)) {
+    			if ((changed.record) && t0_value !== (t0_value = ctx.index.name + "")) {
     				set_data(t0, t0_value);
     			}
 
-    			if ((changed.getIndexAllowedRecords || changed.record) && t5_value !== (t5_value = ctx.getIndexAllowedRecords(ctx.index))) {
+    			if ((changed.getIndexAllowedRecords || changed.record) && t5_value !== (t5_value = ctx.getIndexAllowedRecords(ctx.index) + "")) {
     				set_data(t5, t5_value);
     			}
 
-    			if ((changed.record) && t9_value !== (t9_value = ctx.index.indexType)) {
+    			if ((changed.record) && t9_value !== (t9_value = ctx.index.indexType + "")) {
     				set_data(t9, t9_value);
     			}
 
-    			if ((changed.record) && t13_value !== (t13_value = ctx.index.map)) {
+    			if ((changed.record) && t13_value !== (t13_value = ctx.index.map + "")) {
     				set_data(t13, t13_value);
     			}
 
@@ -55810,8 +56418,8 @@
     	};
     }
 
-    function create_fragment$s(ctx) {
-    	var div1, form, updating_text, t0, div0, t1_value = ctx.record.nodeKey(), t1, t2, t3, h40, t4, span, raw_value = getIcon("plus"), t5, t6, t7, h41, t9, current, dispose;
+    function create_fragment$t(ctx) {
+    	var div1, form, updating_text, t0, div0, t1_value = ctx.record.nodeKey() + "", t1, t2, t3, h40, t4, span, raw_value = getIcon("plus") + "", t5, t6, t7, h41, t9, current, dispose;
 
     	function textbox_text_binding(value) {
     		ctx.textbox_text_binding.call(null, value);
@@ -55829,22 +56437,22 @@
 
     	var if_block0 = (!ctx.record.isSingle) && create_if_block_3$2(ctx);
 
-    	function select_block_type(ctx) {
+    	function select_block_type(changed, ctx) {
     		if (ctx.record.fields.length > 0) return create_if_block_2$3;
     		return create_else_block_1;
     	}
 
-    	var current_block_type = select_block_type(ctx);
+    	var current_block_type = select_block_type(null, ctx);
     	var if_block1 = current_block_type(ctx);
 
-    	var if_block2 = (ctx.editingField) && create_if_block_1$6(ctx);
+    	var if_block2 = (ctx.editingField) && create_if_block_1$7(ctx);
 
     	var each_value = ctx.record.indexes;
 
     	var each_blocks = [];
 
     	for (var i = 0; i < each_value.length; i += 1) {
-    		each_blocks[i] = create_each_block$9(get_each_context$9(ctx, each_value, i));
+    		each_blocks[i] = create_each_block$a(get_each_context$a(ctx, each_value, i));
     	}
 
     	var each_1_else = null;
@@ -55880,15 +56488,15 @@
     			for (var i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].c();
     			}
-    			add_location(div0, file$t, 89, 8, 2368);
+    			add_location(div0, file$u, 89, 8, 2368);
     			attr(form, "class", "uk-form-horizontal");
-    			add_location(form, file$t, 86, 4, 2264);
+    			add_location(form, file$u, 86, 4, 2264);
     			attr(span, "class", "add-field-button svelte-kswv5p");
-    			add_location(span, file$t, 97, 15, 2636);
-    			add_location(h40, file$t, 96, 4, 2616);
-    			add_location(h41, file$t, 140, 4, 4000);
+    			add_location(span, file$u, 97, 15, 2636);
+    			add_location(h40, file$u, 96, 4, 2616);
+    			add_location(h41, file$u, 140, 4, 4000);
     			attr(div1, "class", "root svelte-kswv5p");
-    			add_location(div1, file$t, 84, 0, 2240);
+    			add_location(div1, file$u, 84, 0, 2240);
     			dispose = listen(span, "click", ctx.newField);
     		},
 
@@ -55936,7 +56544,7 @@
     			}
     			textbox.$set(textbox_changes);
 
-    			if ((!current || changed.record) && t1_value !== (t1_value = ctx.record.nodeKey())) {
+    			if ((!current || changed.record) && t1_value !== (t1_value = ctx.record.nodeKey() + "")) {
     				set_data(t1, t1_value);
     			}
 
@@ -55958,7 +56566,7 @@
     				check_outros();
     			}
 
-    			if (current_block_type === (current_block_type = select_block_type(ctx)) && if_block1) {
+    			if (current_block_type === (current_block_type = select_block_type(changed, ctx)) && if_block1) {
     				if_block1.p(changed, ctx);
     			} else {
     				if_block1.d(1);
@@ -55974,7 +56582,7 @@
     					if_block2.p(changed, ctx);
     					transition_in(if_block2, 1);
     				} else {
-    					if_block2 = create_if_block_1$6(ctx);
+    					if_block2 = create_if_block_1$7(ctx);
     					if_block2.c();
     					transition_in(if_block2, 1);
     					if_block2.m(div1, t7);
@@ -55991,12 +56599,12 @@
     				each_value = ctx.record.indexes;
 
     				for (var i = 0; i < each_value.length; i += 1) {
-    					const child_ctx = get_each_context$9(ctx, each_value, i);
+    					const child_ctx = get_each_context$a(ctx, each_value, i);
 
     					if (each_blocks[i]) {
     						each_blocks[i].p(changed, child_ctx);
     					} else {
-    						each_blocks[i] = create_each_block$9(child_ctx);
+    						each_blocks[i] = create_each_block$a(child_ctx);
     						each_blocks[i].c();
     						each_blocks[i].m(div1, null);
     					}
@@ -56056,11 +56664,11 @@
     	};
     }
 
-    function instance$s($$self, $$props, $$invalidate) {
+    function instance$t($$self, $$props, $$invalidate) {
     	let $store;
 
     	validate_store(store, 'store');
-    	subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
+    	component_subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
 
     	
 
@@ -56186,15 +56794,15 @@
     class RecordView extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$s, create_fragment$s, safe_not_equal, []);
+    		init(this, options, instance$t, create_fragment$t, safe_not_equal, []);
     	}
     }
 
-    /* src\common\CodeArea.svelte generated by Svelte v3.6.9 */
+    /* src\common\CodeArea.svelte generated by Svelte v3.9.1 */
 
-    const file$u = "src\\common\\CodeArea.svelte";
+    const file$v = "src\\common\\CodeArea.svelte";
 
-    function create_fragment$t(ctx) {
+    function create_fragment$u(ctx) {
     	var div, t0, t1, textarea, dispose;
 
     	return {
@@ -56203,9 +56811,9 @@
     			t0 = text(ctx.label);
     			t1 = space();
     			textarea = element("textarea");
-    			add_location(div, file$u, 6, 0, 102);
+    			add_location(div, file$v, 6, 0, 102);
     			attr(textarea, "class", "uk-textarea svelte-1ooq0hh");
-    			add_location(textarea, file$u, 7, 0, 122);
+    			add_location(textarea, file$v, 7, 0, 122);
     			dispose = listen(textarea, "input", ctx.textarea_input_handler);
     		},
 
@@ -56219,7 +56827,7 @@
     			insert(target, t1, anchor);
     			insert(target, textarea, anchor);
 
-    			textarea.value = ctx.text;
+    			set_input_value(textarea, ctx.text);
     		},
 
     		p: function update(changed, ctx) {
@@ -56227,7 +56835,7 @@
     				set_data(t0, ctx.label);
     			}
 
-    			if (changed.text) textarea.value = ctx.text;
+    			if (changed.text) set_input_value(textarea, ctx.text);
     		},
 
     		i: noop,
@@ -56245,7 +56853,7 @@
     	};
     }
 
-    function instance$t($$self, $$props, $$invalidate) {
+    function instance$u($$self, $$props, $$invalidate) {
     	// todo: use https://ace.c9.io
     let { text = "", label = "" } = $$props;
 
@@ -56270,7 +56878,7 @@
     class CodeArea extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$t, create_fragment$t, safe_not_equal, ["text", "label"]);
+    		init(this, options, instance$u, create_fragment$u, safe_not_equal, ["text", "label"]);
     	}
 
     	get text() {
@@ -56290,19 +56898,19 @@
     	}
     }
 
-    /* src\database\IndexView.svelte generated by Svelte v3.6.9 */
+    /* src\database\IndexView.svelte generated by Svelte v3.9.1 */
 
-    const file$v = "src\\database\\IndexView.svelte";
+    const file$w = "src\\database\\IndexView.svelte";
 
-    function get_each_context$a(ctx, list, i) {
+    function get_each_context$b(ctx, list, i) {
     	const child_ctx = Object.create(ctx);
     	child_ctx.rec = list[i];
     	return child_ctx;
     }
 
     // (45:8) {#each indexableRecords as rec}
-    function create_each_block$a(ctx) {
-    	var input, input_checked_value, t0, span, t1_value = ctx.rec.node.name, t1, dispose;
+    function create_each_block$b(ctx) {
+    	var input, input_checked_value, t0, span, t1_value = ctx.rec.node.name + "", t1, dispose;
 
     	function change_handler() {
     		return ctx.change_handler(ctx);
@@ -56316,9 +56924,9 @@
     			t1 = text(t1_value);
     			attr(input, "type", "checkbox");
     			input.checked = input_checked_value = ctx.rec.isallowed;
-    			add_location(input, file$v, 45, 8, 1362);
+    			add_location(input, file$w, 45, 8, 1362);
     			attr(span, "class", "svelte-pq2tmv");
-    			add_location(span, file$v, 46, 8, 1462);
+    			add_location(span, file$w, 46, 8, 1462);
     			dispose = listen(input, "change", change_handler);
     		},
 
@@ -56335,7 +56943,7 @@
     				input.checked = input_checked_value;
     			}
 
-    			if ((changed.indexableRecords) && t1_value !== (t1_value = ctx.rec.node.name)) {
+    			if ((changed.indexableRecords) && t1_value !== (t1_value = ctx.rec.node.name + "")) {
     				set_data(t1, t1_value);
     			}
     		},
@@ -56352,7 +56960,7 @@
     	};
     }
 
-    function create_fragment$u(ctx) {
+    function create_fragment$v(ctx) {
     	var form, updating_text, t0, div1, div0, t2, t3, updating_selected, t4, updating_text_1, t5, updating_text_2, t6, updating_text_3, current;
 
     	function textbox_text_binding(value) {
@@ -56374,7 +56982,7 @@
     	var each_blocks = [];
 
     	for (var i = 0; i < each_value.length; i += 1) {
-    		each_blocks[i] = create_each_block$a(get_each_context$a(ctx, each_value, i));
+    		each_blocks[i] = create_each_block$b(get_each_context$b(ctx, each_value, i));
     	}
 
     	function dropdown_selected_binding(value_1) {
@@ -56460,11 +57068,11 @@
     			codearea1.$$.fragment.c();
     			t6 = space();
     			codearea2.$$.fragment.c();
-    			add_location(div0, file$v, 43, 8, 1286);
+    			add_location(div0, file$w, 43, 8, 1286);
     			attr(div1, "class", "allowed-records svelte-pq2tmv");
-    			add_location(div1, file$v, 42, 4, 1248);
+    			add_location(div1, file$w, 42, 4, 1248);
     			attr(form, "class", "uk-form-horizontal root svelte-pq2tmv");
-    			add_location(form, file$v, 39, 0, 1149);
+    			add_location(form, file$w, 39, 0, 1149);
     		},
 
     		l: function claim(nodes) {
@@ -56505,12 +57113,12 @@
     				each_value = ctx.indexableRecords;
 
     				for (var i = 0; i < each_value.length; i += 1) {
-    					const child_ctx = get_each_context$a(ctx, each_value, i);
+    					const child_ctx = get_each_context$b(ctx, each_value, i);
 
     					if (each_blocks[i]) {
     						each_blocks[i].p(changed, child_ctx);
     					} else {
-    						each_blocks[i] = create_each_block$a(child_ctx);
+    						each_blocks[i] = create_each_block$b(child_ctx);
     						each_blocks[i].c();
     						each_blocks[i].m(div1, null);
     					}
@@ -56591,7 +57199,7 @@
     	};
     }
 
-    function instance$u($$self, $$props, $$invalidate) {
+    function instance$v($$self, $$props, $$invalidate) {
     	
 
     const pipe = common$1.$;
@@ -56666,13 +57274,13 @@
     class IndexView extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$u, create_fragment$u, safe_not_equal, []);
+    		init(this, options, instance$v, create_fragment$v, safe_not_equal, []);
     	}
     }
 
-    /* src\database\ActionsHeader.svelte generated by Svelte v3.6.9 */
+    /* src\database\ActionsHeader.svelte generated by Svelte v3.9.1 */
 
-    const file$w = "src\\database\\ActionsHeader.svelte";
+    const file$x = "src\\database\\ActionsHeader.svelte";
 
     // (27:12) {:else}
     function create_else_block$6(ctx) {
@@ -56720,12 +57328,12 @@
     function create_default_slot_5(ctx) {
     	var if_block_anchor;
 
-    	function select_block_type(ctx) {
+    	function select_block_type(changed, ctx) {
     		if (ctx.$store.currentNodeIsNew) return create_if_block_2$4;
     		return create_else_block$6;
     	}
 
-    	var current_block_type = select_block_type(ctx);
+    	var current_block_type = select_block_type(null, ctx);
     	var if_block = current_block_type(ctx);
 
     	return {
@@ -56740,7 +57348,7 @@
     		},
 
     		p: function update(changed, ctx) {
-    			if (current_block_type !== (current_block_type = select_block_type(ctx))) {
+    			if (current_block_type !== (current_block_type = select_block_type(changed, ctx))) {
     				if_block.d(1);
     				if_block = current_block_type(ctx);
     				if (if_block) {
@@ -56761,7 +57369,7 @@
     }
 
     // (32:8) {#if !$store.currentNodeIsNew}
-    function create_if_block_1$7(ctx) {
+    function create_if_block_1$8(ctx) {
     	var current;
 
     	var button = new Button({
@@ -56839,7 +57447,7 @@
     	});
     	button.$on("click", store.saveCurrentNode);
 
-    	var if_block = (!ctx.$store.currentNodeIsNew) && create_if_block_1$7(ctx);
+    	var if_block = (!ctx.$store.currentNodeIsNew) && create_if_block_1$8(ctx);
 
     	return {
     		c: function create() {
@@ -56864,7 +57472,7 @@
 
     			if (!ctx.$store.currentNodeIsNew) {
     				if (!if_block) {
-    					if_block = create_if_block_1$7(ctx);
+    					if_block = create_if_block_1$8(ctx);
     					if_block.c();
     					transition_in(if_block, 1);
     					if_block.m(if_block_anchor.parentNode, if_block_anchor);
@@ -56924,7 +57532,7 @@
     			div = element("div");
     			errorsbox.$$.fragment.c();
     			set_style(div, "width", "500px");
-    			add_location(div, file$w, 39, 4, 972);
+    			add_location(div, file$x, 39, 4, 972);
     		},
 
     		m: function mount(target, anchor) {
@@ -57005,7 +57613,7 @@
 
     // (45:4) <Modal bind:isOpen={confirmDelete}>
     function create_default_slot$5(ctx) {
-    	var div0, t0, t1_value = ctx.$store.currentNode.name, t1, t2, t3, div1, t4, current;
+    	var div0, t0, t1_value = ctx.$store.currentNode.name + "", t1, t2, t3, div1, t4, current;
 
     	var button0 = new Button({
     		props: {
@@ -57039,9 +57647,9 @@
     			t4 = space();
     			button1.$$.fragment.c();
     			set_style(div0, "margin", "10px 0px 20px 0px");
-    			add_location(div0, file$w, 45, 8, 1117);
+    			add_location(div0, file$x, 45, 8, 1117);
     			set_style(div1, "float", "right");
-    			add_location(div1, file$w, 46, 8, 1230);
+    			add_location(div1, file$x, 46, 8, 1230);
     		},
 
     		m: function mount(target, anchor) {
@@ -57058,7 +57666,7 @@
     		},
 
     		p: function update(changed, ctx) {
-    			if ((!current || changed.$store) && t1_value !== (t1_value = ctx.$store.currentNode.name)) {
+    			if ((!current || changed.$store) && t1_value !== (t1_value = ctx.$store.currentNode.name + "")) {
     				set_data(t1, t1_value);
     			}
 
@@ -57100,7 +57708,7 @@
     	};
     }
 
-    function create_fragment$v(ctx) {
+    function create_fragment$w(ctx) {
     	var div, t0, t1, updating_isOpen, current;
 
     	var buttongroup = new ButtonGroup({
@@ -57140,7 +57748,7 @@
     			modal.$$.fragment.c();
     			attr(div, "class", "root svelte-1tilbnf");
     			set_style(div, "left", ctx.left);
-    			add_location(div, file$w, 20, 0, 460);
+    			add_location(div, file$x, 20, 0, 460);
     		},
 
     		l: function claim(nodes) {
@@ -57224,11 +57832,11 @@
     	};
     }
 
-    function instance$v($$self, $$props, $$invalidate) {
+    function instance$w($$self, $$props, $$invalidate) {
     	let $store;
 
     	validate_store(store, 'store');
-    	subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
+    	component_subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
 
     	
 
@@ -57277,7 +57885,7 @@
     class ActionsHeader extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$v, create_fragment$v, safe_not_equal, ["left"]);
+    		init(this, options, instance$w, create_fragment$w, safe_not_equal, ["left"]);
 
     		const { ctx } = this.$$;
     		const props = options.props || {};
@@ -57295,327 +57903,11 @@
     	}
     }
 
-    /* src\common\DropdownButton.svelte generated by Svelte v3.6.9 */
-
-    const file$x = "src\\common\\DropdownButton.svelte";
-
-    function get_each_context$b(ctx, list, i) {
-    	const child_ctx = Object.create(ctx);
-    	child_ctx.action = list[i];
-    	return child_ctx;
-    }
-
-    // (17:8) {#each actions as action}
-    function create_each_block$b(ctx) {
-    	var div, t0_value = ctx.action.label, t0, t1, dispose;
-
-    	return {
-    		c: function create() {
-    			div = element("div");
-    			t0 = text(t0_value);
-    			t1 = space();
-    			attr(div, "class", "action-row svelte-179p8ge");
-    			add_location(div, file$x, 17, 8, 586);
-    			dispose = listen(div, "click", ctx.action.onclick);
-    		},
-
-    		m: function mount(target, anchor) {
-    			insert(target, div, anchor);
-    			append(div, t0);
-    			append(div, t1);
-    		},
-
-    		p: function update(changed, new_ctx) {
-    			ctx = new_ctx;
-    			if ((changed.actions) && t0_value !== (t0_value = ctx.action.label)) {
-    				set_data(t0, t0_value);
-    			}
-    		},
-
-    		d: function destroy(detaching) {
-    			if (detaching) {
-    				detach(div);
-    			}
-
-    			dispose();
-    		}
-    	};
-    }
-
-    function create_fragment$w(ctx) {
-    	var div2, raw_value = getIcon(ctx.iconName), raw_after, t0, div0, t1, div1, dispose;
-
-    	var each_value = ctx.actions;
-
-    	var each_blocks = [];
-
-    	for (var i = 0; i < each_value.length; i += 1) {
-    		each_blocks[i] = create_each_block$b(get_each_context$b(ctx, each_value, i));
-    	}
-
-    	return {
-    		c: function create() {
-    			div2 = element("div");
-    			raw_after = element('noscript');
-    			t0 = space();
-    			div0 = element("div");
-    			t1 = space();
-    			div1 = element("div");
-
-    			for (var i = 0; i < each_blocks.length; i += 1) {
-    				each_blocks[i].c();
-    			}
-    			attr(div0, "class", "dropdown-background svelte-179p8ge");
-    			set_style(div0, "display", (ctx.isDroppedDown ? 'block' : 'none'));
-    			add_location(div0, file$x, 13, 4, 298);
-    			attr(div1, "class", "dropdown-content svelte-179p8ge");
-    			set_style(div1, "display", (ctx.isDroppedDown ? 'inline-block' : 'none'));
-    			add_location(div1, file$x, 15, 4, 452);
-    			attr(div2, "class", "root svelte-179p8ge");
-    			add_location(div2, file$x, 10, 0, 189);
-
-    			dispose = [
-    				listen(div0, "click", stop_propagation(ctx.click_handler)),
-    				listen(div2, "click", ctx.click_handler_1)
-    			];
-    		},
-
-    		l: function claim(nodes) {
-    			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
-    		},
-
-    		m: function mount(target, anchor) {
-    			insert(target, div2, anchor);
-    			append(div2, raw_after);
-    			raw_after.insertAdjacentHTML("beforebegin", raw_value);
-    			append(div2, t0);
-    			append(div2, div0);
-    			append(div2, t1);
-    			append(div2, div1);
-
-    			for (var i = 0; i < each_blocks.length; i += 1) {
-    				each_blocks[i].m(div1, null);
-    			}
-    		},
-
-    		p: function update(changed, ctx) {
-    			if ((changed.iconName) && raw_value !== (raw_value = getIcon(ctx.iconName))) {
-    				detach_before(raw_after);
-    				raw_after.insertAdjacentHTML("beforebegin", raw_value);
-    			}
-
-    			if (changed.isDroppedDown) {
-    				set_style(div0, "display", (ctx.isDroppedDown ? 'block' : 'none'));
-    			}
-
-    			if (changed.actions) {
-    				each_value = ctx.actions;
-
-    				for (var i = 0; i < each_value.length; i += 1) {
-    					const child_ctx = get_each_context$b(ctx, each_value, i);
-
-    					if (each_blocks[i]) {
-    						each_blocks[i].p(changed, child_ctx);
-    					} else {
-    						each_blocks[i] = create_each_block$b(child_ctx);
-    						each_blocks[i].c();
-    						each_blocks[i].m(div1, null);
-    					}
-    				}
-
-    				for (; i < each_blocks.length; i += 1) {
-    					each_blocks[i].d(1);
-    				}
-    				each_blocks.length = each_value.length;
-    			}
-
-    			if (changed.isDroppedDown) {
-    				set_style(div1, "display", (ctx.isDroppedDown ? 'inline-block' : 'none'));
-    			}
-    		},
-
-    		i: noop,
-    		o: noop,
-
-    		d: function destroy(detaching) {
-    			if (detaching) {
-    				detach(div2);
-    			}
-
-    			destroy_each(each_blocks, detaching);
-
-    			run_all(dispose);
-    		}
-    	};
-    }
-
-    function instance$w($$self, $$props, $$invalidate) {
-    	let { iconName, actions = [] } = $$props; // [ {label: "Action Name", onclick: () => {...} } ]
-    let isDroppedDown = false;
-
-    	const writable_props = ['iconName', 'actions'];
-    	Object.keys($$props).forEach(key => {
-    		if (!writable_props.includes(key) && !key.startsWith('$$')) console.warn(`<DropdownButton> was created with unknown prop '${key}'`);
-    	});
-
-    	function click_handler() {
-    		const $$result = isDroppedDown = false;
-    		$$invalidate('isDroppedDown', isDroppedDown);
-    		return $$result;
-    	}
-
-    	function click_handler_1() {
-    		const $$result = isDroppedDown = !isDroppedDown;
-    		$$invalidate('isDroppedDown', isDroppedDown);
-    		return $$result;
-    	}
-
-    	$$self.$set = $$props => {
-    		if ('iconName' in $$props) $$invalidate('iconName', iconName = $$props.iconName);
-    		if ('actions' in $$props) $$invalidate('actions', actions = $$props.actions);
-    	};
-
-    	return {
-    		iconName,
-    		actions,
-    		isDroppedDown,
-    		click_handler,
-    		click_handler_1
-    	};
-    }
-
-    class DropdownButton extends SvelteComponentDev {
-    	constructor(options) {
-    		super(options);
-    		init(this, options, instance$w, create_fragment$w, safe_not_equal, ["iconName", "actions"]);
-
-    		const { ctx } = this.$$;
-    		const props = options.props || {};
-    		if (ctx.iconName === undefined && !('iconName' in props)) {
-    			console.warn("<DropdownButton> was created without expected prop 'iconName'");
-    		}
-    	}
-
-    	get iconName() {
-    		throw new Error("<DropdownButton>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set iconName(value) {
-    		throw new Error("<DropdownButton>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	get actions() {
-    		throw new Error("<DropdownButton>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-
-    	set actions(value) {
-    		throw new Error("<DropdownButton>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-    	}
-    }
-
-    /* src\database\DatabaseRoot.svelte generated by Svelte v3.6.9 */
+    /* src\database\DatabaseRoot.svelte generated by Svelte v3.9.1 */
 
     const file$y = "src\\database\\DatabaseRoot.svelte";
 
-    function get_each_context$c(ctx, list, i) {
-    	const child_ctx = Object.create(ctx);
-    	child_ctx.index = list[i];
-    	return child_ctx;
-    }
-
-    function get_each_context_1$5(ctx, list, i) {
-    	const child_ctx = Object.create(ctx);
-    	child_ctx.record = list[i];
-    	return child_ctx;
-    }
-
-    // (55:8) {#each $store.hierarchy.children as record}
-    function create_each_block_1$5(ctx) {
-    	var current;
-
-    	var hierarchyrow = new HierarchyRow({
-    		props: { node: ctx.record },
-    		$$inline: true
-    	});
-
-    	return {
-    		c: function create() {
-    			hierarchyrow.$$.fragment.c();
-    		},
-
-    		m: function mount(target, anchor) {
-    			mount_component(hierarchyrow, target, anchor);
-    			current = true;
-    		},
-
-    		p: function update(changed, ctx) {
-    			var hierarchyrow_changes = {};
-    			if (changed.$store) hierarchyrow_changes.node = ctx.record;
-    			hierarchyrow.$set(hierarchyrow_changes);
-    		},
-
-    		i: function intro(local) {
-    			if (current) return;
-    			transition_in(hierarchyrow.$$.fragment, local);
-
-    			current = true;
-    		},
-
-    		o: function outro(local) {
-    			transition_out(hierarchyrow.$$.fragment, local);
-    			current = false;
-    		},
-
-    		d: function destroy(detaching) {
-    			destroy_component(hierarchyrow, detaching);
-    		}
-    	};
-    }
-
-    // (63:8) {#each $store.hierarchy.indexes as index}
-    function create_each_block$c(ctx) {
-    	var current;
-
-    	var hierarchyrow = new HierarchyRow({
-    		props: { node: ctx.index },
-    		$$inline: true
-    	});
-
-    	return {
-    		c: function create() {
-    			hierarchyrow.$$.fragment.c();
-    		},
-
-    		m: function mount(target, anchor) {
-    			mount_component(hierarchyrow, target, anchor);
-    			current = true;
-    		},
-
-    		p: function update(changed, ctx) {
-    			var hierarchyrow_changes = {};
-    			if (changed.$store) hierarchyrow_changes.node = ctx.index;
-    			hierarchyrow.$set(hierarchyrow_changes);
-    		},
-
-    		i: function intro(local) {
-    			if (current) return;
-    			transition_in(hierarchyrow.$$.fragment, local);
-
-    			current = true;
-    		},
-
-    		o: function outro(local) {
-    			transition_out(hierarchyrow.$$.fragment, local);
-    			current = false;
-    		},
-
-    		d: function destroy(detaching) {
-    			destroy_component(hierarchyrow, detaching);
-    		}
-    	};
-    }
-
-    // (69:12) {#if $store.currentNode}
+    // (51:8) {#if $store.currentNode}
     function create_if_block_2$5(ctx) {
     	var current;
 
@@ -57658,7 +57950,7 @@
     	};
     }
 
-    // (78:12) {:else}
+    // (60:8) {:else}
     function create_else_block$7(ctx) {
     	var current;
 
@@ -57692,8 +57984,8 @@
     	};
     }
 
-    // (76:59) 
-    function create_if_block_1$8(ctx) {
+    // (58:55) 
+    function create_if_block_1$9(ctx) {
     	var current;
 
     	var recordview = new RecordView({ $$inline: true });
@@ -57726,7 +58018,7 @@
     	};
     }
 
-    // (74:12) {#if !$store.currentNode}
+    // (56:8) {#if !$store.currentNode}
     function create_if_block$e(ctx) {
     	var h1;
 
@@ -57735,7 +58027,7 @@
     			h1 = element("h1");
     			h1.textContent = ":)";
     			set_style(h1, "margin-left", "100px");
-    			add_location(h1, file$y, 74, 12, 2317);
+    			add_location(h1, file$y, 56, 8, 1573);
     		},
 
     		m: function mount(target, anchor) {
@@ -57754,115 +58046,41 @@
     }
 
     function create_fragment$x(ctx) {
-    	var div8, div4, div1, div0, t1, t2, t3, div3, div2, t5, t6, t7, div7, div5, t8, div6, current_block_type_index, if_block1, current;
-
-    	var dropdownbutton0 = new DropdownButton({
-    		props: { iconName: "plus", actions: ctx.newRecordActions },
-    		$$inline: true
-    	});
-
-    	var each_value_1 = ctx.$store.hierarchy.children;
-
-    	var each_blocks_1 = [];
-
-    	for (var i = 0; i < each_value_1.length; i += 1) {
-    		each_blocks_1[i] = create_each_block_1$5(get_each_context_1$5(ctx, each_value_1, i));
-    	}
-
-    	const out = i => transition_out(each_blocks_1[i], 1, 1, () => {
-    		each_blocks_1[i] = null;
-    	});
-
-    	var dropdownbutton1 = new DropdownButton({
-    		props: { iconName: "plus", actions: ctx.newIndexActions },
-    		$$inline: true
-    	});
-
-    	var each_value = ctx.$store.hierarchy.indexes;
-
-    	var each_blocks = [];
-
-    	for (var i = 0; i < each_value.length; i += 1) {
-    		each_blocks[i] = create_each_block$c(get_each_context$c(ctx, each_value, i));
-    	}
-
-    	const out_1 = i => transition_out(each_blocks[i], 1, 1, () => {
-    		each_blocks[i] = null;
-    	});
+    	var div2, div0, t, div1, current_block_type_index, if_block1, current;
 
     	var if_block0 = (ctx.$store.currentNode) && create_if_block_2$5();
 
     	var if_block_creators = [
     		create_if_block$e,
-    		create_if_block_1$8,
+    		create_if_block_1$9,
     		create_else_block$7
     	];
 
     	var if_blocks = [];
 
-    	function select_block_type(ctx) {
+    	function select_block_type(changed, ctx) {
     		if (!ctx.$store.currentNode) return 0;
     		if (ctx.$store.currentNode.type === "record") return 1;
     		return 2;
     	}
 
-    	current_block_type_index = select_block_type(ctx);
+    	current_block_type_index = select_block_type(null, ctx);
     	if_block1 = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
 
     	return {
     		c: function create() {
-    			div8 = element("div");
-    			div4 = element("div");
-    			div1 = element("div");
-    			div0 = element("div");
-    			div0.textContent = "Records";
-    			t1 = space();
-    			dropdownbutton0.$$.fragment.c();
-    			t2 = space();
-
-    			for (var i = 0; i < each_blocks_1.length; i += 1) {
-    				each_blocks_1[i].c();
-    			}
-
-    			t3 = space();
-    			div3 = element("div");
     			div2 = element("div");
-    			div2.textContent = "Indexes";
-    			t5 = space();
-    			dropdownbutton1.$$.fragment.c();
-    			t6 = space();
-
-    			for (var i = 0; i < each_blocks.length; i += 1) {
-    				each_blocks[i].c();
-    			}
-
-    			t7 = space();
-    			div7 = element("div");
-    			div5 = element("div");
+    			div0 = element("div");
     			if (if_block0) if_block0.c();
-    			t8 = space();
-    			div6 = element("div");
+    			t = space();
+    			div1 = element("div");
     			if_block1.c();
-    			attr(div0, "class", "hierarchy-title svelte-ui57a");
-    			add_location(div0, file$y, 51, 12, 1479);
-    			attr(div1, "class", "hierarchy-title-row svelte-ui57a");
-    			add_location(div1, file$y, 50, 8, 1433);
-    			attr(div2, "class", "hierarchy-title svelte-ui57a");
-    			add_location(div2, file$y, 59, 12, 1798);
-    			attr(div3, "class", "hierarchy-title-row svelte-ui57a");
-    			set_style(div3, "margin-top", "20px");
-    			add_location(div3, file$y, 58, 8, 1727);
-    			attr(div4, "class", "hierarchy svelte-ui57a");
-    			set_style(div4, "width", hierarchyWidth);
-    			add_location(div4, file$y, 49, 4, 1369);
-    			attr(div5, "class", "actions-header svelte-ui57a");
-    			add_location(div5, file$y, 67, 8, 2085);
-    			attr(div6, "class", "node-view svelte-ui57a");
-    			add_location(div6, file$y, 72, 8, 2243);
-    			attr(div7, "class", "node-container svelte-ui57a");
-    			add_location(div7, file$y, 66, 4, 2048);
-    			attr(div8, "class", "root svelte-ui57a");
-    			add_location(div8, file$y, 48, 0, 1346);
+    			attr(div0, "class", "actions-header svelte-apja7r");
+    			add_location(div0, file$y, 49, 4, 1369);
+    			attr(div1, "class", "node-view svelte-apja7r");
+    			add_location(div1, file$y, 54, 4, 1507);
+    			attr(div2, "class", "root svelte-apja7r");
+    			add_location(div2, file$y, 48, 0, 1346);
     		},
 
     		l: function claim(nodes) {
@@ -57870,96 +58088,16 @@
     		},
 
     		m: function mount(target, anchor) {
-    			insert(target, div8, anchor);
-    			append(div8, div4);
-    			append(div4, div1);
-    			append(div1, div0);
-    			append(div1, t1);
-    			mount_component(dropdownbutton0, div1, null);
-    			append(div4, t2);
-
-    			for (var i = 0; i < each_blocks_1.length; i += 1) {
-    				each_blocks_1[i].m(div4, null);
-    			}
-
-    			append(div4, t3);
-    			append(div4, div3);
-    			append(div3, div2);
-    			append(div3, t5);
-    			mount_component(dropdownbutton1, div3, null);
-    			append(div4, t6);
-
-    			for (var i = 0; i < each_blocks.length; i += 1) {
-    				each_blocks[i].m(div4, null);
-    			}
-
-    			append(div8, t7);
-    			append(div8, div7);
-    			append(div7, div5);
-    			if (if_block0) if_block0.m(div5, null);
-    			append(div7, t8);
-    			append(div7, div6);
-    			if_blocks[current_block_type_index].m(div6, null);
+    			insert(target, div2, anchor);
+    			append(div2, div0);
+    			if (if_block0) if_block0.m(div0, null);
+    			append(div2, t);
+    			append(div2, div1);
+    			if_blocks[current_block_type_index].m(div1, null);
     			current = true;
     		},
 
     		p: function update(changed, ctx) {
-    			var dropdownbutton0_changes = {};
-    			if (changed.newRecordActions) dropdownbutton0_changes.actions = ctx.newRecordActions;
-    			dropdownbutton0.$set(dropdownbutton0_changes);
-
-    			if (changed.$store) {
-    				each_value_1 = ctx.$store.hierarchy.children;
-
-    				for (var i = 0; i < each_value_1.length; i += 1) {
-    					const child_ctx = get_each_context_1$5(ctx, each_value_1, i);
-
-    					if (each_blocks_1[i]) {
-    						each_blocks_1[i].p(changed, child_ctx);
-    						transition_in(each_blocks_1[i], 1);
-    					} else {
-    						each_blocks_1[i] = create_each_block_1$5(child_ctx);
-    						each_blocks_1[i].c();
-    						transition_in(each_blocks_1[i], 1);
-    						each_blocks_1[i].m(div4, t3);
-    					}
-    				}
-
-    				group_outros();
-    				for (i = each_value_1.length; i < each_blocks_1.length; i += 1) out(i);
-    				check_outros();
-    			}
-
-    			var dropdownbutton1_changes = {};
-    			if (changed.newIndexActions) dropdownbutton1_changes.actions = ctx.newIndexActions;
-    			dropdownbutton1.$set(dropdownbutton1_changes);
-
-    			if (changed.$store) {
-    				each_value = ctx.$store.hierarchy.indexes;
-
-    				for (var i = 0; i < each_value.length; i += 1) {
-    					const child_ctx = get_each_context$c(ctx, each_value, i);
-
-    					if (each_blocks[i]) {
-    						each_blocks[i].p(changed, child_ctx);
-    						transition_in(each_blocks[i], 1);
-    					} else {
-    						each_blocks[i] = create_each_block$c(child_ctx);
-    						each_blocks[i].c();
-    						transition_in(each_blocks[i], 1);
-    						each_blocks[i].m(div4, null);
-    					}
-    				}
-
-    				group_outros();
-    				for (i = each_value.length; i < each_blocks.length; i += 1) out_1(i);
-    				check_outros();
-    			}
-
-    			if (!current || changed.hierarchyWidth) {
-    				set_style(div4, "width", hierarchyWidth);
-    			}
-
     			if (ctx.$store.currentNode) {
     				if (if_block0) {
     					if_block0.p(changed, ctx);
@@ -57968,7 +58106,7 @@
     					if_block0 = create_if_block_2$5();
     					if_block0.c();
     					transition_in(if_block0, 1);
-    					if_block0.m(div5, null);
+    					if_block0.m(div0, null);
     				}
     			} else if (if_block0) {
     				group_outros();
@@ -57979,7 +58117,7 @@
     			}
 
     			var previous_block_index = current_block_type_index;
-    			current_block_type_index = select_block_type(ctx);
+    			current_block_type_index = select_block_type(changed, ctx);
     			if (current_block_type_index !== previous_block_index) {
     				group_outros();
     				transition_out(if_blocks[previous_block_index], 1, 1, () => {
@@ -57993,36 +58131,18 @@
     					if_block1.c();
     				}
     				transition_in(if_block1, 1);
-    				if_block1.m(div6, null);
+    				if_block1.m(div1, null);
     			}
     		},
 
     		i: function intro(local) {
     			if (current) return;
-    			transition_in(dropdownbutton0.$$.fragment, local);
-
-    			for (var i = 0; i < each_value_1.length; i += 1) transition_in(each_blocks_1[i]);
-
-    			transition_in(dropdownbutton1.$$.fragment, local);
-
-    			for (var i = 0; i < each_value.length; i += 1) transition_in(each_blocks[i]);
-
     			transition_in(if_block0);
     			transition_in(if_block1);
     			current = true;
     		},
 
     		o: function outro(local) {
-    			transition_out(dropdownbutton0.$$.fragment, local);
-
-    			each_blocks_1 = each_blocks_1.filter(Boolean);
-    			for (let i = 0; i < each_blocks_1.length; i += 1) transition_out(each_blocks_1[i]);
-
-    			transition_out(dropdownbutton1.$$.fragment, local);
-
-    			each_blocks = each_blocks.filter(Boolean);
-    			for (let i = 0; i < each_blocks.length; i += 1) transition_out(each_blocks[i]);
-
     			transition_out(if_block0);
     			transition_out(if_block1);
     			current = false;
@@ -58030,16 +58150,8 @@
 
     		d: function destroy(detaching) {
     			if (detaching) {
-    				detach(div8);
+    				detach(div2);
     			}
-
-    			destroy_component(dropdownbutton0);
-
-    			destroy_each(each_blocks_1, detaching);
-
-    			destroy_component(dropdownbutton1);
-
-    			destroy_each(each_blocks, detaching);
 
     			if (if_block0) if_block0.d();
     			if_blocks[current_block_type_index].d();
@@ -58053,7 +58165,7 @@
     	let $store;
 
     	validate_store(store, 'store');
-    	subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
+    	component_subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
 
     	
 
@@ -58072,28 +58184,24 @@
 
     store.subscribe(db => {
         if(!db.currentNode || hierarchyFunctions.isIndex(db.currentNode)) {
-            $$invalidate('newRecordActions', newRecordActions = defaultNewRecordActions);
-            $$invalidate('newIndexActions', newIndexActions = defaultNewIndexActions);
+            newRecordActions = defaultNewRecordActions;
+            newIndexActions = defaultNewIndexActions;
         } else {
-            $$invalidate('newRecordActions', newRecordActions = [
+            newRecordActions = [
                 ...defaultNewRecordActions,
                 {label: `New Child Record of ${db.currentNode.name}`, 
                 onclick: store.newChildRecord}
-            ]);
+            ];
 
-            $$invalidate('newIndexActions', newIndexActions = [
+            newIndexActions = [
                 ...defaultNewIndexActions,
                 {label: `New Index on ${db.currentNode.name}`, 
                 onclick: store.newChildIndex}
-            ]);
+            ];
         }
     });
 
-    	return {
-    		newIndexActions,
-    		newRecordActions,
-    		$store
-    	};
+    	return { $store };
     }
 
     class DatabaseRoot extends SvelteComponentDev {
@@ -58103,11 +58211,11 @@
     	}
     }
 
-    /* src\actionsAndTriggers\ActionView.svelte generated by Svelte v3.6.9 */
+    /* src\actionsAndTriggers\ActionView.svelte generated by Svelte v3.9.1 */
 
     const file$z = "src\\actionsAndTriggers\\ActionView.svelte";
 
-    function get_each_context$d(ctx, list, i) {
+    function get_each_context$c(ctx, list, i) {
     	const child_ctx = Object.create(ctx);
     	child_ctx.option = list[i];
     	return child_ctx;
@@ -58135,8 +58243,8 @@
     }
 
     // (89:12) {#each initialOptions as option}
-    function create_each_block$d(ctx) {
-    	var span1, t0_value = ctx.option.key, t0, t1, t2_value = ctx.option.value, t2, t3, span0, raw_value = getIcon("trash-2"), dispose;
+    function create_each_block$c(ctx) {
+    	var span1, t0_value = ctx.option.key + "", t0, t1, t2_value = ctx.option.value + "", t2, t3, span0, raw_value = getIcon("trash-2") + "", dispose;
 
     	function click_handler() {
     		return ctx.click_handler(ctx);
@@ -58170,11 +58278,11 @@
 
     		p: function update(changed, new_ctx) {
     			ctx = new_ctx;
-    			if ((changed.initialOptions) && t0_value !== (t0_value = ctx.option.key)) {
+    			if ((changed.initialOptions) && t0_value !== (t0_value = ctx.option.key + "")) {
     				set_data(t0, t0_value);
     			}
 
-    			if ((changed.initialOptions) && t2_value !== (t2_value = ctx.option.value)) {
+    			if ((changed.initialOptions) && t2_value !== (t2_value = ctx.option.value + "")) {
     				set_data(t2, t2_value);
     			}
     		},
@@ -58373,7 +58481,7 @@
     	var each_blocks = [];
 
     	for (var i = 0; i < each_value.length; i += 1) {
-    		each_blocks[i] = create_each_block$d(get_each_context$d(ctx, each_value, i));
+    		each_blocks[i] = create_each_block$c(get_each_context$c(ctx, each_value, i));
     	}
 
     	var buttongroup = new ButtonGroup({
@@ -58463,12 +58571,12 @@
     			append(div2, div0);
     			append(div0, input0);
 
-    			input0.value = ctx.optKey;
+    			set_input_value(input0, ctx.optKey);
 
     			append(div0, t6);
     			append(div0, input1);
 
-    			input1.value = ctx.optValue;
+    			set_input_value(input1, ctx.optValue);
 
     			append(div0, t7);
     			mount_component(button, div0, null);
@@ -58507,8 +58615,8 @@
     			}
     			textbox2.$set(textbox2_changes);
 
-    			if (changed.optKey && (input0.value !== ctx.optKey)) input0.value = ctx.optKey;
-    			if (changed.optValue && (input1.value !== ctx.optValue)) input1.value = ctx.optValue;
+    			if (changed.optKey && (input0.value !== ctx.optKey)) set_input_value(input0, ctx.optKey);
+    			if (changed.optValue && (input1.value !== ctx.optValue)) set_input_value(input1, ctx.optValue);
 
     			var button_changes = {};
     			if (changed.$$scope) button_changes.$$scope = { changed, ctx };
@@ -58518,12 +58626,12 @@
     				each_value = ctx.initialOptions;
 
     				for (var i = 0; i < each_value.length; i += 1) {
-    					const child_ctx = get_each_context$d(ctx, each_value, i);
+    					const child_ctx = get_each_context$c(ctx, each_value, i);
 
     					if (each_blocks[i]) {
     						each_blocks[i].p(changed, child_ctx);
     					} else {
-    						each_blocks[i] = create_each_block$d(child_ctx);
+    						each_blocks[i] = create_each_block$c(child_ctx);
     						each_blocks[i].c();
     						each_blocks[i].m(div1, null);
     					}
@@ -58759,11 +58867,11 @@
     	}
     }
 
-    /* src\actionsAndTriggers\Actions.svelte generated by Svelte v3.6.9 */
+    /* src\actionsAndTriggers\Actions.svelte generated by Svelte v3.9.1 */
 
     const file$A = "src\\actionsAndTriggers\\Actions.svelte";
 
-    function get_each_context$e(ctx, list, i) {
+    function get_each_context$d(ctx, list, i) {
     	const child_ctx = Object.create(ctx);
     	child_ctx.action = list[i];
     	return child_ctx;
@@ -58793,7 +58901,7 @@
     }
 
     // (42:0) {#if $store.actions}
-    function create_if_block_1$9(ctx) {
+    function create_if_block_1$a(ctx) {
     	var table, thead, tr, th0, t1, th1, t3, th2, t5, th3, t7, th4, t8, tbody;
 
     	var each_value = ctx.$store.actions;
@@ -58801,7 +58909,7 @@
     	var each_blocks = [];
 
     	for (var i = 0; i < each_value.length; i += 1) {
-    		each_blocks[i] = create_each_block$e(get_each_context$e(ctx, each_value, i));
+    		each_blocks[i] = create_each_block$d(get_each_context$d(ctx, each_value, i));
     	}
 
     	return {
@@ -58866,12 +58974,12 @@
     				each_value = ctx.$store.actions;
 
     				for (var i = 0; i < each_value.length; i += 1) {
-    					const child_ctx = get_each_context$e(ctx, each_value, i);
+    					const child_ctx = get_each_context$d(ctx, each_value, i);
 
     					if (each_blocks[i]) {
     						each_blocks[i].p(changed, child_ctx);
     					} else {
-    						each_blocks[i] = create_each_block$e(child_ctx);
+    						each_blocks[i] = create_each_block$d(child_ctx);
     						each_blocks[i].c();
     						each_blocks[i].m(tbody, null);
     					}
@@ -58895,8 +59003,8 @@
     }
 
     // (54:8) {#each $store.actions as action}
-    function create_each_block$e(ctx) {
-    	var tr, td0, t0_value = ctx.action.name, t0, t1, td1, t2_value = ctx.action.behaviourSource, t2, t3, td2, t4_value = ctx.action.behaviourName, t4, t5, td3, raw0_value = ctx.getDefaultOptionsHtml(ctx.action.initialOptions), t6, td4, span0, raw1_value = getIcon("edit"), t7, span1, raw2_value = getIcon("trash"), t8, dispose;
+    function create_each_block$d(ctx) {
+    	var tr, td0, t0_value = ctx.action.name + "", t0, t1, td1, t2_value = ctx.action.behaviourSource + "", t2, t3, td2, t4_value = ctx.action.behaviourName + "", t4, t5, td3, raw0_value = ctx.getDefaultOptionsHtml(ctx.action.initialOptions) + "", t6, td4, span0, raw1_value = getIcon("edit") + "", t7, span1, raw2_value = getIcon("trash") + "", t8, dispose;
 
     	function click_handler() {
     		return ctx.click_handler(ctx);
@@ -58967,19 +59075,19 @@
 
     		p: function update(changed, new_ctx) {
     			ctx = new_ctx;
-    			if ((changed.$store) && t0_value !== (t0_value = ctx.action.name)) {
+    			if ((changed.$store) && t0_value !== (t0_value = ctx.action.name + "")) {
     				set_data(t0, t0_value);
     			}
 
-    			if ((changed.$store) && t2_value !== (t2_value = ctx.action.behaviourSource)) {
+    			if ((changed.$store) && t2_value !== (t2_value = ctx.action.behaviourSource + "")) {
     				set_data(t2, t2_value);
     			}
 
-    			if ((changed.$store) && t4_value !== (t4_value = ctx.action.behaviourName)) {
+    			if ((changed.$store) && t4_value !== (t4_value = ctx.action.behaviourName + "")) {
     				set_data(t4, t4_value);
     			}
 
-    			if ((changed.$store) && raw0_value !== (raw0_value = ctx.getDefaultOptionsHtml(ctx.action.initialOptions))) {
+    			if ((changed.$store) && raw0_value !== (raw0_value = ctx.getDefaultOptionsHtml(ctx.action.initialOptions) + "")) {
     				td3.innerHTML = raw0_value;
     			}
     		},
@@ -59107,12 +59215,12 @@
     function create_fragment$z(ctx) {
     	var h3, t1, t2, updating_isOpen, current;
 
-    	function select_block_type(ctx) {
-    		if (ctx.$store.actions) return create_if_block_1$9;
+    	function select_block_type(changed, ctx) {
+    		if (ctx.$store.actions) return create_if_block_1$a;
     		return create_else_block$8;
     	}
 
-    	var current_block_type = select_block_type(ctx);
+    	var current_block_type = select_block_type(null, ctx);
     	var if_block = current_block_type(ctx);
 
     	function modal_isOpen_binding(value) {
@@ -59157,7 +59265,7 @@
     		},
 
     		p: function update(changed, ctx) {
-    			if (current_block_type === (current_block_type = select_block_type(ctx)) && if_block) {
+    			if (current_block_type === (current_block_type = select_block_type(changed, ctx)) && if_block) {
     				if_block.p(changed, ctx);
     			} else {
     				if_block.d(1);
@@ -59209,7 +59317,7 @@
     	let $store;
 
     	validate_store(store, 'store');
-    	subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
+    	component_subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
 
     	
 
@@ -59340,7 +59448,7 @@
     	}
     }
 
-    /* src\actionsAndTriggers\TriggerView.svelte generated by Svelte v3.6.9 */
+    /* src\actionsAndTriggers\TriggerView.svelte generated by Svelte v3.9.1 */
 
     const file$B = "src\\actionsAndTriggers\\TriggerView.svelte";
 
@@ -59801,11 +59909,11 @@
     	}
     }
 
-    /* src\actionsAndTriggers\Triggers.svelte generated by Svelte v3.6.9 */
+    /* src\actionsAndTriggers\Triggers.svelte generated by Svelte v3.9.1 */
 
     const file$C = "src\\actionsAndTriggers\\Triggers.svelte";
 
-    function get_each_context$f(ctx, list, i) {
+    function get_each_context$e(ctx, list, i) {
     	const child_ctx = Object.create(ctx);
     	child_ctx.trigger = list[i];
     	return child_ctx;
@@ -59835,7 +59943,7 @@
     }
 
     // (32:0) {#if $store.triggers}
-    function create_if_block_1$a(ctx) {
+    function create_if_block_1$b(ctx) {
     	var table, thead, tr, th0, t1, th1, t3, th2, t5, th3, t7, th4, t8, tbody;
 
     	var each_value = ctx.$store.triggers;
@@ -59843,7 +59951,7 @@
     	var each_blocks = [];
 
     	for (var i = 0; i < each_value.length; i += 1) {
-    		each_blocks[i] = create_each_block$f(get_each_context$f(ctx, each_value, i));
+    		each_blocks[i] = create_each_block$e(get_each_context$e(ctx, each_value, i));
     	}
 
     	return {
@@ -59908,12 +60016,12 @@
     				each_value = ctx.$store.triggers;
 
     				for (var i = 0; i < each_value.length; i += 1) {
-    					const child_ctx = get_each_context$f(ctx, each_value, i);
+    					const child_ctx = get_each_context$e(ctx, each_value, i);
 
     					if (each_blocks[i]) {
     						each_blocks[i].p(changed, child_ctx);
     					} else {
-    						each_blocks[i] = create_each_block$f(child_ctx);
+    						each_blocks[i] = create_each_block$e(child_ctx);
     						each_blocks[i].c();
     						each_blocks[i].m(tbody, null);
     					}
@@ -59937,8 +60045,8 @@
     }
 
     // (44:8) {#each $store.triggers as trigger}
-    function create_each_block$f(ctx) {
-    	var tr, td0, t0_value = ctx.trigger.eventName, t0, t1, td1, t2_value = ctx.trigger.actionName, t2, t3, td2, t4_value = ctx.trigger.condition, t4, t5, td3, t6_value = ctx.trigger.optionsCreator, t6, t7, td4, span0, raw0_value = getIcon("edit"), t8, span1, raw1_value = getIcon("trash"), t9, dispose;
+    function create_each_block$e(ctx) {
+    	var tr, td0, t0_value = ctx.trigger.eventName + "", t0, t1, td1, t2_value = ctx.trigger.actionName + "", t2, t3, td2, t4_value = ctx.trigger.condition + "", t4, t5, td3, t6_value = ctx.trigger.optionsCreator + "", t6, t7, td4, span0, raw0_value = getIcon("edit") + "", t8, span1, raw1_value = getIcon("trash") + "", t9, dispose;
 
     	function click_handler() {
     		return ctx.click_handler(ctx);
@@ -60010,19 +60118,19 @@
 
     		p: function update(changed, new_ctx) {
     			ctx = new_ctx;
-    			if ((changed.$store) && t0_value !== (t0_value = ctx.trigger.eventName)) {
+    			if ((changed.$store) && t0_value !== (t0_value = ctx.trigger.eventName + "")) {
     				set_data(t0, t0_value);
     			}
 
-    			if ((changed.$store) && t2_value !== (t2_value = ctx.trigger.actionName)) {
+    			if ((changed.$store) && t2_value !== (t2_value = ctx.trigger.actionName + "")) {
     				set_data(t2, t2_value);
     			}
 
-    			if ((changed.$store) && t4_value !== (t4_value = ctx.trigger.condition)) {
+    			if ((changed.$store) && t4_value !== (t4_value = ctx.trigger.condition + "")) {
     				set_data(t4, t4_value);
     			}
 
-    			if ((changed.$store) && t6_value !== (t6_value = ctx.trigger.optionsCreator)) {
+    			if ((changed.$store) && t6_value !== (t6_value = ctx.trigger.optionsCreator + "")) {
     				set_data(t6, t6_value);
     			}
     		},
@@ -60152,12 +60260,12 @@
     function create_fragment$B(ctx) {
     	var h3, t1, t2, updating_isOpen, current;
 
-    	function select_block_type(ctx) {
-    		if (ctx.$store.triggers) return create_if_block_1$a;
+    	function select_block_type(changed, ctx) {
+    		if (ctx.$store.triggers) return create_if_block_1$b;
     		return create_else_block$9;
     	}
 
-    	var current_block_type = select_block_type(ctx);
+    	var current_block_type = select_block_type(null, ctx);
     	var if_block = current_block_type(ctx);
 
     	function modal_isOpen_binding(value) {
@@ -60202,7 +60310,7 @@
     		},
 
     		p: function update(changed, ctx) {
-    			if (current_block_type === (current_block_type = select_block_type(ctx)) && if_block) {
+    			if (current_block_type === (current_block_type = select_block_type(changed, ctx)) && if_block) {
     				if_block.p(changed, ctx);
     			} else {
     				if_block.d(1);
@@ -60254,7 +60362,7 @@
     	let $store;
 
     	validate_store(store, 'store');
-    	subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
+    	component_subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
 
     	
 
@@ -60377,7 +60485,7 @@
     	}
     }
 
-    /* src\actionsAndTriggers\ActionsAndTriggersRoot.svelte generated by Svelte v3.6.9 */
+    /* src\actionsAndTriggers\ActionsAndTriggersRoot.svelte generated by Svelte v3.9.1 */
 
     const file$D = "src\\actionsAndTriggers\\ActionsAndTriggersRoot.svelte";
 
@@ -60705,18 +60813,18 @@
     	}
     }
 
-    /* src\accessLevels\AccessLevelView.svelte generated by Svelte v3.6.9 */
+    /* src\accessLevels\AccessLevelView.svelte generated by Svelte v3.9.1 */
 
     const file$E = "src\\accessLevels\\AccessLevelView.svelte";
 
-    function get_each_context$g(ctx, list, i) {
+    function get_each_context$f(ctx, list, i) {
     	const child_ctx = Object.create(ctx);
     	child_ctx.permission = list[i];
     	return child_ctx;
     }
 
     // (79:8) {#each permissionMatrix as permission}
-    function create_each_block$g(ctx) {
+    function create_each_block$f(ctx) {
     	var div, t, current;
 
     	var checkbox = new Checkbox({
@@ -60918,7 +61026,7 @@
     	var each_blocks = [];
 
     	for (var i = 0; i < each_value.length; i += 1) {
-    		each_blocks[i] = create_each_block$g(get_each_context$g(ctx, each_value, i));
+    		each_blocks[i] = create_each_block$f(get_each_context$f(ctx, each_value, i));
     	}
 
     	const out = i => transition_out(each_blocks[i], 1, 1, () => {
@@ -60990,13 +61098,13 @@
     				each_value = ctx.permissionMatrix;
 
     				for (var i = 0; i < each_value.length; i += 1) {
-    					const child_ctx = get_each_context$g(ctx, each_value, i);
+    					const child_ctx = get_each_context$f(ctx, each_value, i);
 
     					if (each_blocks[i]) {
     						each_blocks[i].p(changed, child_ctx);
     						transition_in(each_blocks[i], 1);
     					} else {
-    						each_blocks[i] = create_each_block$g(child_ctx);
+    						each_blocks[i] = create_each_block$f(child_ctx);
     						each_blocks[i].c();
     						transition_in(each_blocks[i], 1);
     						each_blocks[i].m(form, null);
@@ -61242,11 +61350,11 @@
     	}
     }
 
-    /* src\accessLevels\AccessLevelsRoot.svelte generated by Svelte v3.6.9 */
+    /* src\accessLevels\AccessLevelsRoot.svelte generated by Svelte v3.9.1 */
 
     const file$F = "src\\accessLevels\\AccessLevelsRoot.svelte";
 
-    function get_each_context$h(ctx, list, i) {
+    function get_each_context$g(ctx, list, i) {
     	const child_ctx = Object.create(ctx);
     	child_ctx.level = list[i];
     	return child_ctx;
@@ -61346,7 +61454,7 @@
     }
 
     // (58:0) {#if $store.accessLevels}
-    function create_if_block_1$b(ctx) {
+    function create_if_block_1$c(ctx) {
     	var table, thead, tr, th0, t1, th1, t3, th2, t4, tbody;
 
     	var each_value = ctx.$store.accessLevels;
@@ -61354,7 +61462,7 @@
     	var each_blocks = [];
 
     	for (var i = 0; i < each_value.length; i += 1) {
-    		each_blocks[i] = create_each_block$h(get_each_context$h(ctx, each_value, i));
+    		each_blocks[i] = create_each_block$g(get_each_context$g(ctx, each_value, i));
     	}
 
     	return {
@@ -61407,12 +61515,12 @@
     				each_value = ctx.$store.accessLevels;
 
     				for (var i = 0; i < each_value.length; i += 1) {
-    					const child_ctx = get_each_context$h(ctx, each_value, i);
+    					const child_ctx = get_each_context$g(ctx, each_value, i);
 
     					if (each_blocks[i]) {
     						each_blocks[i].p(changed, child_ctx);
     					} else {
-    						each_blocks[i] = create_each_block$h(child_ctx);
+    						each_blocks[i] = create_each_block$g(child_ctx);
     						each_blocks[i].c();
     						each_blocks[i].m(tbody, null);
     					}
@@ -61436,8 +61544,8 @@
     }
 
     // (68:8) {#each $store.accessLevels as level}
-    function create_each_block$h(ctx) {
-    	var tr, td0, t0_value = ctx.level.name, t0, t1, td1, t2_value = ctx.getPermissionsString(ctx.level.permissions), t2, t3, td2, span0, raw0_value = getIcon("edit"), t4, span1, raw1_value = getIcon("trash"), t5, dispose;
+    function create_each_block$g(ctx) {
+    	var tr, td0, t0_value = ctx.level.name + "", t0, t1, td1, t2_value = ctx.getPermissionsString(ctx.level.permissions) + "", t2, t3, td2, span0, raw0_value = getIcon("edit") + "", t4, span1, raw1_value = getIcon("trash") + "", t5, dispose;
 
     	function click_handler() {
     		return ctx.click_handler(ctx);
@@ -61495,11 +61603,11 @@
 
     		p: function update(changed, new_ctx) {
     			ctx = new_ctx;
-    			if ((changed.$store) && t0_value !== (t0_value = ctx.level.name)) {
+    			if ((changed.$store) && t0_value !== (t0_value = ctx.level.name + "")) {
     				set_data(t0, t0_value);
     			}
 
-    			if ((changed.$store) && t2_value !== (t2_value = ctx.getPermissionsString(ctx.level.permissions))) {
+    			if ((changed.$store) && t2_value !== (t2_value = ctx.getPermissionsString(ctx.level.permissions) + "")) {
     				set_data(t2, t2_value);
     			}
     		},
@@ -61641,12 +61749,12 @@
     		$$inline: true
     	});
 
-    	function select_block_type(ctx) {
-    		if (ctx.$store.accessLevels) return create_if_block_1$b;
+    	function select_block_type(changed, ctx) {
+    		if (ctx.$store.accessLevels) return create_if_block_1$c;
     		return create_else_block$a;
     	}
 
-    	var current_block_type = select_block_type(ctx);
+    	var current_block_type = select_block_type(null, ctx);
     	var if_block = current_block_type(ctx);
 
     	function modal_isOpen_binding(value) {
@@ -61697,7 +61805,7 @@
     			if (changed.$$scope) buttongroup_changes.$$scope = { changed, ctx };
     			buttongroup.$set(buttongroup_changes);
 
-    			if (current_block_type === (current_block_type = select_block_type(ctx)) && if_block) {
+    			if (current_block_type === (current_block_type = select_block_type(changed, ctx)) && if_block) {
     				if_block.p(changed, ctx);
     			} else {
     				if_block.d(1);
@@ -61749,7 +61857,7 @@
     	let $store;
 
     	validate_store(store, 'store');
-    	subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
+    	component_subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
 
     	
 
@@ -61830,11 +61938,11 @@
     	}
     }
 
-    /* src\BackendRoot.svelte generated by Svelte v3.6.9 */
+    /* src\BackendRoot.svelte generated by Svelte v3.9.1 */
 
     const file$G = "src\\BackendRoot.svelte";
 
-    // (25:51) 
+    // (27:51) 
     function create_if_block_2$6(ctx) {
     	var current;
 
@@ -61868,8 +61976,8 @@
     	};
     }
 
-    // (23:45) 
-    function create_if_block_1$c(ctx) {
+    // (25:45) 
+    function create_if_block_1$d(ctx) {
     	var current;
 
     	var actionsandtriggers = new ActionsAndTriggersRoot({ $$inline: true });
@@ -61902,7 +62010,7 @@
     	};
     }
 
-    // (21:4) {#if $store.activeNav === "database"}
+    // (23:4) {#if $store.activeNav === "database"}
     function create_if_block$i(ctx) {
     	var current;
 
@@ -61937,45 +62045,45 @@
     }
 
     function create_fragment$F(ctx) {
-    	var div1, t, div0, current_block_type_index, if_block, current;
+    	var div2, div0, t, div1, current_block_type_index, if_block, current;
 
-    	var nav = new Nav({
-    		props: { width: ctx.navWidth },
-    		$$inline: true
-    	});
+    	var backendnav = new BackendNav({ $$inline: true });
 
     	var if_block_creators = [
     		create_if_block$i,
-    		create_if_block_1$c,
+    		create_if_block_1$d,
     		create_if_block_2$6
     	];
 
     	var if_blocks = [];
 
-    	function select_block_type(ctx) {
+    	function select_block_type(changed, ctx) {
     		if (ctx.$store.activeNav === "database") return 0;
     		if (ctx.$store.activeNav === "actions") return 1;
     		if (ctx.$store.activeNav === "access levels") return 2;
     		return -1;
     	}
 
-    	if (~(current_block_type_index = select_block_type(ctx))) {
+    	if (~(current_block_type_index = select_block_type(null, ctx))) {
     		if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
     	}
 
     	return {
     		c: function create() {
-    			div1 = element("div");
-    			nav.$$.fragment.c();
-    			t = space();
+    			div2 = element("div");
     			div0 = element("div");
+    			backendnav.$$.fragment.c();
+    			t = space();
+    			div1 = element("div");
     			if (if_block) if_block.c();
-    			attr(div0, "class", "content svelte-i0dstr");
-    			set_style(div0, "width", "calc(100% - " + ctx.navWidth + ")");
-    			set_style(div0, "left", ctx.navWidth);
-    			add_location(div0, file$G, 18, 2, 511);
-    			attr(div1, "class", "root svelte-i0dstr");
-    			add_location(div1, file$G, 16, 0, 463);
+    			attr(div0, "class", "nav svelte-uaf5ep");
+    			add_location(div0, file$G, 17, 2, 498);
+    			attr(div1, "class", "content svelte-uaf5ep");
+    			set_style(div1, "width", "calc(100% - " + ctx.navWidth + ")");
+    			set_style(div1, "left", ctx.navWidth);
+    			add_location(div1, file$G, 20, 2, 546);
+    			attr(div2, "class", "root svelte-uaf5ep");
+    			add_location(div2, file$G, 16, 0, 477);
     		},
 
     		l: function claim(nodes) {
@@ -61983,21 +62091,18 @@
     		},
 
     		m: function mount(target, anchor) {
-    			insert(target, div1, anchor);
-    			mount_component(nav, div1, null);
-    			append(div1, t);
-    			append(div1, div0);
-    			if (~current_block_type_index) if_blocks[current_block_type_index].m(div0, null);
+    			insert(target, div2, anchor);
+    			append(div2, div0);
+    			mount_component(backendnav, div0, null);
+    			append(div2, t);
+    			append(div2, div1);
+    			if (~current_block_type_index) if_blocks[current_block_type_index].m(div1, null);
     			current = true;
     		},
 
     		p: function update(changed, ctx) {
-    			var nav_changes = {};
-    			if (changed.navWidth) nav_changes.width = ctx.navWidth;
-    			nav.$set(nav_changes);
-
     			var previous_block_index = current_block_type_index;
-    			current_block_type_index = select_block_type(ctx);
+    			current_block_type_index = select_block_type(changed, ctx);
     			if (current_block_type_index !== previous_block_index) {
     				if (if_block) {
     					group_outros();
@@ -62014,38 +62119,38 @@
     						if_block.c();
     					}
     					transition_in(if_block, 1);
-    					if_block.m(div0, null);
+    					if_block.m(div1, null);
     				} else {
     					if_block = null;
     				}
     			}
 
     			if (!current || changed.navWidth) {
-    				set_style(div0, "width", "calc(100% - " + ctx.navWidth + ")");
-    				set_style(div0, "left", ctx.navWidth);
+    				set_style(div1, "width", "calc(100% - " + ctx.navWidth + ")");
+    				set_style(div1, "left", ctx.navWidth);
     			}
     		},
 
     		i: function intro(local) {
     			if (current) return;
-    			transition_in(nav.$$.fragment, local);
+    			transition_in(backendnav.$$.fragment, local);
 
     			transition_in(if_block);
     			current = true;
     		},
 
     		o: function outro(local) {
-    			transition_out(nav.$$.fragment, local);
+    			transition_out(backendnav.$$.fragment, local);
     			transition_out(if_block);
     			current = false;
     		},
 
     		d: function destroy(detaching) {
     			if (detaching) {
-    				detach(div1);
+    				detach(div2);
     			}
 
-    			destroy_component(nav);
+    			destroy_component(backendnav);
 
     			if (~current_block_type_index) if_blocks[current_block_type_index].d();
     		}
@@ -62056,7 +62161,7 @@
     	let $store;
 
     	validate_store(store, 'store');
-    	subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
+    	component_subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
 
     	
 
@@ -62089,11 +62194,11 @@
     	}
     }
 
-    /* src\PackageRoot.svelte generated by Svelte v3.6.9 */
+    /* src\PackageRoot.svelte generated by Svelte v3.9.1 */
 
     const file$H = "src\\PackageRoot.svelte";
 
-    // (30:8) {:else}
+    // (34:8) {:else}
     function create_else_block$b(ctx) {
     	var div, div_intro, div_outro, current;
 
@@ -62103,8 +62208,8 @@
     		c: function create() {
     			div = element("div");
     			userinterfaceroot.$$.fragment.c();
-    			attr(div, "class", "svelte-12wtmtk");
-    			add_location(div, file$H, 30, 8, 815);
+    			attr(div, "class", "svelte-fkeby9");
+    			add_location(div, file$H, 34, 8, 945);
     		},
 
     		m: function mount(target, anchor) {
@@ -62149,7 +62254,7 @@
     	};
     }
 
-    // (26:8) {#if $store.isBackend}
+    // (30:8) {#if $store.isBackend}
     function create_if_block$j(ctx) {
     	var div, div_intro, div_outro, current;
 
@@ -62159,8 +62264,8 @@
     		c: function create() {
     			div = element("div");
     			backendroot.$$.fragment.c();
-    			attr(div, "class", "svelte-12wtmtk");
-    			add_location(div, file$H, 26, 8, 721);
+    			attr(div, "class", "svelte-fkeby9");
+    			add_location(div, file$H, 30, 8, 855);
     		},
 
     		m: function mount(target, anchor) {
@@ -62208,7 +62313,14 @@
     function create_fragment$G(ctx) {
     	var div2, div0, t0, span0, t2, span1, t4, div1, current_block_type_index, if_block, current, dispose;
 
-    	var iconbutton = new IconButton({ props: { icon: "home" }, $$inline: true });
+    	var iconbutton = new IconButton({
+    		props: {
+    		icon: "home",
+    		color: "var(--slate)",
+    		hoverColor: "var(--secondary75)"
+    	},
+    		$$inline: true
+    	});
 
     	var if_block_creators = [
     		create_if_block$j,
@@ -62217,12 +62329,12 @@
 
     	var if_blocks = [];
 
-    	function select_block_type(ctx) {
+    	function select_block_type(changed, ctx) {
     		if (ctx.$store.isBackend) return 0;
     		return 1;
     	}
 
-    	current_block_type_index = select_block_type(ctx);
+    	current_block_type_index = select_block_type(null, ctx);
     	if_block = if_blocks[current_block_type_index] = if_block_creators[current_block_type_index](ctx);
 
     	return {
@@ -62239,18 +62351,18 @@
     			t4 = space();
     			div1 = element("div");
     			if_block.c();
-    			attr(span0, "class", "svelte-12wtmtk");
+    			attr(span0, "class", "topnavitem svelte-fkeby9");
     			toggle_class(span0, "active", ctx.$store.isBackend);
-    			add_location(span0, file$H, 14, 8, 381);
-    			attr(span1, "class", "svelte-12wtmtk");
+    			add_location(span0, file$H, 16, 8, 461);
+    			attr(span1, "class", "topnavitem svelte-fkeby9");
     			toggle_class(span1, "active", !ctx.$store.isBackend);
-    			add_location(span1, file$H, 18, 8, 513);
-    			attr(div0, "class", "top-nav svelte-12wtmtk");
-    			add_location(div0, file$H, 12, 4, 315);
-    			attr(div1, "class", "content svelte-12wtmtk");
-    			add_location(div1, file$H, 24, 4, 658);
-    			attr(div2, "class", "root svelte-12wtmtk");
-    			add_location(div2, file$H, 10, 0, 289);
+    			add_location(span1, file$H, 21, 8, 622);
+    			attr(div0, "class", "top-nav svelte-fkeby9");
+    			add_location(div0, file$H, 12, 4, 303);
+    			attr(div1, "class", "content svelte-fkeby9");
+    			add_location(div1, file$H, 28, 4, 794);
+    			attr(div2, "class", "root svelte-fkeby9");
+    			add_location(div2, file$H, 10, 0, 279);
 
     			dispose = [
     				listen(span0, "click", store.showBackend),
@@ -62283,7 +62395,7 @@
     			}
 
     			var previous_block_index = current_block_type_index;
-    			current_block_type_index = select_block_type(ctx);
+    			current_block_type_index = select_block_type(changed, ctx);
     			if (current_block_type_index !== previous_block_index) {
     				group_outros();
     				transition_out(if_blocks[previous_block_index], 1, 1, () => {
@@ -62332,7 +62444,7 @@
     	let $store;
 
     	validate_store(store, 'store');
-    	subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
+    	component_subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
 
     	return { $store };
     }
@@ -62344,13 +62456,13 @@
     	}
     }
 
-    /* src\App.svelte generated by Svelte v3.6.9 */
+    /* src\App.svelte generated by Svelte v3.9.1 */
 
     const file$I = "src\\App.svelte";
 
     // (27:1) {:catch err}
     function create_catch_block(ctx) {
-    	var h1, t_value = ctx.err, t;
+    	var h1, t_value = ctx.err + "", t;
 
     	return {
     		c: function create() {
@@ -62381,7 +62493,7 @@
     function create_then_block(ctx) {
     	var t, if_block1_anchor, current;
 
-    	var if_block0 = (ctx.$store.hasAppPackage) && create_if_block_1$d();
+    	var if_block0 = (ctx.$store.hasAppPackage) && create_if_block_1$e();
 
     	var if_block1 = (!ctx.$store.hasAppPackage) && create_if_block$k();
 
@@ -62404,7 +62516,7 @@
     		p: function update(changed, ctx) {
     			if (ctx.$store.hasAppPackage) {
     				if (!if_block0) {
-    					if_block0 = create_if_block_1$d();
+    					if_block0 = create_if_block_1$e();
     					if_block0.c();
     					transition_in(if_block0, 1);
     					if_block0.m(t.parentNode, t);
@@ -62467,7 +62579,7 @@
     }
 
     // (19:2) {#if $store.hasAppPackage}
-    function create_if_block_1$d(ctx) {
+    function create_if_block_1$e(ctx) {
     	var current;
 
     	var packageroot = new PackageRoot({ $$inline: true });
@@ -62603,11 +62715,7 @@
 
     		p: function update(changed, new_ctx) {
     			ctx = new_ctx;
-    			info.ctx = ctx;
-
-    			if (promise !== (promise = ctx.init) && handle_promise(promise, info)) ; else {
-    				info.block.p(changed, assign(assign({}, ctx), info.resolved));
-    			}
+    			info.block.p(changed, assign(assign({}, ctx), info.resolved));
     		},
 
     		i: function intro(local) {
@@ -62641,7 +62749,7 @@
     	let $store;
 
     	validate_store(store, 'store');
-    	subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
+    	component_subscribe($$self, store, $$value => { $store = $$value; $$invalidate('$store', $store); });
 
     	
     	

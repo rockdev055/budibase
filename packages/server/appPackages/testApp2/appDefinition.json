@@ -41,7 +41,20 @@
             "children": [],
             "validationRules": [],
             "nodeId": 2,
-            "indexes": [],
+            "indexes": [
+              {
+                "name": "Some index",
+                "type": "index",
+                "map": "return {...record};",
+                "filter": "",
+                "indexType": "ancestor",
+                "getShardName": "",
+                "getSortKey": "record.id",
+                "aggregateGroups": [],
+                "allowedRecordNodeIds": [],
+                "nodeId": 3
+              }
+            ],
             "allidsShardFactor": 1,
             "collectionName": "invoices",
             "isSingle": false
@@ -56,7 +69,22 @@
       }
     ],
     "pathMaps": [],
-    "indexes": [],
+    "indexes": [
+      {
+        "name": "Yeo index",
+        "type": "index",
+        "map": "return {...record};",
+        "filter": "",
+        "indexType": "ancestor",
+        "getShardName": "",
+        "getSortKey": "record.id",
+        "aggregateGroups": [],
+        "allowedRecordNodeIds": [
+          1
+        ],
+        "nodeId": 4
+      }
+    ],
     "nodeId": 0
   },
   "triggers": [
@@ -74,35 +102,21 @@
     }
   ],
   "actions": {
-    "output_to_file": [
-      {
-        "name": "output_to_file",
-        "behaviourSource": "main",
-        "behaviourName": "outputToFile",
-        "initialOptions": {}
-      }
-    ]
-  },
-  "pages": {
-    "main": {
-      "index": {},
-      "appBody": "./main.app.json"
-    },
-    "unauthenticated": {
-      "index": {
-        "_component": "budibase-components/indexHtml",
-        "title": "Test App 1 - Login",
-        "customScripts": [
-          "MyCustomComponents.js"
+    "undefined": [
+      [
+        [
+          [
+            [
+              {
+                "name": "output_to_file",
+                "behaviourSource": "main",
+                "behaviourName": "outputToFile",
+                "initialOptions": {}
+              }
+            ]
+          ]
         ]
-      },
-      "appBody": "./unauthenticated.app.json"
-    },
-    "componentLibraries": [
-      "./standard-components"
-    ],
-    "stylesheets": [
-      "https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      ]
     ]
   },
   "mainUi": {},
