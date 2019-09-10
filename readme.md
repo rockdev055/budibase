@@ -15,19 +15,13 @@ if you have problems, this might help: https://github.com/nodejs/node-gyp/issues
 
 *jest* - `npm install -g jest`
 
-### 2. Clone this repository
-
-`git clone git@github.com:Budibase/budibase.git`
-
-then `cd ` into your local copy...
-
-### 3.  Install and Build
+### 2.  Install and Build
 
 `lerna bootstrap` will install all modules
 
 `lerna run build` will build all pakcages
 
-`lerna run initialise` will initialise your budibase (i.e. create local database)
+`yarn run initialise` will initialise your budibase (i.e. create local database)
 
 ### 3. Running
 
@@ -35,7 +29,7 @@ then `cd ` into your local copy...
 
 ## Documentation
 
-A work in progress, lives here: https://docs.budibase.com
+A work in progress, lives here: https://github.com/Budibase/docs
 
 
 
