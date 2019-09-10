@@ -1,4 +1,3 @@
-builder/*
 .data/
 .temp/
 packages/server/runtime_apps/

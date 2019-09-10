@@ -1,10 +1,9 @@
 {
-  "name": "@budibase/budibase-core",
+  "name": "budibase-core",
   "version": "0.0.1",
   "description": "core javascript library for budibase",
   "main": "/dist/budibase-core.umd.js",
   "module": "dist/budibase-core.esm.js",
-  "files": ["/dist/**", "!/dist/node_modules"],
   "directories": {
     "test": "test"
   },
@@ -32,7 +31,8 @@
       "js"
     ],
     "moduleDirectories": [
-      "node_modules"
+      "node_modules",
+      "app/node_modules"
     ],
     "transform": {
       "^.+\\.js$": "babel-jest"
