@@ -11,14 +11,11 @@ export let label = "";
 
 textarea {
     padding:3px;
-    margin-top:5px;
-    margin-bottom:10px;
-    background: var(--lightslate);
+    background: var(--darkslate);
     color: var(--white);
     font-family: 'Courier New', Courier, monospace;
     width:95%;
     height:100px;
-    border-radius: 5px;
 }
 
 </style>
