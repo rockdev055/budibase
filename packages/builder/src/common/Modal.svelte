@@ -34,8 +34,4 @@ $: {
 
 <style>
 
-.uk-modal-dialog {
-    border-radius: .3rem;
-}
-
 </style>
