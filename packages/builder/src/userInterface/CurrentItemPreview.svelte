@@ -2,47 +2,79 @@
 import { store } from "../builderStore";
 import { makeLibraryUrl } from "../builderStore/loadComponentLibraries";
 import {
-    last, split, map, join
+    last,
+    split,
+    map,
+    join
 } from "lodash/fp";
 import { pipe } from "../common/core";
 import { splitName } from "./pagesParsing/splitRootComponentName"
 import { afterUpdate } from 'svelte';
 import { getRootComponent } from "./pagesParsing/getRootComponent";
-import { buildPropsHierarchy } from "./pagesParsing/buildPropsHierarchy";
 
+if(!window.budibaseIframeConnector) {
+    window.budibaseIframeConnector = {
+        initialiseComponent(props, htmlElement) {
+             const rootComponent = getRootComponent(
+                 props._component, allComponents);
+
+             const {componentName, libName} = splitName(
+                rootComponent.name);
+
+            new (libraries[libName][componentName])({
+                target: htmlElement,
+                props: {...props, _app: window.budibaseIframeConnector}
+            });
+        }
+    }
+}
 
 let component;
 let stylesheetLinks = "";
+let componentHtml = "";
+let props;
+let componentLibraryUrl = "";
 let rootComponentName = "";
+let iframe;
 let libraries;
 let allComponents;
-let appDefinition = {};
+
 
 store.subscribe(s => {
     const {componentName, libName} = splitName(
         s.currentComponentInfo.rootComponent.name);
 
     rootComponentName = componentName;
+    props = s.currentComponentInfo.fullProps;
     component = s.libraries[libName][componentName];
     stylesheetLinks = pipe(s.pages.stylesheets, [
         map(s => `<link rel="stylesheet" href="${s}"/>`),
         join("\n")
     ]);
-    appDefinition = {
-        componentLibraries: s.loadLibraryUrls(),
-        props: buildPropsHierarchy(s.allComponents, s.currentFrontEndItem)
-    };
+    componentLibraryUrl = makeLibraryUrl(s.appname, libName);
     libraries = s.libraries;
     allComponents = s.allComponents;
 });
 
+/*
+afterUpdate(() => {
+    if(iframe) iframeLoaded();
+});
+*/
 
+const iframeLoaded = () => {
+    setTimeout(() => {
+        iframe.style.height = (iframe.contentWindow.document.body.scrollHeight + 1).toString() + "px";
+        iframe.style.width = (iframe.contentWindow.document.body.scrollWidth + 1).toString() + "px";
+    }, 100);
+}
 
 </script>
 
 <div class="component-preview" >
     <div class="component-container">
-        <iframe style="height: 100%; width: 100%"
+        <iframe bind:this={iframe}
+                on:load={iframeLoaded}
                 title="componentPreview"
                 srcdoc={
 `<html>
@@ -50,11 +82,16 @@ store.subscribe(s => {
 <head>
     ${stylesheetLinks}
     <script>
-        window["##BUDIBASE_APPDEFINITION##"] = ${JSON.stringify(appDefinition)};
-        import('./budibase-client.esm.mjs')
+    
+        import('${componentLibraryUrl}')
         .then(module => {
-            module.loadBudibase();
-        })        
+            const componentClass = module['${rootComponentName}'];
+            const instance = new componentClass({
+                target: document.body,
+                props: {...${JSON.stringify(props)}, _app: window.parent.budibaseIframeConnector}
+            }) ;
+        })
+        
     </script>
 </head>
 <body>

@@ -88,7 +88,6 @@ const settings = () => {
     grid-template-columns: [uiNav] 250px [preview] auto [properties] 300px;
     height: 100%;
     width: 100%;
-    overflow-y: auto;
 }
 
 .ui-nav {
@@ -101,7 +100,6 @@ const settings = () => {
     grid-column-start: properties;
     background-color: var(--primary10);
     height: 100%;
-    overflow-y: hidden;
 }
 
 .pages-list-container {

@@ -1,14 +1,26 @@
 import {
     hierarchy as hierarchyFunctions, 
+    common 
 } from "../../../core/src";
 import {
-    filter, cloneDeep, sortBy, 
-    map, last, keys, concat,
-    find, isEmpty, reduce
+    filter, 
+    cloneDeep, 
+    sortBy, 
+    map, 
+    last, 
+    keys,
+    concat,
+    find, 
+    isEmpty, 
+    groupBy, 
+    reduce
 } from "lodash/fp";
 import {
-    pipe, getNode, validate,
-    constructHierarchy, templateApi
+    pipe, 
+    getNode, 
+    validate,
+    constructHierarchy, 
+    templateApi
 } from "../common/core";
 import {writable} from "svelte/store";
 import { defaultPagesObject } from "../userInterface/pagesParsing/defaultPagesObject"
@@ -16,9 +28,10 @@ import { buildPropsHierarchy } from "../userInterface/pagesParsing/buildPropsHie
 import api from "./api";
 import { isRootComponent } from "../userInterface/pagesParsing/searchComponents";
 import { 
-    getComponentInfo, getNewComponentInfo 
+    getComponentInfo, 
+    getNewComponentInfo 
 } from "../userInterface/pagesParsing/createProps";
-import { loadLibs, loadLibUrls } from "./loadComponentLibraries";
+import { loadLibs } from "./loadComponentLibraries";
 
 let appname = "";
 
@@ -45,7 +58,9 @@ export const getStore = () => {
         hasAppPackage: false,
         accessLevels: [],
         currentNode: null,
-        libraries:null
+        libraries:null,
+        showSettings:false,
+        useAnalytics:true,
     };
 
     const store = writable(initial);
@@ -82,6 +97,8 @@ export const getStore = () => {
     store.savePage = savePage(store);
     store.showFrontend = showFrontend(store);
     store.showBackend = showBackend(store);
+    store.showSettings = showSettings(store);
+    store.useAnalytics = useAnalytics(store);
     return store;
 } 
 
@@ -104,7 +121,6 @@ const initialise = (store, initial) => async () => {
                          .then(r => r.json());
 
     initial.libraries = await loadLibs(appname, pkg);
-    initial.loadLibraryUrls = () => loadLibUrls(appname, pkg);
     initial.appname = appname;
     initial.pages = pkg.pages;
     initial.hasAppPackage = true;
@@ -129,6 +145,20 @@ const initialise = (store, initial) => async () => {
     }
     store.set(initial);
     return initial;
+}
+
+const showSettings = store => show => {
+    store.update(s => {
+        s.showSettings = !s.showSettings;
+        return s;
+    });
+}
+
+const useAnalytics = store => useAnalytics => {
+    store.update(s => {
+        s.useAnalytics = !s.useAnalytics;
+        return s;
+    });
 }
 
 const showBackend = store => () => {

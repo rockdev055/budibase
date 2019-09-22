@@ -10,7 +10,7 @@ import {
 } from "lodash/fp";
 import { fade, slide } from 'svelte/transition';
 
-export let title = "";
+export let propertyName = "";
 export let onGoBack = () => {};
 export let instanceProps = {};
 export let onPropsChanged = () => {};
@@ -18,9 +18,6 @@ export let onPropsChanged = () => {};
 
 let editingSubComponentName;
 let editingSubComponentProps;
-let editingSubComponentArrayIndex;
-let editingSubComponentArrayPropName;
-let editingSubComponentTitle;
 let allComponents;
 
 store.subscribe(s => {
@@ -36,28 +33,18 @@ const onSubComponentGoBack = () => {
 }
 
 const onEditComponentProp = (propName, arrayIndex, arrayPropName) => {
-    editingSubComponentName = propName;
-    editingSubComponentTitle = isUndefined(arrayIndex)
+    editingSubComponentName = isUndefined(arrayIndex)
                               ? propName
                               : `${propName}[${arrayIndex}].${arrayPropName}`;
     editingSubComponentProps = isUndefined(arrayIndex)
                                ? instanceProps[propName]
                                : instanceProps[propName][arrayIndex][arrayPropName];
-    editingSubComponentArrayIndex = arrayIndex;
-    editingSubComponentArrayPropName = arrayPropName;
 };
 
 
 const onSubComponentPropsChanged = (subProps) => {
     const newProps = cloneDeep(instanceProps);
-    if(isUndefined(editingSubComponentArrayIndex)) {
-        newProps[editingSubComponentName] = subProps;
-    } else {
-        newProps[editingSubComponentName]
-                [editingSubComponentArrayIndex]
-                [editingSubComponentArrayPropName] = subProps;
-    }
-    
+    newProps[editingSubComponentName] = subProps;
     instanceProps = newProps;
     onPropsChanged(newProps);
 }
@@ -75,7 +62,7 @@ const propsChanged = newProps => {
     <div class="title">
         <IconButton icon="chevron-left"
                     on:click={onGoBack}/>
-        <span>{title}</span>
+        <span>{propertyName}</span>
     </div>
 
     {#if editingSubComponentName}
@@ -84,7 +71,7 @@ const propsChanged = newProps => {
         <svelte:self onPropsChanged={onSubComponentPropsChanged}
                     onGoBack={onSubComponentGoBack}
                     instanceProps={editingSubComponentProps}
-                    title={editingSubComponentTitle} />
+                    propertyName={editingSubComponentName} />
     </div>
     {:else}
     <PropsView {instanceProps}

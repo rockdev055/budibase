@@ -85,21 +85,18 @@ let getTypeOptions = typeOptions =>
 <div class="root">
 
     <form class="uk-form-horizontal">
-        <h3 class="settings-title">
-        Settings 
-    </h3>
     
-        <Textbox label="Name:" bind:text={record.name} />
+        <Textbox label="Name" bind:text={record.name} />
+        <div>{record.nodeKey()}</div>
         {#if !record.isSingle}
-        <Textbox label="Collection Name:" bind:text={record.collectionName} />
-        <Textbox label="Shard Factor:" bind:text={record.allidsShardFactor} />
+        <Textbox label="Collection Name" bind:text={record.collectionName} />
+        <Textbox label="Shard Factor" bind:text={record.allidsShardFactor} />
         {/if}
-        <div class="recordkey">{record.nodeKey()}</div>
 
     </form>
-    <h3 class="title">
+    <h4>
         Fields <span class="add-field-button" on:click={newField}>{@html getIcon("plus")}</span>
-    </h3>
+    </h4>
 
     {#if record.fields.length > 0}
     <table class="fields-table uk-table">
@@ -141,9 +138,9 @@ let getTypeOptions = typeOptions =>
     </Modal>
     {/if}
 
-    <h3 class="title">
+    <h4>
         Indexes 
-    </h3>
+    </h4>
 
     {#each record.indexes as index}
     <div class="index-container">
@@ -169,9 +166,7 @@ let getTypeOptions = typeOptions =>
         {/if}
     </div>
     {:else}
-    <div class="no-indexes">
-        No indexes added.
-    </div>
+    (no indexes added)
     {/each}
 
 </div>
@@ -181,40 +176,25 @@ let getTypeOptions = typeOptions =>
 
 .root {
     height: 100%;
-    padding: 2rem;
-}
-
-.settings-title {
-    font-weight: 700;
-}
-
-.title {
-    margin: 3rem 0rem 0rem 0rem;
-    font-weight: 700;
-}
-
-.recordkey {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--primary100);
+    padding: 15px;
 }
 
 .fields-table {
-    margin: 1rem 1rem 0rem 0rem;
+    margin:10px;
     border-collapse:collapse;
 }
 
 .add-field-button {
+    margin-left:15px;
     cursor:pointer;
 }
 
 .edit-button {
     cursor:pointer;
-    color: var(--secondary25);
+    color: var(--white);
 }
 
 .edit-button:hover {
-    cursor:pointer;
     color: var(--secondary75);
 }
 
@@ -223,7 +203,7 @@ th {
 }
 
 td {
-    padding: 1rem 5rem 1rem 0rem;
+    padding: 5px 30px 5px 0px;
     margin:0;
     
 }
@@ -275,12 +255,7 @@ tbody > tr:hover .edit-button {
 }
 
 .index-field-row {
-    margin: 1rem 0rem 0rem 0rem;
+    margin-top: 7px;
 }
 
-.no-indexes {
-    margin: 1rem 0rem 0rem 0rem;
-    font-family: var(--fontnormal);
-    font-size: 14px;
-}
 </style>

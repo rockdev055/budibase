@@ -1,38 +1,14 @@
 <script>
-import createApp from "./createApp";
-import { props } from "./props";
-
-let _app;
-
-const _appPromise = createApp();
-_appPromise.then(a => _app = a);
-
-const testProps = props.grid;
-
-let currentComponent;
-
-$: {
-    if(_app && currentComponent) {
-        _app.initialiseComponent(testProps, currentComponent);
-    }
-}
-
-
-
+import Login from "../Login.svelte";
 </script>
 
-{#await _appPromise}
-loading
-{:then _app}
 
-<div id="current_component" bind:this={currentComponent}>
+<div class="current">
+    <Login />
 </div>
 
-{/await}
-
-
 <style>
-#current_component {
+.current {
     height: 100%;
     width: 100%;
 }

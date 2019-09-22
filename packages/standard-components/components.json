@@ -8,13 +8,12 @@
 			"contentText": { "type": "string", "default": "Button" },
 			"contentComponent": "component",
 			"className": {"type": "string", "default": "default"},
-			"disabled": "bool",
-			"onClick": "event"
+			"disabled": "bool"
 		},
 		"tags": ["button"]
 	}, 
 	"login" : {
-		"importPath": "Login",
+		"importPath": "login",
 		"name": "Login Control",
 		"desciption": "A control that accepts username, password an also handles password resets",
 		"props" : {
@@ -22,21 +21,33 @@
 			"loginRedirect": "string",
 			"usernameLabel": {"type":"string", "default": "Username"},
 			"passwordLabel": {"type":"string", "default": "Password"},
-			"loginButtonLabel": {"type":"string", "default": "Login"},
-			"buttonClass": "string"
+			"loginButtonLabel": {"type":"string", "default": "Login"}
 		},
 		"tags": ["login", "credentials", "password", "logon"]
 	},
+	"formControl" : {
+		"importPath": "formControl",
+		"name": "Form Control",
+		"desciption": "A wrapper for a control, used inside a form. Allows a label, and properly alligns the control inside the parent form",
+		"props" : {
+			"containerClass": "string",
+			"labelContainerClass": "string",
+			"controlContainerClass": "string",
+			"label": "string",
+			"control": "component",
+			"fullWidth": "bool"
+		},
+		"tags": ["login"]
+	},
 	"form" : {
-		"importPath": "Form",
+		"importPath": "form",
 		"name": "Form",
-		"desciption": "A form - allgned fields with labels",
+		"desciption": "A form - you should usually add FormControls as children to get nice allignment",
 		"props" : {
 			"containerClass": "string",
 			"formControls": {
 				"type":"array",
 				"elementDefinition": {
-					"label": "string",
 					"control":"component"
 				}
 			}
@@ -44,7 +55,7 @@
 		"tags": ["form"]
 	},
 	"textbox" : {
-		"importPath": "Textbox",
+		"importPath": "textbox",
 		"name": "Textbox",
 		"desciption": "An input type=text or password",
 		"props" : {
@@ -55,7 +66,7 @@
 		"tags": ["form"]
 	},
 	"stackpanel": {
-		"importPath": "StackPanel",
+		"importPath": "stackpanel",
 		"name": "StackPanel",
 		"desciption": "Layout elements in a stack, either horizontally or vertically",
 		"props" : {
@@ -76,53 +87,5 @@
 			"itemContainerClass":"string"
 		},
 		"tags": ["div", "container", "layout", "panel"]
-	},
-	"grid": {
-		"importPath": "Grid",
-		"name": "Grid",
-		"desciption": "CSS Grid layout ",
-		"props" : {
-			"gridTemplateRows": "string",
-			"gridTemplateColumns": "string",
-			"children": {
-				"type":"array",
-				"elementDefinition": {
-					"control":"component",
-					"gridColumn":"string",
-					"gridRow":"string",
-					"gridColumnStart":"string",
-					"gridColumnEnd":"string",
-					"gridRowStart":"string",
-					"gridRowEnd":"string"
-				}
-			},
-			"width": {"type":"string","default":"auto"},
-			"height": {"type":"string","default":"auto"},
-			"containerClass":"string",
-			"itemContainerClass":"string"
-		},
-		"tags": ["div", "container", "layout", "panel", "grid"]
-	},
-	"text": {
-		"importPath": "Text",
-		"name": "Text",
-		"desciption": "A div with text inside ",
-		"props" : {
-			"value": "string",
-			"containerClass": "string",
-			"background": "string",
-			"border": "string",
-			"font": "string",
-			"color": "string",
-			"padding": "string",
-			"display": {
-				"type": "options", 
-				"default":"inline", 
-				"options": [
-					"inline", "block", "inline-block"
-				]
-			}
-		},
-		"tags": ["div", "container"]
 	}
 }

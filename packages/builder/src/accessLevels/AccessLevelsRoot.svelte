@@ -100,19 +100,16 @@ const getPermissionsString = perms => {
 <style>
 
 .root {
-    height: 100%;
-    position: relative;
-    padding: 1.5rem;
-
+    padding:10px;
 }
 
-.actions-header {
-    flex: 0 1 auto;
+.edit-button {
+    cursor:pointer;
+    color: var(--white);
 }
 
-.node-view {
-    overflow-y: auto;
-    flex: 1 1 auto;
+tr:hover .edit-button  {
+    color: var(--secondary75);
 }
 
 

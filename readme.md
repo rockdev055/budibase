@@ -25,11 +25,11 @@ then `cd ` into your local copy...
 
 `lerna bootstrap` will install all modules
 
-`lerna run build` will build all packages
+`lerna run build` will build all pakcages
 
 `lerna run initialise` will initialise your budibase (i.e. create local database)
 
-### 4. Running
+### 3. Running
 
 `lerna run dev:builder` - will run up the builder and server together - i.e. when you want to do some work on the builder
 

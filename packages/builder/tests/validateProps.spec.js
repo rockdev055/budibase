@@ -4,9 +4,6 @@ import {
     recursivelyValidate
 } from "../src/userInterface/pagesParsing/validateProps";
 import { createProps }  from "../src/userInterface/pagesParsing/createProps";
-import {
-    setBinding
-} from "../src/common/binding";
 
 // not that allot of this functionality is covered
 // in createDefaultProps - as validate props uses that.
@@ -153,14 +150,6 @@ describe("validateProps", () => {
         expect(errors.length).toEqual(1);
         expect(errors[0].propName).toBe("width");
         
-    });
-
-    it("should not return error when has binding", () => {
-        const props = validProps();
-        props.columns[0].width = setBinding({path:"some_path"});
-        props.size = setBinding({path:"other path", fallback:"small"});
-        const errors = validateProps(validPropDef, props, [], true);
-        expect(errors.length).toEqual(0);
     });
 });
 

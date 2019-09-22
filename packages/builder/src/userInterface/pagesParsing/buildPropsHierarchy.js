@@ -1,6 +1,7 @@
 import { 
     getComponentInfo, createProps, getInstanceProps 
 } from "./createProps";
+import { cloneDeep } from "lodash/fp";
 
 export const buildPropsHierarchy = (allComponents, baseComponent) => {
 
@@ -38,7 +39,7 @@ export const buildPropsHierarchy = (allComponents, baseComponent) => {
                 for(let element of propsArray) {
                     newPropsArray.push(
                         buildProps(
-                            `${propName}#array_element#`,
+                            `${propName}[${index}]`,
                             propDef.elementDefinition,
                             element));
                     index++;
