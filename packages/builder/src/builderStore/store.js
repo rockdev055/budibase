@@ -45,9 +45,7 @@ export const getStore = () => {
         hasAppPackage: false,
         accessLevels: [],
         currentNode: null,
-        libraries:null,
-        showSettings:false,
-        useAnalytics:true,
+        libraries:null
     };
 
     const store = writable(initial);
@@ -84,8 +82,6 @@ export const getStore = () => {
     store.savePage = savePage(store);
     store.showFrontend = showFrontend(store);
     store.showBackend = showBackend(store);
-    store.showSettings = showSettings(store);
-    store.useAnalytics = useAnalytics(store);
     return store;
 } 
 
@@ -133,20 +129,6 @@ const initialise = (store, initial) => async () => {
     }
     store.set(initial);
     return initial;
-}
-
-const showSettings = store => show => {
-    store.update(s => {
-        s.showSettings = !s.showSettings;
-        return s;
-    });
-}
-
-const useAnalytics = store => useAnalytics => {
-    store.update(s => {
-        s.useAnalytics = !s.useAnalytics;
-        return s;
-    });
 }
 
 const showBackend = store => () => {
