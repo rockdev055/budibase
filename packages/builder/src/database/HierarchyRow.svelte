@@ -27,7 +27,6 @@ export let node;
     font-size: .9rem;
     width: 100%;
     cursor: pointer;
-    font-weight: bold;
 }
 
 .title {

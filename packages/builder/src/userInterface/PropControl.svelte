@@ -68,12 +68,15 @@ const setComponentProp = (props) => {
 <style>
 
 .root {
-    padding: 1rem 1rem 0rem 1rem;
+    padding: 3px 5px 7px 10px;
+    border-style: dotted;
+    border-width: 0 0 1px 0;
+    border-color: var(--primary25);
 }
 
 .prop-label {
-    font-size: 0.8rem;
-    color: var(--secondary100);
+    font-size: 0.9em;
+    color: var(--primary100);
     font-weight: bold;
 }
 

@@ -128,15 +128,11 @@ const makeBinding = () => {
 
 .unbound-container {
     display:flex;
-    margin: .5rem 0rem .5rem 0rem;
 }
 
 .unbound-container > *:nth-child(1) {
     width:auto;
     flex: 1 0 auto;
-    font-size: 0.8rem;
-    color: var(--secondary100);
-    border-radius: .2rem;
 }
 
 .bound-header {
@@ -146,12 +142,13 @@ const makeBinding = () => {
 .bound-header > div:nth-child(1) {
     flex: 1 0 auto;
     width: 30px;
-    color: var(--secondary50);
+    color: var(--darkslate);
     padding-left: 5px;
+    font-style: italic;
 }
 
 .binding-prop-label {
-    color: var(--secondary50);
+    color: var(--darkslate);
 }
 
 
