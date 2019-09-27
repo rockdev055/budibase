@@ -15,19 +15,27 @@ export let options=[];
 let isBound=false;
 let bindingPath="";
 let bindingFallbackValue="";
+let bindingSource="store";
 let isExpanded = false;
 let forceIsBound = false;
+let canOnlyBind = false;
 
 $: {
+    canOnlyBind = type === "state";
+    if(!forceIsBound && canOnlyBind)
+        forceIsBound = true;
+
     isBound= forceIsBound || isBinding(value);
 
     if(isBound) {
         const binding = getBinding(value);
         bindingPath= binding.path;
         bindingFallbackValue= binding.fallback;
+        bindingSource = binding.source || "store";
     } else {
         bindingPath="";
         bindingFallbackValue="";
+        bindingSource="store";
     }
 }
 
@@ -36,24 +44,27 @@ const clearBinding = () => {
     onChanged("");
 }
 
-const bind = (path, fallback) => {
+const bind = (path, fallback, source) => {
     if(!path) {
         clearBinding("");
         return;
     }
-    const binding = setBinding({path, fallback});
+    const binding = setBinding({path, fallback, source});
     onChanged(binding);
 }
 
 const setBindingPath = ev => {
-    forceIsBound = false;
-    bind(ev.target.value, bindingFallbackValue)
+    forceIsBound = canOnlyBind;
+    bind(ev.target.value, bindingFallbackValue, bindingSource)
 }
 
 const setBindingFallback = ev => {
-    bind(bindingPath, ev.target.value);
+    bind(bindingPath, ev.target.value, bindingSource);
 }
 
+const setBindingSource = ev => {
+    bind(bindingPath, bindingFallbackValue, ev.target.value);
+}
 
 const makeBinding = () => {
     forceIsBound=true;
@@ -69,9 +80,11 @@ const makeBinding = () => {
         <IconButton icon={isExpanded ? "chevron-up" : "chevron-down"} 
                     size="12"
                     on:click={() => isExpanded=!isExpanded}/>
+        {#if !canOnlyBind}
         <IconButton icon="trash" 
                     size="12"
                     on:click={clearBinding}/>
+        {/if}
     </div>
     {#if isExpanded}
     <div>
@@ -83,6 +96,15 @@ const makeBinding = () => {
         <input class="uk-input uk-form-small"
                value={bindingFallbackValue}
                on:change={setBindingFallback} >
+        <div class="binding-prop-label">Binding Source</div>
+        <select class="uk-select uk-form-small" 
+            value={bindingSource} 
+            on:change={setBindingSource}>
+
+            <option>store</option>
+            <option>context</option>
+
+        </select>
     </div>
     {/if}
 
@@ -128,11 +150,15 @@ const makeBinding = () => {
 
 .unbound-container {
     display:flex;
+    margin: .5rem 0rem .5rem 0rem;
 }
 
 .unbound-container > *:nth-child(1) {
     width:auto;
     flex: 1 0 auto;
+    font-size: 0.8rem;
+    color: var(--secondary100);
+    border-radius: .2rem;
 }
 
 .bound-header {
@@ -142,13 +168,12 @@ const makeBinding = () => {
 .bound-header > div:nth-child(1) {
     flex: 1 0 auto;
     width: 30px;
-    color: var(--darkslate);
+    color: var(--secondary50);
     padding-left: 5px;
-    font-style: italic;
 }
 
 .binding-prop-label {
-    color: var(--darkslate);
+    color: var(--secondary50);
 }
 
 
