@@ -21231,9 +21231,7 @@
       ]);
 
       record.id = `${recordNode.nodeId}-${shortid_1()}`;
-      record.key = isSingleRecord(recordNode)
-                   ? joinKey(collectionKey, recordNode.name)
-                   : joinKey(collectionKey, record.id);
+      record.key = joinKey(collectionKey, record.id);
       record.isNew = true;
       record.type = recordNode.name;
       return record;
@@ -26875,15 +26873,7 @@
         if (isIndex(obj))
         // Q: why are indexes not children ?
         // A: because they cannot have children of their own.
-        { 
-          parent.indexes.push(obj); 
-        } 
-        else if (isaggregateGroup(obj)) 
-        { 
-          parent.aggregateGroups.push(obj); 
-        } else { 
-          parent.children.push(obj); 
-        }
+        { parent.indexes.push(obj); } else if (isaggregateGroup(obj)) { parent.aggregateGroups.push(obj); } else { parent.children.push(obj); }
 
         if (isRecord(obj)) {
           const defaultIndex = lodash_15(
@@ -29320,7 +29310,7 @@
                 existingNode.parent().children = pipe$1(existingNode.parent().children, [
                     fp_8(c => c.nodeId !== existingNode.nodeId)
                 ]);
-            } 
+            }
 
             // should add node into existing hierarchy
             const cloned = fp_4(s.currentNode);
@@ -29338,13 +29328,6 @@
             parentNode.children = pipe$1(parentNode.children, [
                 fp_52(newIndexOfchild)
             ]);
-
-            if(!existingNode && s.currentNode.type === "record") {
-                const defaultIndex = templateApi(s.hierarchy)
-                                        .getNewIndexTemplate(cloned.parent());
-                defaultIndex.name = `all_${cloned.collectionName}`;
-                defaultIndex.allowedRecordNodeIds = [cloned.nodeId];
-            }
 
             s.currentNodeIsNew = false;
             
@@ -49187,7 +49170,7 @@
     	return child_ctx;
     }
 
-    // (75:8) {#each events as ev}
+    // (74:8) {#each events as ev}
     function create_each_block_1$4(ctx) {
     	var option, t_value = ctx.ev.name + "", t, option_value_value;
 
@@ -49197,7 +49180,7 @@
     			t = text(t_value);
     			option.__value = option_value_value = ctx.ev.name;
     			option.value = option.__value;
-    			add_location(option, file$e, 75, 8, 1992);
+    			add_location(option, file$e, 74, 8, 1965);
     		},
 
     		m: function mount(target, anchor) {
@@ -49223,11 +49206,11 @@
     			}
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block_1$4.name, type: "each", source: "(75:8) {#each events as ev}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block_1$4.name, type: "each", source: "(74:8) {#each events as ev}", ctx });
     	return block;
     }
 
-    // (86:0) {#if parameters}
+    // (85:0) {#if parameters}
     function create_if_block$6(ctx) {
     	var each_1_anchor, current;
 
@@ -49314,11 +49297,11 @@
     			}
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block$6.name, type: "if", source: "(86:0) {#if parameters}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block$6.name, type: "if", source: "(85:0) {#if parameters}", ctx });
     	return block;
     }
 
-    // (87:0) {#each parameters as p, index}
+    // (86:0) {#each parameters as p, index}
     function create_each_block$6(ctx) {
     	var div, t0_value = ctx.p.name + "", t0, t1, current;
 
@@ -49336,7 +49319,7 @@
     			t0 = text(t0_value);
     			t1 = space();
     			statebindingcontrol.$$.fragment.c();
-    			add_location(div, file$e, 88, 0, 2233);
+    			add_location(div, file$e, 87, 0, 2206);
     		},
 
     		m: function mount(target, anchor) {
@@ -49378,12 +49361,12 @@
     			destroy_component(statebindingcontrol, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block$6.name, type: "each", source: "(87:0) {#each parameters as p, index}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block$6.name, type: "each", source: "(86:0) {#each parameters as p, index}", ctx });
     	return block;
     }
 
     function create_fragment$d(ctx) {
-    	var div, select, option, select_value_value, t0, t1, if_block_anchor, current, dispose;
+    	var div, select, select_value_value, t0, t1, if_block_anchor, current, dispose;
 
     	let each_value_1 = ctx.events;
 
@@ -49405,7 +49388,6 @@
     		c: function create() {
     			div = element("div");
     			select = element("select");
-    			option = element("option");
 
     			for (let i_1 = 0; i_1 < each_blocks.length; i_1 += 1) {
     				each_blocks[i_1].c();
@@ -49416,9 +49398,6 @@
     			t1 = space();
     			if (if_block) if_block.c();
     			if_block_anchor = empty();
-    			option.__value = "";
-    			option.value = option.__value;
-    			add_location(option, file$e, 73, 8, 1935);
     			attr_dev(select, "class", "type-selector uk-select uk-form-small  svelte-1b6pj9u");
     			add_location(select, file$e, 72, 4, 1823);
     			attr_dev(div, "class", "type-selector-container svelte-1b6pj9u");
@@ -49433,7 +49412,6 @@
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
     			append_dev(div, select);
-    			append_dev(select, option);
 
     			for (let i_1 = 0; i_1 < each_blocks.length; i_1 += 1) {
     				each_blocks[i_1].m(select, null);
@@ -49441,10 +49419,10 @@
 
     			select_value_value = ctx.eventType;
     			for (var i = 0; i < select.options.length; i += 1) {
-    				var option_1 = select.options[i];
+    				var option = select.options[i];
 
-    				if (option_1.__value === select_value_value) {
-    					option_1.selected = true;
+    				if (option.__value === select_value_value) {
+    					option.selected = true;
     					break;
     				}
     			}
@@ -49482,10 +49460,10 @@
 
     			if ((!current || changed.eventType) && select_value_value !== (select_value_value = ctx.eventType)) {
     				for (var i = 0; i < select.options.length; i += 1) {
-    					var option_1 = select.options[i];
+    					var option = select.options[i];
 
-    					if (option_1.__value === select_value_value) {
-    						option_1.selected = true;
+    					if (option.__value === select_value_value) {
+    						option.selected = true;
     						break;
     					}
     				}
@@ -52457,10 +52435,10 @@
 
     			attr_dev(div0, "class", "uk-modal-dialog uk-modal-body svelte-vwwrf9");
     			attr_dev(div0, "uk-overflow-auto", "");
-    			add_location(div0, file$k, 28, 4, 500);
+    			add_location(div0, file$k, 28, 4, 487);
     			attr_dev(div1, "uk-modal", "");
     			attr_dev(div1, "id", ctx.id);
-    			add_location(div1, file$k, 27, 0, 456);
+    			add_location(div1, file$k, 27, 0, 443);
     		},
 
     		l: function claim(nodes) {
@@ -52557,12 +52535,11 @@
     	};
 
     	$$self.$$.update = ($$dirty = { ukModal: 1, listenerAdded: 1, onClosed: 1, isOpen: 1 }) => {
-    		if ($$dirty.ukModal || $$dirty.listenerAdded || $$dirty.onClosed || $$dirty.isOpen) { {
-                if(ukModal && !listenerAdded) {
-                    $$invalidate('listenerAdded', listenerAdded = true);
-                    ukModal.addEventListener("hide", onClosed);
-                }
-            
+    		if ($$dirty.ukModal || $$dirty.listenerAdded || $$dirty.onClosed) { if(ukModal && !listenerAdded) {
+                $$invalidate('listenerAdded', listenerAdded = true);
+                ukModal.addEventListener("hide", onClosed);
+            } }
+    		if ($$dirty.ukModal || $$dirty.isOpen) { {
                 if(ukModal) {
                     if(isOpen) {
                         uikit.modal(ukModal).show();
@@ -53443,7 +53420,7 @@
 
     const file$n = "src\\userInterface\\CurrentItemPreview.svelte";
 
-    // (40:4) {#if hasComponent}
+    // (39:4) {#if hasComponent}
     function create_if_block$d(ctx) {
     	var iframe, iframe_srcdoc_value;
 
@@ -53459,7 +53436,7 @@
     ${ctx.stylesheetLinks}
     <script>
         window["##BUDIBASE_APPDEFINITION##"] = ${JSON.stringify(ctx.appDefinition)};
-        import('/_builder/budibase-client.esm.mjs')
+        import('./budibase-client.esm.mjs')
         .then(module => {
             module.loadBudibase();
         })        
@@ -53476,7 +53453,7 @@
 </body>
 </html>`);
     			attr_dev(iframe, "class", "svelte-teqoiq");
-    			add_location(iframe, file$n, 40, 4, 1039);
+    			add_location(iframe, file$n, 39, 4, 1014);
     		},
 
     		m: function mount(target, anchor) {
@@ -53490,7 +53467,7 @@
     ${ctx.stylesheetLinks}
     <script>
         window["##BUDIBASE_APPDEFINITION##"] = ${JSON.stringify(ctx.appDefinition)};
-        import('/_builder/budibase-client.esm.mjs')
+        import('./budibase-client.esm.mjs')
         .then(module => {
             module.loadBudibase();
         })        
@@ -53516,7 +53493,7 @@
     			}
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block$d.name, type: "if", source: "(40:4) {#if hasComponent}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block$d.name, type: "if", source: "(39:4) {#if hasComponent}", ctx });
     	return block;
     }
 
@@ -53530,7 +53507,7 @@
     			div = element("div");
     			if (if_block) if_block.c();
     			attr_dev(div, "class", "component-container svelte-teqoiq");
-    			add_location(div, file$n, 38, 0, 978);
+    			add_location(div, file$n, 37, 0, 953);
     		},
 
     		l: function claim(nodes) {
@@ -53590,8 +53567,7 @@
         $$invalidate('appDefinition', appDefinition = {
             componentLibraries: s.loadLibraryUrls(),
             props: buildPropsHierarchy(s.allComponents, s.currentFrontEndItem),
-            hierarchy: s.hierarchy,
-            appRootPath: ""
+            hierarchy: s.hierarchy
         });
 
     });
@@ -60833,7 +60809,7 @@
     	return child_ctx;
     }
 
-    // (99:8) {#if !record.isSingle}
+    // (93:8) {#if !record.isSingle}
     function create_if_block_3$3(ctx) {
     	var updating_text, t, updating_text_1, current;
 
@@ -60918,11 +60894,11 @@
     			destroy_component(textbox1, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block_3$3.name, type: "if", source: "(99:8) {#if !record.isSingle}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block_3$3.name, type: "if", source: "(93:8) {#if !record.isSingle}", ctx });
     	return block;
     }
 
-    // (137:4) {:else}
+    // (131:4) {:else}
     function create_else_block_1$1(ctx) {
     	var t;
 
@@ -60943,11 +60919,11 @@
     			}
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_else_block_1$1.name, type: "else", source: "(137:4) {:else}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_else_block_1$1.name, type: "else", source: "(131:4) {:else}", ctx });
     	return block;
     }
 
-    // (110:4) {#if record.fields.length > 0}
+    // (104:4) {#if record.fields.length > 0}
     function create_if_block_2$5(ctx) {
     	var table, thead, tr, th0, t1, th1, t3, th2, t5, th3, t6, tbody;
 
@@ -60981,21 +60957,21 @@
     				each_blocks[i].c();
     			}
     			attr_dev(th0, "class", "svelte-18xd5y3");
-    			add_location(th0, file$A, 113, 16, 3154);
+    			add_location(th0, file$A, 107, 16, 2954);
     			attr_dev(th1, "class", "svelte-18xd5y3");
-    			add_location(th1, file$A, 114, 16, 3184);
+    			add_location(th1, file$A, 108, 16, 2984);
     			attr_dev(th2, "class", "svelte-18xd5y3");
-    			add_location(th2, file$A, 115, 16, 3214);
+    			add_location(th2, file$A, 109, 16, 3014);
     			attr_dev(th3, "class", "svelte-18xd5y3");
-    			add_location(th3, file$A, 116, 16, 3247);
+    			add_location(th3, file$A, 110, 16, 3047);
     			attr_dev(tr, "class", "svelte-18xd5y3");
-    			add_location(tr, file$A, 112, 12, 3133);
+    			add_location(tr, file$A, 106, 12, 2933);
     			attr_dev(thead, "class", "svelte-18xd5y3");
-    			add_location(thead, file$A, 111, 8, 3113);
+    			add_location(thead, file$A, 105, 8, 2913);
     			attr_dev(tbody, "class", "svelte-18xd5y3");
-    			add_location(tbody, file$A, 119, 8, 3300);
+    			add_location(tbody, file$A, 113, 8, 3100);
     			attr_dev(table, "class", "fields-table uk-table svelte-18xd5y3");
-    			add_location(table, file$A, 110, 4, 3067);
+    			add_location(table, file$A, 104, 4, 2867);
     		},
 
     		m: function mount(target, anchor) {
@@ -61049,11 +61025,11 @@
     			destroy_each(each_blocks, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block_2$5.name, type: "if", source: "(110:4) {#if record.fields.length > 0}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block_2$5.name, type: "if", source: "(104:4) {#if record.fields.length > 0}", ctx });
     	return block;
     }
 
-    // (121:12) {#each record.fields as field}
+    // (115:12) {#each record.fields as field}
     function create_each_block_1$9(ctx) {
     	var tr, td0, div0, t0_value = ctx.field.label + "", t0, t1, div1, t2_value = ctx.field.name + "", t2, t3, td1, t4_value = ctx.field.type + "", t4, t5, td2, raw0_value = ctx.getTypeOptions(ctx.field.typeOptions) + "", t6, td3, span0, raw1_value = getIcon("edit") + "", t7, span1, raw2_value = getIcon("trash") + "", t8, dispose;
 
@@ -61086,24 +61062,24 @@
     			span1 = element("span");
     			t8 = space();
     			attr_dev(div0, "class", "field-label svelte-18xd5y3");
-    			add_location(div0, file$A, 123, 20, 3410);
+    			add_location(div0, file$A, 117, 20, 3210);
     			set_style(div1, "font-size", "0.8em");
     			set_style(div1, "color", "var(--slate)");
-    			add_location(div1, file$A, 124, 20, 3475);
+    			add_location(div1, file$A, 118, 20, 3275);
     			attr_dev(td0, "class", "svelte-18xd5y3");
-    			add_location(td0, file$A, 122, 16, 3384);
+    			add_location(td0, file$A, 116, 16, 3184);
     			attr_dev(td1, "class", "svelte-18xd5y3");
-    			add_location(td1, file$A, 126, 16, 3583);
+    			add_location(td1, file$A, 120, 16, 3383);
     			attr_dev(td2, "class", "svelte-18xd5y3");
-    			add_location(td2, file$A, 127, 16, 3622);
+    			add_location(td2, file$A, 121, 16, 3422);
     			attr_dev(span0, "class", "edit-button svelte-18xd5y3");
-    			add_location(span0, file$A, 129, 20, 3715);
+    			add_location(span0, file$A, 123, 20, 3515);
     			attr_dev(span1, "class", "edit-button svelte-18xd5y3");
-    			add_location(span1, file$A, 130, 20, 3826);
+    			add_location(span1, file$A, 124, 20, 3626);
     			attr_dev(td3, "class", "svelte-18xd5y3");
-    			add_location(td3, file$A, 128, 16, 3690);
+    			add_location(td3, file$A, 122, 16, 3490);
     			attr_dev(tr, "class", "svelte-18xd5y3");
-    			add_location(tr, file$A, 121, 12, 3363);
+    			add_location(tr, file$A, 115, 12, 3163);
 
     			dispose = [
     				listen_dev(span0, "click", click_handler),
@@ -61162,11 +61138,11 @@
     			run_all(dispose);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block_1$9.name, type: "each", source: "(121:12) {#each record.fields as field}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block_1$9.name, type: "each", source: "(115:12) {#each record.fields as field}", ctx });
     	return block;
     }
 
-    // (141:4) {#if editingField}
+    // (135:4) {#if editingField}
     function create_if_block_1$8(ctx) {
     	var updating_isOpen, current;
 
@@ -61222,11 +61198,11 @@
     			destroy_component(modal, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block_1$8.name, type: "if", source: "(141:4) {#if editingField}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block_1$8.name, type: "if", source: "(135:4) {#if editingField}", ctx });
     	return block;
     }
 
-    // (142:4) <Modal bind:isOpen={editingField}>
+    // (136:4) <Modal bind:isOpen={editingField}>
     function create_default_slot$6(ctx) {
     	var current;
 
@@ -61275,11 +61251,11 @@
     			destroy_component(fieldview, detaching);
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot$6.name, type: "slot", source: "(142:4) <Modal bind:isOpen={editingField}>", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_default_slot$6.name, type: "slot", source: "(136:4) <Modal bind:isOpen={editingField}>", ctx });
     	return block;
     }
 
-    // (177:4) {:else}
+    // (171:4) {:else}
     function create_else_block$6(ctx) {
     	var div;
 
@@ -61288,7 +61264,7 @@
     			div = element("div");
     			div.textContent = "No indexes added.\n    ";
     			attr_dev(div, "class", "no-indexes svelte-18xd5y3");
-    			add_location(div, file$A, 177, 4, 5314);
+    			add_location(div, file$A, 171, 4, 5114);
     		},
 
     		m: function mount(target, anchor) {
@@ -61301,11 +61277,11 @@
     			}
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_else_block$6.name, type: "else", source: "(177:4) {:else}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_else_block$6.name, type: "else", source: "(171:4) {:else}", ctx });
     	return block;
     }
 
-    // (170:8) {#if index.filter}
+    // (164:8) {#if index.filter}
     function create_if_block$i(ctx) {
     	var div, span, t1, code, t2_value = ctx.index.filter + "", t2;
 
@@ -61318,11 +61294,11 @@
     			code = element("code");
     			t2 = text(t2_value);
     			attr_dev(span, "class", "index-label svelte-18xd5y3");
-    			add_location(span, file$A, 171, 12, 5153);
+    			add_location(span, file$A, 165, 12, 4953);
     			attr_dev(code, "class", "index-mapfilter svelte-18xd5y3");
-    			add_location(code, file$A, 172, 12, 5206);
+    			add_location(code, file$A, 166, 12, 5006);
     			attr_dev(div, "class", "index-field-row svelte-18xd5y3");
-    			add_location(div, file$A, 170, 8, 5111);
+    			add_location(div, file$A, 164, 8, 4911);
     		},
 
     		m: function mount(target, anchor) {
@@ -61345,11 +61321,11 @@
     			}
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block$i.name, type: "if", source: "(170:8) {#if index.filter}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_if_block$i.name, type: "if", source: "(164:8) {#if index.filter}", ctx });
     	return block;
     }
 
-    // (154:4) {#each record.indexes as index}
+    // (148:4) {#each record.indexes as index}
     function create_each_block$f(ctx) {
     	var div3, div0, t0_value = ctx.index.name + "", t0, t1, span0, raw_value = getIcon("edit") + "", t2, div1, span1, t4, span2, t5_value = ctx.getIndexAllowedRecords(ctx.index) + "", t5, t6, span3, t8, span4, t9_value = ctx.index.indexType + "", t9, t10, div2, span5, t12, code, t13_value = ctx.index.map + "", t13, t14, t15, dispose;
 
@@ -61390,26 +61366,26 @@
     			if (if_block) if_block.c();
     			t15 = space();
     			set_style(span0, "margin-left", "7px");
-    			add_location(span0, file$A, 157, 12, 4506);
+    			add_location(span0, file$A, 151, 12, 4306);
     			attr_dev(div0, "class", "index-name svelte-18xd5y3");
-    			add_location(div0, file$A, 155, 8, 4444);
+    			add_location(div0, file$A, 149, 8, 4244);
     			attr_dev(span1, "class", "index-label svelte-18xd5y3");
-    			add_location(span1, file$A, 160, 12, 4667);
-    			add_location(span2, file$A, 161, 12, 4731);
+    			add_location(span1, file$A, 154, 12, 4467);
+    			add_location(span2, file$A, 155, 12, 4531);
     			attr_dev(span3, "class", "index-label svelte-18xd5y3");
     			set_style(span3, "margin-left", "15px");
-    			add_location(span3, file$A, 162, 12, 4788);
-    			add_location(span4, file$A, 163, 12, 4866);
+    			add_location(span3, file$A, 156, 12, 4588);
+    			add_location(span4, file$A, 157, 12, 4666);
     			attr_dev(div1, "class", "index-field-row svelte-18xd5y3");
-    			add_location(div1, file$A, 159, 8, 4625);
+    			add_location(div1, file$A, 153, 8, 4425);
     			attr_dev(span5, "class", "index-label svelte-18xd5y3");
-    			add_location(span5, file$A, 166, 12, 4962);
+    			add_location(span5, file$A, 160, 12, 4762);
     			attr_dev(code, "class", "index-mapfilter svelte-18xd5y3");
-    			add_location(code, file$A, 167, 12, 5012);
+    			add_location(code, file$A, 161, 12, 4812);
     			attr_dev(div2, "class", "index-field-row svelte-18xd5y3");
-    			add_location(div2, file$A, 165, 8, 4920);
+    			add_location(div2, file$A, 159, 8, 4720);
     			attr_dev(div3, "class", "index-container svelte-18xd5y3");
-    			add_location(div3, file$A, 154, 4, 4406);
+    			add_location(div3, file$A, 148, 4, 4206);
     			dispose = listen_dev(span0, "click", click_handler_2);
     		},
 
@@ -61483,7 +61459,7 @@
     			dispose();
     		}
     	};
-    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block$f.name, type: "each", source: "(154:4) {#each record.indexes as index}", ctx });
+    	dispatch_dev("SvelteRegisterBlock", { block, id: create_each_block$f.name, type: "each", source: "(148:4) {#each record.indexes as index}", ctx });
     	return block;
     }
 
@@ -61503,7 +61479,6 @@
     	var textbox = new Textbox({ props: textbox_props, $$inline: true });
 
     	binding_callbacks.push(() => bind(textbox, 'text', textbox_text_binding));
-    	textbox.$on("change", ctx.nameChanged);
 
     	var if_block0 = (!ctx.record.isSingle) && create_if_block_3$3(ctx);
 
@@ -61562,19 +61537,19 @@
     				each_blocks[i].c();
     			}
     			attr_dev(h30, "class", "settings-title svelte-18xd5y3");
-    			add_location(h30, file$A, 93, 8, 2479);
+    			add_location(h30, file$A, 87, 8, 2306);
     			attr_dev(div0, "class", "recordkey svelte-18xd5y3");
-    			add_location(div0, file$A, 102, 8, 2836);
+    			add_location(div0, file$A, 96, 8, 2636);
     			attr_dev(form, "class", "uk-form-horizontal");
-    			add_location(form, file$A, 92, 4, 2437);
+    			add_location(form, file$A, 86, 4, 2264);
     			attr_dev(span, "class", "add-field-button svelte-18xd5y3");
-    			add_location(span, file$A, 106, 15, 2935);
+    			add_location(span, file$A, 100, 15, 2735);
     			attr_dev(h31, "class", "title svelte-18xd5y3");
-    			add_location(h31, file$A, 105, 4, 2901);
+    			add_location(h31, file$A, 99, 4, 2701);
     			attr_dev(h32, "class", "title svelte-18xd5y3");
-    			add_location(h32, file$A, 149, 4, 4319);
+    			add_location(h32, file$A, 143, 4, 4119);
     			attr_dev(div1, "class", "root svelte-18xd5y3");
-    			add_location(div1, file$A, 90, 0, 2413);
+    			add_location(div1, file$A, 84, 0, 2240);
     			dispose = listen_dev(span, "click", ctx.newField);
     		},
 
@@ -61823,13 +61798,6 @@
             fp_41("<br>")
         ]);
 
-    const nameChanged = ev => {
-        const pluralName = n => `${n}s`;
-        if(record.collectionName === "") {
-            $$invalidate('record', record.collectionName = pluralName(ev.target.value), record);
-        }
-    };
-
     	function textbox_text_binding(value) {
     		record.name = value;
     		$$invalidate('record', record);
@@ -61887,7 +61855,6 @@
     		onFinishedFieldEdit,
     		editIndex,
     		getTypeOptions,
-    		nameChanged,
     		$store,
     		textbox_text_binding,
     		textbox0_text_binding,
