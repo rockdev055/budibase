@@ -7,19 +7,9 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Launch Program",
-            "program": "${workspaceFolder}/app.js",
-            "skipFiles": [
-                "<node_internals>/**"
-            ]
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "name": "Debug External",
-            "program": "${workspaceFolder}/packages/cli/bin/budi",
-            "args": [],
-            "cwd":"C:/code/my-apps",
+            "name": "Initialise Budibase",
+            "program": "${workspaceFolder}/initialise/initialiseBudibase.js",
+            "args": ["--datastore=local", "--username=test", "--password=test", "--rootPath=./.data", "--cleanDev"],
             "console": "externalTerminal" 
         }
     ]

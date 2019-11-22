@@ -16,10 +16,7 @@ export const loadBudibase = async (componentLibraries, props) => {
 
     if(!componentLibraries) {
 
-        const rootPath = appDefinition.appRootPath === "" 
-                         ? "" 
-                         : "/" + trimSlash(appDefinition.appRootPath);
-        const componentLibraryUrl = (lib) =>  rootPath + "/" + trimSlash(lib)
+        const componentLibraryUrl = (lib) =>  "./" + trimSlash(lib)
         componentLibraries = {};
 
         for(let lib of appDefinition.componentLibraries) {
