@@ -7,9 +7,19 @@ import {
 } from '../templateApi/hierarchy';
 import { $, allTrue, joinKey } from '../common';
 
-const ensureCollectionIsInitialised = async (datastore, node, dir) => {
-  if (!await datastore.exists(dir)) {
-    await datastore.createFolder(dir);
+const ensureCollectionIsInitialised = async (datastore, node, parentKey) => {
+  if (!await datastore.exists(parentKey)) {
+    await datastore.createFolder(parentKey);
+    await datastore.createFolder(
+      joinKey(parentKey, 'allids'),
+    );
+    await datastore.createFolder(
+      joinKey(
+        parentKey,
+        'allids',
+        node.nodeId.toString(),
+      ),
+    );
   }
 };
 
@@ -34,8 +44,9 @@ export const initialiseRootCollections = async (datastore, hierarchy) => {
   }
 };
 
-export const initialiseChildCollections = async (app, recordInfo) => {
-  const childCollectionRecords = $(recordInfo.recordNode, [
+export const initialiseChildCollections = async (app, recordKey) => {
+  const childCollectionRecords = $(recordKey, [
+    getExactNodeForPath(app.hierarchy),
     n => n.children,
     filter(isCollectionRecord),
   ]);
@@ -44,7 +55,7 @@ export const initialiseChildCollections = async (app, recordInfo) => {
     await ensureCollectionIsInitialised(
       app.datastore,
       child,
-      recordInfo.child(child.collectionName),
+      joinKey(recordKey, child.collectionName),
     );
   }
 };

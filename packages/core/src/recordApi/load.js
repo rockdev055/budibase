@@ -10,7 +10,6 @@ import {
 } from '../common';
 import { mapRecord } from '../indexing/evaluate';
 import { permission } from '../authApi/permissions';
-import { getRecordInfo } from "./recordInfo";
 
 export const getRecordFileName = key => joinKey(key, 'record.json');
 
@@ -25,10 +24,12 @@ export const load = app => async key => {
   );
 }
 
-export const _loadFromInfo = async (app, recordInfo, keyStack = []) => {
-  const key = recordInfo.key;
-  const {recordNode, recordJson} = recordInfo;
-  const storedData = await app.datastore.loadJson(recordJson);
+export const _load = async (app, key, keyStack = []) => {
+  key = safeKey(key);
+  const recordNode = getExactNodeForPath(app.hierarchy)(key);
+  const storedData = await app.datastore.loadJson(
+    getRecordFileName(key),
+  );
 
   const loadedRecord = $(recordNode.fields, [
     keyBy('name'),
@@ -68,12 +69,5 @@ export const _loadFromInfo = async (app, recordInfo, keyStack = []) => {
   loadedRecord.type = recordNode.name;
   return loadedRecord;
 };
-
-export const _load = async (app, key, keyStack = []) => 
-  _loadFromInfo(
-    app,
-    getRecordInfo(app, key),
-    keyStack);
-
 
 export default load;
