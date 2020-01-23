@@ -1,4 +1,5 @@
 import {
+  
   head, 
   tail, findIndex, startsWith, 
   dropRight, flow, takeRight, trim,
@@ -16,7 +17,6 @@ import {
   getLock, NO_LOCK,
   isNolock
 } from './lock';
-import crypto from "./nodeCrypto";
 
 // this is the combinator function
 export const $$ = (...funcs) => arg => flow(funcs)(arg);
@@ -211,7 +211,6 @@ export {
   getLock, NO_LOCK, releaseLock,
   extendLock, isNolock,
 } from './lock';
-export { crypto }; 
 
 export default {
   ifExists,

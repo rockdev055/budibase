@@ -66,7 +66,7 @@ export const getTemporaryCode = async (app) => {
   const tempId = generate();
 
   return {
-    temporaryAccessHash: app.crypto.hash(
+    temporaryAccessHash: await app.crypto.hash(
       tempCode,
     ),
     temporaryAccessExpiryEpoch:

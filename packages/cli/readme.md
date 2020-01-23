@@ -2,11 +2,19 @@
 
 (For contributors - scroll down)
 
-### 1. Global install budibase
+### 1. Prerequisites (for nodegyp)
+
+We will try to make this bit easier, but for now:
+
+- Windows  - https://github.com/nodejs/node-gyp#on-windows
+- Ubuntu `sudo apt-get install build-essentials`
+- Mac: https://github.com/nodejs/node-gyp#on-macos
+
+### 2. Global install budibase
 
 `npm install -g budibase`
 
-### 2. Start using Budibase
+### 3. Start using Budibase
 
 Create a directory to store your Budibase apps
 

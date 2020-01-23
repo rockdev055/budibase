@@ -1,4 +1,5 @@
-const {getAppApis, getTemplateApi, crypto } = require("@budibase/core");
+const crypto = require("../nodeCrypto");
+const {getAppApis, getTemplateApi} = require("@budibase/core");
 const getDatastore = require("./datastore");
 const { masterAppPackage } = require("../utilities/createAppPackage");
 const getDatabaseManager = require("../utilities/databaseManager");  
