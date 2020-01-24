@@ -12,10 +12,9 @@ import {
 } from "./pagesParsing/createProps";
 import Button from "../common/Button.svelte";
 import ButtonGroup from "../common/ButtonGroup.svelte";
-import { LayoutIcon, PaintIcon, TerminalIcon } from '../common/Icons/';
 
-import {
-    cloneDeep,
+import { 
+    cloneDeep, 
     join,
     split,
     map,
@@ -51,6 +50,43 @@ store.subscribe(s => {
     components = s.components;
 });
 
+const save = () => {
+
+    ignoreStore = true;
+    if(!validate()) {
+        ignoreStore = false;
+        return;
+    }
+
+    component.name = originalName || name;
+    component.description = description;
+    component.tags = pipe(tagsString, [
+        split(","),
+        map(s => s.trim())
+    ]);
+
+    store.saveScreen(component);
+
+    ignoreStore = false;
+    // now do the rename
+    if(name !== originalName) {
+        store.renameScreen(originalName, name);
+    }
+}
+
+const deleteComponent = () => {
+    showDialog();
+}
+
+const confirmDeleteComponent = () => {
+    store.deleteScreen(component.name);
+    hideDialog();
+}
+
+const onPropsValidate = result => {
+    propsValidationErrors = result;
+}
+
 const updateComponent = doChange => {
     const newComponent = cloneDeep(component);
     doChange(newComponent);
@@ -59,27 +95,86 @@ const updateComponent = doChange => {
 }
 
 const onPropsChanged = newProps => {
-    updateComponent(newComponent =>
+    updateComponent(newComponent => 
         assign(newComponent.props, newProps));
+    
+}
+
+const validate = () => {
+    const fieldInvalid = (field, err) => 
+        errors[field] = err;
+    const fieldValid = field => 
+        errors[field] && delete errors[field];
+
+    if(!name) nameInvalid = "component name i not supplied";
+    else nameInvalid = "";
+
+    return (!nameInvalid && propsValidationErrors.length === 0);
+}
+
+const hideDialog = () => {
+    UIkit.modal(modalElement).hide();
+}
+
+const showDialog = () => {
+    UIkit.modal(modalElement).show();
 }
 
 </script>
 
 <div class="root">
 
-    <ul>
-        <li><button><PaintIcon /></button></li>
-        <li><button><LayoutIcon /></button></li>
-        <li><button><TerminalIcon /></button></li>
-    </ul>
+    <div class="title">
+        <div>{shortName}</div>
+        <div>
+            <IconButton icon="save" 
+                        on:click={save} 
+                        color="var(--secondary100)"
+                        hoverColor="var(--primary100)"/>
+            <IconButton icon="trash" 
+                        on:click={deleteComponent} 
+                        color="var(--secondary100)"
+                        hoverColor="var(--primary100)"/>
+        </div>
+    </div>
 
     <div class="component-props-container">
 
-
-        <PropsView
+       
+        <PropsView onValidate={onPropsValidate}
                 {componentInfo}
                 {onPropsChanged} />
+        
 
+    </div>
+
+</div>
+
+
+<div bind:this={modalElement} uk-modal>
+    <div class="uk-modal-dialog">
+
+        <div class="uk-modal-header">
+            Delete {name} ? 
+        </div>
+
+        <div class="uk-modal-body">
+            Are you sure you want to delete this component ?
+        </div>
+
+        <div class="uk-modal-footer">
+            <ButtonGroup>
+                <Button grouped 
+                        on:click={confirmDeleteComponent}>
+                        OK
+                </Button>
+                <Button grouped 
+                        on:click={hideDialog} 
+                        color="secondary" >
+                        Cancel
+                </Button>
+            </ButtonGroup>
+        </div>
 
     </div>
 
@@ -91,7 +186,9 @@ const onPropsChanged = newProps => {
     height: 100%;
     display: flex;
     flex-direction: column;
-
+    border-style: solid;
+    border-width: 1px 0 0 0;
+    border-color: var(--slate);
 }
 
 .title {
@@ -116,32 +213,4 @@ const onPropsChanged = newProps => {
     flex: 1 1 auto;
     overflow-y: auto;
 }
-
-ul {
-    list-style: none;
-    display: flex;
-    padding: 0;
-}
-
-li {
-    margin-right: 20px;
-    background: none;
-    border-radius: 5px;
-    width: 45px;
-    height: 45px;
-}
-
-li button {
-    width: 100%;
-    height: 100%;
-    background: none;
-    border: none;
-    border-radius: 5px;
-    padding: 12px;
-}
-
-.selected {
-    background: lightblue;
-}
-
 </style>
