@@ -5,12 +5,10 @@ const {
 const { copy, readJSON, writeJSON, remove, exists } = require("fs-extra");
 const { resolve, join } = require("path");
 const thisPackageJson = require("../../../package.json");
-const chalk = require("chalk");
 const {exec} = require('child_process');
 
 module.exports = (opts) => {
     run(opts);
-    console.log(chalk.green(`Budibase app ${opts.name} created!`));
 }
 
 const run = async (opts) => {
@@ -22,12 +20,12 @@ const run = async (opts) => {
     app.name = opts.name;
 
     await bb.recordApi.save(app);
-    await createEmptyAppPackage(opts);
+    await createEmtpyAppPackage(opts);
 
     exec(`cd ${join(opts.config.latestPackagesFolder, opts.name)} && npm install`);
 }
 
-const createEmptyAppPackage = async (opts) => {
+const createEmtpyAppPackage = async (opts) => {
     const templateFolder = resolve(
         __dirname, "appPackageTemplate");
 
