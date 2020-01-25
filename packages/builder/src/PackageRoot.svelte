@@ -11,10 +11,9 @@ import { fade } from "svelte/transition";
 <div class="root">
 
     <div class="top-nav">
-        <button class="home-logo"><img src="/assets/budibase-logo-only.png"/></button>
-        <!-- <IconButton icon="home"
+        <IconButton icon="home" 
                     color="var(--slate)"
-                    hoverColor="var(--secondary75)"/> -->
+                    hoverColor="var(--secondary75)"/>
         <span class:active={$store.isBackend}
               class="topnavitem"
               on:click={store.showBackend}>
@@ -38,7 +37,7 @@ import { fade } from "svelte/transition";
         </div>
         {/if}
     </div>
-
+    
 </div>
 
 <style>
@@ -48,18 +47,14 @@ import { fade } from "svelte/transition";
     width:100%;
     display: flex;
     flex-direction: column;
-
 }
 
 .top-nav {
     flex: 0 0 auto;
-    height: 48px;
+    height: 25px;
     background: white;
-    padding: 0px 15px;
+    padding: 5px;
     width: 100%;
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid #ddd;
 }
 
 .content {
@@ -71,20 +66,14 @@ import { fade } from "svelte/transition";
 .content > div {
     height:100%;
     width:100%;
-
 }
 
 .topnavitem {
     cursor: pointer;
     color: var(--secondary50);
-    margin: 0px 15px;
-    padding-top: 4px;
+    padding: 0px 15px;
     font-weight: 600;
-    font-size: 1rem;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    box-sizing: border-box;
+    font-size: .9rem;
 }
 
 .topnavitem:hover {
@@ -95,31 +84,8 @@ import { fade } from "svelte/transition";
 
 .active {
     color: var(--primary100);
-    font-weight: 600;
-    border-bottom: 2px solid var(--primary100);
-    border-top: 2px solid transparent;
+    font-weight: 900;
 }
 
-.home-logo {
-    border-style: none;
-    background-color: rgba(0,0,0,0);
-    cursor: pointer;
-    outline: none;
-    height: 40px;
-    padding: 8px 10px;
-}
-
-.home-logo:hover {
-    color: var(--hovercolor);
-}
-
-.home-logo:active {
-    outline:none;
-}
-
-
-.home-logo img {
-    height: 100%;
-}
 
 </style>

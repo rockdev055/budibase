@@ -8,7 +8,7 @@ export let _bb;
 let rootDiv;
 $:{
 	if(_bb && rootDiv && _children && _children.length)
-		_bb.hydrateChildren(_children, rootDiv);
+		_bb.hydrateChildren(_children, theButton);
 }
 
 
@@ -16,3 +16,4 @@ $:{
 
 <div class="{className}" bind:this={rootDiv}>
 </div>
+

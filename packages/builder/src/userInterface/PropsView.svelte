@@ -10,33 +10,70 @@ import { getInstanceProps } from "./pagesParsing/createProps";
 import Checkbox from "../common/Checkbox.svelte";
 import Textbox from "../common/Textbox.svelte";
 import Dropdown from "../common/Dropdown.svelte";
+import { validateProps } from "./pagesParsing/validateProps";
 import PropControl from "./PropControl.svelte";
 import IconButton from "../common/IconButton.svelte";
 
+export let shouldValidate = true;
+export let onValidate = () => {};
 export let componentInfo;
 export let instanceProps = null;
 export let onPropsChanged = () => {};
-export let components;
 
 let errors = [];
 let props = {};
 let propsDefinitions = [];
 let isInstance = false;
 
-const props_to_ignore = ['_component','_children', '_layout'];
 
-$: propDefs = componentInfo && Object.entries(componentInfo).filter(([name])=> !props_to_ignore.includes(name));
+$: {
+    if(componentInfo)
+    {
+        isInstance = !!instanceProps;
+        props = isInstance 
+                ? getInstanceProps(componentInfo, instanceProps)
+                : cloneDeep(componentInfo.fullProps);
 
-function find_type(prop_name) {
-    if(!componentInfo._component) return;
-    return components.find(({name}) => name === componentInfo._component).props[prop_name];
+        propsDefinitions = pipe(componentInfo.propsDefinition, [
+                keys,
+                map(k => ({...componentInfo.propsDefinition[k], ____name:k})),
+                sortBy("____name")
+            ]);
+    }
 }
+
 
 let setProp = (name, value) => {
-    onPropsChanged(name, value);
+    const newProps = cloneDeep(props);
+
+    let finalProps = isInstance ? newProps : cloneDeep(componentInfo.component.props);
+
+    if(!isInstance) {
+        const nowSet = [];
+        for(let p of componentInfo.unsetProps) {
+            if(!isEqual(newProps[p])(componentInfo.rootDefaultProps[p])) {
+                finalProps[p] = newProps[p];
+                nowSet.push(p);
+            }
+        }
+        componentInfo.unsetProps = difference(nowSet)(componentInfo.unsetProps);
+    }
+
+    newProps[name] = value;
+    finalProps[name] = value;
+    props = newProps;
+    if(validate(finalProps))
+        onPropsChanged(finalProps);
+    
+}
+                  
+const validate = (finalProps) => {
+    errors = validateProps(componentInfo.rootComponent, finalProps, [], false);
+    onValidate(errors);
+    return errors.length === 0;
 }
 
-const fieldHasError = (propName) =>
+const fieldHasError = (propName) => 
     some(e => e.propName === propName)(errors);
 
 </script>
@@ -44,22 +81,25 @@ const fieldHasError = (propName) =>
 <div class="root">
 
     <form class="uk-form-stacked form-root">
-        {#each propDefs as [prop_name, prop_value], index}
+        {#each propsDefinitions as propDef, index}
+        
+        <div class="prop-container">
 
-            <div class="prop-container">
+            <PropControl {setProp}
+                        {fieldHasError}
+                        {propDef}
+                        {props}
+                        {index}
+                        disabled={false} />
 
-                <PropControl {setProp}
-                            {prop_name}
-                            {prop_value}
-                            prop_type={find_type(prop_name)}
-                            {index}
-                            disabled={false} />
-
-            </div>
-
+        </div>
+            
         {/each}
 
     </form>
+
+
+    
 
 </div>
 

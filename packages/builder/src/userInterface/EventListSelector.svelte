@@ -5,7 +5,6 @@ import {
     filter
 } from "lodash/fp";
 import {EVENT_TYPE_MEMBER_NAME} from "../common/eventHandlers";
-
 export let parentProps;
 export let propDef;
 export let onValueChanged;
@@ -59,7 +58,7 @@ const removeHandler = (index) => () => {
 
         <div class="addelement-container"
              on:click={addHandler}>
-            <IconButton icon="plus"
+            <IconButton icon="plus" 
                             size="12"/>
         </div>
     </div>
