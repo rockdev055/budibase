@@ -1,9 +1,7 @@
 import { createApp } from "./createApp";
 import { trimSlash } from "./common/trimSlash";
 
-export const loadBudibase = async ({
-    componentLibraries, props, 
-    window, localStorage, uiFunctions }) => {
+export const loadBudibase = async ({componentLibraries, props, window, localStorage}) => {
 
     const appDefinition = window["##BUDIBASE_APPDEFINITION##"];
 
@@ -35,7 +33,7 @@ export const loadBudibase = async ({
         props = appDefinition.props;
     }
 
-    const _app = createApp(componentLibraries, appDefinition,  user, uiFunctions);
+    const _app = createApp(componentLibraries, appDefinition,  user);
     _app.hydrateChildren(
         [props],
         window.document.body);
