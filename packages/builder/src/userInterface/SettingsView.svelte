@@ -1,46 +1,52 @@
 <script>
-    import { store } from "../builderStore";
-    import Textbox from "../common/Textbox.svelte";
-    import Button from "../common/Button.svelte";
-    import IconButton from "../common/IconButton.svelte";
-    import { libraryDependencies } from "./pagesParsing/findDependencies";
-    import UIkit from "uikit";
 
-    let addNewLib = "";
-    let addNewStylesheet = "";
-    let modalElement;
+import { store } from "../builderStore";
+import Textbox from "../common/Textbox.svelte";
+import Button from "../common/Button.svelte";
+import IconButton from "../common/IconButton.svelte";
+import { libraryDependencies } from "./pagesParsing/findDependencies";
+import UIkit from "uikit";
 
-    $: components = $store.components;
+let addNewLib = "";
+let addNewStylesheet = "";
+let addComponentError = "";
+let modalElement;
+let components;
 
-    const removeLibrary = lib => {
-        const dependencies = libraryDependencies(components, lib);
-        if(dependencies.length > 0) return;
-        store.removeComponentLibrary(lib);
-    }
+store.subscribe(s => {
+    components = s.components;
+})
 
-    const addLib = () => {
-        store.addComponentLibrary(addNewLib)
-        .then(() => {
-            addNewLib = "";
-        });
-    }
+const removeLibrary = lib => {
+    const dependencies = libraryDependencies(components, lib);
+    if(dependencies.length > 0) return;
+    store.removeComponentLibrary(lib);
+}
 
-    const removeStylesheet = stylesheet => {
-        store.removeStylesheet(stylesheet);
-    }
+const addLib = () => {
+    store.addComponentLibrary(addNewLib)
+    .then(() => {
+        addNewLib = "";
+    });  
+}
 
-    const addStylesheet = () => {
-        if(addNewStylesheet)
-            store.addStylesheet(addNewStylesheet);
-    }
+const removeStylesheet = stylesheet => {
+    store.removeStylesheet(stylesheet);
+}
 
-    export const close = () => {
-        UIkit.modal(modalElement).hide();
-    }
+const addStylesheet = () => {
+    if(addNewStylesheet)
+        store.addStylesheet(addNewStylesheet);
+}
 
-    export const show = () => {
-        UIkit.modal(modalElement).show();
-    }
+export const close = () => {
+    UIkit.modal(modalElement).hide();
+}
+
+export const show = () => {
+    UIkit.modal(modalElement).show();
+}
+
 </script>
 
 <div bind:this={modalElement} id="new-component-modal" uk-modal>
@@ -59,7 +65,7 @@
             <div class="section-container">
                 <p>Component Libraries
                     <span>
-                        <input bind:value={addNewLib} />
+                        <input bind:value={addNewLib} /> 
                         <Button color="primary-outline"
                                 on:click={addLib}>Add</Button>
                     </span>
@@ -67,17 +73,17 @@
                 {#each $store.pages.componentLibraries as lib}
                 <div>
                     <span class="row-text">{lib}</span>
-                    <IconButton icon="x"
+                    <IconButton icon="x" 
                                 on:click={() => removeLibrary(lib)}/>
                 </div>
                 {/each}
             </div>
-
+            
 
             <div class="section-container">
                 <p>Stylesheets
                     <span>
-                        <input bind:value={addNewStylesheet} />
+                        <input bind:value={addNewStylesheet} /> 
                         <Button color="primary-outline"
                                     on:click={addStylesheet} >Add</Button>
                     </span>
@@ -85,53 +91,55 @@
                 {#each $store.pages.stylesheets as stylesheet}
                 <div>
                     <span class="row-text">{stylesheet}</span>
-                    <IconButton icon="x"
+                    <IconButton icon="x" 
                                 on:click={() => removeStylesheet(stylesheet)}/>
                 </div>
                 {/each}
             </div>
 
-
+            
         </div>
     </div>
 </div>
 
 <style>
-    .section-container {
-        padding: 15px;
-        border-style: dotted;
-        border-width: 1px;
-        border-color: var(--lightslate);
-        border-radius: 2px;
-    }
 
-    .section-container:nth-child(1) {
-        margin-bottom: 15px;
-    }
+.section-container {
+    padding: 15px;
+    border-style: dotted;
+    border-width: 1px;
+    border-color: var(--lightslate);
+    border-radius: 2px;
+}
 
-    .row-text {
-        margin-right: 15px;
-        color: var(--primary100);
-    }
+.section-container:nth-child(1) {
+    margin-bottom: 15px;
+}
 
-    input {
-        margin-right: 15px;
-    }
+.row-text {
+    margin-right: 15px;
+    color: var(--primary100);
+}
 
-    p > span {
-        margin-left: 30px;
-    }
+input {
+    margin-right: 15px;
+}
 
-    .header {
-        display: grid;
-        grid-template-columns: [title] 1fr [icon] auto;
-    }
+p > span {
+    margin-left: 30px;
+}
 
-    .header > div:nth-child(1) {
-        grid-column-start: title;
-    }
+.header {
+    display: grid;
+    grid-template-columns: [title] 1fr [icon] auto;
+}
 
-    .header > div:nth-child(2) {
-        grid-column-start: icon;
-    }
+.header > div:nth-child(1) {
+    grid-column-start: title;
+}
+
+.header > div:nth-child(2) {
+    grid-column-start: icon;
+}
+
 </style>
