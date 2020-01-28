@@ -9,10 +9,10 @@ import { $ } from "../core/common";
 import { renderComponent } from "./renderComponent";
 
 export const _initialiseChildren = (initialiseOpts) => 
-                            (childrenProps, htmlElement, anchor=null) => {
+                            (childrenProps, htmlElement, context, anchor=null) => {
 
     const { uiFunctions, bb, coreApi, 
-        store, componentLibraries, childIndex,
+        store, componentLibraries, 
         appDefinition, parentContext, hydrate } = initialiseOpts;
         
     const childComponents = [];
@@ -23,7 +23,6 @@ export const _initialiseChildren = (initialiseOpts) =>
         }
     }
     
-    let childIndex = 0;
     for(let childProps of childrenProps) {       
         
         const {componentName, libName} = splitName(childProps._component);
@@ -31,25 +30,25 @@ export const _initialiseChildren = (initialiseOpts) =>
         if(!componentName || !libName) return;
         
         const {initialProps, bind} = setupBinding(
-                store, childProps, coreApi,  
-                appDefinition.appRootPath);
+                store, childProps, coreApi, 
+                context || parentContext, appDefinition.appRootPath);
 
-       
+        /// here needs to go inside renderComponent ???
+        const componentProps = {
+            ...initialProps, 
+            _bb:bb(context || parentContext, childProps)
+        };
+
         const componentConstructor = componentLibraries[libName][componentName];
 
-        const {component, context, lastChildIndex} = renderComponent({
+        const {component} = renderComponent({
             componentConstructor,uiFunctions, 
-            htmlElement, anchor, childIndex,  
-            parentContext, initialProps, bb});
+            htmlElement, anchor, 
+            parentContext, componentProps});
 
-        childIndex = lastChildIndex;
-        
-        const unsubscribe = bind(component);
-        childComponents.push({
-            component, 
-            context,
-            unsubscribe
-        });
+
+        bind(component);
+        childComponents.push(component);
     }
 
     return childComponents;
