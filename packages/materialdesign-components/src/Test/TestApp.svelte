@@ -1,35 +1,40 @@
 <script>
-  import createApp from "./createApp";
-  import { props } from "./props";
+import createApp from "./createApp";
+import { props } from "./props";
 
-  let _bb;
+let _bb;
 
-  const _appPromise = createApp();
-  _appPromise.then(a => (_bb = a));
+const _appPromise = createApp();
+_appPromise.then(a => _bb = a);
 
-  const testProps = props.justAnH1;
-  const button = props.button;
+const testProps = props.justAnH1;
 
-  let currentComponent;
+let currentComponent;
 
-  $: {
-    if (_bb && currentComponent) {
-      _bb.hydrateChildren([testProps, button], currentComponent);
+$: {
+    if(_bb && currentComponent) {
+        _bb.hydrateChildren([testProps], currentComponent);
     }
-  }
+}
+
+
+
 </script>
 
-<style>
-  #current_component {
-    height: 100%;
-    width: 100%;
-  }
-</style>
-
 {#await _appPromise}
-  loading
+loading
 {:then _bb}
 
-  <div id="current_component" bind:this={currentComponent} />
+<div id="current_component" bind:this={currentComponent}>
+</div>
 
 {/await}
+
+
+<style>
+#current_component {
+    height: 100%;
+    width: 100%;
+}
+</style>
+
