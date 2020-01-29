@@ -35,17 +35,16 @@ export const loadBudibase = async ({
         props = appDefinition.props;
     }
 
-    const app = createApp(
-        window.document,
+    const _app = createApp(
         componentLibraries, 
         appDefinition,  
         user, 
         uiFunctions || {});
-    app.hydrateChildren(
+    _app.hydrateChildren(
         [props],
         window.document.body);
 
-    return app;
+    return _app;
 };
 
 if(window) {

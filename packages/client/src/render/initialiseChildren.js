@@ -9,26 +9,20 @@ import { $ } from "../core/common";
 import { renderComponent } from "./renderComponent";
 
 export const _initialiseChildren = (initialiseOpts) => 
-                            (childrenProps, htmlElement, anchor=null) => {
+                            (childrenProps, htmlElement, context, anchor=null) => {
 
     const { uiFunctions, bb, coreApi, 
-        store, componentLibraries, treeNode,
-        appDefinition, document, hydrate } = initialiseOpts;
-
-    for(let childNode of treeNode.children) {
-        if(childNode.unsubscribe)
-            childNode.unsubscribe();
-        if(childNode.component)
-            childNode.component.$destroy();
-    }
+        store, componentLibraries, 
+        appDefinition, parentContext, hydrate } = initialiseOpts;
+        
+    const childComponents = [];
 
     if(hydrate) {
         while (htmlElement.firstChild) {
             htmlElement.removeChild(htmlElement.firstChild);
         }
     }
-
-    const renderedComponents = [];
+    
     for(let childProps of childrenProps) {       
         
         const {componentName, libName} = splitName(childProps._component);
@@ -36,25 +30,28 @@ export const _initialiseChildren = (initialiseOpts) =>
         if(!componentName || !libName) return;
         
         const {initialProps, bind} = setupBinding(
-                store, childProps, coreApi,  
-                appDefinition.appRootPath);
-       
+                store, childProps, coreApi, 
+                context || parentContext, appDefinition.appRootPath);
+
+        /// here needs to go inside renderComponent ???
+        const componentProps = {
+            ...initialProps, 
+            _bb:bb(context || parentContext, childProps)
+        };
+
         const componentConstructor = componentLibraries[libName][componentName];
 
-        const renderedComponentsThisIteration = renderComponent({
-            props: childProps,
-            parentNode: treeNode,
+        const {component} = renderComponent({
             componentConstructor,uiFunctions, 
-            htmlElement, anchor, initialProps, 
-            bb, document});
-        
-        for(let comp of renderedComponentsThisIteration) {
-            comp.unsubscribe = bind(comp.component);
-            renderedComponents.push(comp);
-        }   
+            htmlElement, anchor, 
+            parentContext, componentProps});
+
+
+        bind(component);
+        childComponents.push(component);
     }
 
-    return renderedComponents;
+    return childComponents;
 }
 
 const splitName = fullname => {
