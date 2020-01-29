@@ -2,10 +2,9 @@
     import PropsView from "./PropsView.svelte";
     import { store } from "../builderStore";
     import IconButton from "../common/IconButton.svelte";
-    import { LayoutIcon, PaintIcon, TerminalIcon, EventsIcon } from '../common/Icons/';
+    import { LayoutIcon, PaintIcon, TerminalIcon } from '../common/Icons/';
     import CodeEditor from './CodeEditor.svelte';
     import LayoutEditor from './LayoutEditor.svelte';
-    import EventsEditor from "./EventsEditor";
 
     let current_view = 'props';
 
@@ -37,11 +36,6 @@
             <TerminalIcon />
           </button>
         </li>
-        <li>
-          <button class:selected={current_view === 'events'} on:click={() => current_view = 'events'}>
-            <EventsIcon />
-          </button>
-        </li>
     </ul>
 
     {#if !componentInfo.component}
@@ -51,8 +45,6 @@
             <PropsView {componentInfo} {components} {onPropChanged} />
         {:else if current_view === 'layout'}
             <LayoutEditor {onStyleChanged} {componentInfo}/>
-        {:else if current_view === 'events'}
-            <EventsEditor {componentInfo} {components} {onPropChanged} />
         {:else}
             <CodeEditor />
         {/if}
