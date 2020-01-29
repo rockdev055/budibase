@@ -1,8 +1,13 @@
 <script>
   import InputGroup from '../common/Inputs/InputGroup.svelte';
 
-  export let onStyleChanged = () => {};
-  export let componentInfo;
+  let grid_values = ['', '', '', ''];
+  let column_values = ['', ''];
+  let row_values = ['', ''];
+  let gap_values = [''];
+  let margin_values = ['', '', '', ''];
+  let padding_values = ['', '', '', ''];
+  let zindex_values = [''];
 
   const tbrl = [
     { placeholder: 'T' },
@@ -17,27 +22,6 @@
   ]
 
   const single = [{ placeholder: '' }];
-
-
-  $: layout  = componentInfo._layout;
-
-  $: positions = {
-    gridarea: ['Grid Area', tbrl, 'small'],
-    column: ['Column', se],
-    row: ['Row', se],
-    gap: ['Gap', single],
-  };
-
-  $: spacing = {
-    margin: ['Margin', tbrl, 'small'],
-    padding: ['Padding', tbrl, 'small']
-  };
-
-  $: zindex = {
-    zindex: ['Z-Index', single]
-  }
-
-  const newValue = n => Array(n).fill('');
 </script>
 
 
@@ -46,41 +30,48 @@
 <h4>Positioning</h4>
 
 <div class="layout-pos">
- {#each Object.entries(positions) as [key, [name, meta, size]]}
-    <div class="grid">
-      <h5>Grid Area:</h5>
-      <InputGroup onStyleChanged={_value => onStyleChanged(key, _value)}
-                  values={layout[key] || newValue(meta.length)}
-                  {meta}
-                  {size} />
-    </div>
-  {/each}
+  <div class="grid">
+    <h5>Grid Area:</h5>
+    <InputGroup meta={tbrl} bind:values={grid_values} size="small"/>
+  </div>
+
+  <div class="grid">
+    <h5>Column:</h5>
+    <InputGroup meta={se} bind:values={column_values} />
+  </div>
+
+  <div class="grid">
+    <h5>Row:</h5>
+    <InputGroup meta={se} bind:values={row_values} />
+  </div>
+
+  <div class="grid">
+    <h5>Gap:</h5>
+    <InputGroup meta={single} bind:values={gap_values} />
+  </div>
 </div>
 
 <h4>Spacing</h4>
+
 <div class="layout-spacing">
-  {#each Object.entries(spacing) as [key, [name, meta, size]]}
-    <div class="grid">
-      <h5>Grid Area:</h5>
-      <InputGroup onStyleChanged={_value => onStyleChanged(key, _value)}
-                  values={layout[key] || newValue(meta.length)}
-                  {meta}
-                  {size} />
-    </div>
-  {/each}
+  <div class="grid">
+    <h5>Margin:</h5>
+    <InputGroup meta={tbrl} bind:values={margin_values} size="small"/>
+  </div>
+
+  <div  class="grid">
+    <h5>Padding:</h5>
+    <InputGroup meta={tbrl} bind:values={padding_values} size="small"/>
+  </div>
 </div>
 
 <h4>Z-Index</h4>
+
 <div class="layout-layer">
-  {#each Object.entries(zindex) as [key, [name, meta, size]]}
-    <div class="grid">
-      <h5>Grid Area:</h5>
-      <InputGroup onStyleChanged={_value => onStyleChanged(key, _value)}
-                  values={layout[key] || newValue(meta.length)}
-                  {meta}
-                  {size} />
-    </div>
-  {/each}
+  <div class="grid">
+    <h5>Z-Index:</h5>
+    <InputGroup meta={single} bind:values={zindex_values}/>
+  </div>
 </div>
 
 <style>
@@ -121,4 +112,5 @@
   .grid {
     grid-template-columns: 70px 1fr;
   }
+
 </style>

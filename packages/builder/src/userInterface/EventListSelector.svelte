@@ -1,39 +1,45 @@
 <script>
-    import IconButton from "../common/IconButton.svelte";
-    import EventSelector from "./EventSelector.svelte";
-    import {
-        filter
-    } from "lodash/fp";
-    import {EVENT_TYPE_MEMBER_NAME} from "../common/eventHandlers";
+import IconButton from "../common/IconButton.svelte";
+import EventSelector from "./EventSelector.svelte";
+import {
+    filter
+} from "lodash/fp";
+import {EVENT_TYPE_MEMBER_NAME} from "../common/eventHandlers";
 
-    export let parentProps;
-    export let propDef;
-    export let onValueChanged;
+export let parentProps;
+export let propDef;
+export let onValueChanged;
+export let onValidate = () => {};
 
-    $:  events = parentProps[propDef.____name];
+let events = [];
+let elementErrors = {};
 
-    const addHandler = () => {
-        const newHandler = {parameters:{}};
-        newHandler[EVENT_TYPE_MEMBER_NAME] = "";
-        events = [...events, newHandler];
-        onValueChanged(events);
-    }
+$: {
+    events = parentProps[propDef.____name];
+}
 
-    const onEventHandlerChanged = (oldEvent) => (newEvent) => {
-        const indexOfOldEvent = events.indexOf(oldEvent);
-        const newEvents = [...events];
-        newEvents.splice(
-            events.indexOf(oldEvent),
-            1,
-            newEvent);
-        events = newEvents;
-        onValueChanged(events);
-    }
+const addHandler = () => {
+    const newHandler = {parameters:{}};
+    newHandler[EVENT_TYPE_MEMBER_NAME] = "";
+    events = [...events, newHandler];
+    onValueChanged(events);
+}
 
-    const removeHandler = (index) => () => {
-        events = filter(e => e !== events[index])(events);
-        onValueChanged(events);
-    }
+const onEventHandlerChanged = (oldEvent) => (newEvent) => {
+    const indexOfOldEvent = events.indexOf(oldEvent);
+    const newEvents = [...events];
+    newEvents.splice(
+        events.indexOf(oldEvent),
+        1,
+        newEvent);
+    events = newEvents;
+    onValueChanged(events);
+}
+
+const removeHandler = (index) => () => {
+    events = filter(e => e !== events[index])(events);
+    onValueChanged(events);
+}
 
 </script>
 
@@ -61,28 +67,32 @@
 
 
 <style>
-    .addelement-container {
-        cursor: pointer;
-        padding: 3px 0px;
-        text-align: center;
-    }
 
-    .addelement-container:hover {
-        background-color: var(--primary25);
-        margin-top: 5px;
-    }
+.addelement-container {
+    cursor: pointer;
+    padding: 3px 0px;
+    text-align: center;
+}
 
 
-    .control-container {
-        padding-left: 3px;
-        background: var(--secondary10);
-    }
 
-    .separator {
-        width: 60%;
-        margin: 10px auto;
-        border-style:solid;
-        border-width: 1px 0 0 0;
-        border-color: var(--primary25);
-    }
+.addelement-container:hover {
+    background-color: var(--primary25);
+    margin-top: 5px;
+}
+
+
+.control-container {
+    padding-left: 3px;
+    background: var(--secondary10);
+}
+
+.separator {
+    width: 60%;
+    margin: 10px auto;
+    border-style:solid;
+    border-width: 1px 0 0 0;
+    border-color: var(--primary25);
+}
+
 </style>

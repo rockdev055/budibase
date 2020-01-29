@@ -4,7 +4,7 @@ import {
 import {
     filter, cloneDeep, sortBy,
     map, last, keys, concat, keyBy,
-    find, isEmpty, reduce, values, isEqual
+    find, isEmpty, reduce, values
 } from "lodash/fp";
 import {
     pipe, getNode, validate,
@@ -93,8 +93,8 @@ export const getStore = () => {
     store.createGeneratedComponents = createGeneratedComponents(store);
     store.addChildComponent = addChildComponent(store);
     store.selectComponent = selectComponent(store);
-    store.setComponentProp = setComponentProp(store);
-    store.setComponentStyle = setComponentStyle(store);
+    store.updateComponentProp = updateComponentProp(store);
+
     return store;
 }
 
@@ -456,10 +456,6 @@ const _saveScreen = (store, s, screen) => {
     return s;
 }
 
-const _save = (appname, screen, store, s) =>
-    api.post(`/_builder/api/${appname}/screen`, screen)
-        .then(() => savePackage(store, s));
-
 const createScreen = store => (screenName, layoutComponentName) => {
     store.update(s => {
         const newComponentInfo = getNewComponentInfo(
@@ -601,6 +597,8 @@ const addComponentLibrary = store => async lib => {
 
         return s;
     })
+
+
 }
 
 const removeComponentLibrary = store => lib => {
@@ -703,31 +701,17 @@ const addChildComponent = store => component => {
         const newComponent = getNewComponentInfo(
             s.components, component);
 
-        let children = s.currentComponentInfo.component ?
-            s.currentComponentInfo.component.props._children :
-            s.currentComponentInfo._children;
+        const children = s.currentFrontEndItem.props._children;
 
         const component_definition = Object.assign(
             cloneDeep(newComponent.fullProps), {
             _component: component,
-            _layout: {}
         })
 
-        if (children) {
-            if (s.currentComponentInfo.component) {
-                s.currentComponentInfo.component.props._children = children.concat(component_definition);
-            } else {
-                s.currentComponentInfo._children = children.concat(component_definition)
-            }
-        } else {
-            if (s.currentComponentInfo.component) {
-                s.currentComponentInfo.component.props._children = [component_definition];
-            } else {
-                s.currentComponentInfo._children = [component_definition]
-            }
-        }
-
-        _saveScreen(store, s, s.currentFrontEndItem);
+        s.currentFrontEndItem.props._children =
+            children ?
+                children.concat(component_definition) :
+                [component_definition];
 
         return s;
     })
@@ -741,7 +725,7 @@ const selectComponent = store => component => {
 
 }
 
-const setComponentProp = store => (name, value) => {
+const updateComponentProp = store => (name, value) => {
     store.update(s => {
         const current_component = s.currentComponentInfo;
         s.currentComponentInfo[name] = value;
@@ -749,18 +733,5 @@ const setComponentProp = store => (name, value) => {
         s.currentComponentInfo = current_component;
         return s;
     })
-}
 
-const setComponentStyle = store => (name, value) => {
-    store.update(s => {
-        if (!s.currentComponentInfo._layout) {
-            s.currentComponentInfo._layout = {};
-        }
-        s.currentComponentInfo._layout[name] = value;
-
-        // save without messing with the store
-        _save(s.appname, s.currentFrontEndItem, store, s)
-
-        return s;
-    })
 }
