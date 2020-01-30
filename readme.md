@@ -50,11 +50,9 @@ then `cd ` into your local copy...
 
 ### 3.  Install and Build
 
-`yarn` to install project dependencies
+`yarn bootstrap` will install all modules
 
-`yarn bootstrap` will install all budibase modules
-
-`yarn build` will build all budibase packages
+`yarn build` will build all packages
 
 `yarn initialise` will initialise your budibase (i.e. create local database)
 
