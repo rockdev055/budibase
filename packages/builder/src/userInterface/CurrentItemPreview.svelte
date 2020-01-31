@@ -1,41 +1,29 @@
 <script>
-import { store } from "../builderStore";
-import { makeLibraryUrl } from "../builderStore/loadComponentLibraries";
-import {
-    last, split, map, join
-} from "lodash/fp";
-import { pipe } from "../common/core";
-import { splitName } from "./pagesParsing/splitRootComponentName"
-import { afterUpdate } from 'svelte';
-import { getRootComponent } from "./pagesParsing/getRootComponent";
-import { buildPropsHierarchy } from "./pagesParsing/buildPropsHierarchy";
+    import { store } from "../builderStore";
+    import { map, join } from "lodash/fp";
+    import { pipe } from "../common/core";
+    import { buildPropsHierarchy } from "./pagesParsing/buildPropsHierarchy";
 
+    let iframe;
 
-let hasComponent=false;
-let stylesheetLinks = "";
-let appDefinition = {};
+    $: iframe && console.log(iframe.contentDocument.head.insertAdjacentHTML('beforeend', '<style></style>'))
+    $: hasComponent = !!$store.currentFrontEndItem;
+    $: styles = hasComponent ? $store.currentFrontEndItem._css : '';
 
-store.subscribe(s => {
-    hasComponent = !!s.currentFrontEndItem;
-
-    stylesheetLinks = pipe(s.pages.stylesheets, [
+    $: stylesheetLinks = pipe($store.pages.stylesheets, [
         map(s => `<link rel="stylesheet" href="${s}"/>`),
         join("\n")
     ]);
-    appDefinition = {
-        componentLibraries: s.loadLibraryUrls(),
+
+    $: appDefinition = {
+        componentLibraries: $store.loadLibraryUrls(),
         props: buildPropsHierarchy(
-                s.components,
-                s.screens,
-                s.currentFrontEndItem),
-        hierarchy: s.hierarchy,
+                $store.components,
+                $store.screens,
+                $store.currentFrontEndItem),
+        hierarchy: $store.hierarchy,
         appRootPath: ""
     };
-
-});
-
-
-
 </script>
 
 
@@ -43,6 +31,7 @@ store.subscribe(s => {
     {#if hasComponent}
     <iframe style="height: 100%; width: 100%"
             title="componentPreview"
+            bind:this={iframe}
             srcdoc={
 `<html>
 
@@ -52,7 +41,6 @@ store.subscribe(s => {
         window["##BUDIBASE_APPDEFINITION##"] = ${JSON.stringify(appDefinition)};
         import('/_builder/budibase-client.esm.mjs')
         .then(module => {
-            console.log(module, window);
             module.loadBudibase({ window, localStorage });
         })
     </script>
@@ -62,6 +50,7 @@ store.subscribe(s => {
             box-sizing: border-box;
             padding: 20px;
         }
+    ${styles}
     </style>
 </head>
 <body>
@@ -73,23 +62,21 @@ store.subscribe(s => {
 
 
 <style>
+    .component-container {
+        grid-row-start: middle;
+        grid-column-start: middle;
+        position: relative;
+        overflow: hidden;
+        padding-top: 56.25%;
+        margin: auto;
+    }
 
-.component-container {
-    grid-row-start: middle;
-    grid-column-start: middle;
-    position: relative;
-    overflow: hidden;
-    padding-top: 56.25%;
-    margin: auto;
-}
-
-.component-container iframe {
-    border: 0;
-    height: 100%;
-    left: 0;
-    position: absolute;
-    top: 0;
-    width: 100%;
-}
-
+    .component-container iframe {
+        border: 0;
+        height: 100%;
+        left: 0;
+        position: absolute;
+        top: 0;
+        width: 100%;
+    }
 </style>
