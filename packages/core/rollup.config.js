@@ -59,7 +59,7 @@ export default {
     external: [
         "lodash", "lodash/fp", "date-fns",
         "lunr", "safe-buffer", "shortid",
-        "@nx-js/compiler-util", "bcryptjs"
+        "@nx-js/compiler-util"
     ]
   };
 

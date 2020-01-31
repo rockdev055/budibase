@@ -1,36 +1,44 @@
 <script>
 
-    import Textbox from "../common/Textbox.svelte";
-    import Dropdown from "../common/Dropdown.svelte";
-    import Button from "../common/Button.svelte";
-    import { store } from "../builderStore";
-    import { isRootComponent } from "./pagesParsing/searchComponents";
-    import { pipe } from "../common/core";
-    import {
-        filter, find, concat
-    } from "lodash/fp";
+import Textbox from "../common/Textbox.svelte";
+import Dropdown from "../common/Dropdown.svelte";
+import Button from "../common/Button.svelte";
+import { store } from "../builderStore";
+import { isRootComponent } from "./pagesParsing/searchComponents";
+import { pipe } from "../common/core";
+import {
+    filter, find, concat
+} from "lodash/fp";
 
-    const notSeletedComponent = {name:"(none selected)"};
+let entryComponent;
+let title = "";
+let components = [];
+let page={};
+const notSeletedComponent = {name:"(none selected)"};
 
-    $: page = $store.pages[$store.currentPageName];
-    $: title = page.index.title;
-    $: components = pipe($store.components, [
-        filter(store => !isRootComponent($store)),
+store.subscribe(s => {
+    page = s.pages[s.currentPageName];
+    if(!page) return;
+    title = page.index.title;
+    components = pipe(s.components, [
+        filter(s => !isRootComponent(s)),
         concat([notSeletedComponent])
     ]);
-    $: entryComponent = find(c => c.name === page.appBody)(components) || notSeletedComponent;
+    entryComponent = find(c => c.name === page.appBody)(components);
+    if(!entryComponent) entryComponent = notSeletedComponent;
+});
 
-
-    const save = () => {
-        if(!title || !entryComponent || entryComponent === notSeletedComponent) return;
-        const page = {
-            index: {
-                title
-            },
-            appBody: entryComponent.name,
-        }
-        store.savePage(page);
+const save = () => {
+    if(!title || !entryComponent || entryComponent === notSeletedComponent) return;
+    const page = {
+        index: {
+            title
+        },
+        appBody: entryComponent.name,
     }
+    store.savePage(page);
+}
+
 </script>
 
 <div class="root">
@@ -53,11 +61,11 @@
 </div>
 
 <style>
-    .root {
-        padding: 15px;
-    }
-    .help-text {
-        color: var(--slate);
-        font-size: 10pt;
-    }
+.root {
+    padding: 15px;
+}
+.help-text {
+    color: var(--slate);
+    font-size: 10pt;
+}
 </style>
