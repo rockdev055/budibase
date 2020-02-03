@@ -1,34 +1,36 @@
 <script>
-  import flatpickr from "flatpickr"
-  import "flatpickr/dist/flatpickr.css"
-  import { onMount } from "svelte"
 
-  export let value
-  export let label
-  export let width = "medium"
-  export let size = "small"
+import flatpickr from "flatpickr";
+import "flatpickr/dist/flatpickr.css";
+import { onMount } from 'svelte';
 
-  let input
-  let fpInstance
+export let value;
+export let label;
+export let width = "medium";
+export let size = "small";
 
-  $: if (fpInstance) fpInstance.setDate(value)
+let input;
+let fpInstance;
 
-  onMount(() => {
-    fpInstance = flatpickr(input, {})
+$: if (fpInstance) fpInstance.setDate(value);
+
+onMount(() => {
+    fpInstance =  flatpickr(input, {});
 
     fpInstance.config.onChange.push(selectedDates => {
-      if (selectedDates.length > 0) value = new Date(selectedDates[0])
-    })
+        if(selectedDates.length > 0)
+            value = new Date(selectedDates[0]);
+    });
 
-    return fpInstance
-  })
+    return fpInstance;
+})
+
 </script>
 
 <div class="uk-margin">
-  <label class="uk-form-label">{label}</label>
-  <div class="uk-form-controls">
-    <input
-      class="uk-input uk-form-width-{width} uk-form-{size}"
-      bind:this={input} />
-  </div>
+    <label class="uk-form-label">{label}</label>
+    <div class="uk-form-controls">
+        <input class="uk-input uk-form-width-{width} uk-form-{size}" bind:this={input} >
+    </div>
 </div>
+

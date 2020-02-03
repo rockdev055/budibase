@@ -1,1 +1,5 @@
-export { $ } from "../../../core/src/common"
+
+export {
+    $
+} from "../../../core/src/common";
+

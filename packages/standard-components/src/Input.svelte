@@ -1,17 +1,22 @@
 <script>
-  export let value = ""
-  export let className = ""
-  export let type = "text"
 
-  export let _bb
+export let value="";
+export let className = "";
+export let type = "text";
 
-  let actualValue = ""
+export let _bb;
 
-  const onchange = ev => {
-    if (_bb) {
-      _bb.setStateFromBinding(_bb.props.value, ev.target.value)
-    }
-  }
+let actualValue = "";
+
+const onchange = (ev) => {
+	if(_bb) {
+		_bb.setStateFromBinding(_bb.props.value, ev.target.value);
+	}
+}
+
 </script>
 
-<input class={className} {type} {value} on:change={onchange} />
+<input class={className} 
+	   type={type} 
+	   value={value} 
+	   on:change={onchange}/>

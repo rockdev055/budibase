@@ -1,71 +1,95 @@
 <script>
-  import { store } from "../builderStore"
-  import { map, join } from "lodash/fp"
-  import { pipe } from "../common/core"
-  import { buildPropsHierarchy } from "./pagesParsing/buildPropsHierarchy"
+import { store } from "../builderStore";
+import { makeLibraryUrl } from "../builderStore/loadComponentLibraries";
+import {
+    last, split, map, join
+} from "lodash/fp";
+import { pipe } from "../common/core";
+import { splitName } from "./pagesParsing/splitRootComponentName"
+import { afterUpdate } from 'svelte';
+import { getRootComponent } from "./pagesParsing/getRootComponent";
+import { buildPropsHierarchy } from "./pagesParsing/buildPropsHierarchy";
 
-  let iframe
 
-  $: iframe &&
-    console.log(
-      iframe.contentDocument.head.insertAdjacentHTML(
-        "beforeend",
-        '<style ✂prettier:content✂=""></style>'
-      )
-    )
-  $: hasComponent = !!$store.currentFrontEndItem
-  $: styles = hasComponent ? $store.currentFrontEndItem._css : ""
+let hasComponent=false;
+let stylesheetLinks = "";
+let appDefinition = {};
 
-  $: stylesheetLinks = pipe($store.pages.stylesheets, [
-    map(s => `<link rel="stylesheet" href="${s}"/>`),
-    join("\n"),
-  ])
+store.subscribe(s => {
+    hasComponent = !!s.currentFrontEndItem;
 
-  $: appDefinition = {
-    componentLibraries: $store.loadLibraryUrls(),
-    props: buildPropsHierarchy(
-      $store.components,
-      $store.screens,
-      $store.currentFrontEndItem
-    ),
-    hierarchy: $store.hierarchy,
-    appRootPath: "",
-  }
+    stylesheetLinks = pipe(s.pages.stylesheets, [
+        map(s => `<link rel="stylesheet" href="${s}"/>`),
+        join("\n")
+    ]);
+    appDefinition = {
+        componentLibraries: s.loadLibraryUrls(),
+        props: buildPropsHierarchy(
+                s.components,
+                s.screens,
+                s.currentFrontEndItem),
+        hierarchy: s.hierarchy,
+        appRootPath: ""
+    };
+
+});
+
+
+
 </script>
 
+
 <div class="component-container">
-  {#if hasComponent}
-    <iframe
-      style="height: 100%; width: 100%"
-      title="componentPreview"
-      bind:this={iframe}
-      srcdoc={`<html>
+    {#if hasComponent}
+    <iframe style="height: 100%; width: 100%"
+            title="componentPreview"
+            srcdoc={
+`<html>
 
 <head>
     ${stylesheetLinks}
-    <script ✂prettier:content✂="CiAgICAgICAgd2luZG93WyIjI0JVRElCQVNFX0FQUERFRklOSVRJT04jIyJdID0gJHtKU09OLnN0cmluZ2lmeShhcHBEZWZpbml0aW9uKX07CiAgICAgICAgd2luZG93WyIjI0JVRElCQVNFX1VJRlVOQ1RJT05TIl0gPSAkeyRzdG9yZS5jdXJyZW50U2NyZWVuRnVuY3Rpb25zfTsKICAgICAgICAKICAgICAgICBpbXBvcnQoJy9fYnVpbGRlci9idWRpYmFzZS1jbGllbnQuZXNtLm1qcycpCiAgICAgICAgLnRoZW4obW9kdWxlID0+IHsKICAgICAgICAgICAgbW9kdWxlLmxvYWRCdWRpYmFzZSh7IHdpbmRvdywgbG9jYWxTdG9yYWdlIH0pOwogICAgICAgIH0pCiAgICA=">{}</script>    <style ✂prettier:content✂="CgogICAgICAgIGJvZHkgewogICAgICAgICAgICBib3gtc2l6aW5nOiBib3JkZXItYm94OwogICAgICAgICAgICBwYWRkaW5nOiAyMHB4OwogICAgICAgIH0KICAgICR7c3R5bGVzfQogICAg"></style></head>
+    <script>
+        window["##BUDIBASE_APPDEFINITION##"] = ${JSON.stringify(appDefinition)};
+        import('/_builder/budibase-client.esm.mjs')
+        .then(module => {
+            console.log(module, window);
+            module.loadBudibase({ window, localStorage });
+        })
+    </script>
+    <style>
+
+        body {
+            box-sizing: border-box;
+            padding: 20px;
+        }
+    </style>
+</head>
 <body>
 </body>
-</html>`} />
-  {/if}
+</html>`}>
+    </iframe>
+    {/if}
 </div>
 
+
 <style>
-  .component-container {
+
+.component-container {
     grid-row-start: middle;
     grid-column-start: middle;
     position: relative;
     overflow: hidden;
     padding-top: 56.25%;
     margin: auto;
-  }
+}
 
-  .component-container iframe {
+.component-container iframe {
     border: 0;
     height: 100%;
     left: 0;
     position: absolute;
     top: 0;
     width: 100%;
-  }
+}
+
 </style>

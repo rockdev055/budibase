@@ -1,14 +1,15 @@
-export const getRecordPath = () => {
-  const parts = []
+export const getRecordPath = (record) => {
 
-  const add = current => {
-    parts.push(current.name)
-    if (current.parent().type === "root") {
-      return
+    const parts = [];
+
+    const add = (current) => {
+        parts.push(current.name);
+        if(current.parent().type === "root") {
+            return;
+        }
+
+        add(current.parent());
     }
 
-    add(current.parent())
-  }
-
-  return parts.reverse().join("/")
+    return parts.reverse().join("/");
 }

@@ -1,72 +1,84 @@
 <script>
-  import { some, includes, filter } from "lodash/fp"
-  import Textbox from "../common/Textbox.svelte"
-  import Dropdown from "../common/Dropdown.svelte"
-  import PropControl from "./PropControl.svelte"
-  import IconButton from "../common/IconButton.svelte"
 
-  export let componentInfo
-  export let onPropChanged = () => {}
-  export let components
+import {
+    keys, map, some, includes,
+    cloneDeep, isEqual, sortBy,
+    filter, difference
+} from "lodash/fp";
+import { pipe } from "../common/core";
+import { getInstanceProps } from "./pagesParsing/createProps";
+import Checkbox from "../common/Checkbox.svelte";
+import Textbox from "../common/Textbox.svelte";
+import Dropdown from "../common/Dropdown.svelte";
+import PropControl from "./PropControl.svelte";
+import IconButton from "../common/IconButton.svelte";
 
-  let errors = []
-  let props = {}
+export let componentInfo;
+export let instanceProps = null;
+export let onPropsChanged = () => {};
+export let components;
 
-  const props_to_ignore = ["_component", "_children", "_styles", "_code", "_id"]
+let errors = [];
+let props = {};
+let propsDefinitions = [];
+let isInstance = false;
 
-  $: propDefs =
-    componentInfo &&
-    Object.entries(componentInfo).filter(
-      ([name]) => !props_to_ignore.includes(name)
-    )
+const props_to_ignore = ['_component','_children', '_layout'];
 
-  function find_type(prop_name) {
-    if (!componentInfo._component) return
-    return components.find(({ name }) => name === componentInfo._component)
-      .props[prop_name]
-  }
+$: propDefs = componentInfo && Object.entries(componentInfo).filter(([name])=> !props_to_ignore.includes(name));
 
-  let setProp = (name, value) => {
-    onPropChanged(name, value)
-  }
+function find_type(prop_name) {
+    if(!componentInfo._component) return;
+    return components.find(({name}) => name === componentInfo._component).props[prop_name];
+}
 
-  const fieldHasError = propName => some(e => e.propName === propName)(errors)
+let setProp = (name, value) => {
+    onPropsChanged(name, value);
+}
+
+const fieldHasError = (propName) =>
+    some(e => e.propName === propName)(errors);
+
 </script>
 
 <div class="root">
 
-  <form class="uk-form-stacked form-root">
-    {#each propDefs as [prop_name, prop_value], index}
-      <div class="prop-container">
+    <form class="uk-form-stacked form-root">
+        {#each propDefs as [prop_name, prop_value], index}
 
-        <PropControl
-          {setProp}
-          {prop_name}
-          {prop_value}
-          prop_type={find_type(prop_name)}
-          {index}
-          disabled={false} />
+            <div class="prop-container">
 
-      </div>
-    {/each}
+                <PropControl {setProp}
+                            {prop_name}
+                            {prop_value}
+                            prop_type={find_type(prop_name)}
+                            {index}
+                            disabled={false} />
 
-  </form>
+            </div>
+
+        {/each}
+
+    </form>
 
 </div>
 
-<style>
-  .root {
-    font-size: 10pt;
-    width: 100%;
-  }
 
-  .form-root {
+<style>
+
+.root {
+    font-size:10pt;
+    width: 100%;
+}
+
+.form-root {
     display: flex;
     flex-wrap: wrap;
-  }
+}
 
-  .prop-container {
+.prop-container {
     flex: 1 1 auto;
     min-width: 250px;
-  }
+}
+
 </style>

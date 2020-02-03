@@ -1,115 +1,116 @@
-import getRecordApi from "./recordApi"
-import getCollectionApi from "./collectionApi"
-import getIndexApi from "./indexApi"
-import getTemplateApi from "./templateApi"
-import getAuthApi from "./authApi"
-import getActionsApi from "./actionsApi"
-import { setupDatastore, createEventAggregator } from "./appInitialise"
-import { initialiseActions } from "./actionsApi/initialise"
-import { isSomething, crypto } from "./common"
-import { cleanup } from "./transactions/cleanup"
-import { generateFullPermissions } from "./authApi/generateFullPermissions"
-import { getApplicationDefinition } from "./templateApi/getApplicationDefinition"
-import common from "./common"
-import { getBehaviourSources } from "./templateApi/getBehaviourSources"
-import hierarchy from "./templateApi/hierarchy"
+import getRecordApi from "./recordApi";
+import getCollectionApi from "./collectionApi";
+import getIndexApi from "./indexApi";
+import getTemplateApi from "./templateApi";
+import getAuthApi from "./authApi";
+import getActionsApi from "./actionsApi";
+import {setupDatastore, createEventAggregator} from "./appInitialise";
+import {initialiseActions} from "./actionsApi/initialise"
+import {isSomething, crypto} from "./common";
+import {cleanup} from "./transactions/cleanup";
+import {generateFullPermissions} from "./authApi/generateFullPermissions";
+import {getApplicationDefinition} from "./templateApi/getApplicationDefinition";
+import common from "./common";
+import {getBehaviourSources} from "./templateApi/getBehaviourSources";
+import hierarchy from "./templateApi/hierarchy";
 
-export const getAppApis = async (
-  store,
-  behaviourSources = null,
-  cleanupTransactions = null,
-  getEpochTime = null,
-  crypto = null,
-  appDefinition = null
-) => {
-  store = setupDatastore(store)
+export const getAppApis = async (store, behaviourSources = null, 
+                                cleanupTransactions = null, 
+                                getEpochTime = null,
+                                crypto = null,
+                                appDefinition = null) => {
 
-  if (!appDefinition) appDefinition = await getApplicationDefinition(store)()
+    store = setupDatastore(store);
 
-  if (!behaviourSources) behaviourSources = await getBehaviourSources(store)
+    if(!appDefinition)
+        appDefinition = await getApplicationDefinition(store)();
 
-  const eventAggregator = createEventAggregator()
+    if(!behaviourSources)
+        behaviourSources = await getBehaviourSources(store);
 
-  const app = {
-    datastore: store,
-    crypto,
-    publish: eventAggregator.publish,
-    hierarchy: appDefinition.hierarchy,
-    actions: appDefinition.actions,
-  }
+    const eventAggregator = createEventAggregator();
 
-  const templateApi = getTemplateApi(app)
+    const app = {
+        datastore:store,
+        crypto,
+        publish:eventAggregator.publish,
+        hierarchy:appDefinition.hierarchy,
+        actions:appDefinition.actions
+    };
 
-  app.cleanupTransactions = isSomething(cleanupTransactions)
-    ? cleanupTransactions
-    : async () => await cleanup(app)
+    const templateApi = getTemplateApi(app);    
 
-  app.getEpochTime = isSomething(getEpochTime)
-    ? getEpochTime
-    : async () => new Date().getTime()
+    app.cleanupTransactions = isSomething(cleanupTransactions) 
+                              ? cleanupTransactions
+                              : async () => await cleanup(app);
 
-  const recordApi = getRecordApi(app)
-  const collectionApi = getCollectionApi(app)
-  const indexApi = getIndexApi(app)
-  const authApi = getAuthApi(app)
-  const actionsApi = getActionsApi(app)
+    app.getEpochTime = isSomething(getEpochTime)
+                       ? getEpochTime
+                       : async () => (new Date()).getTime();
 
-  const authenticateAs = async (username, password) => {
-    app.user = await authApi.authenticate(username, password)
-  }
+    const recordApi = getRecordApi(app);
+    const collectionApi = getCollectionApi(app);
+    const indexApi = getIndexApi(app);
+    const authApi = getAuthApi(app);
+    const actionsApi = getActionsApi(app);
 
-  const withFullAccess = () => userWithFullAccess(app)
+    const authenticateAs = async (username, password) => {
+        app.user = await authApi.authenticate(username, password);
+    };
 
-  const asUser = user => {
-    app.user = user
-  }
+    const withFullAccess = () => 
+        userWithFullAccess(app);    
 
-  let apis = {
-    recordApi,
-    templateApi,
-    collectionApi,
-    indexApi,
-    authApi,
-    actionsApi,
-    subscribe: eventAggregator.subscribe,
-    authenticateAs,
-    withFullAccess,
-    asUser,
-  }
+    const asUser = (user) => {
+        app.user = user
+    };    
 
-  apis.actions = initialiseActions(
-    eventAggregator.subscribe,
-    behaviourSources,
-    appDefinition.actions,
-    appDefinition.triggers,
-    apis
-  )
+    let apis = {
+        recordApi, 
+        templateApi,
+        collectionApi,
+        indexApi,
+        authApi,
+        actionsApi,
+        subscribe: eventAggregator.subscribe,
+        authenticateAs,
+        withFullAccess,
+        asUser
+    };
 
-  return apis
-}
+    apis.actions = initialiseActions(
+        eventAggregator.subscribe,
+        behaviourSources,
+        appDefinition.actions,
+        appDefinition.triggers,
+        apis);
 
-export const userWithFullAccess = app => {
-  app.user = {
-    name: "app",
-    permissions: generateFullPermissions(app),
-    isUser: false,
-    temp: false,
-  }
-  return app.user
-}
 
-export { events, eventsList } from "./common/events"
-export { getTemplateApi } from "./templateApi"
-export { getRecordApi } from "./recordApi"
-export { getCollectionApi } from "./collectionApi"
-export { getAuthApi } from "./authApi"
-export { getIndexApi } from "./indexApi"
-export { setupDatastore } from "./appInitialise"
-export { getActionsApi } from "./actionsApi"
-export { initialiseData } from "./appInitialise/initialiseData"
-export { getDatabaseManager } from "./appInitialise/databaseManager"
-export { hierarchy }
-export { common }
-export { crypto }
+    return apis;
+};
 
-export default getAppApis
+export const userWithFullAccess = (app) => {
+    app.user = {
+        name: "app",
+        permissions : generateFullPermissions(app),
+        isUser:false,
+        temp:false
+    }
+    return app.user;
+};
+
+export {events, eventsList} from "./common/events";
+export {getTemplateApi} from "./templateApi";
+export {getRecordApi} from "./recordApi";
+export {getCollectionApi} from "./collectionApi";
+export {getAuthApi} from "./authApi";
+export {getIndexApi} from "./indexApi";
+export {setupDatastore} from "./appInitialise";
+export {getActionsApi} from "./actionsApi";
+export {initialiseData} from "./appInitialise/initialiseData";
+export {getDatabaseManager} from "./appInitialise/databaseManager";
+export {hierarchy};
+export {common};
+export {crypto};
+
+export default getAppApis;

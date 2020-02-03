@@ -1,64 +1,71 @@
-import { isPlainObject, isArray, cloneDeep } from "lodash/fp"
-import { getExactComponent } from "./searchComponents"
+import { 
+    isPlainObject, isArray, cloneDeep
+} from "lodash/fp";
+import {
+    getExactComponent
+} from "./searchComponents";
 
 export const rename = (pages, screens, oldname, newname) => {
-  pages = cloneDeep(pages)
-  screens = cloneDeep(screens)
-  const changedScreens = []
 
-  const existingWithNewName = getExactComponent(screens, newname)
-  if (existingWithNewName)
-    return {
-      components: screens,
-      pages,
-      error: "Component by that name already exists",
-    }
+    pages = cloneDeep(pages);
+    screens = cloneDeep(screens);
+    const changedScreens = [];
 
-  const traverseProps = props => {
-    let hasEdited = false
-    if (props._component && props._component === oldname) {
-      props._component = newname
-      hasEdited = true
-    }
+    const existingWithNewName = getExactComponent(screens, newname);
+    if(existingWithNewName) return {
+        components: screens, pages, error: "Component by that name already exists"
+    };
 
-    for (let propName in props) {
-      const prop = props[propName]
-      if (isPlainObject(prop) && prop._component) {
-        hasEdited = traverseProps(prop) || hasEdited
-      }
-      if (isArray(prop)) {
-        for (let element of prop) {
-          hasEdited = traverseProps(element) || hasEdited
+    const traverseProps = (props) => {
+        let hasEdited = false;
+        if(props._component && props._component === oldname) {
+            props._component = newname;
+            hasEdited = true;
+        } 
+
+        for(let propName in props) {
+            const prop = props[propName];
+            if(isPlainObject(prop) && prop._component) {
+                hasEdited = traverseProps(prop) || hasEdited;
+            }
+            if(isArray(prop)) {
+                for(let element of prop) {
+                    hasEdited = traverseProps(element) || hasEdited;
+                }
+            }
         }
-      }
-    }
-    return hasEdited
-  }
-
-  for (let screen of screens) {
-    let hasEdited = false
-
-    if (screen.name === oldname) {
-      screen.name = newname
-      hasEdited = true
+        return hasEdited;
     }
 
-    if (screen.props._component === oldname) {
-      screen.props._component = newname
-      hasEdited = true
+
+    for(let screen of screens) {
+
+        let hasEdited = false;
+
+        if(screen.name === oldname) {
+            screen.name = newname;
+            hasEdited = true;
+        }
+
+        if(screen.props._component === oldname) {
+            screen.props._component = newname;
+            hasEdited = true;
+        }
+        
+        hasEdited = traverseProps(screen.props) || hasEdited;
+
+        if(hasEdited && screen.name !== newname)
+            changedScreens.push(screen.name);
     }
 
-    hasEdited = traverseProps(screen.props) || hasEdited
-
-    if (hasEdited && screen.name !== newname) changedScreens.push(screen.name)
-  }
-
-  for (let pageName in pages) {
-    const page = pages[pageName]
-    if (page.appBody === oldname) {
-      page.appBody = newname
+    for(let pageName in pages) {
+        const page = pages[pageName];
+        if(page.appBody === oldname) {
+            page.appBody = newname;
+        }
     }
-  }
 
-  return { screens, pages, changedScreens }
+    return {screens, pages, changedScreens};
+
+
 }

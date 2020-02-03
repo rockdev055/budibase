@@ -1,35 +1,37 @@
-import fs from "fs"
-import { join } from "path"
-import { promisify } from "es6-promisify"
-import _rimraf from "rimraf"
+import fs from "fs";
+import {join} from "path";
+import {promisify} from 'es6-promisify'; 
+import _rimraf from "rimraf";
 
-const mkdir = promisify(fs.mkdir)
-const rmdir = promisify(fs.rmdir)
-const rimraf = promisify(_rimraf)
+const mkdir = promisify(fs.mkdir);
+const rmdir = promisify(fs.rmdir);
+const rimraf = promisify(_rimraf);
 
 const getConfig = async () => {
-  const config = {
-    local: {
-      root: "./output/local/files",
-    },
-    memory: {
-      root: "./output/memory",
-    },
-    azure: {
-      root: "./output/azure",
-    },
-  }
 
-  await rimraf("./output")
-  await mkdir("./output")
+    const config = {
+        local: {
+            root: "./output/local/files"
+        },
+        memory: {
+            root:"./output/memory"
+        },
+        azure: {
+            root:"./output/azure"
+        }
+    };
 
-  for (let type in config) {
-    await mkdir(join("output", type))
-  }
+    await rimraf("./output");
+    await mkdir("./output");
 
-  await mkdir("./output/local/files")
+    for(let type in config) {
+        await mkdir(join("output", type));
+    }
 
-  return config
-}
+    await mkdir("./output/local/files");
 
-export default getConfig
+    return config;
+};
+
+
+export default getConfig;

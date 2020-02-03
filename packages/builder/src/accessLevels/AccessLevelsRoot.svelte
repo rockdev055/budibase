@@ -1,115 +1,119 @@
 <script>
-  import ButtonGroup from "../common/ButtonGroup.svelte"
-  import Button from "../common/Button.svelte"
-  import { store } from "../builderStore"
-  import { generateFullPermissions, getNewAccessLevel } from "../common/core"
-  import getIcon from "../common/icon"
-  import AccessLevelView from "./AccessLevelView.svelte"
-  import Modal from "../common/Modal.svelte"
 
-  let editingLevel = null
-  let editingLevelIsNew = false
-  $: isEditing = editingLevel !== null
+import ButtonGroup from "../common/ButtonGroup.svelte";
+import Button from "../common/Button.svelte";
+import {store} from "../builderStore";
+import {generateFullPermissions, getNewAccessLevel} from "../common/core";
+import getIcon from "../common/icon";
+import AccessLevelView from "./AccessLevelView.svelte";
+import Modal from "../common/Modal.svelte";
 
-  let allPermissions = []
-  store.subscribe(db => {
-    allPermissions = generateFullPermissions(db.hierarchy, db.actions)
-  })
+let editingLevel = null;
+let editingLevelIsNew = false;
+$: isEditing = (editingLevel !== null); 
 
-  let onLevelEdit = level => {
-    editingLevel = level
-    editingLevelIsNew = false
-  }
+let allPermissions = [];
+store.subscribe(db => {
+    allPermissions = generateFullPermissions(db.hierarchy, db.actions);
+})
 
-  let onLevelCancel = () => {
-    editingAction = null
-  }
+let onLevelEdit = (level) => {
+    editingLevel = level;
+    editingLevelIsNew = false;
+};
 
-  let onLevelDelete = level => {
-    store.deleteLevel(level)
-  }
+let onLevelCancel = () => {
+    editingAction = null;
+};
 
-  let createNewLevel = () => {
-    editingLevelIsNew = true
-    editingLevel = getNewAccessLevel()
-  }
+let onLevelDelete = (level) => {
+    store.deleteLevel(level);
+};
 
-  let onEditingFinished = level => {
-    if (level) {
-      store.saveLevel(level, editingLevelIsNew, editingLevel)
+
+let createNewLevel = () => {
+    editingLevelIsNew = true;
+    editingLevel = getNewAccessLevel();
+}
+
+let onEditingFinished = (level) => {
+    if(level) {
+        store.saveLevel(level, editingLevelIsNew, editingLevel);
     }
-    editingLevel = null
-  }
+    editingLevel = null;
+}
 
-  const getPermissionsString = perms => {
-    return `${perms.length} / ${allPermissions.length}`
-  }
+const getPermissionsString = perms => {
+    return `${perms.length} / ${allPermissions.length}`;
+}
+
 </script>
 
 <div class="root">
 
-  <ButtonGroup>
-    <Button grouped color="secondary" on:click={createNewLevel}>
-      Create New Access Level
-    </Button>
-  </ButtonGroup>
+<ButtonGroup>
+    <Button grouped color="secondary" on:click={createNewLevel}>Create New Access Level</Button>
+</ButtonGroup>
 
-  {#if $store.accessLevels}
-    <table class="fields-table uk-table uk-table-small">
-      <thead>
+{#if $store.accessLevels}
+<table class="fields-table uk-table uk-table-small">
+    <thead>
         <tr>
-          <th>Name</th>
-          <th>Permissions</th>
-          <th />
+            <th>Name</th>
+            <th>Permissions</th>
+            <th></th>
         </tr>
-      </thead>
-      <tbody>
+    </thead>
+    <tbody>
         {#each $store.accessLevels.levels as level}
-          <tr>
-            <td>{level.name}</td>
-            <td>{getPermissionsString(level.permissions)}</td>
+        <tr>
+            <td >{level.name}</td>
+            <td >{getPermissionsString(level.permissions)}</td>
             <td class="edit-button">
-              <span on:click={() => onLevelEdit(level)}>
-                {@html getIcon('edit')}
-              </span>
-              <span on:click={() => onLevelDelete(level)}>
-                {@html getIcon('trash')}
-              </span>
+                <span on:click={() => onLevelEdit(level)}>{@html getIcon("edit")}</span>
+                <span on:click={() => onLevelDelete(level)}>{@html getIcon("trash")}</span>
             </td>
-          </tr>
+        </tr>
         {/each}
-      </tbody>
-    </table>
-  {:else}(no actions added){/if}
+    </tbody>
+</table>
+{:else}
+(no actions added)
+{/if}
 
-  <Modal bind:isOpen={isEditing}>
+
+<Modal bind:isOpen={isEditing}>
     {#if isEditing}
-      <AccessLevelView
-        level={editingLevel}
-        {allPermissions}
-        onFinished={onEditingFinished}
-        isNew={editingLevelIsNew}
-        allLevels={$store.accessLevels.levels}
-        hierarchy={$store.hierarchy}
-        actions={$store.actions} />
-    {/if}
-  </Modal>
+    <AccessLevelView level={editingLevel}
+                     allPermissions={allPermissions}
+                     onFinished={onEditingFinished}
+                     isNew={editingLevelIsNew}
+                     allLevels={$store.accessLevels.levels}
+                     hierarchy={$store.hierarchy}
+                     actions={$store.actions} />
+    {/if}    
+</Modal>
+
 
 </div>
 
 <style>
-  .root {
+
+.root {
     height: 100%;
     position: relative;
     padding: 1.5rem;
-  }
 
-  .actions-header {
+}
+
+.actions-header {
     flex: 0 1 auto;
-  }
+}
 
-  .node-view {
+.node-view {
     overflow-y: auto;
     flex: 1 1 auto;
-  }
+}
+
+
 </style>

@@ -1,200 +1,190 @@
-import {
-  setupApphierarchy,
-  basicAppHierarchyCreator_WithFields,
-} from "./specHelpers"
-import { includes, union } from "lodash"
-import { joinKey } from "../src/common"
+import {setupApphierarchy, basicAppHierarchyCreator_WithFields} from "./specHelpers";
+import {includes, union} from "lodash";
+import {joinKey} from "../src/common";
+
 
 describe("collectionApi > getAllowedRecordTypes", () => {
-  it("should list names of a collection's children", async () => {
-    const { collectionApi } = await setupApphierarchy(
-      basicAppHierarchyCreator_WithFields
-    )
 
-    const allowedTypes = collectionApi.getAllowedRecordTypes("/customers")
-    expect(allowedTypes).toEqual(["customer"])
-  })
-})
+    it("should list names of a collection's children", async () => {
+        const {collectionApi} = 
+            await setupApphierarchy(basicAppHierarchyCreator_WithFields);
+
+        const allowedTypes = collectionApi.getAllowedRecordTypes("/customers");
+        expect(allowedTypes).toEqual(["customer"]);
+    });
+
+});
+
 
 describe("collectionApi > allids", () => {
-  it("should add new record to comma separated, sharded allids file, then read back as id array", async () => {
-    const { collectionApi, recordApi, appHierarchy } = await setupApphierarchy(
-      basicAppHierarchyCreator_WithFields
-    )
 
-    const customer1 = await recordApi.getNew(
-      appHierarchy.customerRecord.collectionNodeKey(),
-      "customer"
-    )
-    customer1.surname = "thedog"
+    it("should add new record to comma separated, sharded allids file, then read back as id array", async () => {
+        const {collectionApi, recordApi, appHierarchy} = 
+            await setupApphierarchy(basicAppHierarchyCreator_WithFields);
 
-    await recordApi.save(customer1)
+        const customer1 = await recordApi.getNew(
+            appHierarchy.customerRecord.collectionNodeKey(), "customer");
+        customer1.surname = "thedog";
+        
+        await recordApi.save(customer1);
+        
+        const customer2 = await recordApi.getNew(
+            appHierarchy.customerRecord.collectionNodeKey(), "customer");
+        customer2.surname = "thedog";
+        
+        await recordApi.save(customer2);
 
-    const customer2 = await recordApi.getNew(
-      appHierarchy.customerRecord.collectionNodeKey(),
-      "customer"
-    )
-    customer2.surname = "thedog"
+        const allIdsIterator = await collectionApi.getAllIdsIterator("/customers");
+        let allIds = [];
 
-    await recordApi.save(customer2)
+        let shardIds = await allIdsIterator();
+        while(shardIds.done === false) {
+            allIds = union(allIds, shardIds.result.ids);
+            shardIds = await allIdsIterator();
+        }
 
-    const allIdsIterator = await collectionApi.getAllIdsIterator("/customers")
-    let allIds = []
+        expect(allIds.length).toBe(2);
+        expect(includes(allIds, customer1.id)).toBeTruthy();
+        expect(includes(allIds, customer2.id)).toBeTruthy();
+        
+    });
 
-    let shardIds = await allIdsIterator()
-    while (shardIds.done === false) {
-      allIds = union(allIds, shardIds.result.ids)
-      shardIds = await allIdsIterator()
-    }
+    it("delete record should remove id from allids shard", async () => {
+        const {collectionApi, recordApi, appHierarchy} = 
+            await setupApphierarchy(basicAppHierarchyCreator_WithFields);
 
-    expect(allIds.length).toBe(2)
-    expect(includes(allIds, customer1.id)).toBeTruthy()
-    expect(includes(allIds, customer2.id)).toBeTruthy()
-  })
+        const customer1 = await recordApi.getNew(
+            appHierarchy.customerRecord.collectionNodeKey(), "customer");
+        customer1.surname = "thedog";
+        
+        await recordApi.save(customer1);
+        
+        const customer2 = await recordApi.getNew(
+            appHierarchy.customerRecord.collectionNodeKey(), "customer");
+        customer2.surname = "thedog";
+        
+        await recordApi.save(customer2);
+        
+        await recordApi.delete(customer1.key);
 
-  it("delete record should remove id from allids shard", async () => {
-    const { collectionApi, recordApi, appHierarchy } = await setupApphierarchy(
-      basicAppHierarchyCreator_WithFields
-    )
+        const allIdsIterator = await collectionApi.getAllIdsIterator("/customers");
+        let allIds = [];
 
-    const customer1 = await recordApi.getNew(
-      appHierarchy.customerRecord.collectionNodeKey(),
-      "customer"
-    )
-    customer1.surname = "thedog"
+        let shardIds = await allIdsIterator();
+        while(shardIds.done === false) {
+            allIds = union(allIds, shardIds.result.ids);
+            shardIds = await allIdsIterator();
+        }
 
-    await recordApi.save(customer1)
+        expect(allIds.length).toBe(1);
+        expect(includes(allIds, customer2.id)).toBeTruthy();
+        
+    });
 
-    const customer2 = await recordApi.getNew(
-      appHierarchy.customerRecord.collectionNodeKey(),
-      "customer"
-    )
-    customer2.surname = "thedog"
+    it("should add and read record, that starts with any allowed key char (testing correct sharding of allids)", async () => {
 
-    await recordApi.save(customer2)
+        const allIdChars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-".split("");
 
-    await recordApi.delete(customer1.key)
+        const {collectionApi, recordApi, appHierarchy} = 
+            await setupApphierarchy(basicAppHierarchyCreator_WithFields);
 
-    const allIdsIterator = await collectionApi.getAllIdsIterator("/customers")
-    let allIds = []
+        for(let c of allIdChars) {
+            const customer = await recordApi.getNew(
+                appHierarchy.customerRecord.collectionNodeKey(), "customer");
+            customer.surname = "thedog";   
+            const id = `${appHierarchy.customerRecord.nodeId}-${c}${customer.id.replace("0-","")}`;
+            customer.id = id;
+            await recordApi.save(customer); 
+        }        
 
-    let shardIds = await allIdsIterator()
-    while (shardIds.done === false) {
-      allIds = union(allIds, shardIds.result.ids)
-      shardIds = await allIdsIterator()
-    }
+        const allIdsIterator = await collectionApi.getAllIdsIterator("/customers");
+        let allIds = [];
 
-    expect(allIds.length).toBe(1)
-    expect(includes(allIds, customer2.id)).toBeTruthy()
-  })
+        let shardIds = await allIdsIterator();
+        while(shardIds.done === false) {
+            allIds = union(allIds, shardIds.result.ids);
+            shardIds = await allIdsIterator();
+        }
 
-  it("should add and read record, that starts with any allowed key char (testing correct sharding of allids)", async () => {
-    const allIdChars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-".split(
-      ""
-    )
+        expect(allIds.length).toBe(64);
+    });
 
-    const { collectionApi, recordApi, appHierarchy } = await setupApphierarchy(
-      basicAppHierarchyCreator_WithFields
-    )
+    it("should add nested record and read back", async () => {
+        const {collectionApi, recordApi, appHierarchy} = 
+            await setupApphierarchy(basicAppHierarchyCreator_WithFields);
 
-    for (let c of allIdChars) {
-      const customer = await recordApi.getNew(
-        appHierarchy.customerRecord.collectionNodeKey(),
-        "customer"
-      )
-      customer.surname = "thedog"
-      const id = `${
-        appHierarchy.customerRecord.nodeId
-      }-${c}${customer.id.replace("0-", "")}`
-      customer.id = id
-      await recordApi.save(customer)
-    }
+        const customer = await recordApi.getNew(
+            appHierarchy.customerRecord.collectionNodeKey(), "customer");
+        customer.surname = "thedog";
+        
+        await recordApi.save(customer);
+        
+        const invoiceCollectionKey = joinKey(
+            customer.key, "invoices"
+        );
 
-    const allIdsIterator = await collectionApi.getAllIdsIterator("/customers")
-    let allIds = []
+        const invoice = await recordApi.getNew(
+            invoiceCollectionKey, "invoice");
+        
+        await recordApi.save(invoice);
 
-    let shardIds = await allIdsIterator()
-    while (shardIds.done === false) {
-      allIds = union(allIds, shardIds.result.ids)
-      shardIds = await allIdsIterator()
-    }
+        const allIdsIterator = await collectionApi.getAllIdsIterator(
+            appHierarchy.invoiceRecord.collectionNodeKey());
 
-    expect(allIds.length).toBe(64)
-  })
+        let allIds = [];
 
-  it("should add nested record and read back", async () => {
-    const { collectionApi, recordApi, appHierarchy } = await setupApphierarchy(
-      basicAppHierarchyCreator_WithFields
-    )
+        let shardIds = await allIdsIterator();
+        while(shardIds.done === false) {
+            allIds = union(allIds, shardIds.result.ids);
+            shardIds = await allIdsIterator();
+        }
 
-    const customer = await recordApi.getNew(
-      appHierarchy.customerRecord.collectionNodeKey(),
-      "customer"
-    )
-    customer.surname = "thedog"
+        expect(allIds.length).toBe(1);
+        expect(includes(allIds, invoice.id)).toBeTruthy();
+        
+    });
 
-    await recordApi.save(customer)
+    it("should add double nested record, and read back", async () => {
+        const {collectionApi, recordApi, appHierarchy} = 
+        await setupApphierarchy(basicAppHierarchyCreator_WithFields);
 
-    const invoiceCollectionKey = joinKey(customer.key, "invoices")
+        const customer = await recordApi.getNew(
+            appHierarchy.customerRecord.collectionNodeKey(), "customer");
+        customer.surname = "thedog";
+        
+        await recordApi.save(customer);
+        
+        const invoiceCollectionKey = joinKey(
+            customer.key, "invoices"
+        );
 
-    const invoice = await recordApi.getNew(invoiceCollectionKey, "invoice")
+        const invoice = await recordApi.getNew(
+            invoiceCollectionKey, "invoice");
+        
+        await recordApi.save(invoice);
 
-    await recordApi.save(invoice)
+        const chargeCollectionKey = joinKey(
+            invoice.key, "charges"
+        );
 
-    const allIdsIterator = await collectionApi.getAllIdsIterator(
-      appHierarchy.invoiceRecord.collectionNodeKey()
-    )
+        const charge = await recordApi.getNew(
+            chargeCollectionKey, "charge");
+        
+        await recordApi.save(charge);
 
-    let allIds = []
+        const allIdsIterator = await collectionApi.getAllIdsIterator(
+            appHierarchy.chargeRecord.collectionNodeKey());
 
-    let shardIds = await allIdsIterator()
-    while (shardIds.done === false) {
-      allIds = union(allIds, shardIds.result.ids)
-      shardIds = await allIdsIterator()
-    }
+        let allIds = [];
 
-    expect(allIds.length).toBe(1)
-    expect(includes(allIds, invoice.id)).toBeTruthy()
-  })
+        let shardIds = await allIdsIterator();
+        while(shardIds.done === false) {
+            allIds = union(allIds, shardIds.result.ids);
+            shardIds = await allIdsIterator();
+        }
 
-  it("should add double nested record, and read back", async () => {
-    const { collectionApi, recordApi, appHierarchy } = await setupApphierarchy(
-      basicAppHierarchyCreator_WithFields
-    )
+        expect(allIds.length).toBe(1);
+        expect(includes(allIds, charge.id)).toBeTruthy();
+    });
 
-    const customer = await recordApi.getNew(
-      appHierarchy.customerRecord.collectionNodeKey(),
-      "customer"
-    )
-    customer.surname = "thedog"
-
-    await recordApi.save(customer)
-
-    const invoiceCollectionKey = joinKey(customer.key, "invoices")
-
-    const invoice = await recordApi.getNew(invoiceCollectionKey, "invoice")
-
-    await recordApi.save(invoice)
-
-    const chargeCollectionKey = joinKey(invoice.key, "charges")
-
-    const charge = await recordApi.getNew(chargeCollectionKey, "charge")
-
-    await recordApi.save(charge)
-
-    const allIdsIterator = await collectionApi.getAllIdsIterator(
-      appHierarchy.chargeRecord.collectionNodeKey()
-    )
-
-    let allIds = []
-
-    let shardIds = await allIdsIterator()
-    while (shardIds.done === false) {
-      allIds = union(allIds, shardIds.result.ids)
-      shardIds = await allIdsIterator()
-    }
-
-    expect(allIds.length).toBe(1)
-    expect(includes(allIds, charge.id)).toBeTruthy()
-  })
-})
+});

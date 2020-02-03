@@ -1,33 +1,38 @@
 <script>
-  import NoPackage from "./NoPackage.svelte"
-  import PackageRoot from "./PackageRoot.svelte"
-  import Settings from "./Settings.svelte"
-  import { store, initialise } from "./builderStore"
-  import { onMount } from "svelte"
-  import IconButton from "./common/IconButton.svelte"
+	
+	import NoPackage from "./NoPackage.svelte";
+	import PackageRoot from "./PackageRoot.svelte";
+	import Settings from "./Settings.svelte";
+	import {store, initialise} from "./builderStore";
+	import { onMount } from 'svelte';
+	import IconButton from "./common/IconButton.svelte";
 
-  let init = initialise()
+	let init = initialise();
+
 </script>
 
 <main>
 
-  {#await init}
+	{#await init}
+	
+		<h1>loading</h1>
 
-    <h1>loading</h1>
+	{:then result}
 
-  {:then result}
+		{#if $store.hasAppPackage}
+		<PackageRoot />
 
-    {#if $store.hasAppPackage}
-      <PackageRoot />
-    {:else}
-      <NoPackage />
-    {/if}
+		{:else}
 
-  {:catch err}
-    <h1 style="color:red">{err}</h1>
-  {/await}
+		<NoPackage />
+		{/if}
 
-  <!--
+
+	{:catch err}
+		<h1 style="color:red">{err}</h1>
+	{/await}
+
+<!--
 	<div class="settings">
 		<IconButton icon="settings"
                 on:click={store.showSettings}/>
@@ -41,15 +46,15 @@
 </main>
 
 <style>
-  main {
-    height: 100%;
-    width: 100%;
-    font-family: "Roboto", Helvetica, Arial, sans-serif;
-  }
+	main {
+		height: 100%;
+		width: 100%;
+		font-family: "Roboto", Helvetica, Arial, sans-serif;
+	}
 
-  .settings {
-    position: absolute;
-    bottom: 25px;
-    right: 25px;
-  }
+	.settings {
+		position: absolute;
+		bottom: 25px;
+		right: 25px;
+	}
 </style>

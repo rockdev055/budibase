@@ -1,35 +1,32 @@
 import {
   getNewRootLevel,
-  getNewRecordTemplate,
-  getNewIndexTemplate,
-  createNodeErrors,
-  constructHierarchy,
-  getNewAggregateGroupTemplate,
-  getNewSingleRecordTemplate,
-  getNewAggregateTemplate,
-  constructNode,
-} from "./createNodes"
-import { getNewField, validateField, addField, fieldErrors } from "./fields"
+  getNewRecordTemplate, getNewIndexTemplate,
+  createNodeErrors, constructHierarchy,
+  getNewAggregateGroupTemplate, getNewSingleRecordTemplate,
+  getNewAggregateTemplate, constructNode,
+}
+  from './createNodes';
 import {
-  getNewRecordValidationRule,
-  commonRecordValidationRules,
+  getNewField, validateField,
+  addField, fieldErrors,
+} from './fields';
+import {
+  getNewRecordValidationRule, commonRecordValidationRules,
   addRecordValidationRule,
-} from "./recordValidationRules"
-import { createAction, createTrigger } from "./createActions"
+} from './recordValidationRules';
+import { createAction, createTrigger } from './createActions';
 import {
-  validateTriggers,
-  validateTrigger,
-  validateNode,
-  validateActions,
-  validateAll,
-} from "./validate"
-import { getApplicationDefinition } from "./getApplicationDefinition"
-import { saveApplicationHierarchy } from "./saveApplicationHierarchy"
-import { saveActionsAndTriggers } from "./saveActionsAndTriggers"
-import { all } from "../types"
-import { getBehaviourSources } from "./getBehaviourSources"
+  validateTriggers, validateTrigger, validateNode,
+  validateActions, validateAll,
+} from './validate';
+import { getApplicationDefinition } from './getApplicationDefinition';
+import { saveApplicationHierarchy } from './saveApplicationHierarchy';
+import { saveActionsAndTriggers } from './saveActionsAndTriggers';
+import { all } from '../types';
+import { getBehaviourSources } from "./getBehaviourSources";
 
 const api = app => ({
+
   getApplicationDefinition: getApplicationDefinition(app.datastore),
   saveApplicationHierarchy: saveApplicationHierarchy(app),
   saveActionsAndTriggers: saveActionsAndTriggers(app),
@@ -57,10 +54,11 @@ const api = app => ({
   validateNode,
   validateAll,
   validateTriggers,
-})
+});
 
-export const getTemplateApi = app => api(app)
 
-export const errors = createNodeErrors
+export const getTemplateApi = app => api(app);
 
-export default getTemplateApi
+export const errors = createNodeErrors;
+
+export default getTemplateApi;

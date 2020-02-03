@@ -1,44 +1,47 @@
 <script>
-  export let formControls = []
 
-  export let _bb
+export let formControls = [];
 
-  let htmlElements = {}
-  let labelElements = {}
-  let labels = {}
-  let isInitialised = false
+export let _bb;
 
-  $: {
-    if (_bb && htmlElements && !isInitialised) {
-      let cIndex = 0
-      for (let c of formControls) {
-        labels[cIndex] = c.label
-        cIndex++
-      }
+let htmlElements = {};
+let labelElements = {};
+let labels = {};
+let isInitialised = false;
 
-      for (let el in htmlElements) {
-        if (formControls[el].control.controlPosition === "Before Label") {
-          _bb.insertChildren(
-            _bb.props.formControls[el].control,
-            htmlElements[el],
-            htmlElements[el].childNodes.find(n => n.tagName === "LABEL")
-          )
-        } else {
-          _bb.appendChildren(
-            _bb.props.formControls[el].control,
-            htmlElements[el]
-          )
+$ : {
+
+    if(_bb && htmlElements && !isInitialised) {
+
+        let cIndex = 0;
+        for(let c of formControls) {
+            labels[cIndex] = c.label;
+            cIndex++;
         }
-      }
-      isInitialised = true
+
+        for(let el in htmlElements) {
+            if(formControls[el].control.controlPosition === "Before Label") {
+                _bb.insertChildren(
+                    _bb.props.formControls[el].control,
+                    htmlElements[el],
+                    htmlElements[el].childNodes.find(n => n.tagName === "LABEL"));
+            } else {
+                _bb.appendChildren(
+                    _bb.props.formControls[el].control,
+                    htmlElements[el]);
+            }
+        }
+        isInitialised = true;
     }
-  }
+}
+
 </script>
 
 <form>
-  {#each formControls as child, idx}
+    {#each formControls as child, idx}
     <div class="form-group" bind:this={htmlElements[idx]}>
-      <label>{labels[idx]}</label>
+        <label>{labels[idx]}</label>
     </div>
-  {/each}
+    {/each}
 </form>
+
