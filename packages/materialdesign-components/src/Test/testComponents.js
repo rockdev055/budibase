@@ -1,3 +1,4 @@
-import { H1, Overline, button, icon, checkbox, textfield } from "@BBMD"
+import h1 from "../H1.svelte"
+import { button, icon } from "@BBMD"
 
-export default {H1, Overline, button, icon, checkbox, textfield }
+export default { h1, button, icon }

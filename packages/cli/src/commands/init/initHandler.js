@@ -51,7 +51,8 @@ const prompts = async opts => {
       mask: "*",
     })
 
-    if (password !== passwordConfirm) throw new Error("Passwords do not match!")
+    if (password !== passwordConfirm)
+      throw new Exception("Passwords do not match!")
 
     opts.password = password
   }

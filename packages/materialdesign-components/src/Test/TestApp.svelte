@@ -1,22 +1,19 @@
 <script>
   import createApp from "./createApp"
   import { props } from "./props"
+
   let _bb
-  const { h1, overline, button, textfield, checkbox } = props
+
+  const _appPromise = createApp()
+  _appPromise.then(a => (_bb = a))
+
+  const { h1, overline, button, textfield } = props
+
   let currentComponent
-  let _appPromise
+
   $: {
-    if (currentComponent) {
-      const _appPromise = createApp()
-      const page = {
-        props: {
-          _component: "testcomponents/rootComponent",
-          _children: [h1, overline, button, textfield, checkbox],
-        },
-      }
-      _appPromise.then(initialise => {
-        initialise(page, window.document.body, "")
-      })
+    if (_bb && currentComponent) {
+      _bb.hydrateChildren([h1, overline, button, textfield], currentComponent)
     }
   }
 </script>
@@ -24,7 +21,9 @@
 {#await _appPromise}
   loading
 {:then _bb}
+
   <div id="current_component" bind:this={currentComponent} />
+
 {/await}
 
 <style>

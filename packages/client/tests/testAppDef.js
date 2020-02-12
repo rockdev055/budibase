@@ -10,33 +10,15 @@ export const load = async (page, screens = [], url = "/") => {
     autoAssignIds(s.props)
   }
   setAppDef(dom.window, page, screens)
-  addWindowGlobals(dom.window, page, screens, uiFunctions, {
-    hierarchy: {},
-    actions: [],
-    triggers: [],
-  })
   const app = await loadBudibase({
     componentLibraries: allLibs(dom.window),
     window: dom.window,
     localStorage: createLocalStorage(),
-  })
-  return { dom, app }
-}
-
-const addWindowGlobals = (
-  window,
-  page,
-  screens,
-  uiFunctions,
-  appDefinition
-) => {
-  window["##BUDIBASE_BACKEND_DEFINITION##"] = appDefinition
-  window["##BUDIBASE_FRONTEND_DEFINITION##"] = {
     page,
     screens,
-    appRootPath: "",
-  }
-  window["##BUDIBASE_FRONTEND_FUNCTIONS##"] = uiFunctions
+    uiFunctions,
+  })
+  return { dom, app }
 }
 
 export const makePage = props => ({ props })

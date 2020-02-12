@@ -2,17 +2,20 @@ import { createApp } from "./createApp"
 import { trimSlash } from "./common/trimSlash"
 import { builtins, builtinLibName } from "./render/builtinComponents"
 
-export const loadBudibase = async (opts) => {
+export const loadBudibase = async ({
+  componentLibraries,
+  page,
+  screens,
+  window,
+  localStorage,
+  uiFunctions,
+}) => {
+  const backendDefinition = window["##BUDIBASE_BACKEND_DEFINITION##"]
+  const frontendDefinition = window["##BUDIBASE_FRONTEND_DEFINITION##"]
+  const uiFunctionsFromWindow = window["##BUDIBASE_FRONTEND_FUNCTIONS##"]
+  uiFunctions = uiFunctionsFromWindow || uiFunctions
 
-  let componentLibraries = opts && opts.componentLibraries
-  const _window = (opts && opts.window) || window
-  const _localStorage = (opts && opts.localStorage) || localStorage 
-
-  const backendDefinition = _window["##BUDIBASE_BACKEND_DEFINITION##"]
-  const frontendDefinition = _window["##BUDIBASE_FRONTEND_DEFINITION##"]
-  const uiFunctions = _window["##BUDIBASE_FRONTEND_FUNCTIONS##"]
-  
-  const userFromStorage = _localStorage.getItem("budibase:user")
+  const userFromStorage = localStorage.getItem("budibase:user")
 
   const user = userFromStorage
     ? JSON.parse(userFromStorage)
@@ -40,23 +43,32 @@ export const loadBudibase = async (opts) => {
     }
   }
 
-  componentLibraries[builtinLibName] = builtins(_window)
+  componentLibraries[builtinLibName] = builtins(window)
+
+  if (!page) {
+    page = frontendDefinition.page
+  }
+
+  if (!screens) {
+    screens = frontendDefinition.screens
+  }
 
   const { initialisePage, screenStore, pageStore, routeTo, rootNode } = createApp(
-    _window.document,
+    window.document,
     componentLibraries,
     frontendDefinition,
     backendDefinition,
     user,
-    uiFunctions || {}
+    uiFunctions || {},
+    screens
   )
 
-  const route = _window.location 
-                ? _window.location.pathname.replace(rootPath, "")
+  const route = window.location 
+                ? window.location.pathname.replace(rootPath, "")
                 : "";
 
   return {
-    rootNode: initialisePage(frontendDefinition.page, _window.document.body, route),
+    rootNode: initialisePage(page, window.document.body, route),
     screenStore,
     pageStore,
     routeTo,

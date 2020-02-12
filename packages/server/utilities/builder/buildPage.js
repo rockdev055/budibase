@@ -135,7 +135,7 @@ const buildFrontendAppDefinition = async (config, appname, pageName, pkg) => {
 
   await writeFile(
     filename,
-    `window['##BUDIBASE_FRONTEND_DEFINITION##'] = ${clientUiDefinition};
+    `window['##BUDIBASE_FRONTEND_DEINITION##'] = ${clientUiDefinition};
 window['##BUDIBASE_FRONTEND_FUNCTIONS##'] = ${pkg.uiFunctions}`
   )
 }
