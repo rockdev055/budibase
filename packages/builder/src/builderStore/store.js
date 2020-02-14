@@ -29,9 +29,7 @@ import { rename } from "../userInterface/pagesParsing/renameScreen"
 import {
   getNewScreen,
   createProps,
-  makePropsSafe,
 } from "../userInterface/pagesParsing/createProps"
-import { expandComponentDefinition } from "../userInterface/pagesParsing/types"
 import {
   loadLibs,
   loadLibUrls,
@@ -165,9 +163,7 @@ const initialise = (store, initial) => async () => {
   initial.accessLevels = pkg.accessLevels
   initial.screens = values(pkg.screens)
   initial.generators = generatorsArray(pkg.components.generators)
-  initial.components = values(pkg.components.components).map(
-    expandComponentDefinition
-  )
+  initial.components = values(pkg.components.components)
   initial.actions = values(pkg.appDefinition.actions)
   initial.triggers = pkg.appDefinition.triggers
 
@@ -469,22 +465,14 @@ const _saveScreen = async (store, s, screen) => {
   const currentPageScreens = s.pages[s.currentPageName]._screens
 
   await api
-    .post(
-      `/_builder/api/${s.appname}/pages/${s.currentPageName}/screen`,
-      screen
-    )
+    .post(`/_builder/api/${s.appname}/pages/${s.currentPageName}/screen`, screen)
     .then(async savedScreen => {
-      const updatedScreen = await savedScreen.json()
-      const screens = [
-        ...currentPageScreens.filter(
-          storeScreen => storeScreen.name !== updatedScreen.name
-        ),
-        updatedScreen,
-      ]
+      const updatedScreen = await savedScreen.json();
+      const screens = [...currentPageScreens.filter(storeScreen => storeScreen.name !== updatedScreen.name), updatedScreen];
       s.pages[s.currentPageName]._screens = screens
       s.screens = screens
-      _savePage(s)
-    })
+      _savePage(s);
+    });
 
   return s
 }
@@ -520,11 +508,7 @@ const setCurrentScreen = store => screenName => {
 
     s.currentPreviewItem = screen
     s.currentFrontEndType = "screen"
-
-    s.currentComponentInfo = makePropsSafe(
-      getContainerComponent(s.components),
-      screen.props
-    )
+    s.currentComponentInfo = screen.props
 
     setCurrentScreenFunctions(s)
     return s
@@ -591,7 +575,7 @@ const renameScreen = store => (oldname, newname) => {
     const saveAllChanged = async () => {
       for (let screenName of changedScreens) {
         const changedScreen = getExactComponent(screens, screenName)
-        await api.post(`/_builder/api/${s.appname}/screen`, changedScreen)
+        const updatedScreen = await api.post(`/_builder/api/${s.appname}/screen`, changedScreen)
       }
     }
 
@@ -636,7 +620,7 @@ const addComponentLibrary = store => async lib => {
     if (success) {
       const componentsArray = []
       for (let c in components) {
-        componentsArray.push(expandComponentDefinition(components[c]))
+        componentsArray.push(components[c])
       }
 
       s.components = pipe(s.components, [
@@ -687,7 +671,6 @@ const refreshComponents = store => async () => {
   const components = pipe(componentsAndGenerators.components, [
     keys,
     map(k => ({ ...componentsAndGenerators[k], name: k })),
-    map(c => expandComponentDefinition(c)),
   ])
 
   store.update(s => {
@@ -706,7 +689,7 @@ const _savePage = async s => {
   await api.post(`/_builder/api/${appname}/pages/${s.currentPageName}`, {
     page: { componentLibraries: s.pages.componentLibraries, ...page },
     uiFunctions: "{'1234':() => 'test return'}",
-    screens: page._screens,
+    screens: page.screens,
   })
 }
 
@@ -730,19 +713,13 @@ const setCurrentPage = store => pageName => {
     s.screens = Array.isArray(current_screens)
       ? current_screens
       : Object.values(current_screens)
-    s.currentComponentInfo = makePropsSafe(
-      getContainerComponent(s.components),
-      s.pages[pageName].props
-    )
+    s.currentComponentInfo = s.pages[pageName].props
     s.currentPreviewItem = s.pages[pageName]
 
     setCurrentScreenFunctions(s)
     return s
   })
 }
-
-const getContainerComponent = components =>
-  components.find(c => c.name === "@budibase/standard-components/container")
 
 const addChildComponent = store => componentName => {
   store.update(s => {
@@ -761,8 +738,7 @@ const addChildComponent = store => componentName => {
 
 const selectComponent = store => component => {
   store.update(s => {
-    const componentDef = s.components.find(c => c.name === component._component)
-    s.currentComponentInfo = makePropsSafe(componentDef, component)
+    s.currentComponentInfo = component
     return s
   })
 }
@@ -772,11 +748,9 @@ const setComponentProp = store => (name, value) => {
     const current_component = s.currentComponentInfo
     s.currentComponentInfo[name] = value
 
-    if (s.currentFrontEndType) {
-      _savePage(s)
-    } else {
-      _saveScreen(store, s, s.currentPreviewItem)
-    }
+    s.currentFrontEndType === "page"
+      ? _savePage(s, s.currentPreviewItem)
+      : _saveScreen(store, s, s.currentPreviewItem)
 
     s.currentComponentInfo = current_component
     return s

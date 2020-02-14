@@ -8,7 +8,9 @@
   export let index
   export let prop_name
   export let prop_value
-  export let prop_definition = {}
+  export let prop_type = {}
+
+  $: isOdd = index % 2 !== 0
 
   const setComponentProp = props => {
     setProp(propDef.____name, props)
@@ -16,12 +18,12 @@
 </script>
 
 <div class="root">
-  {#if prop_definition.type !== 'event'}
+  {#if prop_type !== 'event'}
     <h5>{prop_name}</h5>
     <StateBindingControl
       value={prop_value}
-      type={prop_definition.type}
-      options={prop_definition.options}
+      type={prop_type}
+      options={prop_type.options}
       onChanged={v => setProp(prop_name, v)} />
   {/if}
 </div>

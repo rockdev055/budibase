@@ -1,34 +1,19 @@
 <script>
   import createApp from "./createApp"
-  import { form } from "./props"
-  let _bb
-  let currentComponent
-  let _appPromise
+  import { props } from "./props"
 
-const autoAssignIds = (props, count = 0) => {
-  if (!props._id) {
-    props._id = `auto_id_${count}`
-  }
-  if (props._children) {
-    for (let child of props._children) {
-      count += 1
-      autoAssignIds(child, count)
-    }
-  }
-}
+  let _bb
+
+  const _appPromise = createApp()
+  _appPromise.then(a => (_bb = a))
+
+  const testProps = props.divWithAFewControls
+
+  let currentComponent
 
   $: {
-    if (currentComponent) {
-      const _appPromise = createApp()
-      const page = {
-        props: form,
-      }
-
-      autoAssignIds(page.props)
-
-      _appPromise.then(initialise => {
-        initialise(page, currentComponent, "")
-      })
+    if (_bb && currentComponent) {
+      _bb.hydrateChildren(testProps._children, currentComponent)
     }
   }
 </script>
@@ -36,7 +21,9 @@ const autoAssignIds = (props, count = 0) => {
 {#await _appPromise}
   loading
 {:then _bb}
+
   <div id="current_component" bind:this={currentComponent} />
+
 {/await}
 
 <style>

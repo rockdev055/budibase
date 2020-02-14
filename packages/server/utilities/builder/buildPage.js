@@ -151,10 +151,6 @@ const savePageJson = async (appPath, pageName, pkg) => {
     delete pkg.page.name
   }
 
-  if (pkg.page._screens) {
-    delete pkg.page._screens
-  }
-
   await writeJSON(pageFile, pkg.page, {
     spaces: 2,
   })

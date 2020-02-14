@@ -4,7 +4,7 @@ import { getStateOrValue } from "./state/getState"
 import { setState, setStateFromBinding } from "./state/setState"
 import { trimSlash } from "./common/trimSlash"
 import { isBound } from "./state/isState"
-import { attachChildren } from "./render/attachChildren"
+import { initialiseChildren } from "./render/initialiseChildren"
 import { createTreeNode } from "./render/renderComponent"
 import { screenRouter } from "./render/screenRouter"
 
@@ -59,13 +59,14 @@ export const createApp = (
 
   const onScreenSlotRendered = screenSlotNode => {
     const onScreenSelected = (screen, store, url) => {
-      const { getInitialiseParams, unsubscribe } = attachChildrenParams(store)
-      screenSlotNode.props._children = [screen.props]
-      const initialiseChildParams = getInitialiseParams(screenSlotNode)
-      attachChildren(initialiseChildParams)(screenSlotNode.rootElement, {
-        hydrate: true,
-        force: true,
-      })
+      const { getInitialiseParams, unsubscribe } = initialiseChildrenParams(
+        store
+      )
+      const initialiseChildParams = getInitialiseParams(true, screenSlotNode)
+      initialiseChildren(initialiseChildParams)(
+        [screen.props],
+        screenSlotNode.rootElement
+      )
       if (currentScreenUbsubscribe) currentScreenUbsubscribe()
       currentScreenUbsubscribe = unsubscribe
       currentScreenStore = store
@@ -76,19 +77,20 @@ export const createApp = (
     routeTo(currentUrl || window.location.pathname)
   }
 
-  const attachChildrenParams = store => {
+  const initialiseChildrenParams = store => {
     let currentState = null
     const unsubscribe = store.subscribe(s => {
       currentState = s
     })
 
-    const getInitialiseParams = treeNode => ({
+    const getInitialiseParams = (hydrate, treeNode) => ({
       bb: getBbClientApi,
       coreApi,
       store,
       document,
       componentLibraries,
       frontendDefinition,
+      hydrate,
       uiFunctions,
       treeNode,
       onScreenSlotRendered,
@@ -96,7 +98,18 @@ export const createApp = (
 
     const getBbClientApi = (treeNode, componentProps) => {
       return {
-        attachChildren: attachChildren(getInitialiseParams(treeNode)),
+        hydrateChildren: initialiseChildren(
+          getInitialiseParams(true, treeNode)
+        ),
+        appendChildren: initialiseChildren(
+          getInitialiseParams(false, treeNode)
+        ),
+        insertChildren: (props, htmlElement, anchor) =>
+          initialiseChildren(getInitialiseParams(false, treeNode))(
+            props,
+            htmlElement,
+            anchor
+          ),
         context: treeNode.context,
         props: componentProps,
         call: safeCallEvent,
@@ -121,17 +134,10 @@ export const createApp = (
     currentUrl = urlPath
 
     rootTreeNode = createTreeNode()
-    rootTreeNode.props = {
-      _children: [page.props],
-    }
-    rootTreeNode.rootElement = target
-    const { getInitialiseParams } = attachChildrenParams(pageStore)
-    const initChildParams = getInitialiseParams(rootTreeNode)
+    const { getInitialiseParams } = initialiseChildrenParams(pageStore)
+    const initChildParams = getInitialiseParams(true, rootTreeNode)
 
-    attachChildren(initChildParams)(target, {
-      hydrate: true,
-      force: true,
-    })
+    initialiseChildren(initChildParams)([page.props], target)
 
     return rootTreeNode
   }

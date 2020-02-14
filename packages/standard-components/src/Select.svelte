@@ -1,13 +1,12 @@
 <script>
   export let value = ""
   export let className = ""
+  export let type = "text"
+  export let options = []
 
   export let _bb
 
   let actualValue = ""
-  let selectElement;
-
-  $: selectElement && _bb.attachChildren(selectElement)
 
   const onchange = ev => {
     if (_bb) {
@@ -16,6 +15,9 @@
   }
 </script>
 
-<select class={className} {value} on:change={onchange} bind:this={selectElement}>
-
+<select class={className} {value} on:change={onchange}>
+  <option />
+  {#each options as opt}
+    <option id={opt.id ? opt.id : opt.value}>{opt.value}</option>
+  {/each}
 </select>

@@ -1,5 +1,5 @@
 {
-  "inherits": "@budibase/standard-components/container",
+  "inherits": "@budibase/standard-components/div",
   "name": "customer/customer homepage",
   "props": {
     "className": "d-flex flex-column h-100",

@@ -10,38 +10,46 @@
   export let components
 
   let errors = []
+  let props = {}
   const props_to_ignore = ["_component", "_children", "_styles", "_code", "_id"]
-  
-  $: componentDef = 
-      component && components &&
-      components.find(({ name }) => name === component._component)
 
-  
+  $: propDefs =
+    component &&
+    Object.entries(component).filter(
+      ([name]) => !props_to_ignore.includes(name)
+    )
+
+  function find_type(prop_name) {
+    if (!component._component) return
+    return components.find(({ name }) => name === component._component).props[
+      prop_name
+    ]
+  }
 
   let setProp = (name, value) => {
     onPropChanged(name, value)
   }
 
+  const fieldHasError = propName => some(e => e.propName === propName)(errors)
 </script>
 
 <div class="root">
 
   <form class="uk-form-stacked form-root">
-    {#if componentDef}
-    {#each Object.entries(componentDef.props) as [prop_name, prop_def], index}
+    {#each propDefs as [prop_name, prop_value], index}
       <div class="prop-container">
 
         <PropControl
           {setProp}
           {prop_name}
-          prop_value={component[prop_name]}
-          prop_definition={prop_def}
+          {prop_value}
+          prop_type={find_type(prop_name)}
           {index}
           disabled={false} />
 
       </div>
     {/each}
-    {/if}
+
   </form>
 
 </div>

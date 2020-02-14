@@ -51,21 +51,6 @@ export const createProps = (componentDefinition, derivedFromProps) => {
   }
 }
 
-export const makePropsSafe = (componentDefinition, props) => {
-  const safeProps = createProps(componentDefinition, props).props
-  for (let propName in safeProps) {
-    props[propName] = safeProps[propName]
-  }
-
-  for (let propName in props) {
-    if (safeProps[propName] === undefined) {
-      delete props[propName]
-    }
-  }
-
-  return props
-}
-
 const parsePropDef = propDef => {
   const error = message => ({ error: message, propDef })
 

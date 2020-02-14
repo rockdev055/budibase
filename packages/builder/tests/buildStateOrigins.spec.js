@@ -5,9 +5,8 @@ it("builds the correct stateOrigins object from a screen definition with handler
     "name": "screen1",
     "description": "",
     "props": {
-    "_component": "@budibase/standard-components/container",
+    "_component": "@budibase/standard-components/div",
       "className": "",
-      "type": "div",
       "onClick": [
         {
           "##eventHandlerType": "Set State",

@@ -73,7 +73,6 @@ const coreExternal = [
   "safe-buffer",
   "shortid",
   "@nx-js/compiler-util",
-  "bcryptjs",
 ]
 
 export default {
@@ -83,9 +82,6 @@ export default {
     format: "iife",
     name: "app",
     file: "public/bundle.js",
-    globals: {
-      crypto: "crypto",
-    },
   },
   plugins: [
     svelte({

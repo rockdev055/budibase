@@ -39,7 +39,7 @@ export const renderComponent = ({
 
     thisNode.rootElement = htmlElement.children[htmlElement.children.length - 1]
 
-    if (initialProps._id && thisNode.rootElement) {
+    if (initialProps._id) {
       thisNode.rootElement.classList.add(`pos-${initialProps._id}`)
     }
   }
