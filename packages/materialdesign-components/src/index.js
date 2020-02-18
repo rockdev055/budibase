@@ -6,5 +6,4 @@ export { textfield } from "./Textfield"
 export * from "./Typography"
 export { checkbox, checkboxgroup } from "./Checkbox"
 export { radiobutton, radiobuttongroup } from "./Radiobutton"
-export { label } from "./Common/Label.svelte"
 
