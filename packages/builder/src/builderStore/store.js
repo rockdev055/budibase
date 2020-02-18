@@ -30,7 +30,6 @@ import {
   getNewScreen,
   createProps,
   makePropsSafe,
-  getBuiltin,
 } from "../userInterface/pagesParsing/createProps"
 import { expandComponentDefinition } from "../userInterface/pagesParsing/types"
 import {
@@ -40,6 +39,7 @@ import {
 } from "./loadComponentLibraries"
 import { buildCodeForScreens } from "./buildCodeForScreens"
 import { generate_screen_css } from "./generate_css"
+import { insertCodeMetadata } from "./insertCodeMetadata"
 // import { uuid } from "./uuid"
 
 let appname = ""
@@ -157,7 +157,6 @@ const initialise = (store, initial) => async () => {
   }
 
   initial.libraries = await loadLibs(appname, pkg)
-
   initial.generatorLibraries = await loadGeneratorLibs(appname, pkg)
   initial.loadLibraryUrls = () => loadLibUrls(appname, pkg)
   initial.appname = appname
@@ -170,7 +169,6 @@ const initialise = (store, initial) => async () => {
   initial.components = values(pkg.components.components).map(
     expandComponentDefinition
   )
-  initial.builtins = [getBuiltin("##builtin/screenslot")]
   initial.actions = values(pkg.appDefinition.actions)
   initial.triggers = pkg.appDefinition.triggers
 
@@ -182,6 +180,7 @@ const initialise = (store, initial) => async () => {
   }
 
   store.set(initial)
+
   return initial
 }
 
@@ -748,9 +747,7 @@ const getContainerComponent = components =>
 
 const addChildComponent = store => componentName => {
   store.update(s => {
-    const component = componentName.startsWith("##")
-      ? getBuiltin(componentName)
-      : s.components.find(c => c.name === componentName)
+    const component = s.components.find(c => c.name === componentName)
     const newComponent = createProps(component)
 
     s.currentComponentInfo._children = s.currentComponentInfo._children.concat(
@@ -822,6 +819,8 @@ const setCurrentScreenFunctions = s => {
     s.currentPreviewItem === "screen"
       ? buildCodeForScreens([s.currentPreviewItem])
       : "({});"
+
+  insertCodeMetadata(s.currentPreviewItem.props)
 }
 
 const setScreenType = store => type => {
