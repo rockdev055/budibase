@@ -3,15 +3,14 @@
   import { props } from "./props"
   let _bb
   const {
-    H1,
-    Overline,
-    Button,
-    Textfield,
-    Checkbox,
-    Checkboxgroup,
-    Radiobutton,
-    Radiobuttongroup,
-    Datatable,
+    h1,
+    overline,
+    button,
+    textfield,
+    checkbox,
+    checkboxgroup,
+    radiobutton,
+    radiobuttongroup,
   } = props
 
   let currentComponent
@@ -23,15 +22,14 @@
         props: {
           _component: "testcomponents/rootComponent",
           _children: [
-            H1,
-            Overline,
-            Button,
-            Textfield,
-            Checkbox,
-            Checkboxgroup,
-            Radiobutton,
-            Radiobuttongroup,
-            Datatable,
+            h1,
+            overline,
+            button,
+            textfield,
+            checkbox,
+            checkboxgroup,
+            radiobutton,
+            radiobuttongroup,
           ],
         },
       }

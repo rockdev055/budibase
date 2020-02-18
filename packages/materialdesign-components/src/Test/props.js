@@ -1,17 +1,17 @@
 
 export const props = {
-  H1: {
+  h1: {
     _component: "@budibase/materialdesign-components/H1",
     _children: [],
     text: "Im a big header",
   },
-  Overline: {
+  overline: {
     _component: "@budibase/materialdesign-components/Overline",
     _children: [],
     text: "Im a wee overline",
   },
-  Button: {
-    _component: "@budibase/materialdesign-components/Button",
+  button: {
+    _component: "@budibase/materialdesign-components/button",
     _children: [],
     variant: "raised",
     colour: "secondary",
@@ -24,13 +24,13 @@ export const props = {
     disabled: false,
     onClick: () => alert`Button Clicked`,
   },
-  Icon: {
-    _component: "@budibase/materialdesign-components/Icon",
+  icon: {
+    _component: "@budibase/materialdesign-components/icon",
     _children: [],
     icon: "",
   },
-  Textfield: {
-    _component: "@budibase/materialdesign-components/Textfield",
+  textfield: {
+    _component: "@budibase/materialdesign-components/textfield",
     _children: [],
     label: "First",
     colour: "secondary",
@@ -39,15 +39,15 @@ export const props = {
     helperText: "Add Surname",
     onChange: text => console.log("Text: ", text),
   },
-  Checkbox: {
-    _component: "@budibase/materialdesign-components/Checkbox",
+  checkbox: {
+    _component: "@budibase/materialdesign-components/checkbox",
     _children: [],
     id: "test-check",
     label: "Check Yo Self",
     onClick: () => alert`Before ya reck yo'self`,
   },
-  Checkboxgroup: {
-    _component: "@budibase/materialdesign-components/Checkboxgroup",
+  checkboxgroup: {
+    _component: "@budibase/materialdesign-components/checkboxgroup",
     _children: [],
     label: "Whats your favourite?",
     items: [
@@ -57,15 +57,15 @@ export const props = {
     ],
     onChange: selectedItems => console.log(selectedItems),
   },
-  Radiobutton: {
-    _component: "@budibase/materialdesign-components/Radiobutton",
+  radiobutton: {
+    _component: "@budibase/materialdesign-components/radiobutton",
     _children: [],
     label: "Hi radio",
     alignEnd: true,
     onClick: () => alert`Roger That`,
   },
-  Radiobuttongroup: {
-    _component: "@budibase/materialdesign-components/Radiobuttongroup",
+  radiobuttongroup: {
+    _component: "@budibase/materialdesign-components/radiobuttongroup",
     _children: [],
     label: "Preferred method of contact: ",
     orientation: "column",
@@ -75,9 +75,5 @@ export const props = {
       { label: "Social Media", value: 3 },
     ],
     onChange: selected => console.log(selected),
-  },
-  Datatable: {
-    _component: "@budibase/materialdesign-components/Datatable",
-    _children: [],
-  },
+  }
 }
