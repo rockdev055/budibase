@@ -1,6 +1,7 @@
 const { readdir, stat, copyFile } = require("fs-extra")
 const { constants } = require("fs")
 const { join, basename } = require("path")
+const serverConfig = require("../../../server/config")()
 
 const packagesFolder = ".."
 
@@ -10,7 +11,11 @@ const sourceJs = jsFile("dist")
 const sourceJsMap = jsMapFile("dist")
 const componentsFile = "components.json"
 
-const appPackages = join(packagesFolder, "server", "appPackages")
+const appPackages = join(
+  packagesFolder,
+  "server",
+  serverConfig.latestPackagesFolder
+)
 
 const publicMain = appName =>
   join(
@@ -21,7 +26,7 @@ const publicMain = appName =>
     "lib",
     "node_modules",
     "@budibase",
-    "bootstrap-components"
+    "standard-components"
   )
 const publicUnauth = appName =>
   join(
@@ -32,7 +37,7 @@ const publicUnauth = appName =>
     "lib",
     "node_modules",
     "@budibase",
-    "bootstrap-components"
+    "standard-components"
   )
 const nodeModulesDist = appName =>
   join(
@@ -40,17 +45,11 @@ const nodeModulesDist = appName =>
     appName,
     "node_modules",
     "@budibase",
-    "bootstrap-components",
+    "standard-components",
     "dist"
   )
 const nodeModules = appName =>
-  join(
-    appPackages,
-    appName,
-    "node_modules",
-    "@budibase",
-    "bootstrap-components"
-  )
+  join(appPackages, appName, "node_modules", "@budibase", "standard-components")
 
 ;(async () => {
   const apps = await readdir(appPackages)
@@ -70,6 +69,7 @@ const nodeModules = appName =>
   const copyComponentsJson = copySource(componentsFile)
 
   for (let app of apps) {
+    if (app === ".data") continue
     if (!(await stat(join(appPackages, app))).isDirectory()) continue
 
     await copySourceJs(nodeModulesDist(app))
