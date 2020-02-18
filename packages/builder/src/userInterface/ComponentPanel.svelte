@@ -42,29 +42,28 @@
         <LayoutIcon />
       </button>
     </li>
-    {#if !component._component.startsWith('##')}
-      <li>
-        <button
-          class:selected={current_view === 'code'}
-          on:click={() => codeEditor && codeEditor.show()}>
-          {#if component._code && component._code.trim().length > 0}
-            <div class="button-indicator">
-              <CircleIndicator />
-            </div>
-          {/if}
-          <TerminalIcon />
-        </button>
-      </li>
-      <li>
-        <button
-          class:selected={current_view === 'events'}
-          on:click={() => (current_view = 'events')}>
-          <EventsIcon />
-        </button>
-      </li>
-    {/if}
+    <li>
+      <button
+        class:selected={current_view === 'code'}
+        on:click={() => codeEditor && codeEditor.show()}>
+        {#if component._code && component._code.trim().length > 0}
+          <div class="button-indicator">
+            <CircleIndicator />
+          </div>
+        {/if}
+        <TerminalIcon />
+      </button>
+    </li>
+    <li>
+      <button
+        class:selected={current_view === 'events'}
+        on:click={() => (current_view = 'events')}>
+        <EventsIcon />
+      </button>
+    </li>
   </ul>
   {$store.currentFrontEndType}
+
   <div class="component-props-container">
 
     {#if current_view === 'props'}
@@ -81,6 +80,8 @@
       onCodeChanged={store.setComponentCode} />
 
   </div>
+
+  
 
 </div>
 

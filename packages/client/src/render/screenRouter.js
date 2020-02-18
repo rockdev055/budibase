@@ -9,7 +9,6 @@ export const screenRouter = (screens, onScreenSelected) => {
   let current
 
   function route(url) {
-
     const _url = url.state || url
     current = routes.findIndex(
       p => p !== "*" && new RegExp("^" + p + "$").test(_url)
@@ -39,7 +38,7 @@ export const screenRouter = (screens, onScreenSelected) => {
 
     if (current !== -1) {
       onScreenSelected(screens[current], store, _url)
-    } else {
+    } else if (fallback) {
       onScreenSelected(screens[fallback], store, _url)
     }
 

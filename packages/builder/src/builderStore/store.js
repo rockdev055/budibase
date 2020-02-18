@@ -30,7 +30,6 @@ import {
   getNewScreen,
   createProps,
   makePropsSafe,
-  getBuiltin,
 } from "../userInterface/pagesParsing/createProps"
 import { expandComponentDefinition } from "../userInterface/pagesParsing/types"
 import {
@@ -40,6 +39,7 @@ import {
 } from "./loadComponentLibraries"
 import { buildCodeForScreens } from "./buildCodeForScreens"
 import { generate_screen_css } from "./generate_css"
+import { insertCodeMetadata } from "./insertCodeMetadata"
 // import { uuid } from "./uuid"
 
 let appname = ""
@@ -115,6 +115,7 @@ export const getStore = () => {
   store.setComponentStyle = setComponentStyle(store)
   store.setComponentCode = setComponentCode(store)
   store.setScreenType = setScreenType(store)
+  store.deleteComponent = deleteComponent(store)
   return store
 }
 
@@ -157,7 +158,6 @@ const initialise = (store, initial) => async () => {
   }
 
   initial.libraries = await loadLibs(appname, pkg)
-
   initial.generatorLibraries = await loadGeneratorLibs(appname, pkg)
   initial.loadLibraryUrls = () => loadLibUrls(appname, pkg)
   initial.appname = appname
@@ -170,7 +170,6 @@ const initialise = (store, initial) => async () => {
   initial.components = values(pkg.components.components).map(
     expandComponentDefinition
   )
-  initial.builtins = [getBuiltin("##builtin/screenslot")]
   initial.actions = values(pkg.appDefinition.actions)
   initial.triggers = pkg.appDefinition.triggers
 
@@ -182,7 +181,7 @@ const initialise = (store, initial) => async () => {
   }
 
   store.set(initial)
-  console.log(initial)
+
   return initial
 }
 
@@ -744,15 +743,12 @@ const setCurrentPage = store => pageName => {
   })
 }
 
-
 const getContainerComponent = components =>
   components.find(c => c.name === "@budibase/standard-components/container")
 
 const addChildComponent = store => componentName => {
   store.update(s => {
-    const component = componentName.startsWith("##")
-      ? getBuiltin(componentName)
-      : s.components.find(c => c.name === componentName)
+    const component = s.components.find(c => c.name === componentName)
     const newComponent = createProps(component)
 
     s.currentComponentInfo._children = s.currentComponentInfo._children.concat(
@@ -760,16 +756,14 @@ const addChildComponent = store => componentName => {
     )
 
     _savePage(s)
-      //console.log(JSON.stringify(s.screens[0].props._children))
+
     return s
   })
 }
 
 const selectComponent = store => component => {
   store.update(s => {
-    const componentDef = component._component.startsWith("##")
-      ? component
-      : s.components.find(c => c.name === component._component)
+    const componentDef = s.components.find(c => c.name === component._component)
     s.currentComponentInfo = makePropsSafe(componentDef, component)
     return s
   })
@@ -826,6 +820,8 @@ const setCurrentScreenFunctions = s => {
     s.currentPreviewItem === "screen"
       ? buildCodeForScreens([s.currentPreviewItem])
       : "({});"
+
+  insertCodeMetadata(s.currentPreviewItem.props)
 }
 
 const setScreenType = store => type => {
@@ -841,4 +837,40 @@ const setScreenType = store => type => {
     s.currentPreviewItem = pageOrScreen
     return s
   })
+}
+
+const deleteComponent = store => component => {
+  store.update(s => {
+    let parent
+    walkProps(s.currentPreviewItem.props, (p, breakWalk) => {
+      if (p._children.includes(component)) {
+        parent = p
+        breakWalk()
+      }
+    })
+
+    if (parent) {
+      parent._children = parent._children.filter(c => c !== component)
+    }
+
+    s.currentFrontEndType === "page"
+      ? _savePage(s)
+      : _saveScreenApi(s.currentPreviewItem, s)
+
+    return s
+  })
+}
+
+const walkProps = (props, action, cancelToken = null) => {
+  cancelToken = cancelToken || { cancelled: false }
+  action(props, () => {
+    cancelToken.cancelled = true
+  })
+
+  if (props._children) {
+    for (let child of props._children) {
+      if (cancelToken.cancelled) return
+      walkProps(child, action, cancelToken)
+    }
+  }
 }
