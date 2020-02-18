@@ -39,7 +39,6 @@ import {
 } from "./loadComponentLibraries"
 import { buildCodeForScreens } from "./buildCodeForScreens"
 import { generate_screen_css } from "./generate_css"
-import { insertCodeMetadata } from "./insertCodeMetadata"
 // import { uuid } from "./uuid"
 
 let appname = ""
@@ -819,8 +818,6 @@ const setCurrentScreenFunctions = s => {
     s.currentPreviewItem === "screen"
       ? buildCodeForScreens([s.currentPreviewItem])
       : "({});"
-
-  insertCodeMetadata(s.currentPreviewItem.props)
 }
 
 const setScreenType = store => type => {

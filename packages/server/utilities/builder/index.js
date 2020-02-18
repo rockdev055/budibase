@@ -18,7 +18,6 @@ const buildPage = require("./buildPage")
 const getPages = require("./getPages")
 const listScreens = require("./listScreens")
 const saveBackend = require("./saveBackend")
-const deleteCodeMeta = require("./deleteCodeMeta")
 
 module.exports.buildPage = buildPage
 module.exports.listScreens = listScreens
@@ -59,15 +58,12 @@ module.exports.saveScreen = async (config, appname, pagename, screen) => {
   if (screen._css) {
     delete screen._css
   }
-
-  deleteCodeMeta(screen.props)
-
   await writeJSON(compPath, screen, {
     encoding: "utf8",
     flag: "w",
     spaces: 2,
   })
-  return screen
+  return screen;
 }
 
 module.exports.renameScreen = async (

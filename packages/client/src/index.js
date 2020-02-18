@@ -43,12 +43,12 @@ export const loadBudibase = async (opts) => {
   componentLibraries[builtinLibName] = builtins(_window)
 
   const { initialisePage, screenStore, pageStore, routeTo, rootNode } = createApp(
+    _window.document,
     componentLibraries,
     frontendDefinition,
     backendDefinition,
     user,
-    uiFunctions || {},
-    _window
+    uiFunctions || {}
   )
 
   const route = _window.location 

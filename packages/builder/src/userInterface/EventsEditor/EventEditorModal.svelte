@@ -11,17 +11,15 @@
   import { EVENT_TYPE_MEMBER_NAME } from "../../common/eventHandlers"
 
   export let event
-  export let eventOptions = []
+  export let eventOptions
   export let open
   export let onClose
   export let onPropChanged
 
-  let eventType = ""
+  let eventType = "onClick"
   let draftEventHandler = { parameters: [] }
 
   $: eventData = event || { handlers: [] }
-  $: if (!eventOptions.includes(eventType) && eventOptions.length > 0) 
-      eventType = eventOptions[0].name
 
   const closeModal = () => {
     onClose()
@@ -76,7 +74,7 @@
         <h5>Event Type</h5>
         {@html getIcon('info', 20)}
       </header>
-      <Select bind:value={eventType}>
+      <Select :value={eventType}>
         {#each eventOptions as option}
           <option value={option.name}>{option.name}</option>
         {/each}

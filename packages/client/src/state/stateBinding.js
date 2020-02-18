@@ -23,8 +23,7 @@ const isMetaProp = propName =>
   propName === "_component" ||
   propName === "_children" ||
   propName === "_id" ||
-  propName === "_style" ||
-  propName === "_code"
+  propName === "_style"
 
 export const setupBinding = (store, rootProps, coreApi, context, rootPath) => {
   const rootInitialProps = { ...rootProps }

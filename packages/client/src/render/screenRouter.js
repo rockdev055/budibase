@@ -42,11 +42,7 @@ export const screenRouter = (screens, onScreenSelected) => {
       onScreenSelected(screens[fallback], store, _url)
     }
 
-    try {
-      !url.state && history.pushState(_url, null, _url)
-    } catch (_) {
-      // ignoring an exception here as the builder runs an iframe, which does not like this
-    }
+    !url.state && history.pushState(_url, null, _url)
   }
 
   function click(e) {
