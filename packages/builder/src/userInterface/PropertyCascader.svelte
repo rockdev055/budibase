@@ -15,7 +15,7 @@
   let bindingSource = "store"
   let bindingValue = ""
 
-  const bindValueToSource = (path, fallback, source) => {
+  const bind = (path, fallback, source) => {
     if (!path) {
       onChanged(fallback)
       return
@@ -25,12 +25,12 @@
   }
 
   const setBindingPath = value =>
-    bindValueToSource(value, bindingFallbackValue, bindingSource)
+    bind(value, bindingFallbackValue, bindingSource)
 
-  const setBindingFallback = value => bindValueToSource(bindingPath, value, bindingSource)
+  const setBindingFallback = value => bind(bindingPath, value, bindingSource)
 
-  const setBindingSource = source =>
-    bindValueToSource(bindingPath, bindingFallbackValue, source)
+  const setBindingSource = value =>
+    bind(bindingPath, bindingFallbackValue, value)
 
   $: {
     const binding = getBinding(value)

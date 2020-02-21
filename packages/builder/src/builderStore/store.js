@@ -680,14 +680,14 @@ const _savePage = async s => {
   })
 }
 
-const saveBackend = async state => {
+const saveBackend = async s => {
   await api.post(`/_builder/api/${appname}/backend`, {
     appDefinition: {
-      hierarchy: state.hierarchy,
-      actions: state.actions,
-      triggers: state.triggers,
+      hierarchy: s.hierarchy,
+      actions: s.actions,
+      triggers: s.triggers,
     },
-    accessLevels: state.accessLevels,
+    accessLevels: s.accessLevels,
   })
 }
 
