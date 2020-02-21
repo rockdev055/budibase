@@ -1,9 +1,8 @@
 <script>
-  import { ArrowDownIcon } from "../../common/Icons/"
-  import { store } from "../../builderStore"
-  import { buildStateOrigins } from "../../builderStore/buildStateOrigins"
-  import { isBinding, getBinding, setBinding } from "../../common/binding"
-  import StateBindingOptions from "./StateBindingOptions.svelte";
+  import { ArrowDownIcon } from "../common/Icons/"
+  import { store } from "../builderStore"
+  import { buildStateOrigins } from "../builderStore/buildStateOrigins"
+  import { isBinding, getBinding, setBinding } from "../common/binding"
 
   export let onChanged = () => {}
   export let value = ""
@@ -16,7 +15,7 @@
   let bindingSource = "store"
   let bindingValue = ""
 
-  const bindValueToSource = (path, fallback, source) => {
+  const bind = (path, fallback, source) => {
     if (!path) {
       onChanged(fallback)
       return
@@ -26,12 +25,12 @@
   }
 
   const setBindingPath = value =>
-    bindValueToSource(value, bindingFallbackValue, bindingSource)
+    bind(value, bindingFallbackValue, bindingSource)
 
-  const setBindingFallback = value => bindValueToSource(bindingPath, value, bindingSource)
+  const setBindingFallback = value => bind(bindingPath, value, bindingSource)
 
-  const setBindingSource = source =>
-    bindValueToSource(bindingPath, bindingFallbackValue, source)
+  const setBindingSource = value =>
+    bind(bindingPath, bindingFallbackValue, value)
 
   $: {
     const binding = getBinding(value)
@@ -59,20 +58,29 @@
         setBindingFallback(e.target.value)
         onChanged(e.target.value)
       }} />
-    <button on:click={() => (isOpen = !isOpen)}>
-      <div
-        class="icon"
-        class:highlighted={bindingPath}
-        style={`transform: rotate(${isOpen ? 0 : 90}deg);`}>
-        <ArrowDownIcon size={36} />
-      </div>
-    </button>
+    {#if stateBindings.length}
+      <button on:click={() => (isOpen = !isOpen)}>
+        <div
+          class="icon"
+          class:highlighted={bindingPath}
+          style={`transform: rotate(${isOpen ? 0 : 90}deg);`}>
+          <ArrowDownIcon size={36} />
+        </div>
+      </button>
+    {/if}
   </div>
   {#if isOpen}
-    <StateBindingOptions onSelect={option => { 
-      onChanged(option);
-      isOpen = false;
-    }} />
+    <ul class="options">
+      {#each stateBindings as stateBinding}
+        <li
+          class:bold={stateBinding === bindingPath}
+          on:click={() => {
+            setBindingPath(stateBinding === bindingPath ? null : stateBinding)
+          }}>
+          {stateBinding}
+        </li>
+      {/each}
+    </ul>
   {/if}
 </div>
 
@@ -107,15 +115,32 @@
     align-items: center;
   }
 
+  .options {
+    width: 172px;
+    margin: 0;
+    position: absolute;
+    top: 35px;
+    padding: 10px;
+    z-index: 1;
+    background: rgba(249, 249, 249, 1);
+    min-height: 50px;
+    border-radius: 2px;
+  }
+
+  li {
+    list-style-type: none;
+  }
+
+  li:hover {
+    cursor: pointer;
+    font-weight: bold;
+  }
+
   input {
     margin-right: 5px;
     border: 1px solid #dbdbdb;
     border-radius: 2px;
     opacity: 0.5;
     height: 40px;
-  }
-
-  .icon {
-    width: 24px;
   }
 </style>

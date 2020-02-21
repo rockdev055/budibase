@@ -171,14 +171,13 @@ const _setup = (
   for (let propName in props) {
     if (isMetaProp(propName)) continue
 
-    const propValue = props[propName]
+    const val = props[propName]
 
-    const binding = parseBinding(propValue)
+    const binding = parseBinding(val)
     const isBound = !!binding
-
     if (isBound) binding.propName = propName
 
-    if (isBound && binding.source === "state") {
+    if (isBound && binding.source === "store") {
       storeBoundProps.push(binding)
 
       initialProps[propName] = !currentStoreState
@@ -189,20 +188,16 @@ const _setup = (
             binding.fallback,
             binding.source
           )
-    } 
-    
-    if (isBound && binding.source === "context") {
+    } else if (isBound && binding.source === "context") {
       initialProps[propName] = !context
-        ? propValue
+        ? val
         : getState(context, binding.path, binding.fallback, binding.source)
-    } 
-    
-    if (isEventType(propValue)) {
+    } else if (isEventType(val)) {
       const handlersInfos = []
-      for (let event of propValue) {
+      for (let e of val) {
         const handlerInfo = {
-          handlerType: event[EVENT_TYPE_MEMBER_NAME],
-          parameters: event.parameters,
+          handlerType: e[EVENT_TYPE_MEMBER_NAME],
+          parameters: e.parameters,
         }
         const resolvedParams = {}
         for (let paramName in handlerInfo.parameters) {
@@ -211,20 +206,26 @@ const _setup = (
           if (!paramBinding) {
             resolvedParams[paramName] = () => paramValue
             continue
-          } 
-
-          let paramValueSource;
-
-          if (paramBinding.source === "context") paramValueSource = context;
-          if (paramBinding.source === "state") paramValueSource = getCurrentState();
-          if (paramBinding.source === "context") paramValueSource = context;
-
-          // The new dynamic event parameter bound to the relevant source
-          resolvedParams[paramName] = () => getState(
-            paramValueSource,
-            paramBinding.path,
-            paramBinding.fallback
-          );
+          } else if (paramBinding.source === "context") {
+            const val = getState(
+              context,
+              paramBinding.path,
+              paramBinding.fallback
+            )
+            resolvedParams[paramName] = () => val
+          } else if (paramBinding.source === "store") {
+            resolvedParams[paramName] = () =>
+              getState(
+                getCurrentState(),
+                paramBinding.path,
+                paramBinding.fallback
+              )
+            continue
+          } else if (paramBinding.source === "event") {
+            resolvedParams[paramName] = eventContext => {
+              getState(eventContext, paramBinding.path, paramBinding.fallback)
+            }
+          }
         }
 
         handlerInfo.parameters = resolvedParams
@@ -255,8 +256,8 @@ const makeHandler = (handlerTypes, handlerInfo) => {
   const handlerType = handlerTypes[handlerInfo.handlerType]
   return context => {
     const parameters = {}
-    for (let paramName in handlerInfo.parameters) {
-      parameters[paramName] = handlerInfo.parameters[paramName](context)
+    for (let p in handlerInfo.parameters) {
+      parameters[p] = handlerInfo.parameters[p](context)
     }
     handlerType.execute(parameters)
   }

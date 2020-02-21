@@ -15,4 +15,3 @@ export {
   DatatableRow,
 } from "./Datatable"
 export { default as indexDatatable } from "./Templates/indexDatatable"
-export { List } from "./List"

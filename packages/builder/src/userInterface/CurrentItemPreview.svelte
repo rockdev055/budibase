@@ -70,7 +70,6 @@
     hierarchy: $store.hierarchy,
   }
 
-  $: selectedComponentId = $store.currentComponentInfo ? $store.currentComponentInfo._id : ""
 </script>
 
 <div class="component-container">
@@ -85,11 +84,6 @@
 
     <style>
       ${styles || ''}
-
-      .pos-${selectedComponentId} {
-        border: 2px solid #0055ff;
-      }
-
       body, html {
         height: 100%!important;
       }
