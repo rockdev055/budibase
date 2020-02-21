@@ -40,27 +40,22 @@
       <div
         class="item"
         class:selected={currentComponent === component}
-        style="padding-left: {level * 20 + 53}px">
+        style="padding-left: {level * 20 + 15}px">
         <div>{get_capitalised_name(component._component)}</div>
         <div class="reorder-buttons">
           {#if index > 0}
             <button
-              class:solo={index === components.length - 1}
               on:click|stopPropagation={() => onMoveUpComponent(component)}>
               <ChevronUpIcon />
             </button>
           {/if}
           {#if index < components.length - 1}
-            <button
-              class:solo={index === 0}
-              on:click|stopPropagation={moveDownComponent(component)}>
+            <button on:click|stopPropagation={moveDownComponent(component)}>
               <ChevronDownIcon />
             </button>
           {/if}
         </div>
-        <button
-          class="copy"
-          on:click|stopPropagation={() => onCopyComponent(component)}>
+        <button on:click|stopPropagation={() => onCopyComponent(component)}>
           <CopyIcon />
         </button>
         <button on:click|stopPropagation={() => onDeleteComponent(component)}>
@@ -105,16 +100,9 @@
   .item button {
     display: none;
     height: 20px;
-    width: 28px;
+    width: 30px;
     color: var(--slate);
     padding: 0px 5px;
-    border-style: none;
-    background: rgba(0, 0, 0, 0);
-    cursor: pointer;
-  }
-
-  .item button.copy {
-    width: 26px;
   }
 
   .item:hover {
@@ -122,7 +110,10 @@
     cursor: pointer;
   }
   .item:hover button {
+    border-style: none;
+    background: rgba(0, 0, 0, 0);
     display: block;
+    cursor: pointer;
   }
 
   .item:hover button:hover {
@@ -143,11 +134,7 @@
 
   .reorder-buttons > button {
     flex: 1 1 auto;
+    height: 17px;
     width: 30px;
-    height: 15px;
-  }
-
-  .reorder-buttons > button.solo {
-    padding-top: 2px;
   }
 </style>
