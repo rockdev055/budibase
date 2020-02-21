@@ -1,13 +1,8 @@
 export default ({ indexes, helpers }) =>
   indexes.map(i => ({
     name: `Table based on index: ${i.name} `,
-    props: tableProps(
-      i,
-      helpers.indexSchema(i).filter(c => !excludedColumns.includes(c.name))
-    ),
+    props: tableProps(i, helpers.indexSchema(i)),
   }))
-
-const excludedColumns = ["id", "key", "sortKey", "type", "isNew"]
 
 const tableProps = (index, indexSchema) => ({
   _component: "@budibase/materialdesign-components/Datatable",

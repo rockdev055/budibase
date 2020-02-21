@@ -1,5 +1,5 @@
 import { isObject } from "lodash/fp"
-import { parseBinding } from "./parseBinding"
+import { BB_STATE_BINDINGPATH } from "./isState"
 
 export const setState = (store, path, value) => {
   if (!path || path.length === 0) return
@@ -30,8 +30,5 @@ export const setState = (store, path, value) => {
   })
 }
 
-export const setStateFromBinding = (store, binding, value) => {
-  const parsedBinding = parseBinding(binding)
-  if (!parsedBinding) return
-  return setState(store, parsedBinding.path, value)
-}
+export const setStateFromBinding = (store, binding, value) =>
+  setState(store, binding[BB_STATE_BINDINGPATH], value)

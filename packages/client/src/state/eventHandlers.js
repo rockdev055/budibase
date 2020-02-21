@@ -7,7 +7,7 @@ import { getNewChildRecordToState, getNewRecordToState } from "./coreHandlers"
 
 export const EVENT_TYPE_MEMBER_NAME = "##eventHandlerType"
 
-export const eventHandlers = (store, coreApi, rootPath, routeTo) => {
+export const eventHandlers = (store, coreApi, rootPath) => {
   const handler = (parameters, execute) => ({
     execute,
     parameters,
@@ -43,8 +43,6 @@ export const eventHandlers = (store, coreApi, rootPath, routeTo) => {
       ["collectionKey", "childRecordType", "statePath"],
       getNewRecordToState(coreApi, setStateWithStore)
     ),
-
-    "Navigate To": handler(["url"], param => routeTo(param && param.url)),
 
     Authenticate: handler(["username", "password"], api.authenticate),
   }
