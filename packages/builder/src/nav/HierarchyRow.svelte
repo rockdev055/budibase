@@ -13,16 +13,15 @@
     if (s.currentNode)
       navActive =
         s.activeNav === "database" && node.nodeId === s.currentNode.nodeId
-          ? "active"
-          : ""
   })
 </script>
 
-<div class="root">
+<div>
   <div
-    class="title {navActive}"
     on:click={() => store.selectExistingNode(node.nodeId)}
-    style="padding-left: {20 + level * 20}px">
+    class="budibase__nav-item"
+    style="padding-left: {20 + level * 20}px"
+    class:selected={navActive}>
     {@html getIcon(icon, 12)}
     <span style="margin-left: 1rem">{node.name}</span>
   </div>
@@ -37,27 +36,3 @@
     {/each}
   {/if}
 </div>
-
-<style>
-  .root {
-    display: block;
-    font-size: 0.9rem;
-    width: 100%;
-    cursor: pointer;
-    color: var(--secondary50);
-    font-weight: 500;
-  }
-
-  .title {
-    padding-top: 0.5rem;
-    padding-right: 0.5rem;
-  }
-
-  .title:hover {
-    background-color: var(--secondary10);
-  }
-
-  .active {
-    background-color: var(--primary10);
-  }
-</style>
