@@ -60,14 +60,12 @@
     display: flex;
     align-items: center;
     border-bottom: 1px solid #ddd;
-    box-sizing: border-box;
   }
 
   .content {
     flex: 1 1 auto;
     width: 100%;
     height: 100px;
-    overflow: hidden;
   }
 
   .content > div {
