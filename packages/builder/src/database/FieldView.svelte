@@ -7,7 +7,6 @@
   import ValuesList from "../common/ValuesList.svelte"
   import ErrorsBox from "../common/ErrorsBox.svelte"
   import Checkbox from "../common/Checkbox.svelte"
-  import ActionButton from "../common/ActionButton.svelte"
   import DatePicker from "../common/DatePicker.svelte"
   import {
     cloneDeep,
@@ -142,14 +141,18 @@
         label="Max Length"
         bind:value={clonedField.typeOptions.maxLength} />
     {/if}
+
   </form>
 
-  <div class="uk-modal-footer uk-text-right">
-    <ButtonGroup>
-      <ActionButton primary on:click={save}>Save</ActionButton>
-      <ActionButton alert on:click={() => onFinished(false)}>
-        Cancel
-      </ActionButton>
-    </ButtonGroup>
-  </div>
+  <ButtonGroup style="float: right;">
+    <Button color="primary" grouped on:click={save}>Save</Button>
+    <Button color="tertiary" grouped on:click={() => onFinished(false)}>
+      Cancel
+    </Button>
+  </ButtonGroup>
+
 </div>
+
+<style>
+
+</style>

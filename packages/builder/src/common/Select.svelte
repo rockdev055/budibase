@@ -19,7 +19,6 @@
     color: var(--secondary50);
     font-weight: bold;
     position: relative;
-    max-width: 300px;
   }
 
   select {

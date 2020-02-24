@@ -2,6 +2,8 @@
 
 export let _bb
 
+const cb =  _bb.getContext("BBMD:data-table:cb")
+
 let thead
 
 $: thead && _bb.attachChildren(thead)

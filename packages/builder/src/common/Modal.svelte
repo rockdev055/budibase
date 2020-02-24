@@ -1,11 +1,9 @@
 <script>
   import UIkit from "uikit"
-  import ActionButton from "../common/ActionButton.svelte"
 
   export let isOpen = false
   export let onClosed = () => {}
   export let id = ""
-  export let title
 
   let ukModal
   let listenerAdded = false
@@ -27,18 +25,11 @@
 </script>
 
 <div bind:this={ukModal} uk-modal {id}>
-  <div class="uk-modal-dialog" uk-overflow-auto>
-    {#if title}
-      <div class="uk-modal-header">
-        <h4 class="budibase__title--4">{title}</h4>
-      </div>
+  <div class="uk-modal-dialog uk-modal-body" uk-overflow-auto>
+    {#if onClosed}
+      <button class="uk-modal-close-default" type="button" uk-close />
     {/if}
-    <div class="uk-modal-body">
-      {#if onClosed}
-        <button class="uk-modal-close-default" type="button" uk-close />
-      {/if}
-      <slot />
-    </div>
+    <slot />
   </div>
 </div>
 

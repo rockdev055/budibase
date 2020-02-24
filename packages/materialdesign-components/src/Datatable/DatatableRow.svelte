@@ -9,7 +9,7 @@
   let row = null;
   let selected = false;
 
-  const cb = getContext("BBMD:data-table:cb");
+  const cb =  _bb.getContext("BBMD:data-table:cb")
 
   let elementName = isHeader ? "header-row" : "row";
   let modifiers = {};

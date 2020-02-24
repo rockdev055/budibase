@@ -4,7 +4,6 @@
   import Checkbox from "../common/Checkbox.svelte"
   import ButtonGroup from "../common/ButtonGroup.svelte"
   import Button from "../common/Button.svelte"
-  import ActionButton from "../common/ActionButton.svelte"
   import { validateAccessLevels } from "../common/core"
   import ErrorsBox from "../common/ErrorsBox.svelte"
 
@@ -65,11 +64,10 @@
 
   <form class="uk-form-horizontal">
 
-    <Textbox label="Access Level Name" bind:text={clonedLevel.name} />
+    <Textbox label="Name" bind:text={clonedLevel.name} />
 
-    <h4 class="budibase__title--4">Permissions</h4>
     {#each permissionMatrix as permission}
-      <div class="permission-container">
+      <div>
         <Checkbox
           label={getPermissionName(permission.permission)}
           checked={permission.hasPermission}
@@ -79,19 +77,15 @@
 
   </form>
 
-  <div class="uk-modal-footer uk-text-right">
-    <ButtonGroup>
-      <ActionButton primary grouped on:click={save}>Save</ActionButton>
-      <ActionButton alert grouped on:click={() => onFinished()}>
-        Cancel
-      </ActionButton>
-    </ButtonGroup>
-  </div>
+  <ButtonGroup style="margin-top: 10px">
+    <Button color="primary" grouped on:click={save}>Save</Button>
+    <Button color="secondary" grouped on:click={() => onFinished()}>
+      Cancel
+    </Button>
+  </ButtonGroup>
 
 </div>
 
 <style>
-  .permission-container {
-    margin-bottom: 10px;
-  }
+
 </style>

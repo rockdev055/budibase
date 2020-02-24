@@ -23,7 +23,7 @@
   }
 </script>
 
-<h3 class="budibase__title--3">Triggers</h3>
+<h3 class="title">Triggers</h3>
 
 {#if $store.triggers}
   <table class="fields-table uk-table uk-table-small uk-table-striped">
@@ -57,10 +57,7 @@
   </table>
 {:else}(no triggers added){/if}
 
-<Modal
-  title={editingTriggerIsNew ? 'Create Trigger' : 'Edit Trigger'}
-  onClosed={() => (isEditing = false)}
-  bind:isOpen={isEditing}>
+<Modal bind:isOpen={isEditing}>
   {#if isEditing}
     <TriggerView
       trigger={editingTrigger}
