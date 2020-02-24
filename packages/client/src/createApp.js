@@ -32,7 +32,6 @@ export const createApp = (
         uiFunctions,
         onScreenSlotRendered: () => {},
         routeTo,
-        appRootPath: frontendDefinition.appRootPath,
       })
       const getAttchChildrenParams = attachChildrenParams(stateManager)
       screenSlotNode.props._children = [screen.props]
@@ -79,7 +78,6 @@ export const createApp = (
     componentLibraries,
     uiFunctions,
     onScreenSlotRendered,
-    appRootPath: frontendDefinition.appRootPath,
     // seems weird, but the routeTo variable may not be available at this point
     routeTo: url => routeTo(url),
   })
