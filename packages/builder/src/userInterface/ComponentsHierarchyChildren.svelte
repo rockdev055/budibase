@@ -38,7 +38,7 @@
   {#each components as component, index (component._id)}
     <li on:click|stopPropagation={() => onSelect(component)}>
       <div
-        class="budibase__nav-item item"
+        class="item"
         class:selected={currentComponent === component}
         style="padding-left: {level * 20 + 53}px">
         <div>{get_capitalised_name(component._component)}</div>
@@ -98,6 +98,7 @@
     border-radius: 3px;
     height: 35px;
     align-items: center;
+    font-size: 0.8rem;
     font-weight: normal;
   }
 
@@ -126,6 +127,12 @@
 
   .item:hover button:hover {
     color: var(--button-text);
+  }
+
+  .selected {
+    color: var(--button-text);
+    background: var(--background-button) !important;
+    font-weight: 500;
   }
 
   .reorder-buttons {

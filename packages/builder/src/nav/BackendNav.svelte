@@ -105,8 +105,9 @@
   .nav-group-header {
     display: grid;
     grid-template-columns: [icon] auto [title] 1fr [button] auto;
-    padding: 2rem 1rem 1rem 1rem;
+    padding: 2rem 1rem 0rem 1rem;
     font-size: 0.9rem;
+    font-weight: bold;
   }
 
   .nav-group-header > div:nth-child(1) {
@@ -136,7 +137,6 @@
 
   .hierarchy-title {
     flex: auto 1 1;
-    text-transform: uppercase;
   }
 
   .hierarchy {

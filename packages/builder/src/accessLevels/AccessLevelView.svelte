@@ -4,7 +4,6 @@
   import Checkbox from "../common/Checkbox.svelte"
   import ButtonGroup from "../common/ButtonGroup.svelte"
   import Button from "../common/Button.svelte"
-  import ActionButton from "../common/ActionButton.svelte"
   import { validateAccessLevels } from "../common/core"
   import ErrorsBox from "../common/ErrorsBox.svelte"
 
@@ -65,7 +64,7 @@
 
   <form class="uk-form-horizontal">
 
-    <Textbox label="Access Level Name" bind:text={clonedLevel.name} />
+    <Textbox label="Name" bind:text={clonedLevel.name} />
 
     {#each permissionMatrix as permission}
       <div>
@@ -79,10 +78,10 @@
   </form>
 
   <ButtonGroup style="margin-top: 10px">
-    <ActionButton primary grouped on:click={save}>Save</ActionButton>
-    <ActionButton alert grouped on:click={() => onFinished()}>
+    <Button color="primary" grouped on:click={save}>Save</Button>
+    <Button color="secondary" grouped on:click={() => onFinished()}>
       Cancel
-    </ActionButton>
+    </Button>
   </ButtonGroup>
 
 </div>

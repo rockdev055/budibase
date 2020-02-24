@@ -129,7 +129,6 @@ export const props = {
       {
         text: { primary: "Pastie", secondary: "Bap with Mayo" },
         value: 1,
-        disabled: true,
       },
       { text: { primary: "Fish", secondary: "Salmon or Cod" }, value: 2 },
     ],

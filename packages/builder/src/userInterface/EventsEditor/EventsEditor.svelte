@@ -34,17 +34,10 @@
   let selectedEvent = null
 
   $: {
-    const componentDefinition = components.find(
-      c => c.name === component._component
-    )
+    const componentDefinition = components.find(c => c.name === component._component)
     events = Object.keys(componentDefinition.props)
-      .filter(
-        propName => componentDefinition.props[propName].type === EVENT_TYPE
-      )
-      .map(propName => ({
-        name: propName,
-        handlers: component[propName] || [],
-      }))
+      .filter(propName => componentDefinition.props[propName].type === EVENT_TYPE)
+      .map(propName => ({ name: propName, handlers: (component[propName] || []) }))
   }
 
   const openModal = event => {
@@ -68,8 +61,7 @@
     {#each events as event, index}
       {#if event.handlers.length > 0}
         <div
-          class:selected={selectedEvent && selectedEvent.index === index}
-          class="handler-container budibase__nav-item"
+          class="handler-container hierarchy-item {selectedEvent && selectedEvent.index === index ? 'selected' : ''}"
           on:click={() => openModal({ ...event, index })}>
           <span class="event-name">{event.name}</span>
           <span class="edit-text">EDIT</span>
@@ -115,6 +107,19 @@
     grid-template-columns: repeat(2, 1fr);
     border: 2px solid #f9f9f9;
     height: 80px;
+  }
+
+  .hierarchy-item {
+    cursor: pointer;
+    padding: 11px 7px;
+    margin: 5px 0;
+    border-radius: 5px;
+    font-size: 1.5em;
+    width: 100%;
+  }
+
+  .hierarchy-item:hover {
+    background: #f9f9f9;
   }
 
   .event-name {
