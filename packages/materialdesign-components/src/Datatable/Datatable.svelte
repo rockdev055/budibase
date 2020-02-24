@@ -30,11 +30,7 @@
 
   onMount(() => {
     return () => {
-      try {
-        !!instance && instance.destroy()
-      } catch(e) {
-        console.log(e)
-      }
+      !!instance && instance.destroy()
       instance = null
     }
   })

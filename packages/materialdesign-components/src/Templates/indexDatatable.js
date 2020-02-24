@@ -55,7 +55,11 @@ const dataCells = (index, indexSchema) =>
       {
         _component: "@budibase/standard-components/text",
         type: "none",
-        text: `context.${dataItem(index)}.${col.name}`,
+        text: {
+          "##bbstate": `${dataItem(index)}.${col.name}`,
+          "##bbstatefallback": "",
+          "##bbsource": "context",
+        },
       },
     ],
   }))

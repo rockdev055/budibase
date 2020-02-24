@@ -111,7 +111,7 @@
     <\script>
         window["##BUDIBASE_FRONTEND_DEFINITION##"] = ${JSON.stringify(frontendDefinition)};
         window["##BUDIBASE_BACKEND_DEFINITION##"] = ${JSON.stringify(backendDefinition)};
-        window["##BUDIBASE_FRONTEND_FUNCTIONS##"] = ${$store.currentPageFunctions};
+        window["##BUDIBASE_FRONTEND_FUNCTIONS##"] = ${$store.currentScreenFunctions};
 
         import('/_builder/budibase-client.esm.mjs')
         .then(module => {
