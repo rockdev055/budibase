@@ -517,7 +517,7 @@ const setCurrentScreen = store => screenName => {
       getContainerComponent(s.components),
       screen.props
     )
-    setCurrentPageFunctions(s)
+    setCurrentScreenFunctions(s)
     return s
   })
 }
@@ -675,7 +675,7 @@ const _savePage = async s => {
 
   await api.post(`/_builder/api/${appname}/pages/${s.currentPageName}`, {
     page: { componentLibraries: s.pages.componentLibraries, ...page },
-    uiFunctions: s.currentPageFunctions,
+    uiFunctions: "{'1234':() => 'test return'}",
     screens: page._screens,
   })
 }
@@ -709,11 +709,7 @@ const setCurrentPage = store => pageName => {
       s.currentPreviewItem.props,
     ])
 
-    for (let screen of s.screens) {
-      screen._css = generate_screen_css([screen.props])
-    }
-
-    setCurrentPageFunctions(s)
+    setCurrentScreenFunctions(s)
     return s
   })
 }
@@ -823,7 +819,7 @@ const setComponentCode = store => code => {
   store.update(s => {
     s.currentComponentInfo._code = code
 
-    setCurrentPageFunctions(s)
+    setCurrentScreenFunctions(s)
     // save without messing with the store
     _saveScreenApi(s.currentPreviewItem, s)
 
@@ -831,12 +827,14 @@ const setComponentCode = store => code => {
   })
 }
 
-const setCurrentPageFunctions = s => {
-  s.currentPageFunctions = buildPageCode(s.screens, s.pages[s.currentPageName])
+const setCurrentScreenFunctions = s => {
+  s.currentScreenFunctions =
+    s.currentPreviewItem === "screen"
+      ? buildCodeForScreens([s.currentPreviewItem])
+      : "({});"
+
   insertCodeMetadata(s.currentPreviewItem.props)
 }
-
-const buildPageCode = (screens, page) => buildCodeForScreens([page, ...screens])
 
 const setScreenType = store => type => {
   store.update(s => {

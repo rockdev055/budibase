@@ -17,7 +17,7 @@ export const setState = (store, path, value) => {
     if (
       state[currentKey] === null ||
       state[currentKey] === undefined ||
-      !isObject(state[currentKey])
+      !isObject(obj[currentKey])
     ) {
       state[currentKey] = {}
     }
