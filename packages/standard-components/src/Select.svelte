@@ -5,7 +5,7 @@
   export let _bb
 
   let actualValue = ""
-  let selectElement
+  let selectElement;
 
   $: selectElement && _bb.attachChildren(selectElement)
 
@@ -16,8 +16,6 @@
   }
 </script>
 
-<select
-  class={className}
-  {value}
-  on:change={onchange}
-  bind:this={selectElement} />
+<select class={className} {value} on:change={onchange} bind:this={selectElement}>
+
+</select>

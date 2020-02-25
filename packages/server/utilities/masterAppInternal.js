@@ -5,7 +5,7 @@ const {
 } = require("./budibaseApi")
 const getDatastore = require("./datastore")
 const getDatabaseManager = require("./databaseManager")
-const { $ } = require("@budibase/core").common
+const { $, splitKey } = require("@budibase/core").common
 const { keyBy, values } = require("lodash/fp")
 const {
   masterAppPackage,
@@ -108,7 +108,13 @@ module.exports = async context => {
     await bbInstance.authApi.createUser(user, password)
   }
 
-  const authenticate = async (sessionId, appname, username, password) => {
+  const authenticate = async (
+    sessionId,
+    appname,
+    username,
+    password,
+    instanceName = "default"
+  ) => {
     if (isMaster(appname)) {
       const authUser = await bb.authApi.authenticate(username, password)
       if (!authUser) {

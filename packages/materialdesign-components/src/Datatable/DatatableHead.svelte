@@ -1,11 +1,13 @@
 <script>
-  export let _bb
 
-  const cb = _bb.getContext("BBMD:data-table:cb")
+export let _bb
 
-  let thead
+const cb =  _bb.getContext("BBMD:data-table:cb")
 
-  $: thead && _bb.attachChildren(thead)
+let thead
+
+$: thead && _bb.attachChildren(thead)
+
 </script>
 
-<thead bind:this={thead} class="className" />
+<thead bind:this={thead} class=className></thead>

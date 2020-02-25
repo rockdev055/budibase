@@ -1,8 +1,9 @@
+import fs from "fs"
 import { mkdir } from "fs"
 import { join } from "path"
 import { promisify } from "es6-promisify"
 
-const mkdirp = promisify(mkdir)
+mkdirp = promisify(mkdir)
 
 const getConfig = async () => {
   const config = {
@@ -12,13 +13,15 @@ const getConfig = async () => {
     memory: {},
   }
 
-  await mkdirp("./output")
+  try {
+    await mkdir("./output")
+  } catch (e) {}
 
   for (let type in config) {
-    await mkdirp(join("output", type))
+    await mkdir(join("output", type))
   }
 
-  await mkdirp("./output/local/files")
+  await mkdir("./output/local/files")
 
   return config
 }

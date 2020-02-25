@@ -1,10 +1,12 @@
 <script>
-  export let className = ""
-  export let _bb
 
-  let thead
+export let className=""
+export let _bb
 
-  $: _bb.attachChildren(thead)
+let thead
+
+$: _bb.attachChildren(thead)
+
 </script>
 
-<tbody bind:this={thead} class="className" />
+<tbody bind:this={thead} class=className></tbody>

@@ -24,5 +24,5 @@ initialise()
   .then(init => {
     return tests(init.datastore, init.config)
   })
-  .then(() => console.log("done"))
+  .then(_ => console.log("done"))
   .catch(e => console.log(e))
