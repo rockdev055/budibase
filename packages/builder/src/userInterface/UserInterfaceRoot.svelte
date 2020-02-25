@@ -121,7 +121,6 @@
     background-color: var(--secondary5);
     height: 100%;
     padding: 0 1.5rem 0rem 0;
-    overflow-y: auto;
   }
 
   .preview-pane {

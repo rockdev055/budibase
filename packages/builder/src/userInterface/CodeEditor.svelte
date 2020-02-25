@@ -65,7 +65,7 @@
 
       <div>
         <div class="editor-code-surround">
-          function(render, context, state, route) {'{'}
+          function(render, context, store) {'{'}
         </div>
         <div class="editor">
           <textarea bind:this={editor} />
