@@ -13,9 +13,7 @@ const copyfolder = (source, destination) =>
     })
   })
 
-exports.copyfolder = copyfolder
-
-module.exports = async context => {
+module.exports = async (context, bbMaster, latestAppsFolder) => {
   // create runtime folder
   // copy master into /master/latest
   if (await pathExists(runtimePackagesDirectory)) {
@@ -27,6 +25,16 @@ module.exports = async context => {
   }
 
   await mkdir(runtimePackagesDirectory)
+
+  /*
+    const allApps = await bbMaster
+                            .indexApi
+                            .listItems("/all_applications");    
+    
+    for(let app of allApps) {
+        app.
+    }
+    */
 
   const apps = {
     _master: masterAppPackage(context),

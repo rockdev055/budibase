@@ -1,4 +1,5 @@
 import { getAppApis, getTemplateApi, setupDatastore } from "@budibase/core"
+import { action } from "./helpers"
 
 const addField = templateApi => type => (record, name) => {
   const field = templateApi.getNewField(type)

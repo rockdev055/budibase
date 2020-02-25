@@ -1,5 +1,7 @@
 <button on:click>
-  <slot>+</slot>
+  <slot>
+    +
+  </slot>
 </button>
 
 <style>

@@ -1,52 +1,56 @@
 <script>
-  import { cssVars, createClasses } from "./cssVars"
 
-  export let url = ""
-  export let text = ""
-  export let openInNewTab = false
-  export let color
-  export let hoverColor
-  export let underline = false
-  export let fontSize
+import { cssVars, createClasses } from "./cssVars"
 
-  export let _bb
+export let url = ""
+export let text = ""
+export let openInNewTab = false
+export let color
+export let hoverColor
+export let underline = false
+export let fontSize
 
-  let anchorElement
+export let _bb
 
-  $: anchorElement && !text && _bb.attachChildren(anchorElement)
-  $: target = openInNewTab ? "_blank" : "_self"
-  $: cssVariables = {
-    hoverColor,
-    color,
-    textDecoration: underline ? "underline" : "none",
-    fontSize,
+let anchorElement
+
+$: anchorElement && !text && _bb.attachChildren(anchorElement)
+$: target = openInNewTab ? "_blank" : "_self"
+$: cssVariables = {
+      hoverColor,
+      color,
+      textDecoration: underline ? "underline" : "none",
+      fontSize
   }
-  $: classes = createClasses(cssVariables)
+$: classes = createClasses(cssVariables)
+
 </script>
 
-<a
-  href={url}
-  bind:this={anchorElement}
+<a 
+  href={url} 
+  bind:this={anchorElement} 
   class={classes}
-  {target}
-  use:cssVars={cssVariables}>
-  {text}
-</a>
+  target={target}
+  use:cssVars={cssVariables}>{text}</a>
+
 
 <style>
-  .color {
-    color: var(--color);
-  }
 
-  .hoverColor:hover {
-    color: var(--color);
-  }
+.color {
+  color: var(--color)
+}
 
-  .textDecoration {
-    text-decoration: var(--textDecoration);
-  }
+.hoverColor:hover {
+  color: var(--color)
+}
 
-  .fontSize {
-    font-size: var(--fontSize);
-  }
+.textDecoration {
+  text-decoration: var(--textDecoration)
+}
+
+.fontSize {
+  font-size: var(--fontSize)
+}
+
 </style>
+

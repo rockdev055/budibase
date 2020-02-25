@@ -1,5 +1,5 @@
 import { flatten, orderBy, filter, isUndefined } from "lodash/fp"
-import {
+import hierarchy, {
   getFlattenedHierarchy,
   getCollectionNodeByKeyOrNodeKey,
   isCollectionRecord,

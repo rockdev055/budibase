@@ -1,8 +1,6 @@
-const timeout = ms => new Promise(resolve => setTimeout(resolve, ms))
+module.exports.timeout = ms => new Promise(resolve => setTimeout(resolve, ms))
 
-exports.timeout = timeout
-
-module.exports.sleep = async (ms, fn, ...args) => {
+module.exports.sleep = async (ms, fn) => {
   await timeout(ms)
   return await fn(...args)
 }

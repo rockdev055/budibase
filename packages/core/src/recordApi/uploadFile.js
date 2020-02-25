@@ -73,7 +73,9 @@ const _uploadFile = async (
       )
       if (!isExpectedFileSize) {
         throw new BadRequestError(
-          `Fields for ${relativeFilePath} do not have expected size.`
+          `Fields for ${relativeFilePath} do not have expected size: ${join(
+            ","
+          )(incorrectFields)}`
         )
       }
     })

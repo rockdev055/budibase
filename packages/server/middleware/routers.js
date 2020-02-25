@@ -141,11 +141,7 @@ module.exports = (config, app) => {
     })
     .get("/_builder/api/:appname/components", async ctx => {
       try {
-        ctx.body = getComponentDefinitions(
-          config,
-          ctx.params.appname,
-          ctx.query.lib
-        )
+        ctx.body = getComponentDefinitions(config, ctx.params.appname, ctx.query.lib)
         ctx.response.status = StatusCodes.OK
       } catch (e) {
         if (e.status) {

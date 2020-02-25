@@ -1,13 +1,19 @@
 <script>
-  import { buildStyle } from "./buildStyle"
 
-  export let className = ""
-  export let url = ""
-  export let description = ""
-  export let height
-  export let width
+import { buildStyle } from "./buildStyle"
 
-  $: style = buildStyle({ height, width })
+export let className = "";
+export let url = "";
+export let description = ""
+export let height
+export let width
+
+$: style = buildStyle({height, width})
+
 </script>
 
-<img class={className} {style} src={url} alt={description} />
+
+<img class={className}
+     style={style}
+     src={url}
+     alt={description} >

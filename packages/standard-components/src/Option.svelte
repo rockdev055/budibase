@@ -8,6 +8,7 @@
 
   $: actualValue = value || text || ""
   $: actualText = text || value || ""
+
 </script>
 
 <option value={actualValue}>{actualText}</option>
