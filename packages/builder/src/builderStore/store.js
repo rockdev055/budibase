@@ -112,7 +112,6 @@ export const getStore = () => {
   store.moveDownComponent = moveDownComponent(store)
   store.copyComponent = copyComponent(store)
   store.addTemplatedComponent = addTemplatedComponent(store)
-  store.setMetadataProp = setMetadataProp(store)
   return store
 }
 
@@ -518,7 +517,6 @@ const setCurrentScreen = store => screenName => {
     screen._css = generate_screen_css([screen.props])
     s.currentPreviewItem = screen
     s.currentFrontEndType = "screen"
-    s.currentView = "detail"
 
     s.currentComponentInfo = makePropsSafe(
       getContainerComponent(s.components),
@@ -766,7 +764,6 @@ const addChildComponent = store => (componentToAdd, presetName) => {
       ? _savePage(state)
       : _saveScreenApi(state.currentPreviewItem, state)
 
-    state.currentView = "component"
     state.currentComponentInfo = newComponent.props
 
     return state
@@ -797,7 +794,6 @@ const selectComponent = store => component => {
       ? component
       : state.components.find(c => c.name === component._component)
     state.currentComponentInfo = makePropsSafe(componentDef, component)
-    state.currentView = "component"
     return state
   })
 }
@@ -954,13 +950,6 @@ const walkProps = (props, action, cancelToken = null) => {
       walkProps(child, action, cancelToken)
     }
   }
-}
-
-const setMetadataProp = store => (name, prop) => {
-  store.update(s => {
-    s.currentPreviewItem[name] = prop
-    return s
-  })
 }
 
 const _saveCurrentPreviewItem = s =>

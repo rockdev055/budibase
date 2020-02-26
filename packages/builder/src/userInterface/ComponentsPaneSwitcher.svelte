@@ -45,6 +45,8 @@
       {/if}
 
     </div>
+  {:else}
+    <p>Please create a new screen</p>
   {/if}
 
 </div>
