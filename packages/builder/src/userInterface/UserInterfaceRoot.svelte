@@ -119,11 +119,9 @@
   .ui-nav {
     grid-column: 1;
     background-color: var(--secondary5);
-    height: calc(100vh - 49px);
-    padding: 0;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    height: 100%;
+    padding: 0 1.5rem 0rem 0;
+    overflow-y: auto;
   }
 
   .preview-pane {
@@ -210,10 +208,5 @@
     border-bottom: 1px solid #ddd;
     margin-top: 1.5rem;
     width: calc(100% + 1.5rem);
-  }
-
-  .components-list-container {
-    overflow: auto;
-    padding: 0 30px 0 0;
   }
 </style>

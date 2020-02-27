@@ -12,7 +12,7 @@ const outerContainer = record => ({
     {
       "##eventHandlerType": "Get New Record",
       parameters: {
-        collectionKey: record.collectionNodeKey(),
+        collectionKey: record.collectionKey,
         childRecordType: record.name,
         statePath: record.name,
       },
