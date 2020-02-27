@@ -1,13 +1,11 @@
 <script>
-  import { onMount, onDestroy } from "svelte"
+  import { onMount, onDestroy, getContext } from "svelte"
   import Formfield from "../Common/Formfield.svelte"
   import { fieldStore } from "../Common/FormfieldStore.js"
   import ClassBuilder from "../ClassBuilder.js"
   import { MDCCheckbox } from "@material/checkbox"
 
   export let onClick = item => {}
-
-  export let _bb
 
   export let id = ""
   export let label = ""
@@ -18,18 +16,16 @@
 
   let instance = null
   let checkbox = null
-  let context = null
+
+  let context = getContext("BBMD:input:context")
 
   onMount(() => {
-    context = _bb.getContext("BBMD:input:context")
-
     if (!!checkbox) {
       instance = new MDCCheckbox(checkbox)
       instance.indeterminate = indeterminate
       if (context !== "list-item") {
-        //TODO: Fix this connected to Formfield context issue
-        // let fieldStore = _bb.getContext("BBMD:field-element")
-        // fieldStore.setInput(instance)
+        let fieldStore = getContext("BBMD:field-element")
+        fieldStore.setInput(instance)
       }
     }
   })
