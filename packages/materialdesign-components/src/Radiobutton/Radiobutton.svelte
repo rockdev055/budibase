@@ -1,11 +1,10 @@
 <script>
-  import { onMount, onDestroy } from "svelte"
+  import { onMount, onDestroy, getContext } from "svelte"
   import Formfield from "../Common/Formfield.svelte"
   import ClassBuilder from "../ClassBuilder.js"
   import { MDCRadio } from "@material/radio"
 
   export let onClick = item => {}
-  export let _bb
 
   export let id = ""
   export let label = ""
@@ -17,13 +16,13 @@
   let instance = null
   let radiobtn = null
 
-  let context = _bb.getContext("BBMD:input:context")
+  let context = getContext("BBMD:input:context")
 
   onMount(() => {
     if (!!radiobtn) {
       instance = new MDCRadio(radiobtn)
       if (context !== "list-item") {
-        let fieldStore = _bb.getContext("BBMD:field-element")
+        let fieldStore = getContext("BBMD:field-element")
         fieldStore.setInput(instance)
       }
     }
