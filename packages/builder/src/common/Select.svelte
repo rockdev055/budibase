@@ -4,7 +4,7 @@
 </script>
 
 <div class="select-container">
-  <select on:change bind:value>
+  <select on:change {value}>
     <slot />
   </select>
   <span class="arrow">
@@ -23,7 +23,6 @@
   }
 
   select {
-    height: 35px;
     display: block;
     font-family: sans-serif;
     font-weight: 500;
@@ -38,6 +37,7 @@
     appearance: none;
     background: #fff;
     border: 1px solid #ccc;
+    height: 35px;
   }
 
   .arrow {

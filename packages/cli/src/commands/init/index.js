@@ -15,7 +15,7 @@ module.exports = {
       type: "string",
       describe: "config template file to use - optional, defaults to config.js",
       alias: "c",
-      default: "dev",
+      default: "config.dev.js",
       choices: ["dev", "contributors"],
     })
     yargs.positional("username", {
@@ -26,7 +26,7 @@ module.exports = {
     })
     yargs.positional("password", {
       type: "string",
-      describe: "password for admin interface",
+      describe: "passord for admin interface",
       alias: "p",
       default: "",
     })

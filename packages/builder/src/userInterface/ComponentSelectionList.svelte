@@ -35,16 +35,13 @@
   $: templatesByComponent = groupBy(t => t.component)($store.templates)
   $: hierarchy = $store.hierarchy
   $: libraryModules = $store.libraries
-  $: standaloneTemplates = pipe(
-    templatesByComponent,
-    [
-      values,
-      flatten,
-      filter(t => !$store.components.some(c => c.name === t.component)),
-      map(t => ({ name: splitName(t.component).componentName, template: t })),
-      uniqBy(t => t.name),
-    ]
-  )
+  $: standaloneTemplates = pipe(templatesByComponent, [
+    values,
+    flatten,
+    filter(t => !$store.components.some(c => c.name === t.component)),
+    map(t => ({ name: splitName(t.component).componentName, template: t })),
+    uniqBy(t => t.name),
+  ])
 
   const addRootComponent = (component, allComponents) => {
     const { libName } = splitName(component.name)
@@ -125,7 +122,7 @@
   </Select>
 
   <div class="library-container">
-    <!-- <ul>
+    <ul>
       <li>
         <button
           class:selected={current_view === 'text'}
@@ -147,7 +144,7 @@
           <ImageIcon />
         </button>
       </li>
-    </ul> -->
+    </ul>
 
     {#if componentLibrary}
       {#each generate_components_list(componentLibrary.components) as component}
@@ -224,10 +221,9 @@
   }
 
   .library-container {
-    padding: 0 0 10px 0;
+    padding: 0 0 10px 10px;
     flex: 1 1 auto;
     min-height: 0px;
-    margin-top: 20px;
   }
 
   .component-container {
@@ -241,7 +237,7 @@
     cursor: pointer;
     border: 1px solid #ebebeb;
     border-radius: 2px;
-    margin: 5px 0;
+    margin: 10px 0;
     height: 40px;
     box-sizing: border-box;
     color: #163057;
@@ -304,7 +300,7 @@
     border-radius: 5px;
   }
 
-  /* li button {
+  li button {
     width: 100%;
     height: 100%;
     background: none;
@@ -313,12 +309,12 @@
     padding: 12px;
     outline: none;
     cursor: pointer;
-  } */
+  }
 
-  /* .selected {
+  .selected {
     color: var(--button-text);
     background: var(--background-button) !important;
-  } */
+  }
 
   .open {
     color: rgba(0, 85, 255, 1);

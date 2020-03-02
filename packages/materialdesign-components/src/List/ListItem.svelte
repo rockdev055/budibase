@@ -3,23 +3,15 @@
   import { Radiobutton } from "../Radiobutton"
   import { Checkbox } from "../Checkbox"
   import ClassBuilder from "../ClassBuilder.js"
-  import { generate } from "shortid"
 
   const cb = new ClassBuilder("list-item")
 
   export let onClick = item => {}
 
-  let _id
-  let listProps = null
-
-  let selectedItems
-
-  export let _bb
-
-  export let value = null
   export let text = ""
   export let secondaryText = ""
-
+  export let variant = "two-line"
+  export let inputElement = null
   export let leadingIcon = ""
   export let trailingIcon = ""
   export let selected = false
@@ -28,63 +20,32 @@
   let role = "option"
 
   onMount(() => {
-    _id = generate()
-
-    selectedItems = _bb.getContext("BBMD:list:selectItemStore")
-
-    listProps = _bb.getContext("BBMD:list:props")
-
-    let context = _bb.getContext("BBMD:list:context")
+    let context = getContext("BBMD:list:context")
     if (context === "menu") {
       role = "menuitem"
     }
   })
 
-  function handleClick() {
-    let item = {
-      _id,
-      value,
-      text,
-      secondaryText,
-      selected,
-      disabled,
-    }
-    if (!disabled) {
-      if (
-        listProps.singleSelection ||
-        listProps.inputElement === "radiobutton"
-      ) {
-        selectedItems.addSingleItem(item)
-      } else {
-        let idx = selectedItems.getItemIdx($selectedItems, _id)
-        if (idx > -1) {
-          selectedItems.removeItem(_id)
-        } else {
-          selectedItems.addItem(item)
-        }
-      }
-    }
+  $: if (!!inputElement) {
+    setContext("BBMD:input:context", "list-item")
   }
-
-  $: if (listProps && !!listProps.inputElement) {
-    _bb.setContext("BBMD:input:context", "list-item")
-  }
-
-  $: isSelected =
-    $selectedItems && selectedItems.getItemIdx($selectedItems, _id) > -1
 
   $: modifiers = {
-    selected: isSelected && (!listProps || !listProps.inputElement),
+    selected,
     disabled,
   }
   $: props = { modifiers }
   $: listItemClass = cb.build({ props })
 
-  $: useTwoLine =
-    listProps && listProps.variant === "two-line" && !!secondaryText
+  $: useTwoLine = variant === "two-line" && !!secondaryText
 </script>
 
-<li class={listItemClass} role="option" tabindex="0" on:click={handleClick}>
+<li
+  class={listItemClass}
+  role="option"
+  aria-selected={selected}
+  tabindex="0"
+  on:click={onClick}>
   {#if leadingIcon}
     <span class="mdc-list-item__graphic material-icons" aria-hidden="true">
       {leadingIcon}
@@ -97,11 +58,11 @@
     {:else}{text}{/if}
   </span>
 
-  {#if listProps}
-    {#if listProps.inputElement === 'radiobutton'}
-      <Radiobutton checked={isSelected} {disabled} {_bb} />
-    {:else if listProps.inputElement === 'checkbox'}
-      <Checkbox checked={isSelected} {disabled} {_bb} />
+  {#if inputElement}
+    {#if inputElement === 'radiobutton'}
+      <Radiobutton checked={selected} {disabled} />
+    {:else if inputElement === 'checkbox'}
+      <Checkbox checked={selected} {disabled} />
     {/if}
   {:else if trailingIcon}
     <!-- TODO: Adapt label to accept class prop to handle this. Context is insufficient -->

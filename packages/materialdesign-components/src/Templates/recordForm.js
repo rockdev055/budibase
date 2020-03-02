@@ -12,7 +12,7 @@ const outerContainer = record => ({
     {
       "##eventHandlerType": "Get New Record",
       parameters: {
-        collectionKey: record.collectionNodeKey(),
+        collectionKey: record.collectionKey,
         childRecordType: record.name,
         statePath: record.name,
       },
@@ -32,10 +32,6 @@ const heading = record => ({
 
 const field = (record, f) => {
   if (f.type === "bool") return checkbox(record, f)
-  if (f.type === "string" 
-      && f.typeOptions 
-      && f.typeOptions.values 
-      && f.typeOptions.values.length > 0) return select(record, f) 
   return textField(record, f)
 }
 
@@ -56,16 +52,6 @@ const checkbox = (record, f) => ({
   _component: "@budibase/materialdesign-components/Checkbox",
   label: f.label,
   checked: fieldValueBinding(record, f),
-})
-
-const select = (record, f) => ({
-  _component: "@budibase/standard-components/select",
-  value: fieldValueBinding(record, f),
-  _children: f.typeOptions.values.map(val => ({
-    _component: "@budibase/standard-components/option",
-    value: val,
-    text: val
-  }))
 })
 
 const fieldValueBinding = (record, f) => `state.${record.name}.${f.name}`

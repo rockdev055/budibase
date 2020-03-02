@@ -1,7 +1,6 @@
 import svelte from "rollup-plugin-svelte"
 import postcss from "rollup-plugin-postcss"
 import resolve from "rollup-plugin-node-resolve"
-import commonjs from "rollup-plugin-commonjs"
 
 const postcssOptions = () => ({
   extensions: [".scss", ".sass"],
@@ -17,10 +16,6 @@ const postcssOptions = () => ({
   ],
 })
 
-const coreExternal = [
-  "shortid",
-]
-
 export default {
   input: "src/index.js",
   output: [
@@ -35,18 +30,7 @@ export default {
     svelte({
       hydratable: true,
     }),
-    resolve({
-      preferBuiltins: true,
-      browser: true,
-      dedupe: importee => {
-        return coreExternal.includes(importee)
-      },
-    }),
-    commonjs({
-      namedExports: {
-        shortid: ["generate"],
-      },
-    }),
+    resolve(),
     postcss(postcssOptions()),
   ],
 }

@@ -24,18 +24,12 @@
     ((!p2.nodeKey && !p1.nodeKey) || p2.nodeKey === p1.nodeKey)
 
   const hasPermission = hasPerm =>
-    clonedLevel.permissions.some(permission =>
-      matchPermissions(permission, hasPerm)
-    )
+    some(p => matchPermissions(p, hasPerm))(clonedLevel.permissions)
 
-  $: permissionMatrix = allPermissions.map(permission => ({
-    permission,
-    hasPermission: hasPermission(permission),
-  }))
-
-  $: allPermissionsSelected = permissionMatrix.every(
-    permission => permission.hasPermission
-  )
+  $: permissionMatrix = map(p => ({
+    permission: p,
+    hasPermission: hasPermission(p),
+  }))(allPermissions)
 
   const getPermissionName = perm =>
     perm.nodeKey ? `${perm.type} - ${perm.nodeKey}` : perm.type
@@ -43,7 +37,7 @@
   const save = () => {
     const newLevels = isNew
       ? [...allLevels, clonedLevel]
-      : [...allLevels.filter(l => l.name !== level.name), clonedLevel]
+      : [...filter(l => l.name !== level.name)(allLevels), clonedLevel]
 
     errors = validateAccessLevels(hierarchy, actions, newLevels)
 
@@ -62,7 +56,6 @@
         clonedLevel.permissions
       )
     }
-    allPermissions = allPermissions
   }
 </script>
 
@@ -75,15 +68,6 @@
     <Textbox label="Access Level Name" bind:text={clonedLevel.name} />
 
     <h4 class="budibase__title--4">Permissions</h4>
-
-    <Checkbox
-      label={'Select All'}
-      checked={allPermissionsSelected}
-      on:change={ev => {
-        permissionMatrix.forEach(permission =>
-          permissionChanged(permission.permission)(ev)
-        )
-      }} />
     {#each permissionMatrix as permission}
       <div class="permission-container">
         <Checkbox
@@ -108,7 +92,6 @@
 
 <style>
   .permission-container {
-    margin-top: 10px;
     margin-bottom: 10px;
   }
 </style>
