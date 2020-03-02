@@ -14,9 +14,9 @@
     Radiobuttongroup,
     Datatable,
     CustomersIndexTable,
-    List,
     Icon,
     Menu,
+    List,
   } = props
 
   let currentComponent
@@ -33,15 +33,11 @@
             Button,
             BodyBoundToStore,
             Textfield,
-            Checkbox,
-            Checkboxgroup,
-            Radiobutton,
-            Radiobuttongroup,
             Icon,
             Datatable,
             CustomersIndexTable,
-            List,
             Menu,
+            List,
           ],
         },
       }
