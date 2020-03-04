@@ -9,7 +9,6 @@ import nodeglobals from "rollup-plugin-node-globals"
 import copy from "rollup-plugin-copy"
 import browsersync from "rollup-plugin-browsersync"
 import proxy from "http-proxy-middleware"
-import replace from "rollup-plugin-replace"
 
 const target = "http://localhost:4001"
 const _builderProxy = proxy("/_builder", {
@@ -151,10 +150,6 @@ export default {
           dest: outputpath,
         },
       ],
-    }),
-
-    replace({
-      "process.env.NODE_ENV": JSON.stringify(production ? "production" : "development")
     }),
 
     svelte({
