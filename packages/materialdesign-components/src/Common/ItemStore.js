@@ -1,14 +1,14 @@
-import { writable } from "svelte/store";
+import { writable } from "svelte/store"
 
 function createItemsStore(componentOnSelect) {
-    const { subscribe, set, update } = writable([]);
+    const { subscribe, set, update } = writable([])
 
     function addItem(item) {
         update(items => {
-            return [...items, item]                  
+            return [...items, item]
         })
         if (componentOnSelect) {
-            componentOnSelect();            
+            componentOnSelect()
         }
     }
 
@@ -38,7 +38,7 @@ function createItemsStore(componentOnSelect) {
     }
 
     function getItemIdx(items, itemId) {
-        return items.findIndex(i => i._id === itemId);
+        return items.findIndex(i => i && i._id === itemId);
     }
 
     return {
