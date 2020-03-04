@@ -71,6 +71,7 @@
   let useIcon = !!icon && !textarea && !fullwidth
 
   if (useIcon) {
+    setContext("BBMD:icon:context", "text-field")
     let iconClass = trailingIcon ? "with-trailing-icon" : "with-leading-icon"
     modifiers = { ...modifiers, iconClass }
   }
@@ -123,7 +124,7 @@ TODO:Needs error handling - this will depend on how Budibase handles errors
         on:change={changed} />
     {:else}
       {#if renderLeadingIcon}
-        <Icon context="text-field" {icon} />
+        <Icon {icon} />
       {/if}
       <input
         {id}
@@ -139,7 +140,7 @@ TODO:Needs error handling - this will depend on how Budibase handles errors
         on:focus={focus}
         on:input={changed} />
       {#if renderTrailingIcon}
-        <Icon context="text-field" {icon} />
+        <Icon {icon} />
       {/if}
       {#if variant !== 'outlined'}
         <div class="mdc-line-ripple" />
