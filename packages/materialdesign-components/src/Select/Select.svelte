@@ -39,6 +39,7 @@
 
     if (!!select) {
       instance = new MDCSelect(select)
+      debugger
       return () => {
         instance && instance.destroy()
         instance = null

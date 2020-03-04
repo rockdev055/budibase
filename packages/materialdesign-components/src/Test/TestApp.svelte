@@ -38,8 +38,6 @@
             CustomersIndexTable,
             List,
             Select,
-            Radiobutton,
-            Radiobuttongroup,
           ],
         },
       }

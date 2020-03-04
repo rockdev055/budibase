@@ -1,39 +1,28 @@
 <script>
-  import { onMount } from "svelte"
-  import createItemStore from "../Common/ItemStore.js"
   import Radiobutton from "./Radiobutton.svelte"
   import Label from "../Common/Label.svelte"
 
-  export let onChange = selected => {}
-
-  export let _bb
   export let name = "radio-group"
   export let label = ""
   export let orientation = "row"
   export let fullwidth = false
   export let alignEnd = false
 
-  let selectedItemsStore
+  export let onChange = selected => {}
+
+  export let items = []
+
   let selected = null
-  let radioItems
-
-  onMount(() => {
-    _bb.setContext("BBMD:input:context", "radiobuttongroup")
-    selectedItemsStore = createItemStore(() => onChange($selectedItemsStore))
-    _bb.setContext("BBMD:radiobutton:props", { name })
-    _bb.setContext("BBMD:radiobutton:selectedItemsStore", selectedItemsStore)
-  })
-
-  // function handleOnClick(item) {
-  //   if (!!selected) selected.checked = false
-  //   item.checked = true
-  //   selected = item
-  //   items = items
-  //   onChange(selected)
-  // }
 
   $: alignRight = orientation === "column" && alignEnd
-  $: radioItems && _bb.attachChildren(radioItems)
+
+  function handleOnClick(item) {
+    if (!!selected) selected.checked = false
+    item.checked = true
+    selected = item
+    items = items
+    onChange(selected)
+  }
 </script>
 
 <div class="radiobutton-group">
@@ -41,7 +30,17 @@
     <Label text={label} bold />
   </div>
   <div class={`radiobutton-group__radios ${orientation}`} class:alignRight>
-    <div bind:this={radioItems} class:fullwidth />
+    {#each items as item, i}
+      <div class:fullwidth>
+        <Radiobutton
+          id={`${item.label}-${i}`}
+          {name}
+          {alignEnd}
+          label={item.label}
+          checked={item.checked || false}
+          onClick={() => handleOnClick(item)} />
+      </div>
+    {/each}
   </div>
 </div>
 
