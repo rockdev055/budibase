@@ -3,7 +3,7 @@
 
   export let className = ""
   export let onLoad
-  export let type = "div"
+  export let type
   export let backgroundColor
   export let color
   export let borderWidth

@@ -95,19 +95,33 @@ export const props = {
     _children: [],
     label: "Hi radio",
     alignEnd: true,
-    onClick: () => alert`Roger That`,
+    onClick: item => console.log(item),
   },
   Radiobuttongroup: {
     _component: "@budibase/materialdesign-components/Radiobuttongroup",
-    _children: [],
     label: "Preferred method of contact: ",
     orientation: "column",
-    items: [
-      { label: "Email", value: 1 },
-      { label: "Phone", value: 2 },
-      { label: "Social Media", value: 3 },
+    onChange: selected => console.log("Radiobutton Group", selected),
+    _children: [
+      {
+        _component: "@budibase/materialdesign-components/Radiobutton",
+        _children: [],
+        label: "Email",
+        value: 1,
+      },
+      {
+        _component: "@budibase/materialdesign-components/Radiobutton",
+        _children: [],
+        label: "Phone",
+        value: 2,
+      },
+      {
+        _component: "@budibase/materialdesign-components/Radiobutton",
+        _children: [],
+        label: "Social Media",
+        value: 3,
+      },
     ],
-    onChange: selected => console.log(selected),
   },
   Datatable: {
     _component: "@budibase/materialdesign-components/Datatable",
@@ -119,7 +133,7 @@ export const props = {
     _component: "@budibase/materialdesign-components/List",
     variant: "two-line",
     singleSelection: false,
-    onSelect: selected => console.log(selected),
+    onSelect: selected => console.log("LIST SELECT", selected),
     _children: [
       {
         _component: "@budibase/materialdesign-components/ListItem",
@@ -144,6 +158,33 @@ export const props = {
         secondaryText: "Salmon or Cod",
         value: 2,
       },
-    ]
+    ],
+  },
+  Select: {
+    _component: "@budibase/materialdesign-components/Select",
+    label: "Choose a Milkshake",
+    helperText: "Choose a flavour",
+    persistent: true,
+    onSelect: selectedItem => console.log("SELECT ITEM", selectedItem),
+    _children: [
+      {
+        _component: "@budibase/materialdesign-components/ListItem",
+        _children: [],
+        text: "Orange",
+        value: 0,
+      },
+      {
+        _component: "@budibase/materialdesign-components/ListItem",
+        _children: [],
+        text: "Apple",
+        value: 1,
+      },
+      {
+        _component: "@budibase/materialdesign-components/ListItem",
+        _children: [],
+        text: "Berry",
+        value: 0,
+      },
+    ],
   },
 }
