@@ -1,14 +1,9 @@
 import getStore from "./store"
-import LogRocket from "logrocket";
 
 export const store = getStore()
 
 export const initialise = async () => {
   try {
-    console.log(process.env.NODE_ENV);
-    if (process.env.NODE_ENV === "production") {
-      LogRocket.init("knlald/budibase");
-    }
     setupRouter(store)
     await store.initialise()
   } catch (err) {
