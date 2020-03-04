@@ -4,7 +4,6 @@ const templateOptions = {
   indexes: [
     {
       name: "customers",
-      nodeKey: () => "/customers"
     },
   ],
   helpers: {

@@ -59,10 +59,10 @@ const checkbox = (record, f) => ({
 })
 
 const select = (record, f) => ({
-  _component: "@budibase/materialdesign-components/Select",
+  _component: "@budibase/standard-components/select",
   value: fieldValueBinding(record, f),
   _children: f.typeOptions.values.map(val => ({
-    _component: "@budibase/materialdesign-components/ListItem",
+    _component: "@budibase/standard-components/option",
     value: val,
     text: val
   }))
