@@ -46,8 +46,5 @@
   ],
   "version": "0.0.24",
   "license": "MIT",
-  "gitHead": "115189f72a850bfb52b65ec61d932531bf327072",
-  "dependencies": {
-    "@material/select": "4.0.0"
-  }
+  "gitHead": "115189f72a850bfb52b65ec61d932531bf327072"
 }

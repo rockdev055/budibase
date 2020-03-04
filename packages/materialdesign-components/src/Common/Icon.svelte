@@ -2,9 +2,11 @@
   import { getContext } from "svelte"
 
   export let icon = ""
-  export let context = ""
 
-  let cls = !!context ? `material-icons mdc-${context}__icon` : "material-icons"
+  let iconContext = getContext("BBMD:icon:context")
+  let cls = iconContext
+    ? `material-icons mdc-${iconContext}__icon`
+    : "material-icons"
 </script>
 
 <i class={cls}>{icon}</i>
