@@ -28,9 +28,15 @@
         props: {
           _component: "testcomponents/rootComponent",
           _children: [
+            H1,
+            Overline,
             Button,
             BodyBoundToStore,
             Textfield,
+            Icon,
+            Datatable,
+            CustomersIndexTable,
+            List,
             Select,
             Radiobutton,
             Radiobuttongroup,
