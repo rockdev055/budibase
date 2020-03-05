@@ -40,8 +40,6 @@
             Select,
             Radiobutton,
             Radiobuttongroup,
-            Checkbox,
-            Checkboxgroup,
           ],
         },
       }
