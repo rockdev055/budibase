@@ -12,8 +12,8 @@
     "publishdev": "yarn build && node ./scripts/publishDev.js"
   },
   "devDependencies": {
-    "@budibase/client": "^0.0.27",
-    "@budibase/standard-components": "^0.0.27",
+    "@budibase/client": "^0.0.24",
+    "@budibase/standard-components": "^0.0.24",
     "@material/button": "^4.0.0",
     "@material/checkbox": "^4.0.0",
     "@material/data-table": "4.0.0",
@@ -21,7 +21,6 @@
     "@material/list": "4.0.0",
     "@material/menu": "4.0.0",
     "@material/radio": "^4.0.0",
-    "@material/select": "4.0.0",
     "@material/textfield": "^4.0.0",
     "@nx-js/compiler-util": "^2.0.0",
     "bcryptjs": "^2.4.3",
@@ -45,8 +44,10 @@
   "keywords": [
     "svelte"
   ],
-  "version": "0.0.27",
+  "version": "0.0.24",
   "license": "MIT",
-  "gitHead": "72a77a035eb7c1443b079bf93c29b3e5fe02094e",
-  "dependencies": {}
+  "gitHead": "115189f72a850bfb52b65ec61d932531bf327072",
+  "dependencies": {
+    "@material/select": "4.0.0"
+  }
 }

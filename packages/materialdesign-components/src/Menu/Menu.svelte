@@ -10,8 +10,8 @@
   export let open = true
   export let useFixedPosition = false
   export let useAbsolutePosition = false
-  export let absolutePositionX = 0
-  export let absolutePositionY = 0
+  //{x: number, y: number}
+  export let absolutePositionCoords = null
 
   export let _bb
 
@@ -33,7 +33,8 @@
       if (useFixedPosition) {
         instance.setFixedPosition(true)
       } else if (useAbsolutePosition) {
-        instance.setAbsolutePosition(absolutePositionX, absolutePositionY)
+        let { x, y } = absolutePositionCoords
+        instance.setAbsolutePosition(x | 0, y | 0)
       }
     }
   })

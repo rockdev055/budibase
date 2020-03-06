@@ -17,7 +17,9 @@ const postcssOptions = () => ({
   ],
 })
 
-const coreExternal = ["shortid"]
+const coreExternal = [
+  "shortid",
+]
 
 export default {
   input: "src/index.js",
