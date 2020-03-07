@@ -5,7 +5,6 @@
   import Button from "../common/Button.svelte"
   import ActionButton from "../common/ActionButton.svelte"
   import ButtonGroup from "../common/ButtonGroup.svelte"
-  import ConfirmDialog from "../common/ConfirmDialog.svelte"
   import { pipe } from "../common/core"
   import UIkit from "uikit"
   import { isRootComponent } from "./pagesParsing/searchComponents"
@@ -15,10 +14,10 @@
   import { assign } from "lodash"
 
   export const show = () => {
-    dialog.show()
+    UIkit.modal(componentSelectorModal).show()
   }
 
-  let dialog
+  let componentSelectorModal
   let layoutComponents
   let layoutComponent
   let screens
@@ -51,11 +50,11 @@
     if (!isValid) return
 
     store.createScreen(name, route, layoutComponent.name)
-    dialog.hide()
+    UIkit.modal(componentSelectorModal).hide()
   }
 
   const cancel = () => {
-    dialog.hide()
+    UIkit.modal(componentSelectorModal).hide()
   }
 
   const screenNameExists = name => {
@@ -78,51 +77,61 @@
   }
 </script>
 
-<ConfirmDialog
-  bind:this={dialog}
-  title="New Screen"
-  onCancel={cancel}
-  onOk={save}
-  okText="Create Screen">
+<div bind:this={componentSelectorModal} id="new-component-modal" uk-modal>
+  <div class="uk-modal-dialog" uk-overflow-auto>
 
-  <div class="uk-form-horizontal">
-    <div class="uk-margin">
-      <label class="uk-form-label">Name</label>
-      <div class="uk-form-controls">
-        <input
-          class="uk-input uk-form-small"
-          class:uk-form-danger={saveAttempted && (name.length === 0 || screenNameExists(name))}
-          bind:value={name} />
-      </div>
+    <div class="uk-modal-header">
+      <h1>New Screen</h1>
     </div>
 
-    <div class="uk-margin">
-      <label class="uk-form-label">Route (Url)</label>
-      <div class="uk-form-controls">
-        <input
-          class="uk-input uk-form-small"
-          class:uk-form-danger={saveAttempted && (route.length === 0 || routeNameExists(route))}
-          bind:value={route}
-          on:change={routeChanged} />
+    <div class="uk-modal-body uk-form-horizontal">
+      <div class="uk-margin">
+        <label class="uk-form-label">Name</label>
+        <div class="uk-form-controls">
+          <input
+            class="uk-input uk-form-small"
+            class:uk-form-danger={saveAttempted && (name.length === 0 || screenNameExists(name))}
+            bind:value={name} />
+        </div>
       </div>
-    </div>
 
-    <div class="uk-margin">
-      <label class="uk-form-label">Layout Component</label>
-      <div class="uk-form-controls">
-        <select
-          class="uk-select uk-form-small"
-          bind:value={layoutComponent}
-          class:uk-form-danger={saveAttempted && !layoutComponent}>
-          {#each layoutComponents as comp}
-            <option value={comp}>
-              {comp.componentName} - {comp.libName}
-            </option>
-          {/each}
-        </select>
+      <div class="uk-margin">
+        <label class="uk-form-label">Route (Url)</label>
+        <div class="uk-form-controls">
+          <input
+            class="uk-input uk-form-small"
+            class:uk-form-danger={saveAttempted && (route.length === 0 || routeNameExists(route))}
+            bind:value={route}
+            on:change={routeChanged} />
+        </div>
       </div>
+
+      <div class="uk-margin">
+        <label class="uk-form-label">Layout Component</label>
+        <div class="uk-form-controls">
+          <select
+            class="uk-select uk-form-small"
+            bind:value={layoutComponent}
+            class:uk-form-danger={saveAttempted && !layoutComponent}>
+            {#each layoutComponents as comp}
+              <option value={comp}>
+                {comp.componentName} - {comp.libName}
+              </option>
+            {/each}
+          </select>
+        </div>
+      </div>
+
+      <ButtonGroup style="float: right;">
+        <ActionButton primary on:click={save}>Create Screen</ActionButton>
+        <ActionButton alert on:click={cancel}>Cancel</ActionButton>
+      </ButtonGroup>
     </div>
   </div>
+</div>
 
-</ConfirmDialog>
-
+<style>
+  h1 {
+    font-size: 1.2em;
+  }
+</style>

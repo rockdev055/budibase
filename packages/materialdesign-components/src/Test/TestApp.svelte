@@ -17,7 +17,6 @@
     Icon,
     List,
     Select,
-    DatePicker,
   } = props
 
   let currentComponent
@@ -29,10 +28,15 @@
         props: {
           _component: "testcomponents/rootComponent",
           _children: [
-            DatePicker,
+            H1,
+            Overline,
             Button,
             BodyBoundToStore,
             Textfield,
+            Icon,
+            Datatable,
+            CustomersIndexTable,
+            List,
             Select,
             Radiobutton,
             Radiobuttongroup,
