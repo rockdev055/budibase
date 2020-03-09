@@ -4,7 +4,7 @@ const templateOptions = {
   indexes: [
     {
       name: "customers",
-      nodeKey: () => "/customers"
+      nodeKey: () => "/customers",
     },
   ],
   helpers: {
@@ -77,19 +77,34 @@ export const props = {
     _component: "@budibase/materialdesign-components/Checkbox",
     _children: [],
     id: "test-check",
+    alignEnd: true,
     label: "Check Yo Self",
     onClick: () => alert`Before ya reck yo'self`,
   },
   Checkboxgroup: {
     _component: "@budibase/materialdesign-components/Checkboxgroup",
-    _children: [],
     label: "Whats your favourite?",
-    items: [
-      { label: "Currys", indeterminate: true },
-      { label: "Chips", checked: true },
-      { label: "Pasties" },
-    ],
+    disabled: true,
+    alignEnd: true,
     onChange: selectedItems => console.log(selectedItems),
+    _children: [
+      {
+        _component: "@budibase/materialdesign-components/Checkbox",
+        _children: [],
+        label: "Currys",
+        indeterminate: true,
+      },
+      {
+        _component: "@budibase/materialdesign-components/Checkbox",
+        _children: [],
+        label: "Chips",
+      },
+      {
+        _component: "@budibase/materialdesign-components/Checkbox",
+        _children: [],
+        label: "Pasties",
+      },
+    ],
   },
   Radiobutton: {
     _component: "@budibase/materialdesign-components/Radiobutton",
@@ -102,6 +117,8 @@ export const props = {
     _component: "@budibase/materialdesign-components/Radiobuttongroup",
     label: "Preferred method of contact: ",
     orientation: "column",
+    disabled: true,
+    alignEnd: true,
     onChange: selected => console.log("Radiobutton Group", selected),
     _children: [
       {
@@ -166,26 +183,27 @@ export const props = {
     label: "Choose a Milkshake",
     helperText: "Choose a flavour",
     persistent: true,
+    value: "1",
     onSelect: selectedItem => console.log("SELECT ITEM", selectedItem),
     _children: [
       {
         _component: "@budibase/materialdesign-components/ListItem",
         _children: [],
         text: "Orange",
-        value: 0,
+        value: "0",
       },
       {
         _component: "@budibase/materialdesign-components/ListItem",
         _children: [],
         text: "Apple",
-        value: 1,
+        value: "1",
       },
       {
         _component: "@budibase/materialdesign-components/ListItem",
         _children: [],
         text: "Berry",
-        value: 0,
+        value: "2",
       },
     ],
-  },
+  }
 }
