@@ -29,7 +29,7 @@ import {
   getBuiltin,
 } from "../userInterface/pagesParsing/createProps"
 import { expandComponentDefinition } from "../userInterface/pagesParsing/types"
-import { loadLibs, loadLibUrls } from "./loadComponentLibraries"
+import { loadLibs, libUrlsForPreview } from "./loadComponentLibraries"
 import { buildCodeForScreens } from "./buildCodeForScreens"
 import { generate_screen_css } from "./generate_css"
 import { insertCodeMetadata } from "./insertCodeMetadata"
@@ -55,7 +55,6 @@ export const getStore = () => {
     currentComponentProps: null,
     currentNodeIsNew: false,
     errors: [],
-    activeNav: "database",
     isBackend: true,
     hasAppPackage: false,
     accessLevels: { version: 0, levels: [] },
@@ -84,7 +83,6 @@ export const getStore = () => {
   store.deleteTrigger = deleteTrigger(store)
   store.saveLevel = saveLevel(store)
   store.deleteLevel = deleteLevel(store)
-  store.setActiveNav = setActiveNav(store)
   store.saveScreen = saveScreen(store)
   store.addComponentLibrary = addComponentLibrary(store)
   store.renameScreen = renameScreen(store)
@@ -153,9 +151,16 @@ const initialise = (store, initial) => async () => {
   }
 
   initial.libraries = await loadLibs(appname, pkg)
-  initial.loadLibraryUrls = () => loadLibUrls(appname, pkg)
+  initial.loadLibraryUrls = pageName => {
+    const libs = libUrlsForPreview(pkg, pageName)
+    return libs
+  }
   initial.appname = appname
   initial.pages = pkg.pages
+  initial.currentInstanceId =
+    pkg.application.instances && pkg.application.instances.length > 0
+      ? pkg.application.instances[0].id
+      : ""
   initial.hasAppPackage = true
   initial.hierarchy = pkg.appDefinition.hierarchy
   initial.accessLevels = pkg.accessLevels
@@ -230,7 +235,6 @@ const selectExistingNode = store => nodeId => {
     s.currentNode = getNode(shadowHierarchy, nodeId)
     s.currentNodeIsNew = false
     s.errors = []
-    s.activeNav = "database"
     return s
   })
 }
@@ -438,13 +442,6 @@ const deleteLevel = store => level => {
     )
     incrementAccessLevelsVersion(s)
     saveBackend(s)
-    return s
-  })
-}
-
-const setActiveNav = store => navName => {
-  store.update(s => {
-    s.activeNav = navName
     return s
   })
 }
