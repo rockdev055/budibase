@@ -2,4 +2,4 @@
   export let text = ""
 </script>
 
-<span class="mdc-typography--caption">{text}</span>
+<div class="mdc-typography--caption">{text}</div>
