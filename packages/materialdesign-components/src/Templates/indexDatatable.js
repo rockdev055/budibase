@@ -37,7 +37,7 @@ const tableProps = (index, indexSchema) => ({
     {
       "##eventHandlerType": "List Records",
       parameters: {
-        indexKey: index.nodeKey(),
+        indexKey:index.nodeKey(),
         statePath: index.name,
       },
     },
@@ -53,7 +53,6 @@ const columnHeaders = indexSchema =>
         _component: "@budibase/standard-components/text",
         type: "none",
         text: col.name,
-        formattingTag: "<b> - bold",
       },
     ],
   }))

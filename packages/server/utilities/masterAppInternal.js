@@ -6,7 +6,7 @@ const {
 const getDatastore = require("./datastore")
 const getDatabaseManager = require("./databaseManager")
 const { $ } = require("@budibase/core").common
-const { keyBy, values, cloneDeep } = require("lodash/fp")
+const { keyBy, values } = require("lodash/fp")
 const {
   masterAppPackage,
   applictionVersionPackage,
@@ -128,10 +128,20 @@ module.exports = async context => {
     const userInMaster = await getUser(app.id, username)
     if (!userInMaster) return null
 
-    const { instance, bbInstance } = await getFullAccessApiForInstanceId(
+    const instance = await bb.recordApi.load(userInMaster.instance.key)
+
+    const versionId = determineVersionId(instance.version)
+
+    const dsConfig = JSON.parse(instance.datastoreconfig)
+    const appPackage = await applictionVersionPackage(
+      context,
       appname,
-      userInMaster.instance.id,
-      app.id
+      versionId,
+      instance.key
+    )
+    const bbInstance = await getApisWithFullAccess(
+      datastoreModule.getDatastore(dsConfig),
+      appPackage
     )
 
     const authUser = await bbInstance.authApi.authenticate(username, password)
@@ -153,34 +163,6 @@ module.exports = async context => {
     await bb.recordApi.save(session)
     return session
   }
-
-  const getFullAccessApiForInstanceId = async (appname, instanceId, appId) => {
-    if (!appId) {
-      appId = (await getApplication(appname)).id
-    }
-    const instanceKey = `/applications/${appId}/instances/${instanceId}`
-    const instance = await bb.recordApi.load(instanceKey)
-
-    const versionId = determineVersionId(instance.version)
-
-    const dsConfig = JSON.parse(instance.datastoreconfig)
-    const appPackage = await applictionVersionPackage(
-      context,
-      appname,
-      versionId,
-      instance.key
-    )
-    return {
-      bbInstance: await getApisWithFullAccess(
-        datastoreModule.getDatastore(dsConfig),
-        appPackage
-      ),
-      instance,
-    }
-  }
-
-  const getFullAccessApiForMaster = async () =>
-    await getApisWithFullAccess(masterDatastore, masterAppPackage(context))
 
   const getInstanceApiForSession = async (appname, sessionId) => {
     if (isMaster(appname)) {
@@ -313,14 +295,6 @@ module.exports = async context => {
     }
   }
 
-  const getApplicationWithInstances = async appname => {
-    const app = cloneDeep(await getApplication(appname))
-    app.instances = await bb.indexApi.listItems(
-      `/applications/${app.id}/allinstances`
-    )
-    return app
-  }
-
   const disableUser = async (app, username) => {
     await removeSessionsForUser(app.name, username)
     const userInMaster = await getUser(app.id, username)
@@ -350,8 +324,5 @@ module.exports = async context => {
     createAppUser,
     bbMaster: bb,
     listApplications,
-    getFullAccessApiForInstanceId,
-    getFullAccessApiForMaster,
-    getApplicationWithInstances,
   }
 }

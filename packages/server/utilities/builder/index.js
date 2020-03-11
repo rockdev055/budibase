@@ -27,8 +27,8 @@ module.exports.saveBackend = saveBackend
 const getAppDefinition = async appPath =>
   await readJSON(`${appPath}/appDefinition.json`)
 
-module.exports.getPackageForBuilder = async (config, application) => {
-  const appPath = appPackageFolder(config, application.name)
+module.exports.getPackageForBuilder = async (config, appname) => {
+  const appPath = appPackageFolder(config, appname)
 
   const pages = await getPages(appPath)
 
@@ -40,8 +40,6 @@ module.exports.getPackageForBuilder = async (config, application) => {
     pages,
 
     components: await getComponentDefinitions(appPath, pages),
-
-    application,
   }
 }
 

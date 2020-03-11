@@ -1,6 +1,5 @@
 <script>
   import InputGroup from "../common/Inputs/InputGroup.svelte"
-  import LayoutTemplateControls from "./LayoutTemplateControls.svelte";
 
   export let onStyleChanged = () => {}
   export let component
@@ -24,12 +23,6 @@
   $: layouts = {
     templaterows: ["Grid Rows", single],
     templatecolumns: ["Grid Columns", single],
-  }
-
-  $: display = {
-    direction: ["Direction", single],
-    align: ["Align", single],
-    justify: ["Justify", single],
   }
 
   $: positions = {
@@ -56,24 +49,22 @@
 
 <h3>Styles</h3>
 
-<h4>Display</h4>
+<h4>Positioning</h4>
 <div class="layout-pos">
-  {#each Object.entries(display) as [key, [name, meta, size]] (component._id + key)}
+  {#each Object.entries(layouts) as [key, [name, meta, size]] (component._id + key)}
     <div class="grid">
       <h5>{name}:</h5>
-        <LayoutTemplateControls
-          onStyleChanged={_value => onStyleChanged('layout', key, _value)}
-          values={layout[key] || newValue(meta.length)}
-          propertyName={name}
-          {meta}
-          {size}
-          type="text" 
-        />
+      <InputGroup
+        onStyleChanged={_value => onStyleChanged('layout', key, _value)}
+        values={layout[key] || newValue(meta.length)}
+        {meta}
+        {size}
+        type="text" />
     </div>
   {/each}
 </div>
 
-<!-- <h4>Positioning</h4>
+<h4>Positioning</h4>
 <div class="layout-pos">
   {#each Object.entries(positions) as [key, [name, meta, size]] (component._id + key)}
     <div class="grid">
@@ -85,7 +76,7 @@
         {size} />
     </div>
   {/each}
-</div> -->
+</div>
 
 <h4>Spacing</h4>
 <div class="layout-spacing">

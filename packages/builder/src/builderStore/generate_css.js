@@ -29,18 +29,6 @@ const css_map = {
     name: "grid-template-columns",
     generate: self,
   },
-  align: {
-    name: "align-items",
-    generate: self,
-  },
-  justify: {
-    name: "justify-content",
-    generate: self,
-  },
-  direction: {
-    name: "flex-direction",
-    generate: self
-  },
   gridarea: {
     name: "grid-area",
     generate: make_margin,
@@ -112,9 +100,7 @@ const object_to_css_string = [
 
 export const generate_css = ({ layout, position }) => {
   let _layout = pipe(layout, object_to_css_string)
-  if (_layout.length) {
-    _layout += `\ndisplay: ${_layout.includes("flex") ? "flex" : "grid"};`;
-  }
+  _layout = _layout.length ? _layout + "\ndisplay: grid;" : _layout
 
   return {
     layout: _layout,
