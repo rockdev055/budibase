@@ -46,29 +46,15 @@ module.exports = (config, app) => {
         }
 
         if (ctx.path.startsWith("/_builder/instance/_master")) {
-          const {
-            instance,
-            publicPath,
-            sharedPath,
-          } = await ctx.master.getFullAccessApiForMaster()
-          ctx.instance = instance
-          ctx.publicPath = publicPath
-          ctx.sharedPath = sharedPath
+          ctx.instance = ctx.master.getFullAccessApiForMaster()
           ctx.isAuthenticated = !!ctx.instance
         } else if (ctx.path.startsWith("/_builder/instance")) {
           const builderAppName = pathParts[3]
           const instanceId = pathParts[4]
-          const {
-            bbInstance,
-            publicPath,
-            sharedPath,
-          } = await ctx.master.getFullAccessApiForInstanceId(
+          ctx.instance = ctx.master.getFullAccessApiForInstanceId(
             builderAppName,
             instanceId
-          )
-          ctx.instance = bbInstance
-          ctx.publicPath = publicPath
-          ctx.sharedPath = sharedPath
+          ).bbInstance
           ctx.isAuthenticated = !!ctx.instance
         }
 
@@ -101,7 +87,7 @@ module.exports = (config, app) => {
     .get("/_builder/*", async (ctx, next) => {
       const path = ctx.path.replace("/_builder", "")
 
-      if (path.startsWith("/api/") || path.startsWith("/instance/")) {
+      if (path.startsWith("/api/")) {
         await next()
       } else {
         await send(ctx, path, { root: builderPath })

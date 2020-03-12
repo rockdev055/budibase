@@ -1,9 +1,7 @@
-const { getAppRelativePath } = require("./helpers")
-
 const send = require("koa-send")
 
 module.exports = async (ctx, next) => {
-  const path = getAppRelativePath(ctx.params.appname, ctx.path)
+  const path = ctx.path.replace(`/${ctx.params.appname}`, "")
 
   if (path.startsWith("/api/")) {
     await next()

@@ -30,7 +30,7 @@
   )
 
   $: frontendDefinition = {
-    componentLibraries: $store.loadLibraryUrls($store.currentPageName),
+    componentLibraries: $store.loadLibraryUrls(),
     page: $store.currentPreviewItem,
     screens: [{
       name: "Screen Placeholder",
@@ -63,7 +63,7 @@
         ]
       }
     }],
-    appRootPath: `/_builder/instance/${$store.appname}/${$store.currentInstanceId}/`,
+    appRootPath: "",
   }
 
   $: backendDefinition = {

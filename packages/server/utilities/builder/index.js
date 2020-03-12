@@ -147,19 +147,17 @@ const getComponentDefinitions = async (appPath, pages, componentLibrary) => {
 
   const components = {}
   const templates = {}
-  const libraryPaths = {}
 
   for (let library of componentLibraries) {
     const info = await componentLibraryInfo(appPath, library)
     merge(components, info.components)
     merge(templates, info.templates)
-    libraryPaths[library] = components._lib
   }
 
   if (components._lib) delete components._lib
   if (templates._lib) delete templates._lib
 
-  return { components, templates, libraryPaths }
+  return { components, templates }
 }
 
 module.exports.getComponentDefinitions = getComponentDefinitions

@@ -156,8 +156,7 @@ module.exports = async context => {
 
   const getFullAccessApiForInstanceId = async (appname, instanceId, appId) => {
     if (!appId) {
-      const app = await getApplication(appname)
-      appId = app.id
+      appId = (await getApplication(appname)).id
     }
     const instanceKey = `/applications/${appId}/instances/${instanceId}`
     const instance = await bb.recordApi.load(instanceKey)
@@ -173,25 +172,15 @@ module.exports = async context => {
     )
     return {
       bbInstance: await getApisWithFullAccess(
-        getInstanceDatastore(dsConfig),
+        datastoreModule.getDatastore(dsConfig),
         appPackage
       ),
       instance,
-      publicPath: appPackage.mainUiPath,
-      sharedPath: appPackage.sharedPath,
     }
   }
 
-  const getFullAccessApiForMaster = async () => {
-    const masterPkg = masterAppPackage(context)
-    const instance = await getApisWithFullAccess(masterDatastore, masterPkg)
-
-    return {
-      instance,
-      publicPath: masterPkg.unauthenticatedUiPath,
-      sharedPath: masterPkg.sharedPath,
-    }
-  }
+  const getFullAccessApiForMaster = async () =>
+    await getApisWithFullAccess(masterDatastore, masterAppPackage(context))
 
   const getInstanceApiForSession = async (appname, sessionId) => {
     if (isMaster(appname)) {
