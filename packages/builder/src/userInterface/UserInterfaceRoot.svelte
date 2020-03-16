@@ -108,28 +108,17 @@
     padding: 0;
   }
 
-
-.root {
-  display: grid;
-  grid-template-columns: 275px 1fr 275px;
-  height: 100%;
-  width: 100%;
-  background: #fafafa;
-}
-
-@media only screen and (min-width: 1800px) {
   .root {
     display: grid;
-    grid-template-columns: 300px 1fr 300px;
+    grid-template-columns: 290px 1fr 350px;
     height: 100%;
     width: 100%;
     background: #fafafa;
   }
-}
 
   .ui-nav {
     grid-column: 1;
-    background-color: var(--white);
+    background-color: var(--secondary5);
     height: calc(100vh - 49px);
     padding: 0;
     overflow: hidden;
@@ -147,18 +136,17 @@
 
   .components-pane {
     grid-column: 3;
-    background-color: var(--white);
+    background-color: var(--secondary5);
     min-height: 0px;
     overflow-y: hidden;
   }
 
   .components-nav-header {
-    font-size: 12px;
-    color: #000333;
+    font-size: 0.75rem;
+    color: #999;
     text-transform: uppercase;
     margin-top: 1rem;
-    font-weight: 700;
-    opacity: 0.6;
+    font-weight: 500;
   }
 
   .nav-group-header {

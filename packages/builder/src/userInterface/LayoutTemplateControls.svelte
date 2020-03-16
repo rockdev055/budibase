@@ -51,26 +51,26 @@
 <style>
   .selected {
     color: var(--button-text);
-    background: #f9f9f9;
-    opacity: 1;
+    background: var(--background-button);
   }
 
   button {
     cursor: pointer;
     outline: none;
     border: none;
-    border-radius: 3px;
+    border-radius: 5px;
+    background: rgba(249, 249, 249, 1);
 
     min-width: 1.6rem;
     min-height: 1.6rem;
 
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
 
     font-size: 1.2rem;
     font-weight: 500;
-    color: #000333;
+    color: rgba(22, 48, 87, 1);
   }
 
   .inputs {

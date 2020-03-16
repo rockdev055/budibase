@@ -10,12 +10,16 @@
 
   const pages = [
     {
-      title: "Main",
-      id: "main",
+      title: "Joe",
+      id: "joe",
     },
     {
-      title: "Login",
-      id: "unauthenticated",
+      title: "Mike",
+      id: "mike",
+    },
+    {
+      title: "Martin",
+      id: "martin",
     },
   ]
 
@@ -26,12 +30,7 @@
   <ul>
     {#each pages as { title, id }}
       <li>
-        <span class="icon">
-          {#if id === $store.currentPageName}
-            <CheckIcon />
-          {/if}
-        </span>
-
+        <i class="ri-user-4-line" />
         <button
           class:active={id === $store.currentPageName}
           on:click={() => store.setCurrentPage(id)}>
