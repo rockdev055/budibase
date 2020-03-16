@@ -6,13 +6,6 @@
   import { fade } from "svelte/transition"
   import { SettingsIcon, PreviewIcon, HelpIcon } from "./common/Icons/"
 
-  const TABS = {
-    BACKEND: "backend",
-    FRONTEND: "frontend",
-  }
-
-  let selectedTab = TABS.BACKEND 
-
 </script>
 
 <div class="root">
@@ -26,37 +19,37 @@
                       color="var(--slate)"
                       hoverColor="var(--secondary75)"/> -->
       <span
-        class:active={selectedTab === TABS.BACKEND}
+        class:active={$store.isBackend}
         class="topnavitem"
-        on:click={() => selectedTab = TABS.BACKEND}>
+        on:click={store.showBackend}>
         Backend
       </span>
       <span
-        class:active={selectedTab === TABS.FRONTEND}
+        class:active={!$store.isBackend}
         class="topnavitem"
-        on:click={() => selectedTab = TABS.FRONTEND}>
+        on:click={store.showFrontend}>
         Frontend
       </span>
     </div>
 
     <div class="toprightnav">
       <span
-        class:active={selectedTab === TABS.FRONTEND}
+        class:active={!$store.isBackend}
         class="topnavitemright"
-        on:click={() => selectedTab === TABS.FRONTEND}>
+        on:click={store.showFrontend}>
         <SettingsIcon /> 
       </span>
       <span
-        class:active={selectedTab === TABS.FRONTEND}
+        class:active={!$store.isBackend}
         class="topnavitemright"
-        on:click={() => selectedTab === TABS.FRONTEND}>
+        on:click={store.showFrontend}>
         <PreviewIcon />      
       </span>
     </div>
   </div>
 
   <div class="content">
-    {#if selectedTab === TABS.BACKEND}
+    {#if $store.isBackend}
       <div in:fade out:fade>
         <BackendRoot />
       </div>

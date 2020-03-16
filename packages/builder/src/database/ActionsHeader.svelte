@@ -7,9 +7,7 @@
   import ErrorsBox from "../common/ErrorsBox.svelte"
 
   export let left
-
   let confirmDelete = false
-
   const openConfirmDelete = () => {
     confirmDelete = true
   }
@@ -60,5 +58,12 @@
     padding: 1.5rem;
     width: 100%;
     align-items: right;
+  }
+
+  .actions-modal-body {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 </style>
