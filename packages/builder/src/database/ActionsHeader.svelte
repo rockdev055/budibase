@@ -7,29 +7,24 @@
   import ErrorsBox from "../common/ErrorsBox.svelte"
 
   export let left
-
   let confirmDelete = false
-
   const openConfirmDelete = () => {
     confirmDelete = true
   }
 
-  // const deleteCurrentNode = () => {
-  //   confirmDelete = false
-  //   store.deleteCurrentNode()
-  // }
-
-  // TODO: COMPLETELY REFACTOR THIS SHIT
   const deleteCurrentNode = () => {
     confirmDelete = false
     store.deleteCurrentNode()
   }
 </script>
 
-<div class="root">
+<div class="root" style="left: {left}">
   <ButtonGroup>
-    <ActionButton color="secondary" grouped on:click={store.saveCurrentNode}>
-      Save
+    <ActionButton
+      color="secondary"
+      grouped
+      on:click={store.saveCurrentNode}>
+      {#if $store.currentNodeIsNew}Create{:else}Update{/if}
     </ActionButton>
 
     {#if !$store.currentNodeIsNew}
@@ -63,5 +58,12 @@
     padding: 1.5rem;
     width: 100%;
     align-items: right;
+  }
+
+  .actions-modal-body {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 </style>

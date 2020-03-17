@@ -1,17 +1,17 @@
 <script>
-  import { getContext, setContext } from "svelte"; 
+  import { store } from "../builderStore"
   import getIcon from "../common/icon"
 
   export let name = ""
   export let label = ""
 
-  $: navActive = getContext("activeNav") === name 
+  let navActive = ""
 
-  // store.subscribe(db => {
-  //   navActive = db.activeNav === name
-  // })
+  store.subscribe(db => {
+    navActive = db.activeNav === name
+  })
 
-  const setActive = () => setContext("activeNav", name);
+  const setActive = () => store.setActiveNav(name)
 </script>
 
 <div
