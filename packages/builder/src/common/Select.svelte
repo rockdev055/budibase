@@ -23,11 +23,11 @@
   }
 
   select {
-    height: 40px;
+    height: 35px;
     display: block;
     font-family: sans-serif;
-    font-weight: 400;
-    color: #000333;
+    font-weight: 500;
+    color: #163057;
     padding: 0 2.6em 0em 1.4em;
     width: 100%;
     max-width: 100%;
@@ -36,7 +36,8 @@
     -moz-appearance: none;
     -webkit-appearance: none;
     appearance: none;
-    background: var(--lightslate);
+    background: #fff;
+    border: 1px solid #ccc;
   }
 
   .arrow {
