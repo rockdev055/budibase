@@ -34,7 +34,6 @@
     grid-template-rows: 1fr;
     grid-template-columns: 70px 1fr;
     grid-gap: 10px;
-    align-items: baseline;
   }
 
   h5 {
