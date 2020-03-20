@@ -24,7 +24,7 @@ import { filter, find } from "lodash/fp"
 import { createBehaviourSources } from "../src/actionsApi/buildBehaviourSource"
 import { createAction, createTrigger } from "../src/templateApi/createActions"
 import { initialiseActions } from "../src/actionsApi/initialise"
-import { setCleanupFunc } from "../src/transactions/setCleanupFunc"
+import { cleanup } from "../src/transactions/cleanup"
 import { permission } from "../src/authApi/permissions"
 import { generateFullPermissions } from "../src/authApi/generateFullPermissions"
 import { initialiseData } from "../src/appInitialise/initialiseData"
@@ -39,9 +39,9 @@ export const testTemplatesPath = testAreaName =>
   path.join(testFileArea(testAreaName), templateDefinitions)
 
 export const getMemoryStore = () => setupDatastore(memory({}))
-export const getMemoryTemplateApi = (store) => {
+export const getMemoryTemplateApi = () => {
   const app = {
-    datastore: store || getMemoryStore(),
+    datastore: getMemoryStore(),
     publish: () => {},
     getEpochTime: async () => new Date().getTime(),
     user: { name: "", permissions: [permission.writeTemplates.get()] },
@@ -78,9 +78,8 @@ export const appFromTempalteApi = async (
   const fullPermissions = generateFullPermissions(app)
   app.user.permissions = fullPermissions
 
-  if (disableCleanupTransactions) setCleanupFunc(app, async () => {})
-  else setCleanupFunc(app)
-
+  if (disableCleanupTransactions) app.cleanupTransactions = async () => {}
+  else app.cleanupTransactions = async () => await cleanup(app)
   return app
 }
 
@@ -101,9 +100,8 @@ export const getRecordApiFromTemplateApi = async (
   disableCleanupTransactions = false
 ) => {
   const app = await appFromTempalteApi(templateApi, disableCleanupTransactions)
-  const recordapi = getRecordApi(app)
+  const recordapi = getRecordApi()
   recordapi._storeHandle = app.datastore
-  return recordapi
 }
 
 export const getCollectionApiFromTemplateApi = async (

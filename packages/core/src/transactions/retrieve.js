@@ -22,41 +22,32 @@ export const retrieve = async app => {
     TRANSACTIONS_FOLDER
   )
 
+  let transactions = []
+
   if (some(isBuildIndexFolder)(transactionFiles)) {
-    const buildIndexFolders = filter(isBuildIndexFolder)(transactionFiles)
-    let currentFolderIndex = 0
-    while (currentFolderIndex < buildIndexFolders.length) {
-      const buildIndexFolder = buildIndexFolders[currentFolderIndex]
-      const transactions = await retrieveBuildIndexTransactions(
-        app,
-        joinKey(TRANSACTIONS_FOLDER, buildIndexFolder)
-      )
-      if(transactions.length === 0) {
-        await app.datastore.deleteFolder(
-          joinKey(TRANSACTIONS_FOLDER, buildIndexFolder))
-      } else {
-        return transactions
-      }
-      currentFolderIndex += 1
-    }
-  
-    return []
+    const buildIndexFolder = find(isBuildIndexFolder)(transactionFiles)
+
+    transactions = await retrieveBuildIndexTransactions(
+      app,
+      joinKey(TRANSACTIONS_FOLDER, buildIndexFolder)
+    )
   }
+
+  if (transactions.length > 0) return transactions
 
   return await retrieveStandardTransactions(app, transactionFiles)
 }
 
 const retrieveBuildIndexTransactions = async (app, buildIndexFolder) => {
   const childFolders = await app.datastore.getFolderContents(buildIndexFolder)
-  const childFolderCount = childFolders.length
-  if (childFolderCount === 0) {
+  if (childFolders.length === 0) {
+    // cleanup
+    await app.datastore.deleteFolder(buildIndexFolder)
     return []
   }
 
   const getTransactionFiles = async (childFolderIndex = 0) => {
-    if (childFolderIndex >= childFolders.length) {
-      return { childFolderKey: "", files: [] }
-    }
+    if (childFolderIndex >= childFolders.length) return []
 
     const childFolderKey = joinKey(
       buildIndexFolder,
@@ -64,19 +55,17 @@ const retrieveBuildIndexTransactions = async (app, buildIndexFolder) => {
     )
     const files = await app.datastore.getFolderContents(childFolderKey)
 
-    if (files.length > 0) {
-      return { childFolderKey, files } 
+    if (files.length === 0) {
+      await app.datastore.deleteFolder(childFolderKey)
+      return await getTransactionFiles(childFolderIndex + 1)
     }
 
-    await app.datastore.deleteFolder(childFolderKey)
-    return await getTransactionFiles(childFolderIndex + 1)
+    return { childFolderKey, files }
   }
 
   const transactionFiles = await getTransactionFiles()
 
-  if (transactionFiles.files.length === 0) {
-    return []
-  }
+  if (transactionFiles.files.length === 0) return []
 
   const transactions = $(transactionFiles.files, [map(parseTransactionId)])
 

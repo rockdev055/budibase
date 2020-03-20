@@ -58,7 +58,6 @@
     padding: 1.5rem;
     width: 100%;
     align-items: right;
-    box-sizing: border-box;
   }
 
   .actions-modal-body {

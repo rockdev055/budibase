@@ -238,10 +238,6 @@ module.exports = (config, app) => {
         ctx.response.status = StatusCodes.UNAUTHORIZED
       }
     })
-    .post(
-      "/_builder/instance/:appname/:instanceid/api/upgradeData",
-      routeHandlers.upgradeData
-    )
     .post("/:appname/api/changeMyPassword", routeHandlers.changeMyPassword)
     .post(
       "/_builder/instance/:appname/:instanceid/api/changeMyPassword",
