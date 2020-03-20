@@ -99,7 +99,7 @@
     flex-direction: column;
     max-height: 100%;
     height: 100%;
-    background-color: var(--white);
+    background-color: var(--secondary5);
   }
 
   .nav-group-header {

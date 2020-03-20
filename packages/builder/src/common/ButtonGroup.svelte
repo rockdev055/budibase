@@ -8,8 +8,9 @@
 
 <style>
   .root {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    display: grid;
+    grid-auto-flow: column;
+    grid-gap: 5px;
+    width: 50%;
   }
 </style>

@@ -239,12 +239,12 @@
     position: relative;
     padding: 0 15px;
     cursor: pointer;
-    border: 1px solid #d8d8d8;
+    border: 1px solid #ebebeb;
     border-radius: 2px;
     margin: 5px 0;
     height: 40px;
     box-sizing: border-box;
-    color: #000333;
+    color: #163057;
     display: flex;
     align-items: center;
     flex: 1;
@@ -256,10 +256,11 @@
   }
 
   .component > .name {
-    color: #000333;
+    color: #163057;
     display: inline-block;
     font-size: 12px;
-    opacity: 0.8;
+    font-weight: bold;
+    opacity: 0.6;
   }
 
   ul {
@@ -278,11 +279,12 @@
     background: #fafafa;
     padding: 10px;
     border-radius: 2px;
-    color:var(--secondary80);
+    color: rgba(22, 48, 87, 0.6);
   }
 
   .preset-menu > span {
     font-size: 12px;
+    font-weight: bold;
     text-transform: uppercase;
     margin-top: 5px;
   }
