@@ -17,9 +17,6 @@
     Icon,
     List,
     Select,
-    DatePicker,
-    IconButton,
-    Card,
   } = props
 
   let currentComponent
@@ -37,9 +34,6 @@
             Select,
             Radiobutton,
             Radiobuttongroup,
-            DatePicker,
-            IconButton,
-            Card,
           ],
         },
       }

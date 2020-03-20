@@ -2,7 +2,7 @@ import { MDCRipple } from "@material/ripple"
 
 export default function ripple(
   node,
-  props = { colour: "primary", unbounded: true }
+  props = { colour: "primary", unbounded: false }
 ) {
   node.classList.add("mdc-ripple-surface")
   let component = new MDCRipple(node)
