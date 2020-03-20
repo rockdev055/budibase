@@ -1,10 +1,18 @@
 <script>
   import getIcon from "./icon"
+
+  export let icon
   export let value
 </script>
 
 <div class="select-container">
-  <select on:change bind:value>
+  {#if icon}
+    <i class={icon} />
+  {/if}
+  <select 
+    class:adjusted={icon}
+    on:change bind:value
+  >
     <slot />
   </select>
   <span class="arrow">
@@ -14,20 +22,30 @@
 
 <style>
   .select-container {
-    padding-bottom: 10px;
     font-size: 0.9rem;
     color: var(--secondary50);
     font-weight: bold;
     position: relative;
     max-width: 300px;
+    min-width: 200px;
+  }
+
+  .adjusted {
+    padding-left: 2.5em;
+  }
+
+  i {
+    position: absolute;
+    left: 8px;
+    top: 8px;
   }
 
   select {
-    height: 40px;
+    height: 35px;
     display: block;
     font-family: sans-serif;
-    font-weight: 400;
-    color: #000333;
+    font-weight: 500;
+    color: #163057;
     padding: 0 2.6em 0em 1.4em;
     width: 100%;
     max-width: 100%;
@@ -36,13 +54,13 @@
     -moz-appearance: none;
     -webkit-appearance: none;
     appearance: none;
-    background: var(--lightslate);
+    background: #fff;
+    border: 1px solid #ccc;
   }
 
   .arrow {
     position: absolute;
     right: 10px;
-    top: 0;
     bottom: 0;
     margin: auto;
     width: 30px;

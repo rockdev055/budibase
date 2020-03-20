@@ -6,8 +6,8 @@
   import Modal from "../common/Modal.svelte"
   import ErrorsBox from "../common/ErrorsBox.svelte"
 
-  export let left
   let confirmDelete = false
+
   const openConfirmDelete = () => {
     confirmDelete = true
   }
@@ -18,13 +18,10 @@
   }
 </script>
 
-<div class="root" style="left: {left}">
+<div class="root">
   <ButtonGroup>
-    <ActionButton
-      color="secondary"
-      grouped
-      on:click={store.saveCurrentNode}>
-      {#if $store.currentNodeIsNew}Create{:else}Update{/if}
+    <ActionButton color="secondary" grouped on:click={store.saveCurrentNode}>
+      Save
     </ActionButton>
 
     {#if !$store.currentNodeIsNew}
@@ -34,10 +31,8 @@
     {/if}
   </ButtonGroup>
 
-  {#if !!$store.errors && $store.errors.length > 0}
-    <div style="width: 500px">
-      <ErrorsBox errors={$store.errors} />
-    </div>
+  {#if $store.errors && $store.errors.length > 0}
+    <ErrorsBox errors={$store.errors} />
   {/if}
 
   <Modal onClosed={() => (confirmDelete = false)} bind:isOpen={confirmDelete}>
@@ -58,13 +53,5 @@
     padding: 1.5rem;
     width: 100%;
     align-items: right;
-    box-sizing: border-box;
-  }
-
-  .actions-modal-body {
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 </style>

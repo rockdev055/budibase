@@ -21,10 +21,3 @@ export { Menu } from "./Menu"
 export { Select } from "./Select"
 export { DatePicker } from "./DatePicker"
 export { IconButton } from "./IconButton"
-export { Card } from "./Card"
-export { CardHeader } from "./Card"
-export { CardImage } from "./Card"
-export { CardBody } from "./Card"
-export { CardFooter } from "./Card"
-
-

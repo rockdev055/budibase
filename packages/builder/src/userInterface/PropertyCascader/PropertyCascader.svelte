@@ -91,7 +91,9 @@
     cursor: pointer;
     outline: none;
     border: none;
-    border-radius: 3px;
+    border-radius: 5px;
+    background: rgba(249, 249, 249, 1);
+
     font-size: 1.6rem;
     font-weight: 700;
     color: rgba(22, 48, 87, 1);

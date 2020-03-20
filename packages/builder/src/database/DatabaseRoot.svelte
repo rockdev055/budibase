@@ -1,70 +1,65 @@
 <script>
-  import HierarchyRow from "./HierarchyRow.svelte"
-  import RecordView from "./RecordView.svelte"
+  import ModelView from "./ModelView.svelte"
   import IndexView from "./IndexView.svelte"
+  import ModelDataTable from "./ModelDataTable"
   import ActionsHeader from "./ActionsHeader.svelte"
-  import { store } from "../builderStore"
+  import { store, backendUiStore } from "../builderStore"
   import getIcon from "../common/icon"
   import DropdownButton from "../common/DropdownButton.svelte"
-  import { hierarchy as hierarchyFunctions } from "../../../core/src"
+  import ActionButton from "../common/ActionButton.svelte"
+  import Modal from "../common/Modal.svelte"
+  import {
+    CreateEditRecordModal,
+    CreateEditModelModal,
+    CreateEditViewModal,
+    CreateDatabaseModal
+  } from "./ModelDataTable/modals"
 
-  const hierarchyWidth = "200px"
+  let selectedRecord
 
-  const defaultNewIndexActions = [
-    {
-      label: "New Root Index",
-      onclick: store.newRootIndex,
-    },
-  ]
+  function selectRecord(record) {
+    selectedRecord = record
+    backendUiStore.actions.modals.show("RECORD")
+  }
 
-  const defaultNewRecordActions = [
-    {
-      label: "New Root Record",
-      onclick: store.newRootRecord,
-    },
-  ]
+  function onClosed() {
+    // backendUiStore.actions.modals.hide()
+  }
 
-  let newIndexActions = defaultNewIndexActions
-  let newRecordActions = defaultNewRecordActions
-
-  store.subscribe(db => {
-    if (!db.currentNode || hierarchyFunctions.isIndex(db.currentNode)) {
-      newRecordActions = defaultNewRecordActions
-      newIndexActions = defaultNewIndexActions
-    } else {
-      newRecordActions = [
-        ...defaultNewRecordActions,
-        {
-          label: `New Child Record of ${db.currentNode.name}`,
-          onclick: store.newChildRecord,
-        },
-      ]
-
-      newIndexActions = [
-        ...defaultNewIndexActions,
-        {
-          label: `New Index on ${db.currentNode.name}`,
-          onclick: store.newChildIndex,
-        },
-      ]
-    }
-  })
+  $: recordOpen = $backendUiStore.visibleModal === "RECORD"
+  $: modelOpen = $backendUiStore.visibleModal === "MODEL"
+  $: viewOpen = $backendUiStore.visibleModal === "VIEW"
+  $: databaseOpen = $backendUiStore.visibleModal === "DATABASE"
+  // $: recordOpen = $store.currentNode && $store.currentNode.type === 'record'
+  // $: viewOpen = $store.currentNode && $store.currentNode.type === 'index'
 </script>
 
+({ console.log($backendUiStore.visibleModal) })
+
+<CreateEditRecordModal modalOpen={recordOpen} record={selectedRecord} {onClosed} />
+<CreateEditModelModal modalOpen={modelOpen} {onClosed} />
+<CreateEditViewModal modalOpen={viewOpen} {onClosed} />
+<CreateDatabaseModal modalOpen={databaseOpen} {onClosed} />
+
+
 <div class="root">
-  <div class="actions-header">
-    {#if $store.currentNode}
-      <ActionsHeader left={hierarchyWidth} />
-    {/if}
-  </div>
   <div class="node-view">
-    {#if !$store.currentNode}
-      <h1 style="margin-left: 100px">:)</h1>
-    {:else if $store.currentNode.type === 'record'}
-      <RecordView />
-    {:else}
-      <IndexView />
-    {/if}
+    <div class="database-actions">
+      <div class="budibase__label--big">
+        {#if $backendUiStore.selectedDatabase.name}
+          {$backendUiStore.selectedDatabase.name} / {$store.currentNode}
+        {/if}
+        </div>
+      <ActionButton
+        primary
+        on:click={() => {
+          selectedRecord = null
+          backendUiStore.actions.modals.show("RECORD")
+        }}>
+        Create new record
+      </ActionButton>
+    </div>
+    <ModelDataTable {selectRecord} />
   </div>
 </div>
 
@@ -74,12 +69,13 @@
     position: relative;
   }
 
-  .actions-header {
-    flex: 0 1 auto;
-  }
-
   .node-view {
     overflow-y: auto;
     flex: 1 1 auto;
+  }
+
+  .database-actions {
+    display: flex;
+    justify-content: space-between;
   }
 </style>

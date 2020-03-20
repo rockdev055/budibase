@@ -1,8 +1,7 @@
 /* Budibase Component Styles */
 .header {
     font-size: 0.75rem;
-    color: #000333;
-    opacity: 0.4;
+    color: #999;
     text-transform: uppercase;
     margin-top: 1rem;
     font-weight: 500;
@@ -59,7 +58,7 @@
     cursor: pointer;
     padding: 0 7px 0 3px;
     height: 35px;
-    margin: 5px 20px 5px 0px;
+    margin: 5px 0;
     border-radius: 0 5px 5px 0;
     display: flex;
     align-items: center;
@@ -69,7 +68,7 @@
 
 .budibase__nav-item.selected {
     color: var(--button-text);
-    background: #fafafa !important;
+    background: var(--background-button) !important;
 }
 
 .budibase__nav-item:hover {
@@ -83,7 +82,7 @@
     border: 1px solid #DBDBDB;
     text-align: left;
     letter-spacing: 0.7px;
-    color: #000333;
+    color: #163057;
     font-size: 16px;
     padding-left: 5px;
 }
@@ -91,4 +90,32 @@
 .uk-text-right {
     display: flex;
     justify-content: flex-start;
+}
+
+.preview-pane {
+    grid-column: 2;
+    margin: 80px 60px;
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0px 6px rgba(0, 0, 0, 0.05);
+}
+
+.budibase__table {
+    border: 1px solid #ccc;
+    background: #fff;
+    border-radius: 2px;
+}
+
+.budibase__table thead {
+    background: var(--background-button);
+}
+
+.budibase__table th {
+    color: var(--button-text);
+    text-transform: capitalize;
+    font-weight: 500;
+}
+
+.budibase__table tr {
+    border-bottom: 1px solid #ccc;
 }

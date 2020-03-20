@@ -33,7 +33,7 @@ const defaultOptions = {
   searchPhrase: null,
 }
 
-export const _listItems = async (app, indexKey, options = defaultOptions) => {
+const _listItems = async (app, indexKey, options = defaultOptions) => {
   const { searchPhrase, rangeStartParams, rangeEndParams } = $({}, [
     merge(options),
     merge(defaultOptions),

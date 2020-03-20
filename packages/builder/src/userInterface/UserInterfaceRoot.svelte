@@ -43,9 +43,7 @@
     <div class="pages-list-container">
       <div class="nav-header">
         <span class="navigator-title">Navigator</span>
-          <div class="border-line" />
-
-        <span class="components-nav-page">Pages</span>
+        <span class="components-nav-header">Pages</span>
       </div>
 
       <div class="nav-items-container">
@@ -110,28 +108,17 @@
     padding: 0;
   }
 
-
-.root {
-  display: grid;
-  grid-template-columns: 275px 1fr 275px;
-  height: 100%;
-  width: 100%;
-  background: #fafafa;
-}
-
-@media only screen and (min-width: 1800px) {
   .root {
     display: grid;
-    grid-template-columns: 300px 1fr 300px;
+    grid-template-columns: 290px 1fr 350px;
     height: 100%;
     width: 100%;
     background: #fafafa;
   }
-}
 
   .ui-nav {
     grid-column: 1;
-    background-color: var(--white);
+    background-color: var(--secondary5);
     height: calc(100vh - 49px);
     padding: 0;
     overflow: hidden;
@@ -149,34 +136,29 @@
 
   .components-pane {
     grid-column: 3;
-    background-color: var(--white);
+    background-color: var(--secondary5);
     min-height: 0px;
     overflow-y: hidden;
   }
 
-  .components-nav-page {
-    font-size: 12px;
-    color: #000333;
+  .components-nav-header {
+    font-size: 0.75rem;
+    color: #999;
     text-transform: uppercase;
-    padding-left: 20px;
-    margin-top: 20px;
-    font-weight: 700;
-    opacity: 0.6;
+    margin-top: 1rem;
+    font-weight: 500;
   }
 
-  .components-nav-header {
-    font-size: 12px;
-    color: #000333;
-    text-transform: uppercase;
-    margin-top: 20px;
-    font-weight: 700;
-    opacity: 0.6;
+  .nav-group-header {
+    font-size: 0.9rem;
+    padding-left: 1rem;
   }
 
   .nav-header {
     display: flex;
     flex-direction: column;
-    margin-top: 20px;
+    margin-top: 1.5rem;
+    padding: 0 1.8rem;
   }
 
   .nav-items-container {
@@ -185,7 +167,7 @@
 
   .nav-group-header {
     display: flex;
-    padding: 0px 20px 0px 20px;
+    padding: 1.5rem 0 0 1.8rem;
     font-size: 0.9rem;
     font-weight: bold;
     justify-content: space-between;
@@ -218,20 +200,20 @@
   }
 
   .navigator-title {
-    font-size: 14px;
-    color: var(--secondary100);
-    font-weight: 500;
     text-transform: uppercase;
-    padding: 0 20px 20px 20px;
-    line-height: 1rem !important;
+    font-weight: 400;
+    color: #999;
+    font-size: 0.9rem;
   }
 
   .border-line {
-    border-bottom: 1px solid #d8d8d8;
+    border-bottom: 1px solid #ddd;
+    margin-top: 1.5rem;
+    width: calc(100% + 1.5rem);
   }
 
   .components-list-container {
     overflow: auto;
-    padding: 20px 0px 0 0;
+    padding: 0 30px 0 0;
   }
 </style>
