@@ -17,6 +17,7 @@
     "@material/button": "^4.0.0",
     "@material/checkbox": "^4.0.0",
     "@material/data-table": "4.0.0",
+    "@material/dialog": "4.0.0",
     "@material/form-field": "^4.0.0",
     "@material/icon-button": "4.0.0",
     "@material/list": "4.0.0",
@@ -50,5 +51,7 @@
   "version": "0.0.27",
   "license": "MIT",
   "gitHead": "72a77a035eb7c1443b079bf93c29b3e5fe02094e",
-  "dependencies": {}
+  "dependencies": {
+    "@material/card": "4.0.0"
+  }
 }

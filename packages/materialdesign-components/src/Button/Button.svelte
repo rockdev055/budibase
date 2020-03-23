@@ -1,5 +1,5 @@
 <script>
-  import { setContext, getContext } from "svelte"
+  import { onMount } from "svelte"
   import Icon from "../Common/Icon.svelte"
   import ripple from "../Common/Ripple.js"
   import ClassBuilder from "../ClassBuilder.js"
@@ -22,20 +22,27 @@
 
   export let _bb
 
+  onMount(() => {
+    let ctx = _bb.getContext("BBMD:button:context")
+    extras = [ctx]
+  })
+
+  let extras = ""
   let modifiers = {}
   let customs = { size, colour }
 
   if (!href) modifiers = { variant }
 
-  let props = { modifiers, customs }
+  $: props = { modifiers, customs, extras }
 
-  let blockClasses = cb.build({ props })
+  $: blockClasses = cb.build({ props })
   const labelClass = cb.elem("label")
 
   const clicked = () => _bb.call(onClick)
 
   $: renderLeadingIcon = !!icon && !trailingIcon
   $: renderTrailingIcon = !!icon && trailingIcon
+  $: console.log(blockClasses)
 </script>
 
 {#if href}
