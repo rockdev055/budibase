@@ -7,7 +7,7 @@ import getActionsApi from "./actionsApi"
 import { setupDatastore, createEventAggregator } from "./appInitialise"
 import { initialiseActions } from "./actionsApi/initialise"
 import { isSomething, crypto } from "./common"
-import { setCleanupFunc } from "./transactions/setCleanupFunc"
+import { cleanup } from "./transactions/cleanup"
 import { generateFullPermissions } from "./authApi/generateFullPermissions"
 import { getApplicationDefinition } from "./templateApi/getApplicationDefinition"
 import common from "./common"
@@ -40,7 +40,9 @@ export const getAppApis = async (
 
   const templateApi = getTemplateApi(app)
 
-  setCleanupFunc(app, cleanupTransactions)
+  app.cleanupTransactions = isSomething(cleanupTransactions)
+    ? cleanupTransactions
+    : async () => await cleanup(app)
 
   app.getEpochTime = isSomething(getEpochTime)
     ? getEpochTime

@@ -9,19 +9,11 @@ import {
 export const initialiseIndex = async (datastore, dir, index) => {
   const indexDir = joinKey(dir, index.name)
 
-  let newDir = false
-  if (!await datastore.exists(indexDir)) {
-    await datastore.createFolder(indexDir)
-    newDir = true
-  }
+  await datastore.createFolder(indexDir)
 
   if (isShardedIndex(index)) {
-    const shardFile = getShardMapKey(indexDir)
-    if (newDir || !await datastore.exists(shardFile))
-      await datastore.createFile(shardFile, "[]")
+    await datastore.createFile(getShardMapKey(indexDir), "[]")
   } else {
-    const indexFile = getUnshardedIndexDataKey(indexDir)
-    if (newDir || !await datastore.exists(indexFile))
-      await createIndexFile(datastore, indexFile, index)
+    await createIndexFile(datastore, getUnshardedIndexDataKey(indexDir), index)
   }
 }

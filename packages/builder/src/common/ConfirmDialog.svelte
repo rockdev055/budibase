@@ -41,26 +41,13 @@
       <h4 class="budibase__title--4">{title}</h4>
     </div>
     <div class="uk-modal-body">
-      <slot class="rows">{body}</slot>
+      <slot>{body}</slot>
     </div>
     <div class="uk-modal-footer">
       <ButtonGroup>
-        <ActionButton cancel on:click={cancel}>{cancelText}</ActionButton>
         <ActionButton primary on:click={ok}>{okText}</ActionButton>
+        <ActionButton alert on:click={cancel}>{cancelText}</ActionButton>
       </ButtonGroup>
     </div>
   </div>
 </div>
-
-<style>
-
-.uk-modal-footer {
-  background: var(--lightslate);
-}
-
-.uk-modal-dialog {
-  width: 400px;
-  border-radius: 5px;
-}
-
-</style>
