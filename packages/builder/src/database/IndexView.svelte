@@ -9,89 +9,55 @@
 
   const pipe = common.$
 
-  const SNIPPET_EDITORS = {
-    MAP: "Map",
-    FILTER: "Filter",
-    SHARD: "Shard Name",
-  }
-
   let index
   let indexableRecords = []
-  let currentSnippetEditor = SNIPPET_EDITORS.MAP
 
   store.subscribe($store => {
     index = $store.currentNode
-    indexableRecords = pipe(
-      $store.hierarchy,
-      [
-        hierarchyFunctions.getFlattenedHierarchy,
-        filter(hierarchyFunctions.isDecendant(index.parent())),
-        filter(hierarchyFunctions.isRecord),
-        map(node => ({
-          node,
-          isallowed: index.allowedRecordNodeIds.some(id => node.nodeId === id),
-        })),
-      ]
-    )
+    indexableRecords = pipe($store.hierarchy, [
+      hierarchyFunctions.getFlattenedHierarchy,
+      filter(hierarchyFunctions.isDecendant(index.parent())),
+      filter(hierarchyFunctions.isRecord),
+      map(n => ({
+        node: n,
+        isallowed: some(id => n.nodeId === id)(index.allowedRecordNodeIds),
+      })),
+    ])
   })
 
   const toggleAllowedRecord = record => {
     if (record.isallowed) {
-      index.allowedRecordNodeIds = index.allowedRecordNodeIds.filter(id => id !== record.node.nodeId)
+      index.allowedRecordNodeIds = filter(id => id !== record.node.nodeId)(
+        index.allowedRecordNodeIds
+      )
     } else {
       index.allowedRecordNodeIds.push(record.node.nodeId)
     }
   }
 </script>
 
-<heading>
-  <i class="ri-eye-line button--toggled" />
-  <h3 class="budibase__title--3">Create / Edit View</h3>
-</heading>
-<form class="uk-form-stacked root">
-  <h4 class="budibase__label--big">Settings</h4>
-  <div class="uk-grid-small" uk-grid>
-    <div class="uk-width-1-2@s">
-      <Textbox bind:text={index.name} label="Name" />
-    </div>
-    <div class="uk-width-1-2@s">
-      <Dropdown
-        label="View Type"
-        bind:selected={index.indexType}
-        options={['ancestor', 'reference']} />
-    </div>
-  </div>
+<form class="uk-form-horizontal root">
+  <Textbox bind:text={index.name} label="Name" />
 
   <div class="allowed-records">
-    <div class="budibase__label--big">
-      Which models would you like to add to this view?
-    </div>
+    <div class="index-label">Records to Index</div>
     {#each indexableRecords as rec}
       <input
-        class="uk-checkbox"
         type="checkbox"
         checked={rec.isallowed}
         on:change={() => toggleAllowedRecord(rec)} />
-      <span class="checkbox-model-label">{rec.node.name}</span>
+      <span>{rec.node.name}</span>
     {/each}
   </div>
 
-  <h4 class="budibase__label--big">Snippets</h4>
-  {#each Object.values(SNIPPET_EDITORS) as snippetType}
-    <span
-      class="snippet-selector__heading hoverable"
-      class:highlighted={currentSnippetEditor === snippetType}
-      on:click={() => (currentSnippetEditor = snippetType)}>
-      {snippetType}
-    </span>
-  {/each}
-  {#if currentSnippetEditor === SNIPPET_EDITORS.MAP}
-    <CodeArea bind:text={index.map} label="Map" />
-  {:else if currentSnippetEditor === SNIPPET_EDITORS.FILTER}
-    <CodeArea bind:text={index.filter} label="Filter" />
-  {:else if currentSnippetEditor === SNIPPET_EDITORS.SHARD}
-    <CodeArea bind:text={index.getShardName} label="Shard Name" />
-  {/if}
+  <Dropdown
+    label="Index Type"
+    bind:selected={index.indexType}
+    options={['ancestor', 'reference']} />
+
+  <CodeArea bind:text={index.map} javascript label="Map" />
+  <CodeArea bind:text={index.filter} javascript label="Filter" />
+  <CodeArea javascript bind:text={index.getShardName} label="Shard Name" />
 
 </form>
 
@@ -109,25 +75,8 @@
     margin-right: 30px;
   }
 
-  .snippet-selector__heading {
-    margin-right: 20px;
-    opacity: 0.7;
-  }
-
-  .highlighted {
-    opacity: 1;
-  }
-
-  .checkbox-model-label {
-    text-transform: capitalize;
-  }
-
-  h3 {
-    margin: 0 0 0 10px;
-  }
-
-  heading {
-    display: flex;
-    align-items: center;
+  .index-label {
+    color: #333;
+    font-size: 0.875rem;
   }
 </style>
