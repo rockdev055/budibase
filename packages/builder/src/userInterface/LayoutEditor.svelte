@@ -54,7 +54,9 @@
   const newValue = n => Array(n).fill("")
 </script>
 
-<h3>Layout</h3>
+<h3>Styles</h3>
+
+<h4>Display</h4>
 <div class="layout-pos">
   {#each Object.entries(display) as [key, [name, meta, size]] (component._id + key)}
     <div class="grid">
@@ -85,7 +87,7 @@
   {/each}
 </div> -->
 
-<h3>Spacing</h3>
+<h4>Spacing</h4>
 <div class="layout-spacing">
   {#each Object.entries(spacing) as [key, [name, meta, size]] (component._id + key)}
     <div class="grid">
@@ -100,7 +102,7 @@
   {/each}
 </div>
 
-<h3>Size</h3>
+<h4>Size</h4>
 <div class="layout-layer">
   {#each Object.entries(size) as [key, [name, meta, size]] (component._id + key)}
     <div class="grid">
@@ -115,7 +117,7 @@
   {/each}
 </div>
 
-<h3>Order</h3>
+<h4>Z-Index</h4>
 <div class="layout-layer">
   {#each Object.entries(zindex) as [key, [name, meta, size]] (component._id + key)}
     <div class="grid">
@@ -133,11 +135,19 @@
   h3 {
     text-transform: uppercase;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 700;
+    color: #000333;
+    opacity: 0.6;
+    margin-bottom: 10px;
+  }
+
+  h4 {
+    text-transform: uppercase;
+    font-size: 10px;
+    font-weight: 700;
     color: #000333;
     opacity: 0.4;
-    margin-bottom: 10px;
-    letter-spacing: 1px;
+    margin-bottom: 15px;
   }
 
   h5 {
@@ -158,6 +168,6 @@
   }
 
   .grid {
-    grid-template-columns: 70px 2fr;
+    grid-template-columns: 70px 1fr;
   }
 </style>

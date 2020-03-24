@@ -74,6 +74,9 @@ export const getPotentialReferenceIndexes = (hierarchy, record) =>
     ),
   ])
 
+export const isIndex = hierarchyFunctions.isIndex
+export const isRecord = hierarchyFunctions.isRecord
+
 export const getDefaultTypeOptions = type =>
   !type ? {} : allTypes[type].getDefaultOptions()
 
@@ -118,6 +121,7 @@ export const getNewInstance = (appId, name) => {
     version: { key: "" },
     isNew: true,
     type: "instance",
+    datastoreconfig: "",
     id,
     name,
   }
