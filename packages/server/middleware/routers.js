@@ -324,7 +324,3 @@ module.exports = (config, app) => {
 
   return router
 }
-
-/*
-front end get authenticateTemporaryAccess {}
-*/
