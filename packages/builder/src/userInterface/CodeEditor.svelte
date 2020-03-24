@@ -1,5 +1,5 @@
 <script>
-  import { store } from "../builderStore"
+  import { store } from "../builderStore/store"
   import UIkit from "uikit"
   import ActionButton from "../common/ActionButton.svelte"
   import ButtonGroup from "../common/ButtonGroup.svelte"

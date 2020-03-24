@@ -105,7 +105,3 @@ h5 {
     font-size: 12pt;
     color: var(--darkslate);
 }
-
-.hoverable:hover {
-    cursor: pointer;
-}

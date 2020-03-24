@@ -155,6 +155,7 @@ module.exports = (config, app) => {
         }
       }
     })
+
     .get("/_builder/api/:appname/componentlibrary", async ctx => {
       const info = await componentLibraryInfo(
         config,
@@ -323,3 +324,7 @@ module.exports = (config, app) => {
 
   return router
 }
+
+/*
+front end get authenticateTemporaryAccess {}
+*/
