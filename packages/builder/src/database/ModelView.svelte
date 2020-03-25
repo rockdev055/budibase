@@ -101,8 +101,12 @@
     <h4 class="budibase__label--big">Settings</h4>
     <form class="uk-form-stacked">
 
+      <Textbox label="Name" bind:text={record.name} on:change={nameChanged} />
+
       <div class="horizontal-stack">
-        <Textbox label="Name" bind:text={record.name} on:change={nameChanged} />
+        {#if !record.isSingle}
+          <Textbox label="Collection Name" bind:text={record.collectionName} />
+        {/if}
         <div>
           <label class="uk-form-label">Parent</label>
           <div class="uk-form-controls">
