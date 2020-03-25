@@ -160,17 +160,16 @@ export const getNewRootLevel = () =>
   })
 
 const _getNewRecordTemplate = (parent, name, createDefaultIndex, isSingle) => {
-  const nodeId = getNodeId(parent)
   const node = constructNode(parent, {
     name,
     type: "record",
     fields: [],
     children: [],
     validationRules: [],
-    nodeId: nodeId,
+    nodeId: getNodeId(parent),
     indexes: [],
     estimatedRecordCount: isRecord(parent) ? 500 : 1000000,
-    collectionName: (nodeId || "").toString(),
+    collectionName: "",
     isSingle,
   })
 

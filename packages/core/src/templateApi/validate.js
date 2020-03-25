@@ -11,7 +11,7 @@ import {
   isEmpty,
   has,
 } from "lodash/fp"
-import { compileCode } from "../common/compileCode"
+import { compileExpression, compileCode } from "@nx-js/compiler-util"
 import {
   $,
   isSomething,
@@ -73,7 +73,7 @@ const aggregateGroupRules = [
     "condition does not compile",
     a =>
       isEmpty(a.condition) ||
-      executesWithoutException(() => compileCode(a.condition))
+      executesWithoutException(() => compileExpression(a.condition))
   ),
 ]
 
@@ -196,7 +196,7 @@ const triggerRules = actions => [
     t => {
       if (!t.condition) return true
       try {
-        compileCode(t.condition)
+        compileExpression(t.condition)
         return true
       } catch (_) {
         return false
