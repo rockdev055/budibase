@@ -31,6 +31,9 @@
     </ActionButton>
   </div>
 
+  {#if $store.errors && $store.errors.length > 0}
+    <ErrorsBox errors={$store.errors} />
+  {/if}
 </div>
 
 <style>

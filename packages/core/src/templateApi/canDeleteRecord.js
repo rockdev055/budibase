@@ -20,14 +20,15 @@ export const canDeleteRecord = recordNode => {
   ])
 
   const belongsToAncestor = i => 
-    ancestors.includes(i.parent())  
+    ancestors.includes(i.parent())
+  
   
   const errorsForNode = node => {
     const errorsThisNode = $(flatHierarchy, [
       filter(i => isAncestorIndex(i) 
                 && belongsToAncestor(i) 
                 && includes(node.nodeId)(i.allowedRecordNodeIds)),
-      map(i => `index "${i.name}" indexes this record. Please remove the record from the index, or delete the index`)
+      map(i => `index ${i.name} indexes this record. Please remove the record from allowedRecordIds, or delete the index`)
     ])
 
     for (let child of node.children) {
@@ -39,7 +40,5 @@ export const canDeleteRecord = recordNode => {
     return errorsThisNode    
   }
 
-  const errors =  errorsForNode(recordNode)
-
-  return { errors, canDelete: errors.length === 0 }
+  return errorsForNode(recordNode)
 }

@@ -18,8 +18,8 @@
   }
 
   async function fetchUsers() {
-    const DELETE_RECORDS_URL = `/_builder/instance/${currentAppInfo.appname}/${currentAppInfo.instanceId}/api/users`
-    const response = await api.get(DELETE_RECORDS_URL);
+    const FETCH_USERS_URL = `/_builder/instance/${currentAppInfo.appname}/${currentAppInfo.instanceId}/api/users`
+    const response = await api.get(FETCH_USERS_URL);
     users = await response.json()
   }
 
@@ -65,7 +65,6 @@
     font-size: 0.8rem;
     outline: none;
     cursor: pointer;
-    background: rgba(0,0,0,0);
   }
 
   .active {

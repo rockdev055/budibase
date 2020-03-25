@@ -171,7 +171,6 @@ module.exports = (config, app) => {
         ctx.request.body.appDefinition,
         ctx.request.body.accessLevels
       )
-      ctx.master.deleteLatestPackageFromCache(ctx.params.appname)
       ctx.response.status = StatusCodes.OK
     })
     .post("/_builder/api/:appname/pages/:pageName", async ctx => {
