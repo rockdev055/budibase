@@ -6,4 +6,5 @@
 
 <section>
   <IndexView />
+  <ActionsHeader />
 </section>
