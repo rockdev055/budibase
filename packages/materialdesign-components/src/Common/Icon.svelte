@@ -1,4 +1,6 @@
 <script>
+  import { getContext } from "svelte"
+
   export let icon = ""
   export let context = ""
 

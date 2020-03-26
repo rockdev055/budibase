@@ -160,9 +160,8 @@
     text-transform: uppercase;
     padding-left: 20px;
     margin-top: 20px;
-    font-weight: 600;
-    opacity: 0.4;
-    letter-spacing: 1px;
+    font-weight: 700;
+    opacity: 0.6;
   }
 
   .components-nav-header {
@@ -170,9 +169,8 @@
     color: #000333;
     text-transform: uppercase;
     margin-top: 20px;
-    font-weight: 600;
-    opacity: 0.4;
-    letter-spacing: 1px;
+    font-weight: 700;
+    opacity: 0.6;
   }
 
   .nav-header {
@@ -222,11 +220,10 @@
   .navigator-title {
     font-size: 14px;
     color: var(--secondary100);
-    font-weight: 600;
+    font-weight: 500;
+    text-transform: uppercase;
     padding: 0 20px 20px 20px;
     line-height: 1rem !important;
-    letter-spacing: 1px;
-    
   }
 
   .border-line {
