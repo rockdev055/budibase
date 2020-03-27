@@ -8,7 +8,6 @@
   import DropdownButton from "../common/DropdownButton.svelte"
   import ActionButton from "../common/ActionButton.svelte"
   import Modal from "../common/Modal.svelte"
-  import * as api from "./ModelDataTable/api"
   import {
     CreateEditRecordModal,
     CreateEditModelModal,
@@ -20,11 +19,8 @@
 
   let selectedRecord
 
-  async function selectRecord(record) {
-    selectedRecord = await api.loadRecord(record.key, {
-      appname: $store.appname,
-      instanceId: $backendUiStore.selectedDatabase.id,
-    })
+  function selectRecord(record) {
+    selectedRecord = record
   }
 
   function onClosed() {
