@@ -23,7 +23,11 @@
       enabled: true,
       temporaryAccessId: "",
     }
-    const response = await api.createUser(password, user, currentAppInfo)
+    const response = await api.createUser(
+      password,
+      user,
+      currentAppInfo
+    )
     backendUiStore.actions.users.save(user)
     onClosed()
   }

@@ -39,8 +39,10 @@
   $: models = $store.hierarchy.children
   $: parent = record && record.parent()
   $: isChildModel = parent && parent.name !== "root"
-  $: modelExistsInHierarchy =
-    $store.currentNode && getNode($store.hierarchy, $store.currentNode.nodeId)
+  $: modelExistsInHierarchy = $store.currentNode && getNode(
+    $store.hierarchy,
+    $store.currentNode.nodeId
+  )
 
   store.subscribe($store => {
     record = $store.currentNode

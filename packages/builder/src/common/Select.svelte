@@ -9,7 +9,10 @@
   {#if icon}
     <i class={icon} />
   {/if}
-  <select class:adjusted={icon} on:change bind:value>
+  <select 
+    class:adjusted={icon}
+    on:change bind:value
+  >
     <slot />
   </select>
   <span class="arrow">

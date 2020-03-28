@@ -46,7 +46,7 @@
 
     </div>
   {/if}
-
+ 
 </div>
 
 <style>
@@ -66,24 +66,21 @@
   }
 
   .switcher > button {
-    text-rendering: optimizeLegibility;
     display: inline-block;
     border: none;
     margin: 0;
     padding: 0;
     cursor: pointer;
     font-size: 14px;
+    font-weight: 400;
     text-transform: uppercase;
-    background: rgba(0, 0, 0, 0);
-    font-weight: 500;
-    color: var(--secondary40);
-    margin-right: 20px;
-    letter-spacing: 1px;
+    color: var(--secondary60);
+    background: rgba(0,0,0,0);
   }
 
   .switcher > .selected {
     color: var(--secondary100);
-    font-weight: 600;
+    font-weight: 500;
   }
 
   .panel {

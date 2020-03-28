@@ -15,7 +15,7 @@
     CreateEditViewModal,
     CreateDatabaseModal,
     DeleteRecordModal,
-    CreateUserModal,
+    CreateUserModal
   } from "./ModelDataTable/modals"
 
   let selectedRecord
@@ -64,7 +64,9 @@
 <div class="root">
   <div class="node-view">
     <div class="database-actions">
-      <div class="budibase__label--big">{breadcrumbs}</div>
+      <div class="budibase__label--big">
+        {breadcrumbs}
+      </div>
       {#if $backendUiStore.selectedDatabase.id}
         <ActionButton
           primary
@@ -78,7 +80,9 @@
     </div>
     {#if $backendUiStore.selectedDatabase.id}
       <ModelDataTable {selectRecord} />
-    {:else}Please select a database{/if}
+    {:else}
+      Please select a database
+    {/if}
   </div>
 </div>
 

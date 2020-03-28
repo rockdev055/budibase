@@ -1,6 +1,6 @@
 <script>
   import InputGroup from "../common/Inputs/InputGroup.svelte"
-  import LayoutTemplateControls from "./LayoutTemplateControls.svelte"
+  import LayoutTemplateControls from "./LayoutTemplateControls.svelte";
 
   export let onStyleChanged = () => {}
   export let component
@@ -54,18 +54,21 @@
   const newValue = n => Array(n).fill("")
 </script>
 
-<h3>Layout</h3>
+<h3>Styles</h3>
+
+<h4>Display</h4>
 <div class="layout-pos">
   {#each Object.entries(display) as [key, [name, meta, size]] (component._id + key)}
     <div class="grid">
       <h5>{name}:</h5>
-      <LayoutTemplateControls
-        onStyleChanged={_value => onStyleChanged('layout', key, _value)}
-        values={layout[key] || newValue(meta.length)}
-        propertyName={name}
-        {meta}
-        {size}
-        type="text" />
+        <LayoutTemplateControls
+          onStyleChanged={_value => onStyleChanged('layout', key, _value)}
+          values={layout[key] || newValue(meta.length)}
+          propertyName={name}
+          {meta}
+          {size}
+          type="text" 
+        />
     </div>
   {/each}
 </div>
@@ -84,7 +87,7 @@
   {/each}
 </div> -->
 
-<h3>Spacing</h3>
+<h4>Spacing</h4>
 <div class="layout-spacing">
   {#each Object.entries(spacing) as [key, [name, meta, size]] (component._id + key)}
     <div class="grid">
@@ -99,7 +102,7 @@
   {/each}
 </div>
 
-<h3>Size</h3>
+<h4>Size</h4>
 <div class="layout-layer">
   {#each Object.entries(size) as [key, [name, meta, size]] (component._id + key)}
     <div class="grid">
@@ -114,7 +117,7 @@
   {/each}
 </div>
 
-<h3>Order</h3>
+<h4>Z-Index</h4>
 <div class="layout-layer">
   {#each Object.entries(zindex) as [key, [name, meta, size]] (component._id + key)}
     <div class="grid">
@@ -141,11 +144,10 @@
   h4 {
     text-transform: uppercase;
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 700;
     color: #000333;
     opacity: 0.4;
-    letter-spacing: 1px;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
   }
 
   h5 {
@@ -166,6 +168,6 @@
   }
 
   .grid {
-    grid-template-columns: 70px 2fr;
+    grid-template-columns: 70px 1fr;
   }
 </style>
