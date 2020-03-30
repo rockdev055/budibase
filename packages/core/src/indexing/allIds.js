@@ -58,9 +58,10 @@ export const folderStructureArray = recordNode => {
 
 export const getAllIdsIterator = app => async collection_Key_or_NodeKey => {
   collection_Key_or_NodeKey = safeKey(collection_Key_or_NodeKey)
-  const recordNode =
-    getCollectionNodeByKeyOrNodeKey(app.hierarchy, collection_Key_or_NodeKey) ||
-    getNodeByKeyOrNodeKey(app.hierarchy, collection_Key_or_NodeKey)
+  const recordNode = getCollectionNodeByKeyOrNodeKey(
+    app.hierarchy,
+    collection_Key_or_NodeKey
+  ) || getNodeByKeyOrNodeKey(app.hierarchy, collection_Key_or_NodeKey)
 
   const getAllIdsIteratorForCollectionKey = async (
     recordNode,

@@ -5,6 +5,7 @@ import { joinKey } from "../common"
 import { initialiseIndex } from "../indexing/initialiseIndex"
 
 export const initialiseNewIndex = async (app, indexNode) => {
+
   if (isTopLevelIndex(indexNode)) {
     await initialiseIndex(app.datastore, "/", indexNode)
     return
@@ -17,10 +18,9 @@ export const initialiseNewIndex = async (app, indexNode) => {
     for (const id of result.ids) {
       const recordKey = joinKey(result.collectionKey, id)
       await initialiseIndex(
-        app.datastore,
+        app.datastore, 
         getRecordInfo(app.hierarchy, recordKey).dir,
-        indexNode
-      )
+        indexNode)
     }
     iterateResult = await iterate()
   }

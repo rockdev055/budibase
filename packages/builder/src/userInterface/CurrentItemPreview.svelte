@@ -1,5 +1,5 @@
 <script>
-  import { store, backendUiStore } from "../builderStore"
+  import { store } from "../builderStore"
   import { map, join } from "lodash/fp"
   import { pipe } from "../common/core"
 
@@ -63,7 +63,7 @@
         ]
       }
     }],
-    appRootPath: `/_builder/instance/${$store.appname}/${$backendUiStore.selectedDatabase.id}/`,
+    appRootPath: `/_builder/instance/${$store.appname}/${$store.currentInstanceId}/`,
   }
 
   $: backendDefinition = {

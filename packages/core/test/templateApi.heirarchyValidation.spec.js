@@ -331,7 +331,7 @@ describe("hierarchy validation", () => {
     let validationResult = validateAll(hierarchy.root)
     expectInvalidField(validationResult, "typeOptions.maxValue", invalidField)
 
-    invalidField.typeOptions.maxValue = "hello"
+    invalidField.typeOptions.maxValue = null
     validationResult = validateAll(hierarchy.root)
     expectInvalidField(validationResult, "typeOptions.maxValue", invalidField)
   })
@@ -343,7 +343,7 @@ describe("hierarchy validation", () => {
     let validationResult = validateAll(hierarchy.root)
     expectInvalidField(validationResult, "typeOptions.minValue", invalidField)
 
-    invalidField.typeOptions.minValue = "hello"
+    invalidField.typeOptions.minValue = null
     validationResult = validateAll(hierarchy.root)
     expectInvalidField(validationResult, "typeOptions.minValue", invalidField)
   })

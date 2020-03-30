@@ -50,6 +50,7 @@ export const cleanup = async app => {
   } finally {
     await releaseLock(app, lock)
   }
+  
 }
 
 const getTransactionLock = async app =>

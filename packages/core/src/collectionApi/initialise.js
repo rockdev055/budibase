@@ -6,7 +6,7 @@ import {
 } from "../templateApi/hierarchy"
 import { $, allTrue, joinKey } from "../common"
 
-export const ensureCollectionIsInitialised = async (datastore, node, dir) => {
+const ensureCollectionIsInitialised = async (datastore, node, dir) => {
   if (!(await datastore.exists(dir))) {
     await datastore.createFolder(dir)
     await datastore.createFolder(joinKey(dir, node.nodeId))

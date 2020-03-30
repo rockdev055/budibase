@@ -1,83 +1,70 @@
 <script>
-  import ModelView from "./ModelView.svelte"
+  import HierarchyRow from "./HierarchyRow.svelte"
+  import RecordView from "./RecordView.svelte"
   import IndexView from "./IndexView.svelte"
-  import ModelDataTable from "./ModelDataTable"
-  import { store, backendUiStore } from "../builderStore"
+  import ActionsHeader from "./ActionsHeader.svelte"
+  import { store } from "../builderStore"
   import getIcon from "../common/icon"
   import DropdownButton from "../common/DropdownButton.svelte"
-  import ActionButton from "../common/ActionButton.svelte"
-  import Modal from "../common/Modal.svelte"
-  import * as api from "./ModelDataTable/api"
-  import {
-    CreateEditRecordModal,
-    CreateEditModelModal,
-    CreateEditViewModal,
-    CreateDatabaseModal,
-    DeleteRecordModal,
-    CreateUserModal,
-  } from "./ModelDataTable/modals"
+  import { hierarchy as hierarchyFunctions } from "../../../core/src"
 
-  let selectedRecord
+  const hierarchyWidth = "200px"
 
-  async function selectRecord(record) {
-    selectedRecord = await api.loadRecord(record.key, {
-      appname: $store.appname,
-      instanceId: $backendUiStore.selectedDatabase.id,
-    })
-  }
+  const defaultNewIndexActions = [
+    {
+      label: "New Root Index",
+      onclick: store.newRootIndex,
+    },
+  ]
 
-  function onClosed() {
-    backendUiStore.actions.modals.hide()
-  }
+  const defaultNewRecordActions = [
+    {
+      label: "New Root Record",
+      onclick: store.newRootRecord,
+    },
+  ]
 
-  $: recordOpen = $backendUiStore.visibleModal === "RECORD"
-  $: modelOpen = $backendUiStore.visibleModal === "MODEL"
-  $: viewOpen = $backendUiStore.visibleModal === "VIEW"
-  $: databaseOpen = $backendUiStore.visibleModal === "DATABASE"
-  $: deleteRecordOpen = $backendUiStore.visibleModal === "DELETE_RECORD"
-  $: userOpen = $backendUiStore.visibleModal === "USER"
-  $: breadcrumbs = $backendUiStore.breadcrumbs.join(" / ")
+  let newIndexActions = defaultNewIndexActions
+  let newRecordActions = defaultNewRecordActions
+
+  store.subscribe(db => {
+    if (!db.currentNode || hierarchyFunctions.isIndex(db.currentNode)) {
+      newRecordActions = defaultNewRecordActions
+      newIndexActions = defaultNewIndexActions
+    } else {
+      newRecordActions = [
+        ...defaultNewRecordActions,
+        {
+          label: `New Child Record of ${db.currentNode.name}`,
+          onclick: store.newChildRecord,
+        },
+      ]
+
+      newIndexActions = [
+        ...defaultNewIndexActions,
+        {
+          label: `New Index on ${db.currentNode.name}`,
+          onclick: store.newChildIndex,
+        },
+      ]
+    }
+  })
 </script>
 
-<Modal isOpen={!!$backendUiStore.visibleModal} {onClosed}>
-  {#if recordOpen}
-    <CreateEditRecordModal record={selectedRecord} {onClosed} />
-  {/if}
-  {#if modelOpen}
-    <CreateEditModelModal {onClosed} />
-  {/if}
-  {#if viewOpen}
-    <CreateEditViewModal {onClosed} />
-  {/if}
-  {#if databaseOpen}
-    <CreateDatabaseModal {onClosed} />
-  {/if}
-  {#if deleteRecordOpen}
-    <DeleteRecordModal record={selectedRecord} {onClosed} />
-  {/if}
-  {#if userOpen}
-    <CreateUserModal {onClosed} />
-  {/if}
-</Modal>
-
 <div class="root">
+  <div class="actions-header">
+    {#if $store.currentNode}
+      <ActionsHeader left={hierarchyWidth} />
+    {/if}
+  </div>
   <div class="node-view">
-    <div class="database-actions">
-      <div class="budibase__label--big">{breadcrumbs}</div>
-      {#if $backendUiStore.selectedDatabase.id}
-        <ActionButton
-          primary
-          on:click={() => {
-            selectedRecord = null
-            backendUiStore.actions.modals.show('RECORD')
-          }}>
-          Create new record
-        </ActionButton>
-      {/if}
-    </div>
-    {#if $backendUiStore.selectedDatabase.id}
-      <ModelDataTable {selectRecord} />
-    {:else}Please select a database{/if}
+    {#if !$store.currentNode}
+      <h1 style="margin-left: 100px">:)</h1>
+    {:else if $store.currentNode.type === 'record'}
+      <RecordView />
+    {:else}
+      <IndexView />
+    {/if}
   </div>
 </div>
 
@@ -87,13 +74,12 @@
     position: relative;
   }
 
+  .actions-header {
+    flex: 0 1 auto;
+  }
+
   .node-view {
     overflow-y: auto;
     flex: 1 1 auto;
-  }
-
-  .database-actions {
-    display: flex;
-    justify-content: space-between;
   }
 </style>

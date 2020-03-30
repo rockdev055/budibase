@@ -44,7 +44,7 @@ export const _createUser = async (app, user, password = null) => {
 
   const userErrors = validateUser(app)([...users, user], user)
   if (userErrors.length > 0) {
-    throw new BadRequestError(`User is invalid. ${join("; ")(userErrors.map(e => e.error))}`)
+    throw new BadRequestError(`User is invalid. ${join("; ")(userErrors)}`)
   }
 
   const { auth, tempCode, temporaryAccessId } = await getAccess(app, password)

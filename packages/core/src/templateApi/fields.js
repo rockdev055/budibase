@@ -9,7 +9,6 @@ import {
 import { all, getDefaultOptions } from "../types"
 import { applyRuleSet, makerule } from "../common/validationCommon"
 import { BadRequestError } from "../common/errors"
-import { generate } from "shortid"
 
 export const fieldErrors = {
   AddFieldValidationFailed: "Add field validation: ",
@@ -18,7 +17,6 @@ export const fieldErrors = {
 export const allowedTypes = () => keys(all)
 
 export const getNewField = type => ({
-  id: generate(),
   name: "", // how field is referenced internally
   type,
   typeOptions: getDefaultOptions(type),

@@ -1,24 +1,28 @@
-import { compileCode as cCode } from "@nx-js/compiler-util"
-import { includes } from "lodash/fp"
+import {
+  compileExpression as cExp,
+  compileCode as cCode,
+} from "@nx-js/compiler-util"
 
 export const compileCode = code => {
   let func
-  let safeCode
-
-  if (includes("return ")(code)) {
-    safeCode = code
-  } else {
-    let trimmed = code.trim()
-    trimmed = trimmed.endsWith(";")
-      ? trimmed.substring(0, trimmed.length - 1)
-      : trimmed
-    safeCode = `return (${trimmed})`
-  }
 
   try {
-    func = cCode(safeCode)
+    func = cCode(code)
   } catch (e) {
     e.message = `Error compiling code : ${code} : ${e.message}`
+    throw e
+  }
+
+  return func
+}
+
+export const compileExpression = code => {
+  let func
+
+  try {
+    func = cExp(code)
+  } catch (e) {
+    e.message = `Error compiling expression : ${code} : ${e.message}`
     throw e
   }
 

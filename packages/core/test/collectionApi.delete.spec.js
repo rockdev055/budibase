@@ -8,7 +8,7 @@ import { permission } from "../src/authApi/permissions"
 
 describe("collectionApi > delete", () => {
   it("should remove every key in collection's path", async () => {
-    const { recordApi, collectionApi, appHierarchy } = await setupApphierarchy(
+    const { recordApi, collectionApi } = await setupApphierarchy(
       basicAppHierarchyCreator_WithFields
     )
     const record1 = recordApi.getNew("/customers", "customer")
@@ -31,10 +31,7 @@ describe("collectionApi > delete", () => {
       filter(k => splitKey(k)[0] === "customers"),
     ])
 
-    expect(remainingKeys).toEqual([
-      "/customers",
-      `/customers/${appHierarchy.customerRecord.nodeId}`,
-    ])
+    expect(remainingKeys).toEqual([])
   })
 
   it("should not delete anything that is not in its path", async () => {
@@ -54,8 +51,7 @@ describe("collectionApi > delete", () => {
       filter(k => splitKey(k)[0] === "customers"),
     ])
 
-    const expectedRemainingKeys = allKeys.length - customerKeys.length + 2
-    // +2 because is should keep the collection folders: /customers & /customers/1
+    const expectedRemainingKeys = allKeys.length - customerKeys.length
 
     await collectionApi.delete("/customers")
 
