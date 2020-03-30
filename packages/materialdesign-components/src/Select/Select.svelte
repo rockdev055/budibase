@@ -30,8 +30,6 @@
   export let persistent = false
   export let value = ""
 
-  $: safeValue = Array.isArray(value) ? value : [value]
-
   onMount(() => {
     _bb.setContext("BBMD:list:props", { singleSelection: true })
     _bb.setContext("BBMD:list:addItem", i => (listItems = [...listItems, i]))
@@ -45,7 +43,7 @@
       value = v
       _bb.setStateFromBinding(_bb.props.value, v)
       _bb.call(onSelect, v)
-    }, safeValue)
+    })
     _bb.setContext("BBMD:list:selectItemStore", selectedItemsStore)
 
     _helperId = generate()

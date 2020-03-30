@@ -24,14 +24,7 @@
     _bb.setContext("BBMD:list:context", "menu")
     _bb.setContext("BBMD:list:props", { singleSelection: true })
 
-    selectedItemsStore = createItemsStore(() => {
-      let value =
-        $selectedItemsStore && $selectedItemsStore.length > 0
-          ? $selectedItemsStore[0]
-          : ""
-
-      _bb.call(onSelect, value)
-    })
+    selectedItemsStore = createItemsStore(() => onSelect($selectedItemsStore))
     _bb.setContext("BBMD:list:selectItemStore", selectedItemsStore)
 
     if (!!menu) {

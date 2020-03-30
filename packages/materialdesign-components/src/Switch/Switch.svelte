@@ -15,10 +15,7 @@
 
   function handleChange() {
     checked = !checked
-    if (_bb.isBound(_bb.props.checked)) {
-      _bb.setStateFromBinding(_bb.props.checked, checked)
-    }
-    _bb.call(onChange, checked)
+    onChange(checked)
   }
 
   $: modifiers = { disabled, checked }

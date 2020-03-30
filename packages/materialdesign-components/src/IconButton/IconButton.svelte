@@ -26,7 +26,7 @@
 
   function onButtonClick() {
     open = !open
-    _bb.call(onClick)
+    onClick()
   }
 
   $: isToggleButton = !!icon && !!onIcon

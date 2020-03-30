@@ -46,7 +46,7 @@
     if (context === "radiobuttongroup") {
       selectedItems.addSingleItem(item)
     } else {
-      _bb.call(onClick, item)
+      onClick(item)
     }
   }
 
@@ -106,7 +106,7 @@
       {name}
       {checked}
       disabled={isDisabled}
-      on:click={handleOnClick} />
+      on:click={onClick} />
     <div class={cb.elem`background`}>
       <div class={cb.elem`outer-circle`} />
       <div class={cb.elem`inner-circle`} />

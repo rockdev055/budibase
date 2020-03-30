@@ -18,7 +18,6 @@
   let tfInstance = null
 
   onMount(() => {
-    debugger
     if (!!tf) tfInstance = new MDCTextField(tf)
     return () => {
       !!tfInstance && tf.tfInstance && tf.tfInstance.destroy()
@@ -98,10 +97,11 @@
   function changed(e) {
     const val = e.target.value
     value = val
-    if (_bb.isBound(_bb.props.value)) {
-      _bb.setStateFromBinding(_bb.props.value, val)
-    }
-    _bb.call(onChange, val)
+    onChange(value)
+    // if (_bb.isBound(_bb.props.value)) {
+    //   _bb.setStateFromBinding(_bb.props.value, val)
+    // }
+    // _bb.call(onChange, val)
   }
 </script>
 

@@ -17,7 +17,6 @@
   export let singleSelection = false
   export let variant = "one-line"
   export let inputElement = null
-  export let value = []
 
   let selectedItemsStore
 
@@ -26,13 +25,7 @@
   onMount(() => {
     let ctx = getContext("BBMD:list:context")
 
-    selectedItemsStore = createItemsStore(() => {
-      value = $selectedItemsStore
-      if (_bb.isBound(_bb.props.value)) {
-        _bb.setStateFromBinding(_bb.props.value, value)
-      }
-      _bb.call(onSelect, value)
-    }, value)
+    selectedItemsStore = createItemsStore(() => onSelect($selectedItemsStore))
     _bb.setContext("BBMD:list:selectItemStore", selectedItemsStore)
 
     _bb.setContext("BBMD:list:props", {

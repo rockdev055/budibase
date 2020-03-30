@@ -38,31 +38,11 @@
     }
   })
 
-  function handleSelect(date) {
-    if (_bb.isBound(_bb.props.date)) {
-      _bb.setStateFromBinding(_bb.props.date, date)
-    }
-    _bb.call(onSelect, date)
-  }
-
   function selectDate(dayOfMonth) {
     let month = getMonth(navDate)
     let year = getYear(navDate)
     date = new Date(year, month, dayOfMonth)
-    handleSelect(date)
-  }
-
-  function dateFieldChange(value) {
-    const isDate = /^\d{1,2}\/\d{1,2}\/\d{4}$/
-    if (isDate.test(value)) {
-      const [year, month, day] = value.split("/").reverse()
-      if (month > 0 && month <= 12 && (day > 0 && day <= 31)) {
-        date = new Date(year, month - 1, day)
-        navDate = date
-        openCalendar(true)
-        handleSelect(date)
-      }
-    }
+    onSelect(date)
   }
 
   function addMonth() {
@@ -75,6 +55,19 @@
 
   function openCalendar(isOpen) {
     instance.open = isOpen === undefined ? !instance.open : isOpen
+  }
+
+  function textFieldChange(value) {
+    const isDate = /^\d{1,2}\/\d{1,2}\/\d{4}$/
+    if (isDate.test(value)) {
+      const [year, month, day] = value.split("/").reverse()
+      if (month > 0 && month <= 12 && day > 0 && day <= 31) {
+        date = new Date(year, month - 1, day)
+        navDate = date
+        openCalendar(true)
+        onSelect(date)
+      }
+    }
   }
 
   $: dateMonthEnds = endOfMonth(navDate).getDate()
@@ -99,7 +92,7 @@
 <div class="mdc-menu-surface--anchor">
   <Textfield
     {label}
-    onChange={dateFieldChange}
+    onChange={textFieldChange}
     value={selectedDate}
     trailingIcon={true}
     useIconButton={true}
