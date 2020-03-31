@@ -129,7 +129,6 @@ TODO:Needs error handling - this will depend on how Budibase handles errors
       {#if renderLeadingIcon}
         {#if useIconButton}
           <IconButton
-            {_bb}
             {icon}
             context="mdc-text-field__icon mdc-text-field__icon--leading"
             onClick={iconButtonClick} />
@@ -153,7 +152,6 @@ TODO:Needs error handling - this will depend on how Budibase handles errors
       {#if renderTrailingIcon}
         {#if useIconButton}
           <IconButton
-            {_bb}
             {icon}
             context="mdc-text-field__icon mdc-text-field__icon--trailing"
             onClick={iconButtonClick} />
