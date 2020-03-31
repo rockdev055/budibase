@@ -153,7 +153,7 @@ export default {
   plugins: [
     copy({
       targets: [
-        { src: "src/index.html", dest: outputpath, rename: "__app.html" },
+        { src: "src/index.html", dest: outputpath },
         { src: "src/favicon.png", dest: outputpath },
         { src: "src/assets", dest: outputpath },
         {
@@ -216,10 +216,10 @@ export default {
     // browser on changes when not in production
     !production && livereload(outputpath),
     !production &&
-    browsersync({
-      server: outputpath,
-      middleware: [apiProxy, _builderProxy],
-    }),
+      browsersync({
+        server: outputpath,
+        middleware: [apiProxy, _builderProxy],
+      }),
 
     // If we're building for production (npm run build
     // instead of npm run dev), minify
@@ -228,21 +228,4 @@ export default {
   watch: {
     clearScreen: false,
   },
-}
-
-function serve() {
-  let started = false
-
-  return {
-    writeBundle() {
-      if (!started) {
-        started = true
-
-        require("child_process").spawn("npm", ["run", "start"], {
-          stdio: ["ignore", "inherit", "inherit"],
-          shell: true,
-        })
-      }
-    },
-  }
 }

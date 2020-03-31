@@ -1,15 +1,14 @@
 {
   "name": "@budibase/builder",
-  "version": "0.0.27",
+  "version": "0.0.28",
   "license": "AGPL-3.0",
   "private": true,
   "scripts": {
     "build": "rollup -c",
-    "start": "routify -c rollup",
+    "start": "rollup -c -w",
     "test": "jest",
     "test:watch": "jest --watchAll",
-    "dev:builder": "routify -c rollup",
-    "rollup": "rollup -c -w"
+    "dev:builder": "rollup -c -w"
   },
   "jest": {
     "globals": {
@@ -36,7 +35,7 @@
     ]
   },
   "dependencies": {
-    "@budibase/client": "^0.0.27",
+    "@budibase/client": "^0.0.28",
     "@nx-js/compiler-util": "^2.0.0",
     "codemirror": "^5.51.0",
     "date-fns": "^1.29.0",
@@ -55,7 +54,6 @@
     "@babel/plugin-transform-runtime": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
     "@babel/runtime": "^7.5.5",
-    "@sveltech/routify": "1.5.0-beta.16",
     "babel-jest": "^24.8.0",
     "browser-sync": "^2.26.7",
     "http-proxy-middleware": "^0.19.1",
