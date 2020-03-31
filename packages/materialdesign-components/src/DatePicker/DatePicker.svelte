@@ -98,7 +98,6 @@
 
 <div class="mdc-menu-surface--anchor">
   <Textfield
-    {_bb}
     {label}
     onChange={dateFieldChange}
     value={selectedDate}
