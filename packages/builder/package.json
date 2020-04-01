@@ -1,14 +1,15 @@
 {
   "name": "@budibase/builder",
-  "version": "0.0.29",
+  "version": "0.0.27",
   "license": "AGPL-3.0",
   "private": true,
   "scripts": {
     "build": "rollup -c",
-    "start": "rollup -c -w",
+    "start": "routify -c rollup",
     "test": "jest",
     "test:watch": "jest --watchAll",
-    "dev:builder": "rollup -c -w"
+    "dev:builder": "routify -c rollup",
+    "rollup": "rollup -c -w"
   },
   "jest": {
     "globals": {
@@ -19,7 +20,9 @@
     "testURL": "http://jest-breaks-if-this-does-not-exist",
     "moduleNameMapper": {
       "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/internals/mocks/fileMock.js",
-      "\\.(css|less|sass|scss)$": "identity-obj-proxy"
+      "\\.(css|less|sass|scss)$": "identity-obj-proxy",
+      "components(.*)$": "<rootDir>/src/components$1",
+      "builderStore(.*)$": "<rootDir>/src/builderStore$1"
     },
     "moduleFileExtensions": [
       "js"
@@ -35,7 +38,7 @@
     ]
   },
   "dependencies": {
-    "@budibase/client": "^0.0.29",
+    "@budibase/client": "^0.0.27",
     "@nx-js/compiler-util": "^2.0.0",
     "codemirror": "^5.51.0",
     "date-fns": "^1.29.0",
@@ -54,6 +57,8 @@
     "@babel/plugin-transform-runtime": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
     "@babel/runtime": "^7.5.5",
+    "@rollup/plugin-alias": "^3.0.1",
+    "@sveltech/routify": "1.5.0-beta.16",
     "babel-jest": "^24.8.0",
     "browser-sync": "^2.26.7",
     "http-proxy-middleware": "^0.19.1",
