@@ -99,9 +99,9 @@
 
 <section>
   <div class="table-controls">
-    <h2 class="title">
+    <h4 class="budibase__title--3">
       {takeRight(2, $backendUiStore.breadcrumbs).join(' / ')}
-    </h2>
+    </h4>
     <Select icon="ri-eye-line" bind:value={$backendUiStore.selectedView}>
       {#each views as view}
         <option value={view}>{view.name}</option>
@@ -166,18 +166,6 @@
 </section>
 
 <style>
-
-  .title {
-    font-size: 24px;
-    font-weight: 600;
-    text-rendering: optimizeLegibility;
-    text-transform: capitalize;
-  }
-
-  .select {
-    background: white;
-  }
-
   table {
     border: 1px solid #ccc;
     background: #fff;
@@ -186,24 +174,19 @@
   }
 
   thead {
-    background: #f9f9f9;
-    border: 1px solid #ccc;
+    background: var(--background-button);
   }
 
   thead th {
     color: var(--button-text);
     text-transform: capitalize;
     font-weight: 500;
-    font-size: 14px;  
-    text-rendering: optimizeLegibility;
-    letter-spacing: 1px;
   }
 
   tbody tr {
     border-bottom: 1px solid #ccc;
     transition: 0.3s background-color;
-    color: var(--secondary100);
-    font-size: 14px;
+    color: var(--darkslate);
   }
 
   tbody tr:hover {
@@ -213,8 +196,7 @@
   .table-controls {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
-    margin-top: 10px;
+    align-items: center;
   }
 
   .ri-more-line:hover,

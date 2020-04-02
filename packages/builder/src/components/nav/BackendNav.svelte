@@ -50,7 +50,7 @@
     flex-direction: column;
     max-height: 100%;
     height: 100%;
-    background: var(--white);
+    background-color: var(--white);
   }
 
   .nav-group-header {
