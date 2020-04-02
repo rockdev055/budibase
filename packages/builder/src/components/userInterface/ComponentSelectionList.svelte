@@ -258,7 +258,7 @@
   .component > .name {
     color: #000333;
     display: inline-block;
-    font-size: 13px;
+    font-size: 12px;
     opacity: 0.8;
   }
 
@@ -282,7 +282,7 @@
   }
 
   .preset-menu > span {
-    font-size: 13px;
+    font-size: 12px;
     text-transform: uppercase;
     margin-top: 5px;
   }
@@ -308,7 +308,7 @@
     background: none;
     border: none;
     border-radius: 5px;
-    padding: 13px;
+    padding: 12px;
     outline: none;
     cursor: pointer;
   } */

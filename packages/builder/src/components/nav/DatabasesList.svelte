@@ -57,7 +57,7 @@
 
 <style>
   .root {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--secondary100);
     position: relative;
     padding-left: 20px;
@@ -85,7 +85,7 @@
     padding: 0;
     border: none;
     font-family: Roboto;
-    font-size: 13px;
+    font-size: 12px;
     outline: none;
     cursor: pointer;
     background: rgba(0, 0, 0, 0);

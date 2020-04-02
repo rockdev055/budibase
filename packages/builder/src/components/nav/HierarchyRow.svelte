@@ -52,7 +52,7 @@
 
 <style>
   .hierarchy-item {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 400;
     margin-bottom: 10px;
   }

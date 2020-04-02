@@ -1,5 +1,4 @@
 import "@material/theme/mdc-theme.scss"
-import "./_material-fonts.scss"
 
 export { Button } from "./Button"
 export { default as Icon } from "./Common/Icon.svelte"

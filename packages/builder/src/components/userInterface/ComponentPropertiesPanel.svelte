@@ -120,11 +120,11 @@
 
   .detail-prop label {
     word-wrap: break-word;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     color: #163057;
     opacity: 0.6;
-    padding-top: 13px;
+    padding-top: 12px;
     margin-bottom: 0;
   }
 
