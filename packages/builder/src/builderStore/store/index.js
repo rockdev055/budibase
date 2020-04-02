@@ -1,4 +1,3 @@
-//
 import { filter, cloneDeep, last, concat, isEmpty, values } from "lodash/fp"
 import { pipe, getNode, constructHierarchy } from "components/common/core"
 import * as backendStoreActions from "./backend"
@@ -102,6 +101,10 @@ export const getStore = () => {
 export default getStore
 
 const initialise = (store, initial) => async () => {
+  appname = window.location.hash
+    ? last(window.location.hash.substr(1).split("/"))
+    : ""
+
   if (!appname) {
     initial.apps = await api.get(`/_builder/api/apps`).then(r => r.json())
     initial.hasAppPackage = false
