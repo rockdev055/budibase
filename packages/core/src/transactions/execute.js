@@ -44,22 +44,18 @@ import {
 } from "../templateApi/hierarchy"
 import { getRecordInfo } from "../recordApi/recordInfo"
 import { getIndexDir } from "../indexApi/getIndexDir"
-import { _deleteIndex } from "../indexApi/delete"
 import { initialiseIndex } from "../indexing/initialiseIndex"
 
 export const executeTransactions = app => async transactions => {
   const recordsByShard = mappedRecordsByIndexShard(app.hierarchy, transactions)
 
   for (const shard of keys(recordsByShard)) {
-    if (recordsByShard[shard].isRebuild) {
-      if (await app.datastore.exists(shard))
-        await app.datastore.deleteFile(shard)
+    if (recordsByShard[shard].isRebuild)
       await initialiseIndex(
         app.datastore,
         getParentKey(recordsByShard[shard].indexDir),
         recordsByShard[shard].indexNode
       )
-    }
     await applyToShard(
       app.hierarchy,
       app.datastore,
@@ -80,11 +76,7 @@ const mappedRecordsByIndexShard = (hierarchy, transactions) => {
 
   const indexBuild = getBuildIndexTransactionsByShard(hierarchy, transactions)
 
-  const toRemove = [
-    ...deletes, 
-    ...updates.toRemove, 
-    ...indexBuild.toRemove,
-  ]
+  const toRemove = [...deletes, ...updates.toRemove, ...indexBuild.toRemove]
 
   const toWrite = [...created, ...updates.toWrite, ...indexBuild.toWrite]
 

@@ -1,4 +1,4 @@
-import { createNewHierarchy } from "components/common/core"
+import { createNewHierarchy } from "../common/core"
 
 export const createPackage = (packageInfo, store) => {
   packageInfo.createNewPackage("")

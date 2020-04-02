@@ -1,6 +1,6 @@
 export default ({ records }) =>
   records.map(r => ({
-    name: `Form for Record: ${r.nodeName()}`,
+    name: `Form for Record: ${r.nodeKey()}`,
     props: outerContainer(r),
   }))
 
