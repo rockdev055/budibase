@@ -1,11 +1,13 @@
 <script>
-  import ModelDataTable from "components/database/ModelDataTable"
-  import { store, backendUiStore } from "builderStore"
-  import getIcon from "components/common/icon"
-  import DropdownButton from "components/common/DropdownButton.svelte"
-  import ActionButton from "components/common/ActionButton.svelte"
-  import Modal from "components/common/Modal.svelte"
-  import * as api from "components/database/ModelDataTable/api"
+  import ModelView from "../../../../database/ModelView.svelte"
+  import IndexView from "../../../../database/IndexView.svelte"
+  import ModelDataTable from "../../../../database/ModelDataTable"
+  import ActionsHeader from "../../../../database/ActionsHeader.svelte"
+  import { store, backendUiStore } from "../../../../builderStore"
+  import getIcon from "../../../../common/icon"
+  import DropdownButton from "../../../../common/DropdownButton.svelte"
+  import ActionButton from "../../../../common/ActionButton.svelte"
+  import Modal from "../../../../common/Modal.svelte"
   import {
     CreateEditRecordModal,
     CreateEditModelModal,
@@ -13,15 +15,12 @@
     CreateDatabaseModal,
     DeleteRecordModal,
     CreateUserModal,
-  } from "components/database/ModelDataTable/modals"
+  } from "../../../../database/ModelDataTable/modals"
 
   let selectedRecord
 
-  async function selectRecord(record) {
-    selectedRecord = await api.loadRecord(record.key, {
-      appname: $store.appname,
-      instanceId: $backendUiStore.selectedDatabase.id,
-    })
+  function selectRecord(record) {
+    selectedRecord = record
   }
 
   function onClosed() {

@@ -41,10 +41,7 @@
 
     </div>
   {/if}
-  <NavItem
-    name="ACCESS_LEVELS"
-    label="User Access Levels"
-    href="./accesslevels" />
+  <NavItem name="ACCESS_LEVELS" label="User Access Levels" />
 </div>
 
 <style>
@@ -53,7 +50,7 @@
     flex-direction: column;
     max-height: 100%;
     height: 100%;
-    background-color: var(--white);
+    background: var(--white);
   }
 
   .nav-group-header {
@@ -66,7 +63,7 @@
   .hierarchy-title {
     align-items: center;
     text-transform: uppercase;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: bold;
     opacity: 0.6;
     letter-spacing: 1px;
