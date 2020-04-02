@@ -1,28 +1,10 @@
 <script>
-  import { store } from "builderStore"
-
   import { fade } from "svelte/transition"
   import { isActive, goto, url, context } from "@sveltech/routify"
 
-  import { SettingsIcon, PreviewIcon } from "components/common/Icons/"
-  import IconButton from "components/common/IconButton.svelte"
+  import { SettingsIcon, PreviewIcon } from "../../common/Icons/"
+  import IconButton from "../../common/IconButton.svelte"
 
-  // Get Package and set store
-  export let application
-
-  let promise = getPackage()
-
-  async function getPackage() {
-    const res = await fetch(`/_builder/api/${application}/appPackage`)
-    const pkg = await res.json()
-
-    if (res.ok) {
-      await store.setPackage(pkg)
-      return pkg
-    } else {
-      throw new Error(pkg)
-    }
-  }
   $: ({ component } = $context)
   $: list = component.parent.children.filter(child => child.isIndexable)
 </script>
@@ -66,12 +48,7 @@
     </div>
   </div>
 
-  {#await promise}
-    <!-- This should probably be some kind of loading state? -->
-    <div />
-  {:then}
-    <slot />
-  {/await}
+  <slot />
 
 </div>
 
