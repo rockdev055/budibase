@@ -55,24 +55,20 @@
     flex-direction: column;
     max-height: 100%;
     height: 100%;
-    background-color: var(--white);
+    background-color: var(--secondary5);
   }
 
   .nav-group-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 20px 10px 20px;
+    padding: 2rem 1rem 1rem 1rem;
   }
 
   .hierarchy-title {
     align-items: center;
     text-transform: uppercase;
-    font-size: 13px;
-    font-weight: bold;
-    opacity: 0.6;
-    letter-spacing: 1px;
-    text-rendering: optimizeLegibility;
+    font-size: 0.85em;
   }
 
   .hierarchy {

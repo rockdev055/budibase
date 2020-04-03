@@ -68,7 +68,7 @@
   }
 
   span {
-    font-size: 13px;
+    font-size: 12px;
     margin-bottom: 5px;
   }
 </style>

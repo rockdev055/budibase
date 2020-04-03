@@ -19,22 +19,22 @@
 
 <style>
   .select-container {
-    font-size: 14px;
-    color: var(--secondary60);
+    font-size: 0.9rem;
+    color: var(--secondary50);
     font-weight: bold;
     position: relative;
-    max-width: 400px;
-    min-width: 275px;
+    max-width: 300px;
+    min-width: 200px;
   }
 
   .adjusted {
-    padding-left: 30px;
+    padding-left: 2.5em;
   }
 
   i {
     position: absolute;
-    left: 10px;
-    top: 10px;
+    left: 8px;
+    top: 8px;
   }
 
   select {
@@ -42,9 +42,8 @@
     display: block;
     font-family: sans-serif;
     font-weight: 400;
-    font-size: 14px;
     color: #000333;
-    padding: 0 40px 0px 20px;
+    padding: 0 2.6em 0em 1.4em;
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
@@ -52,7 +51,7 @@
     -moz-appearance: none;
     -webkit-appearance: none;
     appearance: none;
-    background: var(--white);
+    background: var(--lightslate);
   }
 
   .arrow {
@@ -63,6 +62,6 @@
     width: 30px;
     height: 30px;
     pointer-events: none;
-    color: var(--secondary100);
+    color: var(--primary100);
   }
 </style>

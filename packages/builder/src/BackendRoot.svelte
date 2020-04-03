@@ -37,13 +37,13 @@
 
   .content {
     flex: 1 1 auto;
-    margin: 20px 40px;
+    margin: 80px 60px;
   }
 
   .nav {
     overflow: auto;
     flex: 0 1 auto;
-    width: 275px;
+    width: 300px;
     height: 100%;
   }
 </style>

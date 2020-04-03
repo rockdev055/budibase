@@ -34,7 +34,6 @@
         props: {
           _component: "testcomponents/rootComponent",
           _children: [
-            Button,
             Textfield,
             Checkboxgroup,
             Radiobutton,

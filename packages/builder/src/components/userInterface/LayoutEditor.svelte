@@ -131,7 +131,7 @@
 <style>
   h3 {
     text-transform: uppercase;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     color: #000333;
     opacity: 0.6;
@@ -149,11 +149,11 @@
   }
 
   h5 {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 400;
     color: #000333;
     opacity: 0.8;
-    padding-top: 13px;
+    padding-top: 12px;
     margin-bottom: 0;
   }
 
