@@ -1,4 +1,3 @@
-//
 import { filter, cloneDeep, last, concat, isEmpty, values } from "lodash/fp"
 import { pipe, getNode, constructHierarchy } from "components/common/core"
 import * as backendStoreActions from "./backend"
@@ -50,7 +49,7 @@ export const getStore = () => {
 
   const store = writable(initial)
 
-  store.setPackage = setPackage(store, initial)
+  store.initialise = initialise(store, initial)
 
   store.newChildRecord = backendStoreActions.newRecord(store, false)
   store.newRootRecord = backendStoreActions.newRecord(store, true)
@@ -101,12 +100,26 @@ export const getStore = () => {
 
 export default getStore
 
-const setPackage = (store, initial) => async (pkg) => {
+const initialise = (store, initial) => async () => {
+  appname = window.location.hash
+    ? last(window.location.hash.substr(1).split("/"))
+    : ""
+
+  if (!appname) {
+    initial.apps = await api.get(`/_builder/api/apps`).then(r => r.json())
+    initial.hasAppPackage = false
+    store.set(initial)
+    return initial
+  }
+
+  const pkg = await api
+    .get(`/_builder/api/${appname}/appPackage`)
+    .then(r => r.json())
 
   const [main_screens, unauth_screens] = await Promise.all([
-    api.get(`/_builder/api/${pkg.application.name}/pages/main/screens`).then(r => r.json()),
+    api.get(`/_builder/api/${appname}/pages/main/screens`).then(r => r.json()),
     api
-      .get(`/_builder/api/${pkg.application.name}/pages/unauthenticated/screens`)
+      .get(`/_builder/api/${appname}/pages/unauthenticated/screens`)
       .then(r => r.json()),
   ])
 
@@ -121,12 +134,12 @@ const setPackage = (store, initial) => async (pkg) => {
     },
   }
 
-  initial.libraries = await loadLibs(pkg.application.name, pkg)
+  initial.libraries = await loadLibs(appname, pkg)
   initial.loadLibraryUrls = pageName => {
     const libs = libUrlsForPreview(pkg, pageName)
     return libs
   }
-  initial.appname = pkg.application.name
+  initial.appname = appname
   initial.pages = pkg.pages
   initial.hasAppPackage = true
   initial.hierarchy = pkg.appDefinition.hierarchy
