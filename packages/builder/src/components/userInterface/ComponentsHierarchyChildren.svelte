@@ -95,7 +95,6 @@
     height: 35px;
     align-items: center;
     font-weight: 400;
-    font-size: 13px;
   }
 
   .item button {

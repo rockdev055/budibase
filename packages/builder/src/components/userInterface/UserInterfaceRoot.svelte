@@ -1,7 +1,7 @@
 <script>
   import ComponentsHierarchy from "./ComponentsHierarchy.svelte"
   import ComponentsHierarchyChildren from "./ComponentsHierarchyChildren.svelte"
-  import PageLayout from "./PageLayout.svelte"
+  import MasterLayout from "./MasterLayout.svelte"
   import PagesList from "./PagesList.svelte"
   import { store } from "builderStore"
   import IconButton from "components/common/IconButton.svelte"
@@ -55,10 +55,6 @@
 
     <div class="border-line" />
 
-    <PageLayout layout={$store.pages[$store.currentPageName]} />
-
-    <div class="border-line" />
-
     <div class="components-list-container">
       <div class="nav-group-header">
         <span class="components-nav-header" style="margin-top: 0;">
@@ -71,6 +67,7 @@
         </div>
       </div>
       <div class="nav-items-container">
+        <MasterLayout layout={$store.pages[$store.currentPageName]} />
         <ComponentsHierarchy screens={$store.screens} />
       </div>
     </div>
@@ -157,7 +154,7 @@
   }
 
   .components-nav-page {
-    font-size: 13px;
+    font-size: 12px;
     color: #000333;
     text-transform: uppercase;
     padding-left: 20px;
@@ -168,7 +165,7 @@
   }
 
   .components-nav-header {
-    font-size: 13px;
+    font-size: 12px;
     color: #000333;
     text-transform: uppercase;
     margin-top: 20px;

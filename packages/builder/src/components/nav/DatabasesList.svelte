@@ -1,5 +1,6 @@
 <script>
   import { tick, onMount } from "svelte"
+  import { goto } from "@sveltech/routify"
   import { store, backendUiStore } from "builderStore"
   import api from "builderStore/api"
   import getIcon from "../common/icon"
@@ -44,7 +45,9 @@
         </span>
         <button
           class:active={database.id === $backendUiStore.selectedDatabase.id}
-          on:click={() => selectDatabase(database)}>
+          on:click={() => {
+            $goto(`./database/${database.id}`), selectDatabase(database)
+          }}>
           {database.name}
         </button>
         <i
@@ -57,7 +60,7 @@
 
 <style>
   .root {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--secondary100);
     position: relative;
     padding-left: 20px;
@@ -85,7 +88,7 @@
     padding: 0;
     border: none;
     font-family: Roboto;
-    font-size: 13px;
+    font-size: 12px;
     outline: none;
     cursor: pointer;
     background: rgba(0, 0, 0, 0);

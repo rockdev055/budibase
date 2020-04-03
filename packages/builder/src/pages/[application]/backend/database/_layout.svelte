@@ -1,13 +1,11 @@
 <script>
-  import ModelView from "../../../../database/ModelView.svelte"
-  import IndexView from "../../../../database/IndexView.svelte"
-  import ModelDataTable from "../../../../database/ModelDataTable"
-  import ActionsHeader from "../../../../database/ActionsHeader.svelte"
-  import { store, backendUiStore } from "../../../../builderStore"
-  import getIcon from "../../../../common/icon"
-  import DropdownButton from "../../../../common/DropdownButton.svelte"
-  import ActionButton from "../../../../common/ActionButton.svelte"
-  import Modal from "../../../../common/Modal.svelte"
+  import ModelDataTable from "components/database/ModelDataTable"
+  import { store, backendUiStore } from "builderStore"
+  import getIcon from "components/common/icon"
+  import DropdownButton from "components/common/DropdownButton.svelte"
+  import ActionButton from "components/common/ActionButton.svelte"
+  import Modal from "components/common/Modal.svelte"
+  import * as api from "components/database/ModelDataTable/api"
   import {
     CreateEditRecordModal,
     CreateEditModelModal,
@@ -15,12 +13,15 @@
     CreateDatabaseModal,
     DeleteRecordModal,
     CreateUserModal,
-  } from "../../../../database/ModelDataTable/modals"
+  } from "components/database/ModelDataTable/modals"
 
   let selectedRecord
 
-  function selectRecord(record) {
-    selectedRecord = record
+  async function selectRecord(record) {
+    selectedRecord = await api.loadRecord(record.key, {
+      appname: $store.appname,
+      instanceId: $backendUiStore.selectedDatabase.id,
+    })
   }
 
   function onClosed() {
@@ -33,7 +34,6 @@
   $: databaseOpen = $backendUiStore.visibleModal === "DATABASE"
   $: deleteRecordOpen = $backendUiStore.visibleModal === "DELETE_RECORD"
   $: userOpen = $backendUiStore.visibleModal === "USER"
-  $: breadcrumbs = $backendUiStore.breadcrumbs.join(" / ")
 </script>
 
 <Modal isOpen={!!$backendUiStore.visibleModal} {onClosed}>
@@ -59,22 +59,7 @@
 
 <div class="root">
   <div class="node-view">
-    <div class="database-actions">
-      <div class="budibase__label--big">{breadcrumbs}</div>
-      {#if $backendUiStore.selectedDatabase.id}
-        <ActionButton
-          primary
-          on:click={() => {
-            selectedRecord = null
-            backendUiStore.actions.modals.show('RECORD')
-          }}>
-          Create new record
-        </ActionButton>
-      {/if}
-    </div>
-    {#if $backendUiStore.selectedDatabase.id}
-      <ModelDataTable {selectRecord} />
-    {:else}Please select a database{/if}
+    <slot />
   </div>
 </div>
 
@@ -87,10 +72,5 @@
   .node-view {
     overflow-y: auto;
     flex: 1 1 auto;
-  }
-
-  .database-actions {
-    display: flex;
-    justify-content: space-between;
   }
 </style>

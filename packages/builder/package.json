@@ -1,6 +1,6 @@
 {
   "name": "@budibase/builder",
-  "version": "0.0.31",
+  "version": "0.0.29",
   "license": "AGPL-3.0",
   "private": true,
   "scripts": {
@@ -38,7 +38,7 @@
     ]
   },
   "dependencies": {
-    "@budibase/client": "^0.0.31",
+    "@budibase/client": "^0.0.29",
     "@nx-js/compiler-util": "^2.0.0",
     "codemirror": "^5.51.0",
     "date-fns": "^1.29.0",
@@ -58,7 +58,7 @@
     "@babel/preset-env": "^7.5.5",
     "@babel/runtime": "^7.5.5",
     "@rollup/plugin-alias": "^3.0.1",
-    "@sveltech/routify": "1.5.0-beta.16",
+    "@sveltech/routify": "1.5.0-beta.26",
     "babel-jest": "^24.8.0",
     "browser-sync": "^2.26.7",
     "http-proxy-middleware": "^0.19.1",
