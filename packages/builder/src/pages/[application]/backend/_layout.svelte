@@ -1,13 +1,10 @@
 <script>
-  import ModelView from "./ModelView.svelte"
-  import IndexView from "./IndexView.svelte"
-  import ModelDataTable from "./ModelDataTable"
   import { store, backendUiStore } from "builderStore"
-  import getIcon from "components/common/icon"
-  import DropdownButton from "components/common/DropdownButton.svelte"
-  import ActionButton from "components/common/ActionButton.svelte"
+  import * as api from "components/database/ModelDataTable/api"
+
+  import BackendNav from "components/nav/BackendNav.svelte"
+  import SchemaManagementDrawer from "components/nav/SchemaManagementDrawer.svelte"
   import Modal from "components/common/Modal.svelte"
-  import * as api from "./ModelDataTable/api"
   import {
     CreateEditRecordModal,
     CreateEditModelModal,
@@ -15,7 +12,7 @@
     CreateDatabaseModal,
     DeleteRecordModal,
     CreateUserModal,
-  } from "./ModelDataTable/modals"
+  } from "components/database/ModelDataTable/modals"
 
   let selectedRecord
 
@@ -36,7 +33,6 @@
   $: databaseOpen = $backendUiStore.visibleModal === "DATABASE"
   $: deleteRecordOpen = $backendUiStore.visibleModal === "DELETE_RECORD"
   $: userOpen = $backendUiStore.visibleModal === "USER"
-  $: breadcrumbs = $backendUiStore.breadcrumbs.join(" / ")
 </script>
 
 <Modal isOpen={!!$backendUiStore.visibleModal} {onClosed}>
@@ -61,46 +57,33 @@
 </Modal>
 
 <div class="root">
-  <div class="node-view">
-    <div class="database-actions">
-      <div class="breadcrumb">{breadcrumbs}</div>
-      {#if $backendUiStore.selectedDatabase.id}
-        <ActionButton
-          primary
-          on:click={() => {
-            selectedRecord = null
-            backendUiStore.actions.modals.show('RECORD')
-          }}>
-          Create new record
-        </ActionButton>
-      {/if}
-    </div>
-    {#if $backendUiStore.selectedDatabase.id}
-      <ModelDataTable {selectRecord} />
-    {:else}Please select a database{/if}
+  <div class="nav">
+    <BackendNav />
+  </div>
+  <div class="content">
+    <slot />
+  </div>
+  <div class="nav">
+    <SchemaManagementDrawer />
   </div>
 </div>
 
 <style>
   .root {
     height: 100%;
-    position: relative;
-  }
-
-  .node-view {
-    overflow-y: auto;
-    flex: 1 1 auto;
-  }
-
-  .breadcrumb {
-    text-transform: uppercase;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--secondary60);
-  }
-
-  .database-actions {
     display: flex;
-    justify-content: space-between;
+    background: #fafafa;
+  }
+
+  .content {
+    flex: 1 1 auto;
+    margin: 20px 40px;
+  }
+
+  .nav {
+    overflow: auto;
+    flex: 0 1 auto;
+    width: 275px;
+    height: 100%;
   }
 </style>
