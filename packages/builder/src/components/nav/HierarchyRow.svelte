@@ -52,8 +52,9 @@
 
 <style>
   .hierarchy-item {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 400;
+    margin-bottom: 10px;
   }
 
   .capitalized {
