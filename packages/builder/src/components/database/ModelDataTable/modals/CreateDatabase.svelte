@@ -1,4 +1,5 @@
 <script>
+  import Modal from "components/common/Modal.svelte"
   import { store } from "builderStore"
   import ActionButton from "components/common/ActionButton.svelte"
   import * as api from "../api"

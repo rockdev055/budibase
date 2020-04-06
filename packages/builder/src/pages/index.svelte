@@ -1,8 +1,10 @@
 <script>
-  import AppList from "components/start/AppList.svelte"
+  import AppList from "../AppList.svelte"
+  import PackageRoot from "../PackageRoot.svelte"
+  import Settings from "../Settings.svelte"
   import { onMount } from "svelte"
-  import IconButton from "components/common/IconButton.svelte"
-  import Spinner from "components/common/Spinner.svelte"
+  import IconButton from "../common/IconButton.svelte"
+  import Spinner from "../common/Spinner.svelte"
 
   let promise = getApps()
 
@@ -19,6 +21,7 @@
 </script>
 
 <main>
+
   {#await promise}
     <div class="spinner-container">
       <Spinner />
