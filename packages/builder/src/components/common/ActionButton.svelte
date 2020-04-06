@@ -46,8 +46,7 @@
 
   .button:hover {
     cursor: pointer;
-    font-weight: 600;
-    filter:saturate(90%);
+    font-weight: 700;
   }
 
   .button:disabled {

@@ -1,8 +1,8 @@
 <script>
   import { tick, onMount } from "svelte"
-  import { goto } from "@sveltech/routify"
   import { store, backendUiStore } from "builderStore"
   import api from "builderStore/api"
+  import getIcon from "../common/icon"
   import { CheckIcon } from "../common/Icons"
 
   $: instances = $store.appInstances
@@ -29,7 +29,6 @@
   onMount(() => {
     if ($store.appInstances.length > 0) {
       selectDatabase($store.appInstances[0])
-      $goto(`./database/${$backendUiStore.selectedDatabase.id}`)
     }
   })
 </script>
@@ -43,16 +42,15 @@
             <CheckIcon />
           {/if}
         </span>
+        <i
+          class="ri-delete-bin-7-line hoverable uk-margin-small-left"
+          on:click={() => deleteDatabase(database)} />
         <button
           class:active={database.id === $backendUiStore.selectedDatabase.id}
-          on:click={() => {
-            $goto(`./database/${database.id}`), selectDatabase(database)
-          }}>
+          on:click={() => selectDatabase(database)}>
           {database.name}
         </button>
-        <i
-          class="ri-delete-bin-7-line hoverable alignment"
-          on:click={() => deleteDatabase(database)} />
+
       </li>
     {/each}
   </ul>
@@ -60,10 +58,12 @@
 
 <style>
   .root {
-    font-size: 13px;
-    color: var(--secondary100);
+    padding-bottom: 10px;
+    font-size: 0.9rem;
+    color: var(--secondary50);
+    font-weight: bold;
     position: relative;
-    padding-left: 20px;
+    padding-left: 1.8rem;
   }
 
   ul {
@@ -72,13 +72,8 @@
     list-style: none;
   }
 
-  .alignment {
-    margin-left: auto;
-    padding-right: 20px;
-  }
-
   li {
-    margin: 0px 0px 10px 0px;
+    margin: 0.5rem 0;
     display: flex;
     align-items: center;
   }
@@ -88,11 +83,10 @@
     padding: 0;
     border: none;
     font-family: Roboto;
-    font-size: 13px;
+    font-size: 0.8rem;
     outline: none;
     cursor: pointer;
     background: rgba(0, 0, 0, 0);
-    text-rendering: optimizeLegibility;
   }
 
   .active {
