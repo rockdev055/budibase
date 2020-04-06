@@ -15,8 +15,6 @@
   export let allLevels
   export let hierarchy
   export let actions
-  export let close
-  export let title
 
   let errors = []
   let clonedLevel = cloneDeep(level)
@@ -40,9 +38,9 @@
   )
 
   const getPermissionName = perm =>
-    perm.nodeKey
-      ? `${perm.type} - ${nodeNameFromNodeKey(hierarchy, perm.nodeKey)}`
-      : perm.type
+    perm.nodeKey 
+    ? `${perm.type} - ${nodeNameFromNodeKey(hierarchy, perm.nodeKey)}` 
+    : perm.type
 
   const save = () => {
     const newLevels = isNew
@@ -54,7 +52,6 @@
     if (errors.length > 0) return
 
     onFinished(clonedLevel)
-    close()
   }
 
   const permissionChanged = perm => ev => {
@@ -72,10 +69,6 @@
 </script>
 
 <div>
-
-  <div class="uk-modal-header">
-    <h4 class="budibase__title--4">{title}</h4>
-  </div>
 
   <ErrorsBox {errors} />
 

@@ -1,16 +1,9 @@
 <script>
-  import { getContext } from "svelte"
   import { store, backendUiStore } from "builderStore"
   import HierarchyRow from "./HierarchyRow.svelte"
   import DropdownButton from "components/common/DropdownButton.svelte"
   import NavItem from "./NavItem.svelte"
   import getIcon from "components/common/icon"
-  import {
-    CreateEditModelModal,
-    CreateEditViewModal,
-  } from "components/database/ModelDataTable/modals"
-
-  const { open, close } = getContext("simple-modal")
 
   function newModel() {
     if ($store.currentNode) {
@@ -18,24 +11,12 @@
     } else {
       store.newRootRecord()
     }
-    open(
-      CreateEditModelModal,
-      {
-        onClosed: close,
-      },
-      { styleContent: { padding: "0" } }
-    )
+    backendUiStore.actions.modals.show("MODEL")
   }
 
   function newView() {
     store.newRootIndex()
-    open(
-      CreateEditViewModal,
-      {
-        onClosed: close,
-      },
-      { styleContent: { padding: "0" } }
-    )
+    backendUiStore.actions.modals.show("VIEW")
   }
 </script>
 

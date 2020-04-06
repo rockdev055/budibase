@@ -1,14 +1,15 @@
 <script>
   import { tick, onMount } from "svelte"
-  import { goto } from "@sveltech/routify"
   import { store, backendUiStore } from "builderStore"
   import api from "builderStore/api"
+  import getIcon from "../common/icon"
   import { CheckIcon } from "../common/Icons"
 
   $: instances = $store.appInstances
   $: views = $store.hierarchy.indexes
 
   async function selectDatabase(database) {
+    backendUiStore.actions.navigate("DATABASE")
     backendUiStore.actions.records.select(null)
     backendUiStore.actions.views.select(views[0])
     backendUiStore.actions.database.select(database)
@@ -28,7 +29,6 @@
   onMount(() => {
     if ($store.appInstances.length > 0) {
       selectDatabase($store.appInstances[0])
-      $goto(`./database/${$backendUiStore.selectedDatabase.id}`)
     }
   })
 </script>
@@ -44,9 +44,7 @@
         </span>
         <button
           class:active={database.id === $backendUiStore.selectedDatabase.id}
-          on:click={() => {
-            $goto(`./database/${database.id}`), selectDatabase(database)
-          }}>
+          on:click={() => selectDatabase(database)}>
           {database.name}
         </button>
         <i

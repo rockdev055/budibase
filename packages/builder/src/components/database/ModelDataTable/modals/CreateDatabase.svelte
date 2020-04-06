@@ -1,6 +1,6 @@
 <script>
-  import { store } from "builderStore"
   import Modal from "components/common/Modal.svelte"
+  import { store } from "builderStore"
   import ActionButton from "components/common/ActionButton.svelte"
   import * as api from "../api"
 
@@ -15,26 +15,24 @@
   }
 </script>
 
-<div>
-  <section>
-    Database Name
-    <input class="uk-input" type="text" bind:value={databaseName} />
-  </section>
+<section>
+  Database Name
+  <input class="uk-input" type="text" bind:value={databaseName} />
   <footer>
     <ActionButton alert on:click={onClosed}>Cancel</ActionButton>
     <ActionButton disabled={!databaseName} on:click={createDatabase}>
       Save
     </ActionButton>
   </footer>
-</div>
+</section>
 
 <style>
-  section {
-    padding: 30px;
-  }
   footer {
+    position: absolute;
     padding: 20px;
+    width: 100%;
+    bottom: 0;
+    left: 0;
     background: #fafafa;
-    border-radius: 0.5rem;
   }
 </style>
