@@ -8,7 +8,7 @@
     getNewAccessLevel,
   } from "components/common/core"
   import getIcon from "components/common/icon"
-  import AccessLevelView from "./AccessLevelView.svelte"
+  import AccessLevelView from "components/accessLevels/AccessLevelView.svelte"
   import Modal from "components/common/Modal.svelte"
 
   let editingLevel = null
