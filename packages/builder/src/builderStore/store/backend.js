@@ -9,12 +9,11 @@ import {
   templateApi,
   isIndex,
   canDeleteIndex,
-  canDeleteRecord,
+  canDeleteModel,
 } from "components/common/core"
 
 export const getBackendUiStore = () => {
   const INITIAL_BACKEND_UI_STATE = {
-    leftNavItem: "DATABASE",
     selectedView: {
       records: [],
       name: "",
@@ -27,7 +26,6 @@ export const getBackendUiStore = () => {
   const store = writable(INITIAL_BACKEND_UI_STATE)
 
   store.actions = {
-    navigate: name => store.update(state => ({ ...state, leftNavItem: name })),
     database: {
       select: db =>
         store.update(state => {
@@ -59,10 +57,6 @@ export const getBackendUiStore = () => {
           state.selectedView = view
           return state
         }),
-    },
-    modals: {
-      show: modal => store.update(state => ({ ...state, visibleModal: modal })),
-      hide: () => store.update(state => ({ ...state, visibleModal: null })),
     },
     users: {
       create: user =>
@@ -113,7 +107,7 @@ export const saveBackend = async state => {
   }
 }
 
-export const newRecord = (store, useRoot) => () => {
+export const newModel = (store, useRoot) => () => {
   store.update(state => {
     state.currentNodeIsNew = true
     const shadowHierarchy = createShadowHierarchy(state.hierarchy)
@@ -121,7 +115,7 @@ export const newRecord = (store, useRoot) => () => {
       ? shadowHierarchy
       : getNode(shadowHierarchy, state.currentNode.nodeId)
     state.errors = []
-    state.currentNode = templateApi(shadowHierarchy).getNewRecordTemplate(
+    state.currentNode = templateApi(shadowHierarchy).getNewModelTemplate(
       parent,
       "",
       true
@@ -202,7 +196,7 @@ export const saveCurrentNode = store => () => {
         ? `all_${cloned.name}s`
         : `${cloned.parent().name}_${cloned.name}s`
 
-      defaultIndex.allowedRecordNodeIds = [cloned.nodeId]
+      defaultIndex.allowedModelNodeIds = [cloned.nodeId]
     }
 
     state.currentNodeIsNew = false
@@ -220,10 +214,10 @@ export const deleteCurrentNode = store => () => {
       ? state.hierarchy.children.find(node => node !== state.currentNode)
       : nodeToDelete.parent()
 
-    const isRecord = hierarchyFunctions.isRecord(nodeToDelete)
+    const isModel = hierarchyFunctions.isModel(nodeToDelete)
 
-    const check = isRecord
-      ? canDeleteRecord(nodeToDelete)
+    const check = isModel
+      ? canDeleteModel(nodeToDelete)
       : canDeleteIndex(nodeToDelete)
 
     if (!check.canDelete) {
@@ -231,7 +225,7 @@ export const deleteCurrentNode = store => () => {
       return state
     }
 
-    const recordOrIndexKey = isRecord ? "children" : "indexes"
+    const recordOrIndexKey = isModel ? "children" : "indexes"
 
     // remove the selected record or index
     const newCollection = remove(
@@ -302,7 +296,7 @@ export const deleteLevel = store => level => {
     state.accessLevels.levels = state.accessLevels.levels.filter(
       t => t.name !== level.name
     )
-    incrementAccessLevelsVersion(s)
+    incrementAccessLevelsVersion(state)
     saveBackend(state)
     return state
   })
