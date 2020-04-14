@@ -24,7 +24,7 @@ import { alwaysAuthorized } from "./permissions"
 
 const isAllowedType = t => $(permissionTypes, [values, includes(t)])
 
-const isModelOrIndexType = t =>
+const isRecordOrIndexType = t =>
   some(p => p === t)([
     permissionTypes.CREATE_RECORD,
     permissionTypes.UPDATE_RECORD,
@@ -42,7 +42,7 @@ const permissionRules = app => [
     "nodeKey",
     "record and index permissions must include a valid nodeKey",
     p =>
-      !isModelOrIndexType(p.type) ||
+      !isRecordOrIndexType(p.type) ||
       isSomething(getNode(app.hierarchy, p.nodeKey))
   ),
 ]

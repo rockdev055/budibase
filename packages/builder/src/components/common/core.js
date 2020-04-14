@@ -10,7 +10,7 @@ import { generateSchema } from "../../../../core/src/indexing/indexSchemaCreator
 import { generate } from "shortid"
 
 export { canDeleteIndex } from "../../../../core/src/templateApi/canDeleteIndex"
-export { canDeleteModel } from "../../../../core/src/templateApi/canDeleteModel"
+export { canDeleteRecord } from "../../../../core/src/templateApi/canDeleteRecord"
 export { userWithFullAccess } from "../../../../core/src/index"
 export { joinKey } from "../../../../core/src/common"
 export { getExactNodeForKey } from "../../../../core/src/templateApi/hierarchy"
@@ -65,20 +65,20 @@ export const getPotentialReverseReferenceIndexes = (hierarchy, refIndex) => {
   return res
 }
 
-export const getPotentialReferenceIndexes = (hierarchy, model) =>
+export const getPotentialReferenceIndexes = (hierarchy, record) =>
   pipe(hierarchy, [
     hierarchyFunctions.getFlattenedHierarchy,
     filter(hierarchyFunctions.isAncestorIndex),
     filter(
       i =>
-        hierarchyFunctions.isAncestor(model)(i.parent()) ||
-        i.parent().nodeId === model.parent().nodeId ||
+        hierarchyFunctions.isAncestor(record)(i.parent()) ||
+        i.parent().nodeId === record.parent().nodeId ||
         hierarchyFunctions.isRoot(i.parent())
     ),
   ])
 
 export const isIndex = hierarchyFunctions.isIndex
-export const isModel = hierarchyFunctions.isModel
+export const isRecord = hierarchyFunctions.isRecord
 export const nodeNameFromNodeKey = hierarchyFunctions.nodeNameFromNodeKey
 
 export const getDefaultTypeOptions = type =>
@@ -109,7 +109,7 @@ export const getIndexNodes = hierarchy =>
 export const getRecordNodes = hierarchy =>
   pipe(hierarchy, [
     hierarchyFunctions.getFlattenedHierarchy,
-    filter(hierarchyFunctions.isModel),
+    filter(hierarchyFunctions.isRecord),
   ])
 
 export const getIndexSchema = hierarchy => index =>

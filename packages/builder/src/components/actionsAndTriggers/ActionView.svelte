@@ -68,7 +68,7 @@
 
   <ErrorsBox {errors} />
 
-  <form on:submit|preventDefault class="uk-form-horizontal">
+  <form class="uk-form-horizontal">
 
     <Textbox label="Name" bind:text={clonedAction.name} />
     <Textbox

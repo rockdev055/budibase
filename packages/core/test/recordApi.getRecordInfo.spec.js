@@ -133,15 +133,15 @@ const setup = ({ parentCount, childCount, grandChildCount }) =>
       return field
     }
 
-    const parent = templateApi.getNewModelTemplate(root, "parent")
+    const parent = templateApi.getNewRecordTemplate(root, "parent")
     parent.estimatedRecordCount = parentCount || 1000
     parent.collectionName = "parents"
     addField(parent)
-    const child = templateApi.getNewModelTemplate(parent, "child")
+    const child = templateApi.getNewRecordTemplate(parent, "child")
     child.estimatedRecordCount = childCount || 1000
     child.collectionName = "children"
     addField(child)
-    const grandchild = templateApi.getNewModelTemplate(child, "grandchild")
+    const grandchild = templateApi.getNewRecordTemplate(child, "grandchild")
     grandchild.estimatedRecordCount = grandChildCount || 1000
     grandchild.collectionName = "grandchildren"
     addField(grandchild)

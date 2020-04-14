@@ -3,12 +3,6 @@
   import { store, backendUiStore } from "builderStore"
   import { cloneDeep } from "lodash/fp"
   import getIcon from "../common/icon"
-  import {
-    CreateEditModelModal,
-    CreateEditViewModal,
-  } from "components/database/ModelDataTable/modals"
-
-  const { open, close } = getContext("simple-modal")
 
   export let level = 0
   export let node
@@ -18,7 +12,7 @@
 
   const ICON_MAP = {
     index: "ri-eye-line",
-    model: "ri-list-settings-line",
+    record: "ri-list-settings-line",
   }
 
   store.subscribe(state => {
@@ -29,15 +23,8 @@
 
   function selectHierarchyItem(node) {
     store.selectExistingNode(node.nodeId)
-    const modalType =
-      node.type === "index" ? CreateEditViewModal : CreateEditModelModal
-    open(
-      modalType,
-      {
-        onClosed: close,
-      },
-      { styleContent: { padding: "0" } }
-    )
+    const modalType = node.type === "index" ? "VIEW" : "MODEL"
+    backendUiStore.actions.modals.show(modalType)
   }
 </script>
 
@@ -45,7 +32,7 @@
   <div
     on:click={() => selectHierarchyItem(node)}
     class="budibase__nav-item hierarchy-item"
-    class:capitalized={type === 'model'}
+    class:capitalized={type === 'record'}
     style="padding-left: {20 + level * 20}px"
     class:selected={navActive}>
     <i class={ICON_MAP[type]} />
@@ -53,7 +40,7 @@
   </div>
   {#if node.children}
     {#each node.children as child}
-      <svelte:self node={child} level={level + 1} type="model" />
+      <svelte:self node={child} level={level + 1} type="record" />
     {/each}
   {/if}
   {#if node.indexes}

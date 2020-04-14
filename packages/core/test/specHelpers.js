@@ -42,7 +42,7 @@ export const getMemoryStore = () => setupDatastore(memory({}))
 export const getMemoryTemplateApi = store => {
   const app = {
     datastore: store || getMemoryStore(),
-    publish: () => { },
+    publish: () => {},
     getEpochTime: async () => new Date().getTime(),
     user: { name: "", permissions: [permission.writeTemplates.get()] },
   }
@@ -78,7 +78,7 @@ export const appFromTempalteApi = async (
   const fullPermissions = generateFullPermissions(app)
   app.user.permissions = fullPermissions
 
-  if (disableCleanupTransactions) setCleanupFunc(app, async () => { })
+  if (disableCleanupTransactions) setCleanupFunc(app, async () => {})
   else setCleanupFunc(app)
 
   return app
@@ -138,15 +138,15 @@ export const hierarchyFactory = (...additionalFeatures) => templateApi => {
   const settingsRecord = templateApi.getNewSingleRecordTemplate(root)
   settingsRecord.name = "settings"
 
-  const customerRecord = templateApi.getNewModelTemplate(root, "customer")
+  const customerRecord = templateApi.getNewRecordTemplate(root, "customer")
   customerRecord.collectionName = "customers"
   findCollectionDefaultIndex(customerRecord).map =
     "return {surname:record.surname, isalive:record.isalive, partner:record.partner};"
 
-  const partnerRecord = templateApi.getNewModelTemplate(root, "partner")
+  const partnerRecord = templateApi.getNewRecordTemplate(root, "partner")
   partnerRecord.collectionName = "partners"
 
-  const partnerInvoiceRecord = templateApi.getNewModelTemplate(
+  const partnerInvoiceRecord = templateApi.getNewRecordTemplate(
     partnerRecord,
     "invoice"
   )
@@ -154,7 +154,7 @@ export const hierarchyFactory = (...additionalFeatures) => templateApi => {
   findCollectionDefaultIndex(partnerInvoiceRecord).name =
     "partnerInvoices_index"
 
-  const invoiceRecord = templateApi.getNewModelTemplate(
+  const invoiceRecord = templateApi.getNewRecordTemplate(
     customerRecord,
     "invoice"
   )
@@ -162,7 +162,7 @@ export const hierarchyFactory = (...additionalFeatures) => templateApi => {
   findCollectionDefaultIndex(invoiceRecord).map =
     "return {createdDate: record.createdDate, totalIncVat: record.totalIncVat};"
 
-  const chargeRecord = templateApi.getNewModelTemplate(invoiceRecord, "charge")
+  const chargeRecord = templateApi.getNewRecordTemplate(invoiceRecord, "charge")
   chargeRecord.collectionName = "charges"
 
   const hierarchy = {
@@ -203,7 +203,7 @@ export const withFields = (hierarchy, templateApi) => {
   partnersReferenceIndex.name = "partnersReference"
   partnersReferenceIndex.map =
     "return {name:record.businessName, phone:record.phone};"
-  partnersReferenceIndex.allowedModelNodeIds = [partnerRecord.nodeId]
+  partnersReferenceIndex.allowedRecordNodeIds = [partnerRecord.nodeId]
 
   const partnerCustomersReverseIndex = templateApi.getNewIndexTemplate(
     partnerRecord,
@@ -212,7 +212,7 @@ export const withFields = (hierarchy, templateApi) => {
   partnerCustomersReverseIndex.name = "partnerCustomers"
   partnerCustomersReverseIndex.map = "return {...record};"
   partnerCustomersReverseIndex.filter = "record.isalive === true"
-  partnerCustomersReverseIndex.allowedModelNodeIds = [customerRecord.nodeId]
+  partnerCustomersReverseIndex.allowedRecordNodeIds = [customerRecord.nodeId]
   hierarchy.partnerCustomersReverseIndex = partnerCustomersReverseIndex
 
   newCustomerField("surname", "string")
@@ -236,7 +236,7 @@ export const withFields = (hierarchy, templateApi) => {
   referredToCustomersReverseIndex.map = "return {...record};"
   referredToCustomersReverseIndex.getShardName =
     "return !record.surname ? 'null' : record.surname.substring(0,1);"
-  referredToCustomersReverseIndex.allowedModelNodeIds = [customerRecord.nodeId]
+  referredToCustomersReverseIndex.allowedRecordNodeIds = [customerRecord.nodeId]
   hierarchy.referredToCustomersReverseIndex = referredToCustomersReverseIndex
 
   const customerReferredByField = newCustomerField(
@@ -295,7 +295,7 @@ export const withFields = (hierarchy, templateApi) => {
   )
   partnerChargesReverseIndex.name = "partnerCharges"
   partnerChargesReverseIndex.map = "return {...record};"
-  partnerChargesReverseIndex.allowedModelNodeIds = [chargeRecord]
+  partnerChargesReverseIndex.allowedRecordNodeIds = [chargeRecord]
   hierarchy.partnerChargesReverseIndex = partnerChargesReverseIndex
 
   const customersReferenceIndex = templateApi.getNewIndexTemplate(
@@ -304,7 +304,7 @@ export const withFields = (hierarchy, templateApi) => {
   customersReferenceIndex.name = "customersReference"
   customersReferenceIndex.map = "return {name:record.surname}"
   customersReferenceIndex.filter = "record.isalive === true"
-  customersReferenceIndex.allowedModelNodeIds = [customerRecord.nodeId]
+  customersReferenceIndex.allowedRecordNodeIds = [customerRecord.nodeId]
 
   newInvoiceField("customer", "reference", undefined, {
     indexNodeKey: "/customersReference",
@@ -328,21 +328,21 @@ export const withIndexes = (hierarchy, templateApi) => {
     "return {surname: record.surname, age:record.age};"
   deceasedCustomersIndex.filter = "record.isalive === false"
   findCollectionDefaultIndex(customerRecord).map = "return record;"
-  deceasedCustomersIndex.allowedModelNodeIds = [customerRecord.nodeId]
+  deceasedCustomersIndex.allowedRecordNodeIds = [customerRecord.nodeId]
 
-  findCollectionDefaultIndex(invoiceRecord).allowedModelNodeIds = [
+  findCollectionDefaultIndex(invoiceRecord).allowedRecordNodeIds = [
     invoiceRecord.nodeId,
   ]
-  findCollectionDefaultIndex(customerRecord).allowedModelNodeIds = [
+  findCollectionDefaultIndex(customerRecord).allowedRecordNodeIds = [
     customerRecord.nodeId,
   ]
-  findCollectionDefaultIndex(partnerRecord).allowedModelNodeIds = [
+  findCollectionDefaultIndex(partnerRecord).allowedRecordNodeIds = [
     partnerRecord.nodeId,
   ]
-  findIndex(partnerRecord, "partnerInvoices_index").allowedModelNodeIds = [
+  findIndex(partnerRecord, "partnerInvoices_index").allowedRecordNodeIds = [
     partnerInvoiceRecord.nodeId,
   ]
-  findCollectionDefaultIndex(chargeRecord).allowedModelNodeIds = [
+  findCollectionDefaultIndex(chargeRecord).allowedRecordNodeIds = [
     chargeRecord.nodeId,
   ]
 
@@ -350,14 +350,14 @@ export const withIndexes = (hierarchy, templateApi) => {
   customerInvoicesIndex.name = "customer_invoices"
   customerInvoicesIndex.map = "return record;"
   customerInvoicesIndex.filter = "record.type === 'invoice'"
-  customerInvoicesIndex.allowedModelNodeIds = [invoiceRecord.nodeId]
+  customerInvoicesIndex.allowedRecordNodeIds = [invoiceRecord.nodeId]
 
   const outstandingInvoicesIndex = getNewIndexTemplate(root)
   outstandingInvoicesIndex.name = "Outstanding Invoices"
   outstandingInvoicesIndex.filter =
     "record.type === 'invoice' && record.paidAmount < record.totalIncVat"
   outstandingInvoicesIndex.map = "return {...record};"
-  outstandingInvoicesIndex.allowedModelNodeIds = [
+  outstandingInvoicesIndex.allowedRecordNodeIds = [
     invoiceRecord.nodeId,
     partnerInvoiceRecord.nodeId,
   ]
@@ -403,7 +403,7 @@ export const withIndexes = (hierarchy, templateApi) => {
   customersBySurnameIndex.name = "customersBySurname"
   customersBySurnameIndex.map = "return {...record};"
   customersBySurnameIndex.filter = ""
-  customersBySurnameIndex.allowedModelNodeIds = [customerRecord.nodeId]
+  customersBySurnameIndex.allowedRecordNodeIds = [customerRecord.nodeId]
   customersBySurnameIndex.getShardName =
     "return !record.surname ? 'null' : record.surname.substring(0,1);"
 
@@ -426,7 +426,7 @@ export const withIndexes = (hierarchy, templateApi) => {
   invoicesByOutstandingIndex.filter = ""
   invoicesByOutstandingIndex.getShardName =
     "return (record.totalIncVat > record.paidAmount ? 'outstanding' : 'paid');"
-  invoicesByOutstandingIndex.allowedModelNodeIds = [
+  invoicesByOutstandingIndex.allowedRecordNodeIds = [
     partnerInvoiceRecord.nodeId,
     invoiceRecord.nodeId,
   ]

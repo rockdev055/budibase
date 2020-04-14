@@ -3,6 +3,7 @@ import createNodes from "../src/templateApi/createNodes"
 import { some } from "lodash"
 import { getNewField, addField } from "../src/templateApi/fields"
 import {
+  getNewRecordValidationRule,
   commonRecordValidationRules,
   addRecordValidationRule,
 } from "../src/templateApi/recordValidationRules"
@@ -12,7 +13,7 @@ import { findCollectionDefaultIndex } from "./specHelpers"
 const createValidHierarchy = () => {
   const root = createNodes.getNewRootLevel()
 
-  const customerRecord = createNodes.getNewModelTemplate(root, "customer")
+  const customerRecord = createNodes.getNewRecordTemplate(root, "customer")
   customerRecord.collectionName = "customers"
 
   const customersDefaultIndex = findCollectionDefaultIndex(customerRecord)
@@ -26,7 +27,7 @@ const createValidHierarchy = () => {
   allCustomersOwedFunctions.aggregatedValue = "return record.owed"
   allCustomersOwedFunctions.name = "all customers owed amount"
 
-  const partnerRecord = createNodes.getNewModelTemplate(root, "partner")
+  const partnerRecord = createNodes.getNewRecordTemplate(root, "partner")
   partnerRecord.collectionName = "partners"
   partnerRecord.name = "partner"
   const businessName = getNewField("string")

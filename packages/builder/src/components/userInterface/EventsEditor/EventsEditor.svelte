@@ -16,6 +16,7 @@
   import Dropdown from "components/common/Dropdown.svelte"
   import PlusButton from "components/common/PlusButton.svelte"
   import IconButton from "components/common/IconButton.svelte"
+  import Modal from "components/common/Modal.svelte"
   import EventEditorModal from "./EventEditorModal.svelte"
   import HandlerSelector from "./HandlerSelector.svelte"
 
@@ -63,7 +64,7 @@
 </header>
 
 <div class="root">
-  <form on:submit|preventDefault class="uk-form-stacked form-root">
+  <form class="uk-form-stacked form-root">
     {#each events as event, index}
       {#if event.handlers.length > 0}
         <div

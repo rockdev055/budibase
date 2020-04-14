@@ -1,6 +1,6 @@
 import {
   getNewRootLevel,
-  getNewModelTemplate,
+  getNewRecordTemplate,
   getNewIndexTemplate,
   createNodeErrors,
   constructHierarchy,
@@ -38,7 +38,7 @@ const api = app => ({
   getNewRootLevel,
   constructNode,
   getNewIndexTemplate,
-  getNewModelTemplate,
+  getNewRecordTemplate,
   getNewField,
   validateField,
   addField,

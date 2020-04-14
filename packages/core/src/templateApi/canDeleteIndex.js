@@ -2,7 +2,7 @@ import {
   findRoot,
   getFlattenedHierarchy,
   fieldReversesReferenceToIndex,
-  isModel,
+  isRecord,
 } from "./hierarchy"
 import { $ } from "../common"
 import { map, filter, reduce } from "lodash/fp"
@@ -11,7 +11,7 @@ export const canDeleteIndex = indexNode => {
   const flatHierarchy = $(indexNode, [findRoot, getFlattenedHierarchy])
 
   const reverseIndexes = $(flatHierarchy, [
-    filter(isModel),
+    filter(isRecord),
     reduce((obj, r) => {
       for (let field of r.fields) {
         if (fieldReversesReferenceToIndex(indexNode)(field)) {
@@ -27,7 +27,7 @@ export const canDeleteIndex = indexNode => {
   ])
 
   const lookupIndexes = $(flatHierarchy, [
-    filter(isModel),
+    filter(isRecord),
     reduce((obj, r) => {
       for (let field of r.fields) {
         if (

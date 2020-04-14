@@ -2,17 +2,17 @@ import {
   findRoot,
   getFlattenedHierarchy,
   fieldReversesReferenceToIndex,
-  isModel,
+  isRecord,
   isAncestorIndex,
   isAncestor,
 } from "./hierarchy"
 import { $ } from "../common"
 import { map, filter, includes } from "lodash/fp"
 
-export const canDeleteModel = modelNode => {
-  const flatHierarchy = $(modelNode, [findRoot, getFlattenedHierarchy])
+export const canDeleteRecord = recordNode => {
+  const flatHierarchy = $(recordNode, [findRoot, getFlattenedHierarchy])
 
-  const ancestors = $(flatHierarchy, [filter(isAncestor(modelNode))])
+  const ancestors = $(flatHierarchy, [filter(isAncestor(recordNode))])
 
   const belongsToAncestor = i => ancestors.includes(i.parent())
 
@@ -22,11 +22,11 @@ export const canDeleteModel = modelNode => {
         i =>
           isAncestorIndex(i) &&
           belongsToAncestor(i) &&
-          includes(node.nodeId)(i.allowedModelNodeIds)
+          includes(node.nodeId)(i.allowedRecordNodeIds)
       ),
       map(
         i =>
-          `index "${i.name}" indexes this model. Please remove the model from the index, or delete the index`
+          `index "${i.name}" indexes this record. Please remove the record from the index, or delete the index`
       ),
     ])
 
@@ -39,7 +39,7 @@ export const canDeleteModel = modelNode => {
     return errorsThisNode
   }
 
-  const errors = errorsForNode(modelNode)
+  const errors = errorsForNode(recordNode)
 
   return { errors, canDelete: errors.length === 0 }
 }

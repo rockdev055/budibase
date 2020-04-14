@@ -5,7 +5,7 @@ import {
   getRecordNodeById,
   getNode,
   isIndex,
-  isModel,
+  isRecord,
   getActualKeyOfParent,
   getAllowedRecordNodesForIndex,
   fieldReversesReferenceToIndex,
@@ -62,7 +62,7 @@ const buildReverseReferenceIndex = async (app, indexNode) => {
     getFlattenedHierarchy,
     filter(
       n =>
-        isModel(n) && some(fieldReversesReferenceToIndex(indexNode))(n.fields)
+        isRecord(n) && some(fieldReversesReferenceToIndex(indexNode))(n.fields)
     ),
   ])
 
@@ -138,6 +138,6 @@ const buildHeirarchalIndex = async (app, indexNode) => {
 }
 
 const recordNodeApplies = indexNode => recordNode =>
-  includes(recordNode.nodeId)(indexNode.allowedModelNodeIds)
+  includes(recordNode.nodeId)(indexNode.allowedRecordNodeIds)
 
 export default buildIndex

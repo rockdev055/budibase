@@ -13,7 +13,7 @@ import {
   isRoot,
   isSingleRecord,
   isCollectionRecord,
-  isModel,
+  isRecord,
   isaggregateGroup,
   getFlattenedHierarchy,
 } from "./hierarchy"
@@ -34,7 +34,7 @@ const pathRegxMaker = node => () =>
 const nodeKeyMaker = node => () =>
   switchCase(
     [
-      n => isModel(n) && !isSingleRecord(n),
+      n => isRecord(n) && !isSingleRecord(n),
       n =>
         joinKey(
           node.parent().nodeKey(),
@@ -49,7 +49,7 @@ const nodeKeyMaker = node => () =>
   )(node)
 
 const nodeNameMaker = node => () =>
-  isRoot(node)
+    isRoot(node) 
     ? "/"
     : joinKey(node.parent().nodeName(), node.name)
 
@@ -58,7 +58,7 @@ const validate = parent => node => {
     isIndex(node) &&
     isSomething(parent) &&
     !isRoot(parent) &&
-    !isModel(parent)
+    !isRecord(parent)
   ) {
     throw new BadRequestError(createNodeErrors.indexParentMustBeRecordOrRoot)
   }
@@ -103,13 +103,13 @@ const addToParent = obj => {
       parent.children.push(obj)
     }
 
-    if (isModel(obj)) {
+    if (isRecord(obj)) {
       const defaultIndex = find(
         parent.indexes,
         i => i.name === `${parent.name}_index`
       )
       if (defaultIndex) {
-        defaultIndex.allowedModelNodeIds.push(obj.nodeId)
+        defaultIndex.allowedRecordNodeIds.push(obj.nodeId)
       }
     }
   }
@@ -165,7 +165,7 @@ export const getNewRootLevel = () =>
     nodeId: 0,
   })
 
-const _getNewModelTemplate = (parent, name, createDefaultIndex, isSingle) => {
+const _getNewRecordTemplate = (parent, name, createDefaultIndex, isSingle) => {
   const nodeId = getNodeId(parent)
   const node = constructNode(parent, {
     name,
@@ -175,7 +175,7 @@ const _getNewModelTemplate = (parent, name, createDefaultIndex, isSingle) => {
     validationRules: [],
     nodeId: nodeId,
     indexes: [],
-    estimatedRecordCount: isModel(parent) ? 500 : 1000000,
+    estimatedRecordCount: isRecord(parent) ? 500 : 1000000,
     collectionName: (nodeId || "").toString(),
     isSingle,
   })
@@ -183,20 +183,20 @@ const _getNewModelTemplate = (parent, name, createDefaultIndex, isSingle) => {
   if (createDefaultIndex) {
     const defaultIndex = getNewIndexTemplate(parent)
     defaultIndex.name = `${name}_index`
-    defaultIndex.allowedModelNodeIds.push(node.nodeId)
+    defaultIndex.allowedRecordNodeIds.push(node.nodeId)
   }
 
   return node
 }
 
-export const getNewModelTemplate = (
+export const getNewRecordTemplate = (
   parent,
   name = "",
   createDefaultIndex = true
-) => _getNewModelTemplate(parent, name, createDefaultIndex, false)
+) => _getNewRecordTemplate(parent, name, createDefaultIndex, false)
 
 export const getNewSingleRecordTemplate = parent =>
-  _getNewModelTemplate(parent, "", false, true)
+  _getNewRecordTemplate(parent, "", false, true)
 
 export const getNewIndexTemplate = (parent, type = "ancestor") =>
   constructNode(parent, {
@@ -208,7 +208,7 @@ export const getNewIndexTemplate = (parent, type = "ancestor") =>
     getShardName: "",
     getSortKey: "record.id",
     aggregateGroups: [],
-    allowedModelNodeIds: [],
+    allowedRecordNodeIds: [],
     nodeId: getNodeId(parent),
   })
 
@@ -233,7 +233,7 @@ export const getNewAggregateTemplate = set => {
 
 export default {
   getNewRootLevel,
-  getNewModelTemplate,
+  getNewRecordTemplate,
   getNewIndexTemplate,
   createNodeErrors,
   constructHierarchy,

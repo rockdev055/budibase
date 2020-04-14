@@ -1,4 +1,3 @@
-//
 import { filter, cloneDeep, last, concat, isEmpty, values } from "lodash/fp"
 import { pipe, getNode, constructHierarchy } from "components/common/core"
 import * as backendStoreActions from "./backend"
@@ -19,6 +18,8 @@ import { buildCodeForScreens } from "../buildCodeForScreens"
 import { generate_screen_css } from "../generate_css"
 import { insertCodeMetadata } from "../insertCodeMetadata"
 import { uuid } from "../uuid"
+
+let appname = ""
 
 export const getStore = () => {
   const initial = {
@@ -48,10 +49,10 @@ export const getStore = () => {
 
   const store = writable(initial)
 
-  store.setPackage = setPackage(store, initial)
+  store.initialise = initialise(store, initial)
 
-  store.newChildModel = backendStoreActions.newModel(store, false)
-  store.newRootModel = backendStoreActions.newModel(store, true)
+  store.newChildRecord = backendStoreActions.newRecord(store, false)
+  store.newRootRecord = backendStoreActions.newRecord(store, true)
   store.selectExistingNode = backendStoreActions.selectExistingNode(store)
   store.newChildIndex = backendStoreActions.newIndex(store, false)
   store.newRootIndex = backendStoreActions.newIndex(store, true)
@@ -99,12 +100,26 @@ export const getStore = () => {
 
 export default getStore
 
-const setPackage = (store, initial) => async (pkg) => {
+const initialise = (store, initial) => async () => {
+  appname = window.location.hash
+    ? last(window.location.hash.substr(1).split("/"))
+    : ""
+
+  if (!appname) {
+    initial.apps = await api.get(`/_builder/api/apps`).then(r => r.json())
+    initial.hasAppPackage = false
+    store.set(initial)
+    return initial
+  }
+
+  const pkg = await api
+    .get(`/_builder/api/${appname}/appPackage`)
+    .then(r => r.json())
 
   const [main_screens, unauth_screens] = await Promise.all([
-    api.get(`/_builder/api/${pkg.application.name}/pages/main/screens`).then(r => r.json()),
+    api.get(`/_builder/api/${appname}/pages/main/screens`).then(r => r.json()),
     api
-      .get(`/_builder/api/${pkg.application.name}/pages/unauthenticated/screens`)
+      .get(`/_builder/api/${appname}/pages/unauthenticated/screens`)
       .then(r => r.json()),
   ])
 
@@ -119,12 +134,12 @@ const setPackage = (store, initial) => async (pkg) => {
     },
   }
 
-  initial.libraries = await loadLibs(pkg.application.name, pkg)
+  initial.libraries = await loadLibs(appname, pkg)
   initial.loadLibraryUrls = pageName => {
     const libs = libUrlsForPreview(pkg, pageName)
     return libs
   }
-  initial.appname = pkg.application.name
+  initial.appname = appname
   initial.pages = pkg.pages
   initial.hasAppPackage = true
   initial.hierarchy = pkg.appDefinition.hierarchy
@@ -362,7 +377,7 @@ const savePage = store => async page => {
 
 const addComponentLibrary = store => async lib => {
   const response = await api.get(
-    `/_builder/api/${s.appname}/componentlibrary?lib=${encodeURI(lib)}`,
+    `/_builder/api/${appname}/componentlibrary?lib=${encodeURI(lib)}`,
     undefined,
     false
   )
@@ -421,7 +436,7 @@ const removeStylesheet = store => stylesheet => {
 const _savePage = async s => {
   const page = s.pages[s.currentPageName]
 
-  await api.post(`/_builder/api/${s.appname}/pages/${s.currentPageName}`, {
+  await api.post(`/_builder/api/${appname}/pages/${s.currentPageName}`, {
     page: { componentLibraries: s.pages.componentLibraries, ...page },
     uiFunctions: s.currentPageFunctions,
     screens: page._screens,
