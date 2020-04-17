@@ -9,8 +9,6 @@ import builtins from "rollup-plugin-node-builtins"
 import nodeglobals from "rollup-plugin-node-globals"
 import copy from "rollup-plugin-copy"
 import replace from "rollup-plugin-replace"
-import json from '@rollup/plugin-json';
-
 
 import path from "path"
 
@@ -135,16 +133,10 @@ export default {
   plugins: [
     alias({
       entries: [
-        {
-          find: "components",
-          replacement: path.resolve(projectRootDir, "src/components"),
-        },
-        {
-          find: "builderStore",
-          replacement: path.resolve(projectRootDir, "src/builderStore"),
-        },
+        { find: "components", replacement: path.resolve(projectRootDir, 'src/components') },
+        { find: "builderStore", replacement: path.resolve(projectRootDir, 'src/builderStore') }
       ],
-      customResolver,
+      customResolver
     }),
     copy({
       targets: [
@@ -214,6 +206,5 @@ export default {
     // If we're building for production (npm run build
     // instead of npm run dev), minify
     production && terser(),
-    json(),
   ],
 }
