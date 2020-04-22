@@ -20,7 +20,7 @@
     pipe,
   } from "components/common/core"
 
-  import Tab from "./ComponentTab/Tab.svelte"
+  import Tab from "./ItemTab/Tab.svelte"
   import { store } from "builderStore"
 
   export let toggleTab
@@ -49,6 +49,15 @@
     if (!templateInstances || templateInstances.length === 0) return
     selectedTemplateInstance = templateInstances[0].name
     selectTemplateDialog.show()
+  }
+
+  const onComponentChosen = component => {
+    if (component.template) {
+      onTemplateChosen(component.template)
+    } else {
+      store.addChildComponent(component._component)
+      toggleTab()
+    }
   }
 
   const onTemplateInstanceChosen = () => {
@@ -86,7 +95,14 @@
     {/each}
   </ul>
   <div class="panel">
-    <Tab list={selectedCategory} {onTemplateChosen} {toggleTab} />
+    <!-- <Tab
+      list={selectedCategory}
+      on:selectItem={e => onComponentChosen(e.detail)} /> -->
+    <Tab
+      list={selectedCategory}
+      on:selectItem={e => onComponentChosen(e.detail)}
+      {onTemplateChosen}
+      {toggleTab} />
   </div>
 </div>
 
