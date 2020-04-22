@@ -214,7 +214,6 @@
 		"description": "An HTML H1 - H6 tag",
 		"props" : {
 			"className":"string",
-			"text": "string",
 			"type": {
 				"type": "options",
 				"default": "h1",
