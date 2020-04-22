@@ -3,34 +3,33 @@ export default {
     {
       name: 'Basic',
       isCategory: true,
-      children: [
+      type: [
         {
+          _component: "@budibase/standard-components/container",
           name: 'Container',
           description: 'This component contains things within itself',
           icon: 'ri-layout-row-fill',
           commonProps: {},
-          children: []
+          type: []
         },
         {
           name: 'Text',
           description: 'This is a simple text component',
           icon: 'ri-t-box-fill',
           commonProps: {},
-          children: [
+          type: [
             {
               _component: '@budibase/standard-components/heading',
               name: 'Headline',
               icon: 'headline',
               props: {
                 type: {
-                  type: 'options',
-                  options: [
-                    'h1',
-                    'h2'
-                  ],
-                  'default': 'h1'
-                }
-              }
+                  type: "options",
+                  options: ["h1", "h2", "h3", "h4", "h5", "h6"],
+                  default: "h1",
+                },
+                text: "string",
+              },
             },
             {
               _component: '@budibase/standard-components/text',
@@ -41,106 +40,74 @@ export default {
           ]
         },
         {
+          _component: "@budibase/standard-components/button",
           name: 'Button',
           description: 'A basic html button that is ready for styling',
           icon: 'ri-radio-button-fill',
           commonProps: {},
-          children: []
+          type: []
         },
         {
           name: 'Icon',
           description: 'A basic component for displaying icons',
           icon: 'ri-sun-fill',
           commonProps: {},
-          children: []
+          type: []
         },
         {
           name: 'Avatar',
           description: 'A basic component for rendering an avatar',
           icon: 'ri-user-smile-fill',
           commonProps: {},
-          children: []
+          type: []
         },
         {
           name: 'Link',
           description: 'A basic link component for internal and external links',
           icon: 'ri-link',
           commonProps: {},
-          children: []
-        }
-      ]
-    },
-    {
-      name: 'Form',
-      isCategory: true,
-      children: [
-        {
-          name: 'Button',
-          description: 'A basic html button that is ready for styling',
-          icon: 'ri-radio-button-fill',
-          commonProps: {},
-          children: []
-        },
-        {
-          name: 'Icon',
-          description: 'A basic component for displaying icons',
-          icon: 'ri-sun-fill',
-          commonProps: {},
-          children: []
-        },
-        {
-          name: 'Avatar',
-          description: 'A basic component for rendering an avatar',
-          icon: 'ri-user-smile-fill',
-          commonProps: {},
-          children: []
-        },
-        {
-          name: 'Link',
-          description: 'A basic link component for internal and external links',
-          icon: 'ri-link',
-          commonProps: {},
-          children: []
+          type: []
         }
       ]
     },
     {
       name: 'Blocks',
       isCategory: true,
-      children: [
+      type: [
         {
+          _component: "@budibase/materialdesign-components/BasicCard",
           name: 'Card',
           description: 'A basic card component that can contain content and actions.',
           icon: 'ri-layout-bottom-line',
           commonProps: {},
-          children: []
+          type: []
         },
         {
           name: 'Login',
           description: 'A component that automatically generates a login screen for your app.',
           icon: 'ri-login-box-fill',
           commonProps: {},
-          children: []
+          type: []
         },
         {
           name: 'Navbar',
           description: 'A component for handling the navigation within your app.',
           icon: 'ri-navigation-fill',
           commonProps: {},
-          children: []
+          type: []
         }
       ]
     },
     {
       name: 'Data',
       isCategory: true,
-      children: [
+      type: [
         {
           name: 'Table',
           description: 'A component that generates a table from your data.',
           icon: 'ri-archive-drawer-fill',
           commonProps: {},
-          children: []
+          type: []
         },
         {
           name: 'Form',
@@ -153,7 +120,7 @@ export default {
             description: "Form for saving a record",
             name: "@budibase/materialdesign-components/recordForm",
           },
-          children: []
+          type: []
         }
       ]
     },

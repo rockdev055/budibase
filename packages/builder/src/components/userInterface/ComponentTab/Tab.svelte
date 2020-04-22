@@ -1,17 +1,25 @@
 <script>
-  import { createEventDispatcher } from "svelte"
-  const dispatch = createEventDispatcher()
-
   import Item from "./Item.svelte"
   import { store } from "builderStore"
   export let list
+  export let toggleTab
+  export let onTemplateChosen
   let category = list
 
-  const handleClick = item => {
-    if (item.children && item.children.length > 0) {
-      list = item
+  const onComponentChosen = component => {
+    if (component.template) {
+      onTemplateChosen(component.template)
     } else {
-      dispatch("selectItem", item)
+      store.addChildComponent(component._component)
+      toggleTab()
+    }
+  }
+
+  const handleClick = component => {
+    if (component.type && component.type.length > 0) {
+      list = component
+    } else {
+      onComponentChosen(component)
     }
   }
 
@@ -24,8 +32,8 @@
   <button class="back-button" on:click={() => (list = category)}>Back</button>
 {/if}
 
-{#each list.children as item}
-  <Item {item} on:click={() => handleClick(item)} />
+{#each list.type as component}
+  <Item {component} on:click={() => handleClick(component)} />
 {/each}
 
 <style>
