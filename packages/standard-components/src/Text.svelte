@@ -7,26 +7,29 @@
   export let formattingTag = ""
 
   export let font = ""
-  export let fontSize = "1em"
   export let textAlign = ""
   export let verticalAlign = ""
   export let color = ""
 
   export let _bb
 
+  let style = ""
+
   const isTag = tag => (formattingTag || "").indexOf(tag) > -1
 
-  $: style = buildStyle({
-    font: `${fontSize} ${font}`,
-    verticalAlign,
-    color,
-    "text-align": textAlign,
-    "vertical-align": verticalAlign,
-  })
+  $: {
+    style = buildStyle({
+      font,
+      verticalAlign,
+      color,
+      "text-align": textAlign,
+      "vertical-align": verticalAlign,
+    })
+  }
 </script>
 
 {#if isTag('none')}
-  <span {style}>{text}</span>
+  <span>{text}</span>
 {:else if isTag('<b>')}
   <b class={className} {style}>{text}</b>
 {:else if isTag('<strong>')}
