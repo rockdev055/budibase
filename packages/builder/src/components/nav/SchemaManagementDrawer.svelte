@@ -1,11 +1,10 @@
 <script>
-  import { getContext, onMount } from "svelte"
+  import { getContext } from "svelte"
   import { store, backendUiStore } from "builderStore"
   import HierarchyRow from "./HierarchyRow.svelte"
   import DropdownButton from "components/common/DropdownButton.svelte"
   import NavItem from "./NavItem.svelte"
   import getIcon from "components/common/icon"
-  import api from "builderStore/api"
   import {
     CreateEditModelModal,
     CreateEditViewModal,
@@ -14,6 +13,11 @@
   const { open, close } = getContext("simple-modal")
 
   function newModel() {
+    if ($store.currentNode) {
+      store.newChildModel()
+    } else {
+      store.newRootModel()
+    }
     open(
       CreateEditModelModal,
       {
@@ -24,7 +28,7 @@
   }
 
   function newView() {
-    // store.newRootIndex()
+    store.newRootIndex()
     open(
       CreateEditViewModal,
       {
@@ -39,7 +43,7 @@
   <div class="hierarchy">
     <div class="components-list-container">
       <div class="nav-group-header">
-        <div class="hierarchy-title">Models</div>
+        <div class="hierarchy-title">Schema</div>
         <div class="uk-inline">
           <i class="ri-add-line hoverable" />
           <div uk-dropdown="mode: click;">
@@ -53,16 +57,13 @@
     </div>
 
     <div class="hierarchy-items-container">
-      {#each $backendUiStore.models as model}
-        <HierarchyRow node={model} type="model" />
-      {/each}
-      <!-- {#each $store.hierarchy.children as model}
+      {#each $store.hierarchy.children as model}
         <HierarchyRow node={model} type="model" />
       {/each}
 
       {#each $store.hierarchy.indexes as index}
         <HierarchyRow node={index} type="index" />
-      {/each} -->
+      {/each}
     </div>
   </div>
 </div>

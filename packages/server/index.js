@@ -16,8 +16,7 @@ for (let arg of process.argv) {
 const config = require(configPath)
 
 ;(async () => {
-  // const bbContext = await buildAppContext(config(), true)
-  const bbContext = { config: config() }
+  const bbContext = await buildAppContext(config(), true)
   const server = await app(bbContext)
   server.on("listening", () => {
     console.log(`Budibase Server listening on port ${bbContext.config.port}`)
