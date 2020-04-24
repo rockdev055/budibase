@@ -5,7 +5,7 @@ import {
   getIndexApi,
   getActionsApi,
 } from "../src"
-import couchDb, { getTestDb } from "./couchDb"
+import memory from "./memory"
 import { setupDatastore } from "../src/appInitialise"
 import {
   configFolder,
@@ -38,13 +38,11 @@ export const testFieldDefinitionsPath = testAreaName =>
 export const testTemplatesPath = testAreaName =>
   path.join(testFileArea(testAreaName), templateDefinitions)
 
-export const getMemoryStore = async () =>
-  setupDatastore(couchDb(await getTestDb()))
-
-export const getMemoryTemplateApi = async store => {
+export const getMemoryStore = () => setupDatastore(memory({}))
+export const getMemoryTemplateApi = store => {
   const app = {
-    datastore: store || (await getMemoryStore()),
-    publish: () => {},
+    datastore: store || getMemoryStore(),
+    publish: () => { },
     getEpochTime: async () => new Date().getTime(),
     user: { name: "", permissions: [permission.writeTemplates.get()] },
   }
@@ -468,7 +466,7 @@ export const setupApphierarchy = async (
   creator,
   disableCleanupTransactions = false
 ) => {
-  const { templateApi } = await getMemoryTemplateApi()
+  const { templateApi } = getMemoryTemplateApi()
   const hierarchy = creator(templateApi)
   await initialiseData(templateApi._storeHandle, {
     hierarchy: hierarchy.root,

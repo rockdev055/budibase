@@ -1,12 +1,12 @@
 module.exports = () => ({
-  // can be couch - if you have couchdb installed, or pouch for dev
-  database: "couch",
+  // the datastore type. should link to a module ...
+  // ../datastores/datastores/<datastore>.js
+  datastore: "local",
 
-  // not required if using pouch
-  couchDbConnectionString: "https://username:password@localhost:5984",
-
-  // a secret that is used to access admin endpoints
-  adminSecret: "a_big_long_secret",
+  // a config object passed to the datastore.databaseManager
+  datastoreConfig: {
+    rootPath: "./.data",
+  },
 
   // cookie signing keys,these are secret
   keys: ["secret1", "secret1"],
