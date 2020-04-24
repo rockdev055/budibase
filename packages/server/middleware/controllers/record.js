@@ -1,5 +1,5 @@
-const CouchDB = require("../../db");
-const { schemaValidator } = require("../../../common");
+const CouchDB = require("../../db")
+const { schemaValidator } = require("@budibase/common")
 
 exports.save = async function(ctx) {
   const db = new CouchDB(ctx.params.instanceId);
@@ -44,9 +44,9 @@ exports.save = async function(ctx) {
 }
 
 exports.fetch = async function(ctx) {
-  const db = new CouchDB(ctx.params.instanceId)
+  const db = new CouchDB(ctx.config)(ctx.params.instanceId)
   const response = await db.query(
-    `database/${ctx.params.modelId}`,
+    `database/${ctx.params.viewName}`,
     {
       include_docs: true
     }
@@ -55,12 +55,12 @@ exports.fetch = async function(ctx) {
 }
 
 exports.find = async function(ctx) {
-  const db = new CouchDB(ctx.params.instanceId)
+  const db = new CouchDB(ctx.config)(ctx.params.instanceId)
   ctx.body = await db.get(ctx.params.recordId)
 }
 
 exports.destroy = async function(ctx) {
   const databaseId = ctx.params.instanceId;
-  const db = new CouchDB(databaseId)
+  const db = new CouchDB(ctx.config)(databaseId)
   ctx.body = await db.destroy(ctx.params.recordId, ctx.params.revId);
 };

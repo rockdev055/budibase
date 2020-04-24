@@ -18,8 +18,8 @@ exports.authenticate = async ctx => {
   if (!password) ctx.throw(400, "Password Required");
 
   // query couch for their username
-  const db = new CouchDB(ctx.params.instanceId);
-  const dbUser = await db.query("by_username", { 
+  const db = new CouchDB(ctx.config)(ctx.params.instanceId);
+  const dbUser = await db.query("database/by_username", { 
     include_docs: true,
     key: username
   });
