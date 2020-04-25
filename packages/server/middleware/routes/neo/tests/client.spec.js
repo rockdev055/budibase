@@ -1,6 +1,6 @@
 const supertest = require("supertest");
 const app = require("../../../../app");
-const { createClientDatabase, destroyClientDatabase } = require("./couchTestUtils")
+const { createClientDatabase, destroyDatabase } = require("./couchTestUtils")
 
 
 const CLIENT_DB_ID = "client-testing";
@@ -8,7 +8,6 @@ const CLIENT_DB_ID = "client-testing";
 describe("/clients", () => {
   let request;
   let server;
-  let db;
 
   beforeAll(async () => {
     server = await app({
@@ -25,7 +24,7 @@ describe("/clients", () => {
 
   describe("create", () => {
     afterEach(async () => {
-      await destroyClientDatabase();
+      await destroyDatabase(CLIENT_DB_ID);
     });
 
     it("returns a success message when the client database is successfully created", done => {
@@ -44,7 +43,7 @@ describe("/clients", () => {
 
   describe("destroy", () => {
     beforeEach(async () => {
-      db = await createClientDatabase();
+      await createClientDatabase();
     });
 
     it("returns a success message when the client database is successfully destroyed", async done => {

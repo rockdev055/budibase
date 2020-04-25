@@ -1,7 +1,8 @@
 const supertest = require("supertest");
 const app = require("../../../../app");
 const { 
-  createInstanceDatabase
+  createInstanceDatabase, 
+  destroyDatabase 
 } = require("./couchTestUtils");
 
 
@@ -28,14 +29,12 @@ describe("/users", () => {
   })
 
   describe("fetch", () => {
-    let db;
-
     beforeEach(async () => {
-      db = await createInstanceDatabase(TEST_INSTANCE_ID);
+      await createInstanceDatabase(TEST_INSTANCE_ID);
     });
 
     afterEach(async () => {
-      await db.destroy();
+      await destroyDatabase(TEST_INSTANCE_ID);
     });
 
     it("returns a list of users from an instance db", done => {
@@ -53,20 +52,18 @@ describe("/users", () => {
     });
 
   describe("create", () => {
-    let db;
-
     beforeEach(async () => {
-      db = await createInstanceDatabase(TEST_INSTANCE_ID);
+      await createInstanceDatabase(TEST_INSTANCE_ID);
     });
 
     afterEach(async () => {
-      await db.destroy();
+      await destroyDatabase(TEST_INSTANCE_ID);
     });
 
     it("returns a success message when a user is successfully created", done => {
       request
         .post(`/api/${TEST_INSTANCE_ID}/users`)
-        .send({ name: "Bill", username: "bill1", password: "password" })
+        .send({ name: "John" })
         .set("Accept", "application/json")
         .expect('Content-Type', /json/)
         .expect(200)

@@ -43,22 +43,19 @@
   }
 
   async function saveRecord() {
-    const recordResponse = await api.saveRecord(
-      {
-        ...record,
-        modelId: $backendUiStore.selectedModel._id,
-      },
-      instanceId
-    )
+    const recordResponse = await api.saveRecord({
+      record,
+      instanceId,
+      modelId: $backendUiStore.selectedModel._id
+    })
     if (recordResponse.errors) {
-      errors = recordResponse.errors
-      return
+      errors = recordResponse.errors;
+      return;
     }
 
     backendUiStore.update(state => {
       state.selectedView = state.selectedView
       return state
-      onClosed();
     })
   }
 </script>

@@ -8,7 +8,6 @@ const TEST_INSTANCE_ID = "testing-123";
 describe("/views", () => {
   let request;
   let server;
-  let db;
 
   beforeAll(async () => {
     server = await app({
@@ -25,11 +24,11 @@ describe("/views", () => {
 
   describe("create", () => {
     beforeEach(async () => {
-      db = await createInstanceDatabase(TEST_INSTANCE_ID);
+      await createInstanceDatabase(TEST_INSTANCE_ID);
     });
 
     afterEach(async () => {
-      await db.destroy();
+      await destroyDatabase(TEST_INSTANCE_ID);
     });
 
     it("returns a success message when the view is successfully created", done => {
@@ -56,15 +55,13 @@ describe("/views", () => {
     });
 
   describe("fetch", () => {
-    let db;
-
     beforeEach(async () => {
-      db = await createInstanceDatabase(TEST_INSTANCE_ID);
+      await createInstanceDatabase(TEST_INSTANCE_ID);
       await createModel(TEST_INSTANCE_ID);
     });
 
     afterEach(async () => {
-      await db.destroy();
+      await destroyDatabase(TEST_INSTANCE_ID);
     });
 
     it("returns a list of all the views that exist in the instance database", done => {

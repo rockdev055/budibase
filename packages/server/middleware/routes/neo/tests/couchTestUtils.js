@@ -1,6 +1,10 @@
-const CouchDB = require("../../../../db");
-const CLIENT_DB_ID = "client-testing";
+const couchdb = require("../../../../db")
+const createClientDb = require("../../../../db/initialiseClientDb")
+
+const CLIENT_DB_ID = "client-testing"
 const TEST_APP_ID = "test-app";
+
+exports.destroyDatabase = couchdb.db.destroy;
 
 exports.createModel = async (instanceId, model) => {
   model = model || {
@@ -11,8 +15,8 @@ exports.createModel = async (instanceId, model) => {
       "name": { "type": "string" }
     }
   }
-  const db = new CouchDB(instanceId);
-  const response = await db.post(model);
+  const db = couchdb.db.use(instanceId);
+  const response = await db.insert(model);
 
   const designDoc = await db.get("_design/database");
   designDoc.views = {
@@ -25,7 +29,7 @@ exports.createModel = async (instanceId, model) => {
       }`
     }
   };
-  await db.put(designDoc);
+  await db.insert(designDoc, designDoc._id);
 
   return {
     ...response,
@@ -33,36 +37,20 @@ exports.createModel = async (instanceId, model) => {
   };
 } 
 
-exports.createClientDatabase = async () => {
-  const db = new CouchDB(CLIENT_DB_ID);
+exports.createClientDatabase = async () =>
+  await createClientDb({
+    database: "couch",
+    clientId: CLIENT_DB_ID,
+  })
 
-  await db.put({
-    _id: "_design/client",
-    views: { 
-      by_type: { 
-        map: function(doc) { 
-          emit([doc.type], doc._id); 
-        } 
-      }.toString() 
-    }
-  });
-
-  await db.put({
-    _id: TEST_APP_ID,
-    type: "app",
-    instances: []
-  });
-
-  return db;
-}
-
-exports.destroyClientDatabase = async () => new CouchDB(CLIENT_DB_ID).destroy();
+exports.destroyClientDatabase = async () => await couchdb.db.destroy(CLIENT_DB_ID);
 
 exports.createInstanceDatabase = async instanceId => {
-  const db = new CouchDB(instanceId);
+  await couchdb.db.create(instanceId);
 
-  await db.put({
-    _id: "_design/database",
+  const db = couchdb.db.use(instanceId);
+
+  await db.insert({
     metadata: {
       clientId: CLIENT_DB_ID,
       applicationId: TEST_APP_ID
@@ -71,17 +59,17 @@ exports.createInstanceDatabase = async instanceId => {
       by_type: { 
         map: function(doc) { 
           emit([doc.type], doc._id); 
-        }.toString()
+        } 
       } 
     }
-  });
+  }, '_design/database');
 
-  return db;
+  return instanceId;
 }
 
 exports.insertDocument = async (databaseId, document) => {
   const { id, ...documentFields } = document;
-  await new CouchDB(databaseId).put({ _id: id, ...documentFields });
+  await couchdb.db.use(databaseId).insert(documentFields, id);
 }
 
 exports.createSchema = async (request, instanceId, schema) => {

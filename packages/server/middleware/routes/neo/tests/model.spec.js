@@ -1,6 +1,6 @@
 const supertest = require("supertest");
 const app = require("../../../../app");
-const { createInstanceDatabase, createModel } = require("./couchTestUtils");
+const { createInstanceDatabase, createModel, destroyDatabase } = require("./couchTestUtils");
 
 
 const TEST_INSTANCE_ID = "testing-123";
@@ -23,14 +23,12 @@ describe("/models", () => {
   })
 
   describe("create", () => {
-    let db;
-
     beforeEach(async () => {
-      db = await createInstanceDatabase(TEST_INSTANCE_ID);
+      await createInstanceDatabase(TEST_INSTANCE_ID);
     });
 
     afterEach(async () => {
-      await db.destroy();
+      await destroyDatabase(TEST_INSTANCE_ID);
     });
 
     it("returns a success message when the model is successfully created", done => {
@@ -56,15 +54,14 @@ describe("/models", () => {
 
   describe("fetch", () => {
     let testModel;
-    let db;
 
     beforeEach(async () => {
-      db = await createInstanceDatabase(TEST_INSTANCE_ID);
+      await createInstanceDatabase(TEST_INSTANCE_ID);
       testModel = await createModel(TEST_INSTANCE_ID);
     });
 
     afterEach(async () => {
-      await db.destroy();
+      await destroyDatabase(TEST_INSTANCE_ID);
     });
 
     it("returns all the models for that instance in the response body", done => {
@@ -84,15 +81,14 @@ describe("/models", () => {
 
   describe("destroy", () => {
     let testModel;
-    let db;
 
     beforeEach(async () => {
-      db = await createInstanceDatabase(TEST_INSTANCE_ID);
+      await createInstanceDatabase(TEST_INSTANCE_ID);
       testModel = await createModel(TEST_INSTANCE_ID);
     });
 
     afterEach(async () => {
-      await db.destroy();
+      await destroyDatabase(TEST_INSTANCE_ID);
     });
 
     it("returns a success response when a model is deleted.", done => {

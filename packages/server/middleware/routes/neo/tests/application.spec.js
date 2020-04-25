@@ -20,8 +20,8 @@ describe("/applications", () => {
   });
 
   afterAll(async () => {
-    server.close();
     await destroyDatabase(CLIENT_DB_ID)
+    server.close();
   })
 
   describe("create", () => {

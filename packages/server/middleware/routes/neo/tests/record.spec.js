@@ -1,23 +1,14 @@
 const supertest = require("supertest");
 const app = require("../../../../app");
-const { createInstanceDatabase, createModel } = require("./couchTestUtils");
+const { createInstanceDatabase, createModel, destroyDatabase } = require("./couchTestUtils");
+const { getNewRecord } = require("../../../../../common/lib/records/getNewRecord")
+const { testSchema } = require("../../../../../common/lib/testUtils/testSchema")
 
 const TEST_INSTANCE_ID = "testing-123";
-
-const CONTACT_MODEL = {
-  "name": "Contact",
-  "type": "model",
-  "key": "name",
-  "schema": {
-    "name": { "type": "string" },
-    "age": { "type": "number" }
-  }
-};
 
 describe("/records", () => {
   let request;
   let server;
-  let db;
 
   beforeAll(async () => {
     server = await app({
@@ -33,22 +24,20 @@ describe("/records", () => {
   })
 
   describe("save, load, update, delete", () => {
-    let record;
-    let model;
+    const schema = testSchema()
 
-    beforeEach(async () => {
-      db = await createInstanceDatabase(TEST_INSTANCE_ID);
-      model = await createModel(TEST_INSTANCE_ID, CONTACT_MODEL)
-      record = {
-        name: "Test Contact",
-        status: "new",
-        modelId: model.id
-      }
+    beforeAll(async () => {
+      await createInstanceDatabase(TEST_INSTANCE_ID);
+      await createModel(TEST_INSTANCE_ID, schema.findModel("Contact"))
     });
 
-    afterEach(async () => {
-      await db.destroy();
+    afterAll(async () => {
+      await destroyDatabase(TEST_INSTANCE_ID);
     });
+
+    let record = getNewRecord(schema, "Contact")
+    record.name = "Test Contact"
+    record.Status = "new"
 
     it("returns a success message when the record is created", done => {
       request
@@ -58,65 +47,69 @@ describe("/records", () => {
         .expect('Content-Type', /json/)
         .expect(200)
         .end(async (err, res) => {
-            expect(res.res.statusMessage).toEqual("Contact created successfully")           
+            expect(res.res.statusMessage.toLowerCase()).toEqual("contact created successfully")           
             expect(res.body.name).toEqual("Test Contact")
             expect(res.body._rev).toBeDefined()   
+            record = res.body         
             done();
         });
     })
 
     it("updates a record successfully", async () => {
-      const existing = await db.post(record);
-
+      record.name = "Updated Name"
       const res = await request
         .post(`/api/${TEST_INSTANCE_ID}/records`)
-        .send({
-          _id: existing.id,
-          _rev: existing.rev,
-          modelId: model.id,
-          name: "Updated Name",
-        })
+        .send(record)
         .set("Accept", "application/json")
         .expect('Content-Type', /json/)
         .expect(200)
       
-      expect(res.body.message).toEqual("Contact updated successfully.")
-      expect(res.body.record.name).toEqual("Updated Name")
+      expect(res.res.statusMessage.toLowerCase()).toEqual("contact updated successfully")
+      expect(res.body.name).toEqual("Updated Name")
+      record = res.body
     })
 
     it("should load a record", async () => {
-      const existing = await db.post(record);
-
       const res = await request
-        .get(`/api/${TEST_INSTANCE_ID}/records/${existing.id}`)
+        .get(`/api/${TEST_INSTANCE_ID}/records/${record._id}`)
         .set("Accept", "application/json")
         .expect('Content-Type', /json/)
         .expect(200)
-
-      expect(res.body).toEqual({
-        ...record,
-        _id: existing.id,
-        _rev: existing.rev
-      })
+      expect(res.body).toEqual(record)
     })
 
     it("should list all records for given modelId", async () => {
-      const newRecord = {
-        modelId: model.id,
-        name: "Second Contact",
-        status: "new"
-      }
+      const secondRecord = getNewRecord(schema, "Contact")
+      secondRecord.name = "Second Contact"
+      secondRecord.Status = "new"
 
-      await db.post(newRecord);
+      await request
+        .post(`/api/${TEST_INSTANCE_ID}/records`)
+        .send(secondRecord)
+        .set("Accept", "application/json")
 
       const res = await request
-        .get(`/api/${TEST_INSTANCE_ID}/all_${newRecord.modelId}/records`)
+        .get(`/api/${TEST_INSTANCE_ID}/${record.modelId}/records`)
         .set("Accept", "application/json")
         .expect('Content-Type', /json/)
         .expect(200)
 
-      expect(res.body.length).toBe(1)
-      expect(res.body[0].name).toEqual(newRecord.name);
+      expect(res.body.length).toBe(2)
+      console.log(JSON.stringify(res.body, undefined, 2))
+      expect(res.body.find(c => c.name === record.name)).toBeDefined()
+      expect(res.body.find(c => c.name === secondRecord.name)).toBeDefined()
+    })
+
+    it("should return 404 when load, after a delete", async () => {
+      await request
+        .delete(`/api/${TEST_INSTANCE_ID}/records/${record._id}/${record._rev}`)
+        .expect(200)
+
+      await request
+        .get(`/api/${TEST_INSTANCE_ID}/records/${record._id}`)
+        .set("Accept", "application/json")
+        .expect('Content-Type', /json/)
+        .expect(404)
     })
 
     it("load should return 404 when record does not exist", async () => {
@@ -126,5 +119,6 @@ describe("/records", () => {
         .expect('Content-Type', /json/)
         .expect(404)
     })
+
   })
 })

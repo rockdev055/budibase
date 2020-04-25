@@ -2,6 +2,7 @@ const supertest = require("supertest");
 const app = require("../../../../app");
 const { 
   createInstanceDatabase, 
+  destroyDatabase, 
   createClientDatabase,
   destroyClientDatabase
 } = require("./couchTestUtils");
@@ -28,13 +29,13 @@ describe("/instances", () => {
   })
 
   describe("create", () => {
-
     beforeEach(async () => {
-      clientDb = await createClientDatabase();
+      await createClientDatabase();
     });
 
     afterEach(async () => {
       await destroyClientDatabase();
+      await destroyDatabase(TEST_INSTANCE_ID);
     });
 
     it("returns a success message when the instance database is successfully created", done => {
@@ -54,7 +55,7 @@ describe("/instances", () => {
   describe("destroy", () => {
     beforeEach(async () => {
       await createClientDatabase();
-      instanceDb = await createInstanceDatabase(TEST_INSTANCE_ID);
+      await createInstanceDatabase(TEST_INSTANCE_ID);
     });
 
     afterEach(async () => {
