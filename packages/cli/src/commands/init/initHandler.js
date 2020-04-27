@@ -1,12 +1,11 @@
 const inquirer = require("inquirer")
-const { exists, readFile, writeFile, ensureDir } = require("fs-extra")
+const { mkdir, exists, copy } = require("fs-extra")
 const chalk = require("chalk")
-const { serverFileName, xPlatHomeDir } = require("../../common")
-const { join } = require("path")
-const initialiseClientDb = require("@budibase/server/db/initialiseClientDb")
-const Sqrl = require("squirrelly")
-const uuid = require("uuid")
-const CouchDb = require("@budibase/server/db/client")
+const { serverFileName, getAppContext } = require("../../common")
+const passwordQuestion = require("@inquirer/password")
+const createMasterDb = require("@budibase/server/initialise/createMasterDb")
+const { resolve } = require("path")
+const localDatastore = require("@budibase/datastores/datastores/local")
 
 module.exports = opts => {
   run(opts)
@@ -14,25 +13,14 @@ module.exports = opts => {
 
 const run = async opts => {
   try {
-    await ensureAppDir(opts)
     await prompts(opts)
-    await createClientDatabse(opts)
-    await createDevEnvFile(opts)
+    await createDevConfig(opts)
+    await createAppsDir(opts)
+    await createDataFolder(opts)
+    await initialiseDatabase(opts)
     console.log(chalk.green("Budibase successfully initialised."))
   } catch (error) {
     console.error(`Error initialising Budibase: ${error.message}`)
-  }
-}
-
-const ensureAppDir = async opts => {
-  opts.dir = xPlatHomeDir(opts.dir)
-  await ensureDir(opts.dir)
-
-  if (opts.database === "local") {
-    const dataDir = join(opts.dir, ".data")
-    await ensureDir(dataDir)
-    process.env.COUCH_DB_URL =
-      dataDir + (dataDir.endsWith("/") || dataDir.endsWith("\\") ? "" : "/")
   }
 }
 
@@ -40,64 +28,71 @@ const prompts = async opts => {
   const questions = [
     {
       type: "input",
-      name: "couchDbUrl",
-      message:
-        "CouchDB Connection String (e.g. https://user:password@localhost:5984): ",
+      name: "username",
+      message: "Username for Admin: ",
       validate: function(value) {
-        return !!value || "Please enter connection string"
+        return !!value || "Please enter a username"
       },
     },
   ]
 
-  if (opts.database === "remote" && !opts.couchDbUrl) {
+  if (!opts.username) {
     const answers = await inquirer.prompt(questions)
-    opts.couchDbUrl = answers.couchDbUrl
-  }
-}
-
-//https://admin:password@localhost:5984
-
-const createClientDatabse = async opts => {
-  const couch = CouchDb()
-  if (opts.clientId === "new") {
-    const existing = await couch.allDbs()
-
-    let i = 0
-    let isExisting = true
-    while (isExisting) {
-      i += 1
-      opts.clientId = i.toString()
-      isExisting = existing.includes(`client-${opts.clientId}`)
-    }
+    opts.username = answers.username
   }
 
-  const db = new couch(`client-${opts.clientId}`)
-  console.log(await db.info())
-  await initialiseClientDb(db)
-}
-
-const createDevEnvFile = async opts => {
-  const destConfigFile = join(opts.dir, "./.env")
-  let createConfig = !(await exists(destConfigFile)) || opts.quiet
-  if (!createConfig) {
-    const answers = await inquirer.prompt([
-      {
-        type: "input",
-        name: "overwrite",
-        message: ".env already exists - overwrite? (N/y)",
-      },
-    ])
-    createConfig = ["Y", "y", "yes"].includes(answers.overwrite)
-  }
-
-  if (createConfig) {
-    const template = await readFile(serverFileName(".env.template"), {
-      encoding: "utf8",
+  if (!opts.password) {
+    const password = await passwordQuestion({
+      message: "Password for Admin: ",
+      mask: "*",
     })
-    opts.adminSecret = uuid.v4()
-    opts.cookieKey1 = uuid.v4()
-    opts.cookieKey2 = uuid.v4()
-    const config = Sqrl.Render(template, opts)
-    await writeFile(destConfigFile, config, { flag: "w+" })
+    const passwordConfirm = await passwordQuestion({
+      message: "Confirm Password: ",
+      mask: "*",
+    })
+
+    if (password !== passwordConfirm) throw new Error("Passwords do not match!")
+
+    opts.password = password
   }
+}
+
+const createAppsDir = async opts => {
+  if (!(await exists(opts.configJson.latestPackagesFolder))) {
+    await mkdir(opts.configJson.latestPackagesFolder)
+  }
+}
+
+const createDataFolder = async opts => {
+  const dataPath = opts.configJson.datastoreConfig.rootPath
+
+  if (await exists(dataPath)) {
+    const err = `The path ${opts.datapath} already exists - has budibase already been initialised? Remove the directory to try again.`
+    throw new Error(err)
+  }
+
+  await mkdir(dataPath)
+}
+
+const createDevConfig = async opts => {
+  const configTemplateFile = `config.${opts.config}.js`
+  const destConfigFile = "./config.js"
+
+  if (await exists(destConfigFile)) {
+    console.log(
+      chalk.yellow(
+        "Config file already exists (config.js) - keeping your existing config"
+      )
+    )
+  } else {
+    const srcConfig = serverFileName(configTemplateFile)
+    await copy(srcConfig, destConfigFile)
+  }
+  opts.configJson = require(resolve("./config.js"))()
+}
+
+const initialiseDatabase = async opts => {
+  const appContext = await getAppContext({ masterIsCreated: false })
+
+  await createMasterDb(appContext, localDatastore, opts.username, opts.password)
 }
