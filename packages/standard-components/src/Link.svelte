@@ -7,7 +7,6 @@
   export let color
   export let hoverColor
   export let underline = false
-  export let fontFamily
   export let fontSize
 
   export let _bb
@@ -21,7 +20,6 @@
     color,
     textDecoration: underline ? "underline" : "none",
     fontSize,
-    fontFamily,
   }
   $: classes = createClasses(cssVariables)
 </script>
@@ -50,9 +48,5 @@
 
   .fontSize {
     font-size: var(--fontSize);
-  }
-
-  .fontFamily {
-    font-family: var(--fontFamily);
   }
 </style>

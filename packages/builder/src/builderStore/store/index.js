@@ -1,4 +1,3 @@
-//
 import { filter, cloneDeep, last, concat, isEmpty, values } from "lodash/fp"
 import { pipe, getNode, constructHierarchy } from "components/common/core"
 import * as backendStoreActions from "./backend"
@@ -43,22 +42,14 @@ export const getStore = () => {
     currentNode: null,
     libraries: null,
     showSettings: false,
-    useAnalytics: true
+    useAnalytics: true,
+    appId: ""
   }
 
   const store = writable(initial)
 
   store.setPackage = setPackage(store, initial)
 
-  store.newChildModel = backendStoreActions.newModel(store, false)
-  store.newRootModel = backendStoreActions.newModel(store, true)
-  store.selectExistingNode = backendStoreActions.selectExistingNode(store)
-  store.newChildIndex = backendStoreActions.newIndex(store, false)
-  store.newRootIndex = backendStoreActions.newIndex(store, true)
-  store.saveCurrentNode = backendStoreActions.saveCurrentNode(store)
-  store.deleteCurrentNode = backendStoreActions.deleteCurrentNode(store)
-  store.saveField = backendStoreActions.saveField(store)
-  store.deleteField = backendStoreActions.deleteField(store)
   store.saveLevel = backendStoreActions.saveLevel(store)
   store.deleteLevel = backendStoreActions.deleteLevel(store)
   store.createDatabaseForApp = backendStoreActions.createDatabaseForApp(store)
@@ -102,9 +93,9 @@ export default getStore
 const setPackage = (store, initial) => async (pkg) => {
 
   const [main_screens, unauth_screens] = await Promise.all([
-    api.get(`/_builder/api/${pkg.application.name}/pages/main/screens`).then(r => r.json()),
+    api.get(`/_builder/api/${pkg.application._id}/pages/main/screens`).then(r => r.json()),
     api
-      .get(`/_builder/api/${pkg.application.name}/pages/unauthenticated/screens`)
+      .get(`/_builder/api/${pkg.application._id}/pages/unauthenticated/screens`)
       .then(r => r.json()),
   ])
 
@@ -119,12 +110,13 @@ const setPackage = (store, initial) => async (pkg) => {
     },
   }
 
-  initial.libraries = await loadLibs(pkg.application.name, pkg)
+  initial.libraries = await loadLibs(pkg.application._id, pkg)
   initial.loadLibraryUrls = pageName => {
     const libs = libUrlsForPreview(pkg, pageName)
     return libs
   }
   initial.appname = pkg.application.name
+  initial.appId = pkg.application._id
   initial.pages = pkg.pages
   initial.hasAppPackage = true
   initial.hierarchy = pkg.appDefinition.hierarchy
@@ -138,15 +130,7 @@ const setPackage = (store, initial) => async (pkg) => {
   initial.actions = values(pkg.appDefinition.actions)
   initial.triggers = pkg.appDefinition.triggers
   initial.appInstances = pkg.application.instances
-  initial.appId = pkg.application.id
-
-  if (!!initial.hierarchy && !isEmpty(initial.hierarchy)) {
-    initial.hierarchy = constructHierarchy(initial.hierarchy)
-    const shadowHierarchy = createShadowHierarchy(initial.hierarchy)
-    if (initial.currentNode !== null) {
-      initial.currentNode = getNode(shadowHierarchy, initial.currentNode.nodeId)
-    }
-  }
+  initial.appId = pkg.application._id
 
   store.set(initial)
   return initial
@@ -180,9 +164,6 @@ const importAppDefinition = store => appDefinition => {
   })
 }
 
-const createShadowHierarchy = hierarchy =>
-  constructHierarchy(JSON.parse(JSON.stringify(hierarchy)))
-
 const saveScreen = store => screen => {
   store.update(s => {
     return _saveScreen(store, s, screen)
@@ -194,7 +175,7 @@ const _saveScreen = async (store, s, screen) => {
 
   await api
     .post(
-      `/_builder/api/${s.appname}/pages/${s.currentPageName}/screen`,
+      `/_builder/api/${s.appId}/pages/${s.currentPageName}/screen`,
       screen
     )
     .then(() => {
@@ -227,7 +208,7 @@ const _saveScreen = async (store, s, screen) => {
 const _saveScreenApi = (screen, s) =>
   api
     .post(
-      `/_builder/api/${s.appname}/pages/${s.currentPageName}/screen`,
+      `/_builder/api/${s.appId}/pages/${s.currentPageName}/screen`,
       screen
     )
     .then(() => _savePage(s))
@@ -277,7 +258,7 @@ const createGeneratedComponents = store => components => {
 
     const doCreate = async () => {
       for (let c of components) {
-        await api.post(`/_builder/api/${s.appname}/screen`, c)
+        await api.post(`/_builder/api/${s.appId}/screen`, c)
       }
 
       await _savePage(s)
@@ -302,7 +283,7 @@ const deleteScreen = store => name => {
       s.currentFrontEndType = ""
     }
 
-    api.delete(`/_builder/api/${s.appname}/screen/${name}`)
+    api.delete(`/_builder/api/${s.appId}/screen/${name}`)
 
     return s
   })
@@ -330,12 +311,12 @@ const renameScreen = store => (oldname, newname) => {
     const saveAllChanged = async () => {
       for (let screenName of changedScreens) {
         const changedScreen = getExactComponent(screens, screenName)
-        await api.post(`/_builder/api/${s.appname}/screen`, changedScreen)
+        await api.post(`/_builder/api/${s.appId}/screen`, changedScreen)
       }
     }
 
     api
-      .patch(`/_builder/api/${s.appname}/screen`, {
+      .patch(`/_builder/api/${s.appId}/screen`, {
         oldname,
         newname,
       })
@@ -362,7 +343,7 @@ const savePage = store => async page => {
 
 const addComponentLibrary = store => async lib => {
   const response = await api.get(
-    `/_builder/api/${s.appname}/componentlibrary?lib=${encodeURI(lib)}`,
+    `/_builder/api/${s.appId}/componentlibrary?lib=${encodeURI(lib)}`,
     undefined,
     false
   )
@@ -392,13 +373,11 @@ const addComponentLibrary = store => async lib => {
 }
 
 const removeComponentLibrary = store => lib => {
-  store.update(s => {
-    s.pages.componentLibraries = filter(l => l !== lib)(
-      s.pages.componentLibraries
-    )
-    _savePage(s)
+  store.update(state => {
+    state.pages.componentLibraries = state.pages.componentLibraries.filter(l => l !== lib);
+    _savePage(state);
 
-    return s
+    return state;
   })
 }
 
@@ -411,17 +390,17 @@ const addStylesheet = store => stylesheet => {
 }
 
 const removeStylesheet = store => stylesheet => {
-  store.update(s => {
-    s.pages.stylesheets = filter(s => s !== stylesheet)(s.pages.stylesheets)
-    _savePage(s)
-    return s
+  store.update(state => {
+    state.pages.stylesheets = s.pages.stylesheets.filter(s => s !== stylesheet)
+    _savePage(state)
+    return state
   })
 }
 
 const _savePage = async s => {
   const page = s.pages[s.currentPageName]
 
-  await api.post(`/_builder/api/${s.appname}/pages/${s.currentPageName}`, {
+  await api.post(`/_builder/api/${s.appId}/pages/${s.currentPageName}`, {
     page: { componentLibraries: s.pages.componentLibraries, ...page },
     uiFunctions: s.currentPageFunctions,
     screens: page._screens,

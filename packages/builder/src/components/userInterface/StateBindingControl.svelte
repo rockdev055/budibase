@@ -8,9 +8,6 @@
   export let onChanged = () => {}
   export let type = ""
   export let options = []
-  export let styleBindingProperty = ""
-
-  $: bindOptionToStyle = !!styleBindingProperty
 </script>
 
 <div class="unbound-container">
@@ -27,13 +24,7 @@
       {value}
       on:change={ev => onChanged(ev.target.value)}>
       {#each options || [] as option}
-        {#if bindOptionToStyle}
-          <option style={`${styleBindingProperty}: ${option};`} value={option}>
-            {option}
-          </option>
-        {:else}
-          <option value={option}>{option}</option>
-        {/if}
+        <option value={option}>{option}</option>
       {/each}
     </select>
   {:else}

@@ -6,7 +6,7 @@
 
   export let formattingTag = ""
 
-  export let fontFamily = ""
+  export let font = ""
   export let fontSize = "1em"
   export let textAlign = ""
   export let verticalAlign = ""
@@ -17,9 +17,11 @@
   const isTag = tag => (formattingTag || "").indexOf(tag) > -1
 
   $: style = buildStyle({
-    "font-size": fontSize,
-    "font-family": fontFamily,
+    font: `${fontSize} ${font}`,
+    verticalAlign,
     color,
+    "text-align": textAlign,
+    "vertical-align": verticalAlign,
   })
 </script>
 
