@@ -5,13 +5,11 @@
   export let _bb
   export let text = ""
   export let fontFamily = ""
-  export let color = ""
 
   let containerElement
 
   $: containerElement && !text && _bb.attachChildren(containerElement)
-  $: style = buildStyle({ "font-family": fontFamily, color })
-  // $: console.log("HEADING", color)
+  $: style = buildStyle({ "font-family": fontFamily })
 </script>
 
 {#if type === 'h1'}

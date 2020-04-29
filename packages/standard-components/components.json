@@ -12,10 +12,10 @@
 		"props": {
 			"logoUrl": "string",
 			"title": "string",
-			"backgroundColor": "colour",
-			"color": "colour",
+			"backgroundColor": "string",
+			"color": "string",
 			"borderWidth": "string",
-			"borderColor": "colour",
+			"borderColor": "string",
 			"borderStyle": "string"
 		}
 	},
@@ -30,8 +30,8 @@
 			"className": "string",
 			"disabled": "bool",
 			"onClick": "event",
-			"background": "colour",
-			"color": "colour",
+			"background": "string",
+			"color": "string",
 			"border": "string",
 			"padding": "string",
 			"hoverColor": "string",
@@ -167,7 +167,6 @@
 		"children": false,
 		"props": {
 			"text": "string",
-			"color": "colour",
 			"fontFamily": {
 				"type": "options",
 				"default": "initial",
@@ -183,7 +182,8 @@
 					"Lucida Sans Unicode"
 				]
 			},
-			"fontSize": "string",			
+			"fontSize": "string",
+			"color": "string",
 			"textAlign": {
 				"type": "options",
 				"default": "inline",
@@ -258,8 +258,7 @@
 		"description": "A HTML icon tag",
 		"props": {
 			"icon": "string",
-			"fontSize": "string",
-			"color": "colour"
+			"fontSize": "string"
 		}
 	},
 	"link": {
@@ -268,8 +267,8 @@
 			"url": "string",
 			"openInNewTab": "bool",
 			"text": "string",
-			"color": "colour",
-			"hoverColor": "colour",
+			"color": "string",
+			"hoverColor": "string",
 			"underline": "bool",
 			"fontSize": "string",
 			"fontFamily": {
@@ -356,7 +355,6 @@
 		"description": "An HTML H1 - H6 tag",
 		"props": {
 			"className": "string",
-			"color":"colour",
 			"text": "string",
 		"type": {
 				"type": "options",

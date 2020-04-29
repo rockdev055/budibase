@@ -80,5 +80,4 @@ export const types = {
   asset: propType(() => "", isString, defaultDef("asset")),
   event: propType(() => [], isEventList, defaultDef("event")),
   state: propType(() => emptyState(), isBound, defaultDef("state")),
-  colour: propType(() => "#000000", isString, defaultDef("colour")),
 }

@@ -1,5 +1,6 @@
-const { resolve } = require("path")
+const { resolve, join } = require("path")
 const { cwd } = require("process")
+const { homedir } = require("os")
 const buildAppContext = require("@budibase/server/initialise/buildAppContext")
 
 module.exports.serverFileName = relativePath =>
@@ -16,4 +17,11 @@ module.exports.getAppContext = async ({ configName, masterIsCreated }) => {
 
   const config = require(resolve(cwd(), configName))()
   return await buildAppContext(config, masterIsCreated)
+}
+
+module.exports.xPlatHomeDir = dir => {
+  if (dir.startsWith("~")) {
+    dir = join(homedir(), dir.substring(1))
+  }
+  return dir
 }
