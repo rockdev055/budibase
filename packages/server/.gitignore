@@ -1,7 +1,6 @@
 node_modules/
 myapps/
-.env
+config.js
 /builder/*
 !/builder/assets/
 public/
-db/dev.db/
