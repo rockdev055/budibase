@@ -68,6 +68,10 @@
     appRootPath: `/_builder/instance/${$store.appname}/${$backendUiStore.selectedDatabase.id}/`,
   }
 
+  $: backendDefinition = {
+    hierarchy: $store.hierarchy,
+  }
+
   $: selectedComponentId = $store.currentComponentInfo ? $store.currentComponentInfo._id : ""
 </script>
 
@@ -108,6 +112,7 @@
     <\/style>
     <\script>
         window["##BUDIBASE_FRONTEND_DEFINITION##"] = ${JSON.stringify(frontendDefinition)};
+        window["##BUDIBASE_BACKEND_DEFINITION##"] = ${JSON.stringify(backendDefinition)};
         window["##BUDIBASE_FRONTEND_FUNCTIONS##"] = ${$store.currentPageFunctions};
 
         import('/_builder/budibase-client.esm.mjs')

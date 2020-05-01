@@ -27,7 +27,7 @@
       CreateEditRecordModal,
       {
         onClosed: close,
-        record: row,
+        record: await selectRecord(row),
       },
       { styleContent: { padding: "0" } }
     )
@@ -38,7 +38,7 @@
       DeleteRecordModal,
       {
         onClosed: close,
-        record: row,
+        record: await selectRecord(row),
       },
       { styleContent: { padding: "0" } }
     )
@@ -53,7 +53,7 @@
 
   const ITEMS_PER_PAGE = 10
   // Internal headers we want to hide from the user
-  const INTERNAL_HEADERS = ["_id", "_rev", "modelId", "type"]
+  const INTERNAL_HEADERS = ["key", "sortKey", "type", "id", "isNew"]
 
   let modalOpen = false
   let data = []
@@ -61,21 +61,50 @@
   let views = []
   let currentPage = 0
 
-  $: instanceId = $backendUiStore.selectedDatabase.id
+  $: views = $backendUiStore.selectedRecord
+    ? childViewsForRecord($store.hierarchy)
+    : $store.hierarchy.indexes
 
-  $: {
-    if ($backendUiStore.selectedView) {
-      api.fetchDataForView($backendUiStore.selectedView, instanceId).then(records => {
-        data = records || []
-        headers = Object.keys($backendUiStore.selectedModel.schema).filter(key => !INTERNAL_HEADERS.includes(key));
-      })
-    }
+  $: currentAppInfo = {
+    appname: $store.appname,
+    instanceId: $backendUiStore.selectedDatabase.id,
   }
+
+  $: fetchRecordsForView(
+    $backendUiStore.selectedView,
+    $backendUiStore.selectedDatabase
+  ).then(records => {
+    data = records || []
+    headers = hideInternalHeaders($backendUiStore.selectedView)
+  })
 
   $: paginatedData = data.slice(
     currentPage * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE + ITEMS_PER_PAGE
   )
+
+  const getSchema = getIndexSchema($store.hierarchy)
+
+  const childViewsForRecord = compose(flatten, map("indexes"), get("children"))
+
+  const hideInternalHeaders = compose(
+    remove(headerName => INTERNAL_HEADERS.includes(headerName)),
+    map(get("name")),
+    getSchema
+  )
+
+  async function fetchRecordsForView(view, instance) {
+    if (!view || !view.name) return
+
+    const viewName = $backendUiStore.selectedRecord
+      ? `${$backendUiStore.selectedRecord.key}/${view.name}`
+      : view.name
+
+    return await api.fetchDataForView(viewName, {
+      appname: $store.appname,
+      instanceId: instance.id,
+    })
+  }
 
   function drillIntoRecord(record) {
     backendUiStore.update(state => {
@@ -96,8 +125,13 @@
 <section>
   <div class="table-controls">
     <h2 class="title">
-      {$backendUiStore.selectedModel.name}
+      {takeRight(2, $backendUiStore.breadcrumbs).join(' / ')}
     </h2>
+    <Select icon="ri-eye-line" bind:value={$backendUiStore.selectedView}>
+      {#each views as view}
+        <option value={view}>{view.name}</option>
+      {/each}
+    </Select>
   </div>
   <table class="uk-table">
     <thead>

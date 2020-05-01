@@ -53,7 +53,9 @@ const buildIndexHtml = async (config, appname, pageName, appPath, pkg) => {
   const appRootPath = rootPath(config, appname)
 
   const stylesheetUrl = s =>
-    s.startsWith("http") ? s : `/${rootPath(config, appname)}/${s}`
+    s.indexOf("http://") === 0 || s.indexOf("https://") === 0
+      ? s
+      : `/${rootPath(config, appname)}/${s}`
 
   const templateObj = {
     title: pkg.page.title || "Budibase App",
