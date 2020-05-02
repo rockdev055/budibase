@@ -1,7 +1,6 @@
 <script>
-  import { store } from "builderStore"
   import { last } from "lodash/fp"
-  import { pipe } from "../common/core"
+  import { pipe } from "components/common/core";
   import {
     XCircleIcon,
     ChevronUpIcon,
@@ -17,7 +16,6 @@
   export let onMoveUpComponent
   export let onMoveDownComponent
   export let onCopyComponent
-  export let ids = []
 
   const capitalise = s => s.substring(0, 1).toUpperCase() + s.substring(1)
   const get_name = s => (!s ? "" : last(s.split("/")))
@@ -30,15 +28,11 @@
       return onMoveDownComponent(c)
     }
   }
-
-  const selectComponent = (ids, component) => {
-    store.selectComponent(component)
-  }
 </script>
 
 <ul>
   {#each components as component, index (component._id)}
-    <li on:click|stopPropagation={() => selectComponent(ids, component)}>
+    <li on:click|stopPropagation={() => onSelect(component)}>
       <div
         class="budibase__nav-item item"
         class:selected={currentComponent === component}

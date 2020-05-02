@@ -1,5 +1,4 @@
 <script>
-  import { params, goto } from "@sveltech/routify"
   import { store } from "builderStore"
   import getIcon from "components/common/icon"
   import { CheckIcon } from "components/common/Icons"
@@ -20,12 +19,7 @@
     },
   ]
 
-  store.setCurrentPage($params.page ? $params.page : "main")
-
-  const changePage = id => {
-    store.setCurrentPage(id)
-    $goto(`./${id}`)
-  }
+  store.setCurrentPage("main")
 </script>
 
 <div class="root">
@@ -33,14 +27,14 @@
     {#each pages as { title, id }}
       <li>
         <span class="icon">
-          {#if id === $params.page}
+          {#if id === $store.currentPageName}
             <CheckIcon />
           {/if}
         </span>
 
         <button
-          class:active={id === $params.page}
-          on:click={() => changePage(id)}>
+          class:active={id === $store.currentPageName}
+          on:click={() => store.setCurrentPage(id)}>
           {title}
         </button>
       </li>

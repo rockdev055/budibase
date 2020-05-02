@@ -1,9 +1,8 @@
 <script>
-  import { goto } from "@sveltech/routify"
   // import { tick } from "svelte"
   import ComponentsHierarchyChildren from "./ComponentsHierarchyChildren.svelte"
 
-  import { last, sortBy, map, trimCharsStart, trimChars, join } from "lodash/fp"
+  import { last, sortBy, map, trimCharsStart, trimChars, join, compose } from "lodash/fp"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
   import { pipe } from "components/common/core"
   import { store } from "builderStore"
@@ -16,22 +15,15 @@
 
   const joinPath = join("/")
 
-  const normalizedName = name =>
-    pipe(name, [
-      trimCharsStart("./"),
-      trimCharsStart("~/"),
-      trimCharsStart("../"),
-      trimChars(" "),
-    ])
-
   const lastPartOfName = c =>
     c && last(c.name ? c.name.split("/") : c._component.split("/"))
 
   const isComponentSelected = (current, comp) => current === comp
 
-  const isFolderSelected = (current, folder) => isInSubfolder(current, folder)
-
-  $: _layout = pipe(layout, [c => ({ component: c, title: lastPartOfName(c) })])
+  $: _layout = {
+    component: layout,
+    title: lastPartOfName(layout)
+  }
 
   const isScreenSelected = component =>
     component.component &&
@@ -40,13 +32,7 @@
 
   const confirmDeleteComponent = async component => {
     componentToDelete = component
-    // await tick()
     confirmDeleteDialog.show()
-  }
-
-  const setCurrentScreenToLayout = () => {
-    store.setScreenType("page")
-    $goto("./:page/page-layout")
   }
 </script>
 
@@ -55,7 +41,7 @@
   <div
     class="budibase__nav-item root"
     class:selected={$store.currentComponentInfo._id === _layout.component.props._id}
-    on:click|stopPropagation={setCurrentScreenToLayout}>
+    on:click|stopPropagation={() => store.setScreenType('page')}>
     <span
       class="icon"
       class:rotate={$store.currentPreviewItem.name !== _layout.title}>
@@ -73,6 +59,7 @@
     <ComponentsHierarchyChildren
       components={_layout.component.props._children}
       currentComponent={$store.currentComponentInfo}
+      onSelect={store.selectComponent}
       onDeleteComponent={confirmDeleteComponent}
       onMoveUpComponent={store.moveUpComponent}
       onMoveDownComponent={store.moveDownComponent}
@@ -88,19 +75,23 @@
   onOk={() => store.deleteComponent(componentToDelete)} />
 
 <style>
-  .components-nav-page {
-    font-size: 13px;
-    color: #000333;
-    text-transform: uppercase;
-    margin-bottom: 10px;
-    padding-left: 20px;
-    font-weight: 600;
-    opacity: 0.4;
-    letter-spacing: 1px;
-  }
+.components-nav-page {
+  font-size: 13px;
+  color: #000333;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  padding-left: 20px;
+  font-weight: 600;
+  opacity: 0.4;
+  letter-spacing: 1px;
+}
 
-  .pagelayoutSection {
-    margin: 20px 0px 20px 0px;
+
+.pagelayoutSection {
+  margin: 20px 0px 20px 0px;
+}
+  .root {
+
   }
   .title {
     margin-left: 10px;
