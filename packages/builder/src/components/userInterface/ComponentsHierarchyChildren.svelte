@@ -1,6 +1,6 @@
 <script>
   import { last } from "lodash/fp"
-  import { pipe } from "../common/core"
+  import { pipe } from "components/common/core";
   import {
     XCircleIcon,
     ChevronUpIcon,

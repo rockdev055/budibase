@@ -2,7 +2,6 @@
   import { splitName } from "./pagesParsing/splitRootComponentName.js"
   import components from "./temporaryPanelStructure.js"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
-  import CategoryTab from "./CategoryTab.svelte"
   import {
     find,
     sortBy,
@@ -14,12 +13,7 @@
     flatten,
   } from "lodash/fp"
 
-  import {
-    getRecordNodes,
-    getIndexNodes,
-    getIndexSchema,
-    pipe,
-  } from "components/common/core"
+  import { pipe } from "components/common/core"
 
   import Tab from "./ItemTab/Tab.svelte"
   import { store } from "builderStore"
@@ -35,73 +29,56 @@
   const categories = components.categories
   let selectedCategory = categories[0]
 
-  const onTemplateChosen = template => {
-    selectedComponent = null
-    const { componentName, libName } = splitName(template.name)
-    const templateOptions = {
-      records: getRecordNodes(hierarchy),
-      indexes: getIndexNodes(hierarchy),
-      helpers: {
-        indexSchema: getIndexSchema(hierarchy),
-      },
-    }
-
-    templateInstances = libraryModules[libName][componentName](templateOptions)
-    if (!templateInstances || templateInstances.length === 0) return
-    selectedTemplateInstance = templateInstances[0].name
-    selectTemplateDialog.show()
-  }
-
   const onComponentChosen = component => {
     if (component.template) {
-      onTemplateChosen(component.template)
+      // onTemplateChosen(component.template)
     } else {
       store.addChildComponent(component._component)
       toggleTab()
     }
   }
 
-  const onTemplateInstanceChosen = () => {
-    selectedComponent = null
-    const instance = templateInstances.find(
-      i => i.name === selectedTemplateInstance
-    )
-    store.addTemplatedComponent(instance.props)
-    toggleTab()
-  }
+  // const onTemplateInstanceChosen = () => {
+  //   selectedComponent = null
+  //   const instance = templateInstances.find(
+  //     i => i.name === selectedTemplateInstance
+  //   )
+  //   store.addTemplatedComponent(instance.props)
+  //   toggleTab()
+  // }
 
-  $: templatesByComponent = groupBy(t => t.component)($store.templates)
-  $: hierarchy = $store.hierarchy
-  $: libraryModules = $store.libraries
-  $: standaloneTemplates = pipe(
-    templatesByComponent,
-    [
-      values,
-      flatten,
-      filter(t => !$store.components.some(c => c.name === t.component)),
-      map(t => ({ name: splitName(t.component).componentName, template: t })),
-      uniqBy(t => t.name),
-    ]
-  )
+  // $: templatesByComponent = groupBy(t => t.component)($store.templates)
+  // $: standaloneTemplates = pipe(
+  //   templatesByComponent,
+  //   [
+  //     values,
+  //     flatten,
+  //     filter(t => !$store.components.some(c => c.name === t.component)),
+  //     map(t => ({ name: splitName(t.component).componentName, template: t })),
+  //     uniqBy(t => t.name),
+  //   ]
+  // )
 </script>
 
 <div class="root">
-
-  <CategoryTab
-    onClick={category => (selectedCategory = category)}
-    {selectedCategory}
-    {categories} />
-
+  <ul class="tabs">
+    {#each categories as category}
+      <li
+        on:click={() => (selectedCategory = category)}
+        class:active={selectedCategory === category}>
+        {category.name}
+      </li>
+    {/each}
+  </ul>
   <div class="panel">
     <Tab
       list={selectedCategory}
       on:selectItem={e => onComponentChosen(e.detail)}
-      {onTemplateChosen}
       {toggleTab} />
   </div>
 </div>
 
-<ConfirmDialog
+<!-- <ConfirmDialog
   bind:this={selectTemplateDialog}
   title="Choose Template"
   onCancel={() => (selectedComponent = null)}
@@ -118,7 +95,7 @@
       </label>
     </div>
   {/each}
-</ConfirmDialog>
+</ConfirmDialog> -->
 
 <style>
   .tabs {

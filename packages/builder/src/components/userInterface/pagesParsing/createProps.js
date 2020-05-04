@@ -1,26 +1,15 @@
 import { isString, isUndefined } from "lodash/fp"
-import { types } from "./types"
+import { TYPE_MAP } from "./types"
 import { assign } from "lodash"
 import { uuid } from "builderStore/uuid"
 
-export const getBuiltin = name => {
-  const { props } = createProps({ name })
+export const getBuiltin = _component => {
+  const { props } = createProps({ _component })
 
   return {
-    name,
+    _component,
+    name: "Screenslot",
     props,
-  }
-}
-
-export const getNewScreen = (components, rootComponentName, name) => {
-  const rootComponent = components.find(c => c.name === rootComponentName)
-  return {
-    name: name || "",
-    description: "",
-    url: "",
-    _css: "",
-    uiFunctions: "",
-    props: createProps(rootComponent).props,
   }
 }
 
@@ -33,9 +22,9 @@ export const createProps = (componentDefinition, derivedFromProps) => {
   const errorOccurred = (propName, error) => errors.push({ propName, error })
 
   const props = {
-    _component: componentDefinition.name,
-    _styles: { position: {}, layout: {} },
     _id: uuid(),
+    _component: componentDefinition._component,
+    _styles: { position: {}, layout: {} },
     _code: "",
   }
 
@@ -44,11 +33,14 @@ export const createProps = (componentDefinition, derivedFromProps) => {
   if (!componentDefinition.name)
     errorOccurred("_component", "Component name not supplied")
 
-  const propsDef = componentDefinition.props
-  for (let propDef in propsDef) {
-    const parsedPropDef = parsePropDef(propsDef[propDef])
-    if (parsedPropDef.error) errorOccurred(propDef, parsedPropDef.error)
-    else props[propDef] = parsedPropDef
+  for (let propName in componentDefinition.props) {
+    const parsedPropDef = parsePropDef(componentDefinition.props[propName])
+
+    if (parsedPropDef.error) { 
+      errors.push({ propName, error: parsedPropDef.error })
+    } else { 
+      props[propName] = parsedPropDef
+    }
   }
 
   if (derivedFromProps) {
@@ -88,20 +80,18 @@ const parsePropDef = propDef => {
   const error = message => ({ error: message, propDef })
 
   if (isString(propDef)) {
-    if (!types[propDef]) return error(`Do not recognise type ${propDef}`)
+    if (!TYPE_MAP[propDef]) return error(`Type ${propDef} is not recognised.`)
 
-    return types[propDef].default()
+    return TYPE_MAP[propDef].default
   }
 
-  if (!propDef.type) return error("Property Definition must declare a type")
+  const type = TYPE_MAP[propDef.type]
+  if (!type) return error(`Type ${propDef.type} is not recognised.`)
 
-  const type = types[propDef.type]
-  if (!type) return error(`Do not recognise type ${propDef.type}`)
+  // if (isUndefined(propDef.default)) return type.default(propDef)
 
-  if (isUndefined(propDef.default)) return type.default(propDef)
-
-  if (!type.isOfType(propDef.default))
-    return error(`${propDef.default} is not of type ${type}`)
+  // if (!type.isOfType(propDef.default))
+  //   return error(`${propDef.default} is not of type ${type}`)
 
   return propDef.default
 }

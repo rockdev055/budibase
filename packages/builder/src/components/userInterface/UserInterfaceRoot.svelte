@@ -6,8 +6,7 @@
   import { store } from "builderStore"
   import IconButton from "components/common/IconButton.svelte"
   import NewScreen from "./NewScreen.svelte"
-  import CurrentItemPreview from "./CurrentItemPreview.svelte"
-  import SettingsView from "./SettingsView.svelte"
+  import AppPreview from "./AppPreview"
   import PageView from "./PageView.svelte"
   import ComponentsPaneSwitcher from "./ComponentsPaneSwitcher.svelte"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
@@ -20,11 +19,6 @@
 
   const newScreen = () => {
     newScreenPicker.show()
-  }
-
-  let settingsView
-  const settings = () => {
-    settingsView.show()
   }
 
   const confirmDeleteComponent = component => {
@@ -77,7 +71,7 @@
   </div>
 
   <div class="preview-pane">
-    <CurrentItemPreview />
+    <AppPreview />
   </div>
 
   {#if $store.currentFrontEndType === 'screen' || $store.currentFrontEndType === 'page'}
@@ -89,7 +83,6 @@
 </div>
 
 <NewScreen bind:this={newScreenPicker} />
-<SettingsView bind:this={settingsView} />
 
 <ConfirmDialog
   bind:this={confirmDeleteDialog}
