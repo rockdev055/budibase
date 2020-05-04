@@ -14,7 +14,7 @@ const componentsFile = "components.json"
 const appPackages = join(
   packagesFolder,
   "server",
-  resolve(homedir(), ".budibase")
+  serverConfig.latestPackagesFolder
 )
 
 const publicMain = appName =>

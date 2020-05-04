@@ -8,6 +8,7 @@ module.exports = () => {
     .command(require("./commands/init"))
     .command(require("./commands/new"))
     .command(require("./commands/run"))
+    .command(require("./commands/instance"))
     .fail((msg, err) => {
       if (err) {
         console.log(chalk.red(err.message))

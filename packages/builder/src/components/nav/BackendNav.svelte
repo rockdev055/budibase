@@ -61,6 +61,10 @@
 
     </div>
   {/if}
+  <NavItem
+    name="ACCESS_LEVELS"
+    label="User Access Levels"
+    href="./accesslevels" />
 </div>
 
 <style>

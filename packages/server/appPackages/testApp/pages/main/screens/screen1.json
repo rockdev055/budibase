@@ -1,0 +1,9 @@
+{
+  "name": "screen1",
+  "description": "",
+  "props": {
+	  "_component": "@budibase/standard-components/container",
+    "className": "",
+		"type": "div"
+  }
+}

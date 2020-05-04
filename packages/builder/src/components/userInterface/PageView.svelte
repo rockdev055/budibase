@@ -7,15 +7,16 @@
   import { pipe } from "components/common/core"
   import { filter, find, concat } from "lodash/fp"
 
-  const notSelectedComponent = { name: "(none selected)" }
+  const notSeletedComponent = { name: "(none selected)" }
 
   $: page = $store.pages[$store.currentPageName]
   $: title = page.index.title
   $: components = pipe(
     $store.components,
-    [filter(store => !isRootComponent($store)), concat([notSelectedComponent])]
+    [filter(store => !isRootComponent($store)), concat([notSeletedComponent])]
   )
-  $: entryComponent = components[page.appBody] || notSelectedComponent
+  $: entryComponent =
+    find(c => c.name === page.appBody)(components) || notSeletedComponent
 
   const save = () => {
     if (!title || !entryComponent || entryComponent === notSeletedComponent)

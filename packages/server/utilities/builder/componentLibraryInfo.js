@@ -29,7 +29,7 @@ module.exports.componentsFilepath = (appPath, libname) =>
  */
 module.exports.componentLibraryInfo = async (appPath, libname) => {
   const libDir = getLibDir(appPath, libname)
-  const componentsPath = resolve(libDir, "components.json")
+  const componentsPath = getComponentsFilepath(libDir)
 
   const componentDefinitionExists = await exists(componentsPath)
 

@@ -1,4 +1,4 @@
-const { appPackageFolder } = require("../createAppPackage")
+const { appPackageFolder, appsFolder } = require("../createAppPackage")
 const {
   readJSON,
   writeJSON,
@@ -8,8 +8,9 @@ const {
   unlink,
   rmdir,
 } = require("fs-extra")
-const { join, dirname, resolve } = require("path")
-const { compose, map, values, flatten } = require("lodash/fp")
+const { join, dirname } = require("path")
+const { $ } = require("@budibase/core").common
+const { intersection, map, values, flatten } = require("lodash/fp")
 const { merge } = require("lodash")
 
 const { componentLibraryInfo } = require("./componentLibraryInfo")
@@ -18,7 +19,6 @@ const getPages = require("./getPages")
 const listScreens = require("./listScreens")
 const saveBackend = require("./saveBackend")
 const deleteCodeMeta = require("./deleteCodeMeta")
-const componentTree = require("./componentTree");
 
 module.exports.buildPage = buildPage
 module.exports.listScreens = listScreens
@@ -28,19 +28,27 @@ const getAppDefinition = async appPath =>
   await readJSON(`${appPath}/appDefinition.json`)
 
 module.exports.getPackageForBuilder = async (config, application) => {
-  const appPath = resolve(config.latestPackagesFolder, application._id);
+  const appPath = appPackageFolder(config, application.name)
 
   const pages = await getPages(appPath)
 
   return {
+    appDefinition: await getAppDefinition(appPath),
+
+    accessLevels: await readJSON(`${appPath}/access_levels.json`),
+
     pages,
 
     components: await getComponentDefinitions(appPath, pages),
 
     application,
-
-    clientId: process.env.CLIENT_ID
   }
+}
+
+module.exports.getApps = async (config, master) => {
+  const dirs = await readdir(appsFolder(config))
+
+  return $(master.listApplications(), [map(a => a.name), intersection(dirs)])
 }
 
 const screenPath = (appPath, pageName, name) =>
@@ -122,14 +130,17 @@ module.exports.componentLibraryInfo = async (
  * @returns {object} - an object containing component definitions namespaced by their component library
  */
 const getComponentDefinitions = async (appPath, pages, componentLibrary) => {
-  return componentTree;
-
+  let componentLibraries
   if (!componentLibrary) {
     pages = pages || (await getPages(appPath))
 
     if (!pages) return []
-    componentLibraries = compose(flatten, map(p => p.componentLibraries), values)(pages)
 
+    componentLibraries = $(pages, [
+      values,
+      map(p => p.componentLibraries),
+      flatten,
+    ])
   } else {
     componentLibraries = [componentLibrary]
   }
