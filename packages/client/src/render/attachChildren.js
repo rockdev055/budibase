@@ -40,12 +40,12 @@ export const attachChildren = initialiseOpts => (htmlElement, options) => {
 
     if (!componentName || !libName) return
 
-    const ComponentConstructor = componentLibraries[libName][componentName]
+    const componentConstructor = componentLibraries[libName][componentName]
 
     const childNodesThisIteration = prepareRenderComponent({
       props: childProps,
       parentNode: treeNode,
-      ComponentConstructor,
+      componentConstructor,
       uiFunctions,
       htmlElement,
       anchor,

@@ -1,5 +1,9 @@
 const { appPackageFolder } = require("../createAppPackage")
+const { componentLibraryInfo } = require("./componentLibraryInfo")
 const {
+  stat,
+  ensureDir,
+  pathExists,
   constants,
   copyFile,
   writeFile,
@@ -46,10 +50,12 @@ const copyClientLib = async (appPath, pageName) => {
 
 const buildIndexHtml = async (config, appname, pageName, appPath, pkg) => {
   const appPublicPath = publicPath(appPath, pageName)
-  const appRootPath = appname
+  const appRootPath = rootPath(config, appname)
 
   const stylesheetUrl = s =>
-    s.startsWith("http") ? s : `/${rootPath(config, appname)}/${s}`
+    s.indexOf("http://") === 0 || s.indexOf("https://") === 0
+      ? s
+      : `/${rootPath(config, appname)}/${s}`
 
   const templateObj = {
     title: pkg.page.title || "Budibase App",
@@ -77,6 +83,38 @@ const buildFrontendAppDefinition = async (config, appname, pageName, pkg) => {
   const appPublicPath = publicPath(appPath, pageName)
   const appRootPath = rootPath(config, appname)
 
+  const componentLibraries = []
+
+  for (let lib of pkg.page.componentLibraries) {
+    const info = await componentLibraryInfo(appPath, lib)
+    const libFile = info.components._lib || "index.js"
+    const source = join(info.libDir, libFile)
+    const moduleDir = join(
+      appPublicPath,
+      "lib",
+      info.libDir.replace(appPath, "")
+    )
+    const destPath = join(moduleDir, libFile)
+
+    await ensureDir(dirname(destPath))
+
+    componentLibraries.push({
+      importPath: destPath.replace(appPublicPath, "").replace(/\\/g, "/"),
+      libName: lib,
+    })
+
+    let shouldCopy = !(await pathExists(destPath))
+    if (!shouldCopy) {
+      const destStat = await stat(destPath)
+      const sourceStat = await stat(source)
+      shouldCopy = destStat.ctimeMs !== sourceStat.ctimeMs
+    }
+
+    if (shouldCopy) {
+      await copyFile(source, destPath, constants.COPYFILE_FICLONE)
+    }
+  }
+
   const filename = join(appPublicPath, "clientFrontendDefinition.js")
 
   if (pkg.page._css) {
@@ -90,6 +128,7 @@ const buildFrontendAppDefinition = async (config, appname, pageName, pkg) => {
   }
 
   const clientUiDefinition = JSON.stringify({
+    componentLibraries: componentLibraries,
     appRootPath: appRootPath,
     page: pkg.page,
     screens: pkg.screens,
@@ -97,10 +136,8 @@ const buildFrontendAppDefinition = async (config, appname, pageName, pkg) => {
 
   await writeFile(
     filename,
-    `
-     window['##BUDIBASE_FRONTEND_DEFINITION##'] = ${clientUiDefinition};
-     window['##BUDIBASE_FRONTEND_FUNCTIONS##'] = ${pkg.uiFunctions};
-    `
+    `window['##BUDIBASE_FRONTEND_DEFINITION##'] = ${clientUiDefinition};
+window['##BUDIBASE_FRONTEND_FUNCTIONS##'] = ${pkg.uiFunctions}`
   )
 }
 

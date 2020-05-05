@@ -105,6 +105,7 @@ export { getIndexApi } from "./indexApi"
 export { setupDatastore } from "./appInitialise"
 export { getActionsApi } from "./actionsApi"
 export { initialiseData } from "./appInitialise/initialiseData"
+export { getDatabaseManager } from "./appInitialise/databaseManager"
 export { hierarchy }
 export { common }
 export { crypto }

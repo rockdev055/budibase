@@ -12,7 +12,10 @@
   let errors = []
   const props_to_ignore = ["_component", "_children", "_styles", "_code", "_id"]
 
-  $: componentDef = components[component._component]
+  $: componentDef =
+    component &&
+    components &&
+    components.find(({ name }) => name === component._component)
 
   let setProp = (name, value) => {
     onPropChanged(name, value)

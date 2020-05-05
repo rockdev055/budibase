@@ -1,4 +1,4 @@
-const { appPackageFolder } = require("../createAppPackage")
+const { appPackageFolder, appsFolder } = require("../createAppPackage")
 const {
   readJSON,
   writeJSON,
@@ -8,31 +8,47 @@ const {
   unlink,
   rmdir,
 } = require("fs-extra")
-const { join, dirname, resolve } = require("path")
+const { join, dirname } = require("path")
+const { $ } = require("@budibase/core").common
+const { intersection, map, values, flatten } = require("lodash/fp")
+const { merge } = require("lodash")
 
+const { componentLibraryInfo } = require("./componentLibraryInfo")
 const buildPage = require("./buildPage")
 const getPages = require("./getPages")
 const listScreens = require("./listScreens")
+const saveBackend = require("./saveBackend")
 const deleteCodeMeta = require("./deleteCodeMeta")
 
 module.exports.buildPage = buildPage
 module.exports.listScreens = listScreens
+module.exports.saveBackend = saveBackend
 
 const getAppDefinition = async appPath =>
   await readJSON(`${appPath}/appDefinition.json`)
 
 module.exports.getPackageForBuilder = async (config, application) => {
-  const appPath = resolve(config.latestPackagesFolder, application._id);
+  const appPath = appPackageFolder(config, application.name)
 
   const pages = await getPages(appPath)
 
   return {
+    appDefinition: await getAppDefinition(appPath),
+
+    accessLevels: await readJSON(`${appPath}/access_levels.json`),
+
     pages,
 
-    application,
+    components: await getComponentDefinitions(appPath, pages),
 
-    clientId: process.env.CLIENT_ID
+    application,
   }
+}
+
+module.exports.getApps = async (config, master) => {
+  const dirs = await readdir(appsFolder(config))
+
+  return $(master.listApplications(), [map(a => a.name), intersection(dirs)])
 }
 
 const screenPath = (appPath, pageName, name) =>
@@ -97,3 +113,53 @@ module.exports.savePage = async (config, appname, pagename, page) => {
   const appDefinition = await getAppDefinition(appPath)
   await buildPage(config, appname, appDefinition, pagename, page)
 }
+
+module.exports.componentLibraryInfo = async (
+  config,
+  appname,
+  componentLibrary
+) => {
+  const appPath = appPackageFolder(config, appname)
+  return await componentLibraryInfo(appPath, componentLibrary)
+}
+
+/**
+ * @param {string} appPath - path to a budibase application
+ * @param {Array} pages - a list of budibase application pages
+ * @param {string} componentLibrary - component library to fetch components for
+ * @returns {object} - an object containing component definitions namespaced by their component library
+ */
+const getComponentDefinitions = async (appPath, pages, componentLibrary) => {
+  let componentLibraries
+  if (!componentLibrary) {
+    pages = pages || (await getPages(appPath))
+
+    if (!pages) return []
+
+    componentLibraries = $(pages, [
+      values,
+      map(p => p.componentLibraries),
+      flatten,
+    ])
+  } else {
+    componentLibraries = [componentLibrary]
+  }
+
+  const components = {}
+  const templates = {}
+  const libraryPaths = {}
+
+  for (let library of componentLibraries) {
+    const info = await componentLibraryInfo(appPath, library)
+    merge(components, info.components)
+    merge(templates, info.templates)
+    libraryPaths[library] = components._lib
+  }
+
+  if (components._lib) delete components._lib
+  if (templates._lib) delete templates._lib
+
+  return { components, templates, libraryPaths }
+}
+
+module.exports.getComponentDefinitions = getComponentDefinitions

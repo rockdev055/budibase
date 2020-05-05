@@ -1,18 +1,30 @@
-import { cloneDeep } from "lodash/fp"
+import { cloneDeep, take, takeRight, flatten, map, filter } from "lodash/fp"
 import { validate } from "./validate"
-import { _load } from "./load"
-import { apiWrapper, events } from "../common"
+import { _loadFromInfo } from "./load"
+import { apiWrapper, events, $, joinKey } from "../common"
+import {
+  getFlattenedHierarchy,
+  isModel,
+  getNode,
+  fieldReversesReferenceToNode,
+} from "../templateApi/hierarchy"
+import {
+  transactionForCreateRecord,
+  transactionForUpdateRecord,
+} from "../transactions/create"
 import { permission } from "../authApi/permissions"
+import { initialiseIndex } from "../indexing/initialiseIndex"
 import { BadRequestError } from "../common/errors"
-import { getExactNodeForKey } from "../templateApi/hierarchy"
+import { getRecordInfo } from "./recordInfo"
+import { initialiseChildren } from "./initialiseChildren"
 
 export const save = app => async (record, context) =>
   apiWrapper(
     app,
     events.recordApi.save,
-    record._rev
-      ? permission.updateRecord.isAuthorized(record.key)
-      : permission.createRecord.isAuthorized(record.key),
+    record.isNew
+      ? permission.createRecord.isAuthorized(record.key)
+      : permission.updateRecord.isAuthorized(record.key),
     { record },
     _save,
     app,
@@ -36,30 +48,73 @@ export const _save = async (app, record, context, skipValidation = false) => {
     }
   }
 
-  const recordNode = getExactNodeForKey(app.hierarchy)(record.key)
+  const recordInfo = getRecordInfo(app.hierarchy, record.key)
+  const { recordNode, pathInfo, recordJson, files } = recordInfo
 
-  recordClone.nodeKey = recordNode.nodeKey()
-
-  if (!record._rev) {
+  if (recordClone.isNew) {
     if (!recordNode) throw new Error("Cannot find node for " + record.key)
 
-    // FILES
-    // await app.datastore.createFolder(files)
-    await app.datastore.createJson(record.key, recordClone)
+    const transaction = await transactionForCreateRecord(app, recordClone)
+    recordClone.transactionId = transaction.id
+    await createRecordFolderPath(app.datastore, pathInfo)
+    await app.datastore.createFolder(files)
+    await app.datastore.createJson(recordJson, recordClone)
+    await initialiseChildren(app, recordInfo)
     await app.publish(events.recordApi.save.onRecordCreated, {
       record: recordClone,
     })
   } else {
-    const oldRecord = await _load(app, record.key)
-    await app.datastore.updateJson(record.key, recordClone)
+    const oldRecord = await _loadFromInfo(app, recordInfo)
+    const transaction = await transactionForUpdateRecord(
+      app,
+      oldRecord,
+      recordClone
+    )
+    recordClone.transactionId = transaction.id
+    await app.datastore.updateJson(recordJson, recordClone)
     await app.publish(events.recordApi.save.onRecordUpdated, {
       old: oldRecord,
       new: recordClone,
     })
   }
 
-  // TODO: use nano.head to get _rev (saves loading whole doc)
-  const savedResult = await app.datastore.loadFile(record.key)
-  recordClone._rev = savedResult._rev
-  return recordClone
+  await app.cleanupTransactions()
+
+  const returnedClone = cloneDeep(recordClone)
+  returnedClone.isNew = false
+  return returnedClone
+}
+
+const createRecordFolderPath = async (datastore, pathInfo) => {
+  const recursiveCreateFolder = async (
+    subdirs,
+    dirsThatNeedCreated = undefined
+  ) => {
+    // iterate backwards through directory hierachy
+    // until we get to a folder that exists, then create the rest
+    // e.g
+    // - some/folder/here
+    // - some/folder
+    // - some
+    const thisFolder = joinKey(pathInfo.base, ...subdirs)
+
+    if (await datastore.exists(thisFolder)) {
+      let creationFolder = thisFolder
+      for (let nextDir of dirsThatNeedCreated || []) {
+        creationFolder = joinKey(creationFolder, nextDir)
+        await datastore.createFolder(creationFolder)
+      }
+    } else if (!dirsThatNeedCreated || dirsThatNeedCreated.length > 0) {
+      dirsThatNeedCreated = !dirsThatNeedCreated ? [] : dirsThatNeedCreated
+
+      await recursiveCreateFolder(take(subdirs.length - 1)(subdirs), [
+        ...takeRight(1)(subdirs),
+        ...dirsThatNeedCreated,
+      ])
+    }
+  }
+
+  await recursiveCreateFolder(pathInfo.subdirs)
+
+  return joinKey(pathInfo.base, ...pathInfo.subdirs)
 }

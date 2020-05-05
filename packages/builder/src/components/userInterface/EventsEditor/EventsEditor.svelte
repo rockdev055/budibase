@@ -33,10 +33,12 @@
   let selectedEvent = null
 
   $: {
-    const componentDefinition = components[component._component];
+    const componentDefinition = components.find(
+      c => c.name === component._component
+    )
     events = Object.keys(componentDefinition.props)
       .filter(
-        propName => componentDefinition.props[propName] === EVENT_TYPE
+        propName => componentDefinition.props[propName].type === EVENT_TYPE
       )
       .map(propName => ({
         name: propName,

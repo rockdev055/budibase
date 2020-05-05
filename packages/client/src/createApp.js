@@ -8,10 +8,16 @@ import { createStateManager } from "./state/stateManager"
 export const createApp = (
   componentLibraries,
   frontendDefinition,
+  backendDefinition,
   user,
   uiFunctions,
   window
 ) => {
+  const coreApi = createCoreApi(backendDefinition, user)
+  backendDefinition.hierarchy = coreApi.templateApi.constructHierarchy(
+    backendDefinition.hierarchy
+  )
+
   let routeTo
   let currentUrl
   let screenStateManager
@@ -20,6 +26,7 @@ export const createApp = (
     const onScreenSelected = (screen, store, url) => {
       const stateManager = createStateManager({
         store,
+        coreApi,
         frontendDefinition,
         componentLibraries,
         uiFunctions,
@@ -67,6 +74,7 @@ export const createApp = (
   let rootTreeNode
   const pageStateManager = createStateManager({
     store: writable({ _bbuser: user }),
+    coreApi,
     frontendDefinition,
     componentLibraries,
     uiFunctions,
