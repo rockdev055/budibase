@@ -17,6 +17,7 @@ import path from "path"
 const production = !process.env.ROLLUP_WATCH
 
 const lodash_fp_exports = [
+  "pipe",
   "union",
   "reduce",
   "isUndefined",
@@ -120,7 +121,7 @@ const coreExternal = [
 ]
 
 const customResolver = resolve({
-  extensions: [".mjs", ".js", ".jsx", ".json", ".sass", ".scss", ".svelte"]
+  extensions: [".mjs", ".js", ".jsx", ".json", ".sass", ".scss", ".svelte", ".css"]
 })
 const projectRootDir = path.resolve(__dirname)
 
@@ -150,7 +151,7 @@ export default {
       targets: [
         { src: "src/index.html", dest: outputpath },
         { src: "src/favicon.png", dest: outputpath },
-        { src: "src/assets", dest: outputpath },
+        { src: "assets", dest: outputpath },
         {
           src: "node_modules/@budibase/client/dist/budibase-client.esm.mjs",
           dest: outputpath,
