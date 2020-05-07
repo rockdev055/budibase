@@ -3,10 +3,11 @@ import { getState } from "./getState"
 import { isArray, isUndefined } from "lodash/fp"
 
 import { createApi } from "../api"
+import { getNewChildRecordToState, getNewRecordToState } from "./coreHandlers"
 
 export const EVENT_TYPE_MEMBER_NAME = "##eventHandlerType"
 
-export const eventHandlers = (store, rootPath, routeTo) => {
+export const eventHandlers = (store, coreApi, rootPath, routeTo) => {
   const handler = (parameters, execute) => ({
     execute,
     parameters,
@@ -15,8 +16,8 @@ export const eventHandlers = (store, rootPath, routeTo) => {
   const setStateWithStore = (path, value) => setState(store, path, value)
 
   let currentState
-  store.subscribe(state => {
-    currentState = state
+  store.subscribe(s => {
+    currentState = s
   })
 
   const api = createApi({
@@ -32,6 +33,17 @@ export const eventHandlers = (store, rootPath, routeTo) => {
     "Load Record": handler(["recordKey", "statePath"], api.loadRecord),
     "List Records": handler(["indexKey", "statePath"], api.listRecords),
     "Save Record": handler(["statePath"], api.saveRecord),
+
+    "Get New Child Record": handler(
+      ["recordKey", "collectionName", "childRecordType", "statePath"],
+      getNewChildRecordToState(coreApi, setStateWithStore)
+    ),
+
+    "Get New Record": handler(
+      ["collectionKey", "childRecordType", "statePath"],
+      getNewRecordToState(coreApi, setStateWithStore)
+    ),
+
     "Navigate To": handler(["url"], param => routeTo(param && param.url)),
 
     Authenticate: handler(["username", "password"], api.authenticate),

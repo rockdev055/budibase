@@ -1,5 +1,5 @@
-import { pipe } from "components/common/core"
 import { filter, map, reduce, toPairs } from "lodash/fp"
+import { pipe } from "components/common/core"
 
 const self = n => n
 const join_with = delimiter => a => a.join(delimiter)
@@ -88,7 +88,7 @@ const css_map = {
 }
 
 export const generate_rule = ([name, values]) =>
-  `${css_map[name].name}: ${css_map[name].generate(values)};`
+  `${css_map[name].name}: ${css_map[name].generate(values)} !important;`
 
 const handle_grid = (acc, [name, value]) => {
   let tmp = []
@@ -113,7 +113,9 @@ const object_to_css_string = [
 export const generate_css = ({ layout, position }) => {
   let _layout = pipe(layout, object_to_css_string)
   if (_layout.length) {
-    _layout += `\ndisplay: ${_layout.includes("flex") ? "flex" : "grid"};`
+    _layout += `\ndisplay: ${
+      _layout.includes("flex") ? "flex" : "grid"
+    } !important;`
   }
 
   return {

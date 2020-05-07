@@ -26,17 +26,20 @@
 
   let saveAttempted = false
 
-  $: layoutComponents = Object.values($store.components).filter(
-    componentDefinition => componentDefinition.container
+  $: layoutComponents = pipe(
+    $store.components,
+    [
+      filter(c => c.container),
+      map(c => ({ name: c.name, ...splitName(c.name) })),
+    ]
   )
 
   $: layoutComponent = layoutComponent
-    ? layoutComponents.find(
-        component => component._component === layoutComponent._component
-      )
+    ? find(c => c.name === layoutComponent.name)(layoutComponents)
     : layoutComponents[0]
 
-  $: route = !route && $store.screens.length === 0 ? "*" : route
+  $: screens = $store.screens
+  $: route = !route && screens.length === 0 ? "*" : route
 
   const save = () => {
     saveAttempted = true
@@ -50,7 +53,7 @@
 
     if (!isValid) return
 
-    store.createScreen(name, route, layoutComponent._component)
+    store.createScreen(name, route, layoutComponent.name)
     dialog.hide()
   }
 
@@ -59,20 +62,21 @@
   }
 
   const screenNameExists = name => {
-    return $store.screens.some(
-      screen => screen.name.toLowerCase() === name.toLowerCase()
-    )
+    return some(s => {
+      return s.name.toLowerCase() === name.toLowerCase()
+    })(screens)
   }
 
   const routeNameExists = route => {
-    return $store.screens.some(
-      screen => screen.route.toLowerCase() === route.toLowerCase()
-    )
+    return some(s => {
+      return s.route.toLowerCase() === route.toLowerCase()
+    })(screens)
   }
 
   const routeChanged = event => {
-    if (!event.target.value.startsWith("/")) {
-      route = "/" + event.target.value
+    const r = event.target.value
+    if (!r.startsWith("/")) {
+      route = "/" + r
     }
   }
 </script>
@@ -96,7 +100,7 @@
     </div>
 
     <div class="uk-margin">
-      <label class="uk-form-label">Route (URL)</label>
+      <label class="uk-form-label">Route (Url)</label>
       <div class="uk-form-controls">
         <input
           class="uk-input uk-form-small"
@@ -113,8 +117,8 @@
           class="uk-select uk-form-small"
           bind:value={layoutComponent}
           class:uk-form-danger={saveAttempted && !layoutComponent}>
-          {#each layoutComponents as { _component, name }}
-            <option value={_component}>{name}</option>
+          {#each layoutComponents as comp}
+            <option value={comp}>{comp.componentName} - {comp.libName}</option>
           {/each}
         </select>
       </div>

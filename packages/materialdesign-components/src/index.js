@@ -22,14 +22,7 @@ export { Menu } from "./Menu"
 export { Select } from "./Select"
 export { DatePicker } from "./DatePicker"
 export { IconButton } from "./IconButton"
-export {
-  Card,
-  CardHeader,
-  CardImage,
-  CardBody,
-  CardFooter,
-  BasicCard,
-} from "./Card"
+export { Card, CardHeader, CardImage, CardBody, CardFooter, BasicCard } from "./Card"
 export { Dialog, DialogHeader, DialogContent, DialogActions } from "./Dialog"
 export { Switch } from "./Switch"
 export { Slider } from "./Slider"
