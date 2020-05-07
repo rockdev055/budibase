@@ -262,6 +262,20 @@
 			"color": "colour"
 		}
 	},
+	"datatable": {
+		"description": "an HTML table that fetches data from a model or view and displays it.",
+		"data": true,
+		"props": {
+			"model": "models" 
+		}
+	},
+	"dataform": {
+		"description": "an HTML table that fetches data from a model or view and displays it.",
+		"data": true,
+		"props": {
+			"model": "models"
+		}
+	},
 	"link": {
 		"description": "an HTML anchor <a> tag",
 		"props": {

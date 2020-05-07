@@ -1,5 +1,4 @@
 import { createApp } from "./createApp"
-import { trimSlash } from "./common/trimSlash"
 import { builtins, builtinLibName } from "./render/builtinComponents"
 
 /**
@@ -7,43 +6,43 @@ import { builtins, builtinLibName } from "./render/builtinComponents"
  * @param  {object} opts - configuration options for budibase client libary
  */
 export const loadBudibase = async opts => {
-  let componentLibraries = opts && opts.componentLibraries
   const _window = (opts && opts.window) || window
-  const _localStorage = (opts && opts.localStorage) || localStorage
+  // const _localStorage = (opts && opts.localStorage) || localStorage
 
-  const backendDefinition = _window["##BUDIBASE_BACKEND_DEFINITION##"]
   const frontendDefinition = _window["##BUDIBASE_FRONTEND_DEFINITION##"]
   const uiFunctions = _window["##BUDIBASE_FRONTEND_FUNCTIONS##"]
 
-  const userFromStorage = _localStorage.getItem("budibase:user")
+  // TODO: Update
+  const user = {}
 
-  const user = userFromStorage
-    ? JSON.parse(userFromStorage)
-    : {
-        name: "annonymous",
-        permissions: [],
-        isUser: false,
-        temp: false,
-      }
+  // const userFromStorage = _localStorage.getItem("budibase:user")
 
-  frontendDefinition.appRootPath =
-    frontendDefinition.appRootPath === ""
-      ? ""
-      : "/" + trimSlash(frontendDefinition.appRootPath)
+  // const user = userFromStorage
+  //   ? JSON.parse(userFromStorage)
+  //   : {
+  //       name: "annonymous",
+  //       permissions: [],
+  //       isUser: false,
+  //       temp: false,
+  //     }
 
-  if (!componentLibraries) {
-    const componentLibraryUrl = lib =>
-      frontendDefinition.appRootPath + "/" + trimSlash(lib)
-    componentLibraries = {}
+  // let { appRootPath } = frontendDefinition;
+  // appRootPath = appRootPath === "" ? "" : "/" + trimSlash(appRootPatl)
 
-    for (let lib of frontendDefinition.componentLibraries) {
-      componentLibraries[lib.libName] = await import(
-        componentLibraryUrl(lib.importPath)
-      )
-    }
+  const componentLibraryModules = opts.componentLibraries || {}
+
+  const libraries = frontendDefinition.libraries || []
+
+  for (let library of libraries) {
+    // fetch the JavaScript for the component libraries from the server
+    componentLibraryModules[library] = await import(
+      `/${frontendDefinition.appId}/componentlibrary?library=${encodeURI(
+        library
+      )}`
+    )
   }
 
-  componentLibraries[builtinLibName] = builtins(_window)
+  componentLibraryModules[builtinLibName] = builtins(_window)
 
   const {
     initialisePage,
@@ -52,9 +51,8 @@ export const loadBudibase = async opts => {
     routeTo,
     rootNode,
   } = createApp(
-    componentLibraries,
+    componentLibraryModules,
     frontendDefinition,
-    backendDefinition,
     user,
     uiFunctions || {},
     _window,
