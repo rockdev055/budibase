@@ -5,7 +5,6 @@ import { stripStandardProps } from "./testData"
 
 describe("createDefaultProps", () => {
   const getcomponent = () => ({
-    _component: "some_component",
     name: "some_component",
     props: {
       fieldName: { type: "string", default: "something" },
@@ -22,7 +21,7 @@ describe("createDefaultProps", () => {
     expect(keys(props).length).toBe(3)
   })
 
-  it("should set component _component", () => {
+  it("should set component name", () => {
     const { props, errors } = createProps(getcomponent())
 
     expect(errors).toEqual([])
@@ -36,6 +35,17 @@ describe("createDefaultProps", () => {
     const { errors } = createProps(comp)
 
     expect(errors.length).toEqual(1)
+  })
+
+  it("should create a object with single blank string value, when no default", () => {
+    const comp = getcomponent()
+    comp.props.fieldName = { type: "string" }
+
+    const { props, errors } = createProps(comp)
+
+    expect(errors).toEqual([])
+    expect(props.fieldName).toBeDefined()
+    expect(props.fieldName).toBe("")
   })
 
   it("should create a object with single blank string value, when prop definition is 'string' ", () => {
@@ -169,6 +179,16 @@ describe("createDefaultProps", () => {
     expect(errors.length).toBe(2)
     expect(some(e => e.propName === "fieldName")(errors)).toBeTruthy()
     expect(some(e => e.propName === "fieldLength")(errors)).toBeTruthy()
+  })
+
+  it("should return error default value is not of declared type", () => {
+    const comp = getcomponent()
+    comp.props.fieldName = { type: "string", default: 1 }
+
+    const { errors } = createProps(comp)
+
+    expect(errors.length).toBe(1)
+    expect(some(e => e.propName === "fieldName")(errors)).toBeTruthy()
   })
 
   it("should merge in derived props", () => {

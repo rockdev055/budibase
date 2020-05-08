@@ -1,14 +1,18 @@
 <script>
-  import { store } from "builderStore";
   import Checkbox from "../common/Checkbox.svelte"
   import Textbox from "../common/Textbox.svelte"
   import Dropdown from "../common/Dropdown.svelte"
   import StateBindingControl from "./StateBindingControl.svelte"
 
+  export let setProp = () => {}
   export let index
   export let prop_name
   export let prop_value
   export let prop_definition = {}
+
+  const setComponentProp = props => {
+    setProp(propDef.____name, props)
+  }
 </script>
 
 <div class="root">
@@ -16,10 +20,10 @@
     <h5>{prop_name}</h5>
     <StateBindingControl
       value={prop_value}
-      type={prop_definition.type || prop_definition}
+      type={prop_definition.type}
       options={prop_definition.options}
       styleBindingProperty={prop_definition.styleBindingProperty}
-      onChanged={v => store.setComponentProp(prop_name, v)} />
+      onChanged={v => setProp(prop_name, v)} />
   {/if}
 </div>
 

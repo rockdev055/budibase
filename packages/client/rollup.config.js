@@ -5,7 +5,6 @@ import nodeglobals from "rollup-plugin-node-globals"
 
 const lodash_fp_exports = [
   "find",
-  "compose",
   "isUndefined",
   "split",
   "max",
@@ -103,6 +102,7 @@ export default {
     }),
     builtins(),
     nodeglobals(),
+    //terser()
   ],
   watch: {
     clearScreen: false,

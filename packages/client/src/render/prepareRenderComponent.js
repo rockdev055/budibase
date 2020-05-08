@@ -1,5 +1,5 @@
 export const prepareRenderComponent = ({
-  ComponentConstructor,
+  componentConstructor,
   uiFunctions,
   htmlElement,
   anchor,
@@ -26,7 +26,7 @@ export const prepareRenderComponent = ({
     nodesToRender.push(thisNode)
 
     thisNode.render = initialProps => {
-      thisNode.component = new ComponentConstructor({
+      thisNode.component = new componentConstructor({
         target: htmlElement,
         props: initialProps,
         hydrate: false,
