@@ -10,10 +10,8 @@
 const fs = require("fs")
 const { resolve } = require("path")
 const rimraf = require("rimraf");
-const {
-  budibaseTempDir,
-} = require("../packages/server/src/utilities/budibaseDir")
-const devDir = budibaseTempDir()
+
+const devDir = "/tmp/.budibase"
 
 rimraf.sync(devDir);
 fs.mkdirSync(`${devDir}/@budibase`, { recursive: true })

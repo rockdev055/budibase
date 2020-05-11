@@ -2,7 +2,8 @@ const Router = require("@koa/router")
 const authenticated = require("../middleware/authenticated")
 const compress = require("koa-compress")
 const zlib = require("zlib")
-const { budibaseAppsDir } = require("../utilities/budibaseDir")
+const { resolve } = require("path")
+const { homedir } = require("os")
 const {
   authRoutes,
   pageRoutes,
@@ -33,7 +34,7 @@ router
   )
   .use(async (ctx, next) => {
     ctx.config = {
-      latestPackagesFolder: budibaseAppsDir(),
+      latestPackagesFolder: resolve(homedir(), ".budibase"),
       jwtSecret: process.env.JWT_SECRET,
     }
     ctx.isDev = process.env.NODE_ENV !== "production"
