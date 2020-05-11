@@ -12,16 +12,16 @@ const { convertCssToFiles } = require("./convertCssToFiles")
 const publicPath = require("./publicPath")
 const deleteCodeMeta = require("./deleteCodeMeta")
 
-module.exports = async (config, appId, pageName, pkg) => {
-  const appPath = appPackageFolder(config, appId)
+module.exports = async (config, appname, pageName, pkg) => {
+  const appPath = appPackageFolder(config, appname)
 
   pkg.screens = pkg.screens || []
 
   await convertCssToFiles(publicPath(appPath, pageName), pkg)
 
-  await buildIndexHtml(config, appId, pageName, appPath, pkg)
+  await buildIndexHtml(config, appname, pageName, appPath, pkg)
 
-  await buildFrontendAppDefinition(config, appId, pageName, pkg, appPath)
+  await buildFrontendAppDefinition(config, appname, pageName, pkg, appPath)
 
   await copyClientLib(appPath, pageName)
 
@@ -44,12 +44,12 @@ const copyClientLib = async (appPath, pageName) => {
   )
 }
 
-const buildIndexHtml = async (config, appId, pageName, appPath, pkg) => {
+const buildIndexHtml = async (config, appname, pageName, appPath, pkg) => {
   const appPublicPath = publicPath(appPath, pageName)
-  const appRootPath = appId
+  const appRootPath = appname
 
   const stylesheetUrl = s =>
-    s.startsWith("http") ? s : `/${rootPath(config, appId)}/${s}`
+    s.startsWith("http") ? s : `/${rootPath(config, appname)}/${s}`
 
   const templateObj = {
     title: pkg.page.title || "Budibase App",
@@ -72,10 +72,10 @@ const buildIndexHtml = async (config, appId, pageName, appPath, pkg) => {
   await writeFile(indexHtmlPath, indexHtml, { flag: "w+" })
 }
 
-const buildFrontendAppDefinition = async (config, appId, pageName, pkg) => {
-  const appPath = appPackageFolder(config, appId)
+const buildFrontendAppDefinition = async (config, appname, pageName, pkg) => {
+  const appPath = appPackageFolder(config, appname)
   const appPublicPath = publicPath(appPath, pageName)
-  const appRootPath = rootPath(config, appId)
+  const appRootPath = rootPath(config, appname)
 
   const filename = join(appPublicPath, "clientFrontendDefinition.js")
 
