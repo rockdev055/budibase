@@ -18,7 +18,7 @@
   let errors = []
   let selectedModel
 
-  $: instanceId = $backendUiStore.selectedDatabase._id
+  $: instanceId = $backendUiStore.selectedDatabase.id
 
   $: modelSchema = $backendUiStore.selectedModel
     ? Object.entries($backendUiStore.selectedModel.schema)

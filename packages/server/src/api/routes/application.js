@@ -4,8 +4,8 @@ const controller = require("../controllers/application")
 const router = Router()
 
 router
-  .get("/api/applications", controller.fetch)
-  .get("/api/:applicationId/appPackage", controller.fetchAppPackage)
-  .post("/api/applications", controller.create)
+  .get("/api/:clientId/applications", controller.fetch)
+  .get("/api/:clientId/:applicationId/appPackage", controller.fetchAppPackage)
+  .post("/api/:clientId/applications", controller.create)
 
 module.exports = router

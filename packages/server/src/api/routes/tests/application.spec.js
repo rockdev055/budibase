@@ -1,32 +1,35 @@
-const { 
-  createClientDatabase,  
-  supertest
-} = require("./couchTestUtils")
+const supertest = require("supertest");
+const app = require("../../../app");
+const { createClientDatabase, destroyDatabase } = require("./couchTestUtils");
+
+
+const CLIENT_DB_ID = "client-testing";
 
 describe("/applications", () => {
-  let request
-  let server
+  let request;
+  let server;
 
   beforeAll(async () => {
-    ({ request, server } = await supertest())
-    await createClientDatabase(request)
+    server = app;
+    request = supertest(server);
+    await createClientDatabase();
   });
 
   afterAll(async () => {
-    server.close()
+    server.close();
+    await destroyDatabase(CLIENT_DB_ID)
   })
 
   describe("create", () => {
     it("returns a success message when the application is successfully created", done => {
       request
-        .post("/api/applications")
+        .post("/api/testing/applications")
         .send({ name: "My App" })
         .set("Accept", "application/json")
         .expect('Content-Type', /json/)
         .expect(200)
         .end((err, res) => {
-            expect(res.res.statusMessage).toEqual("Application My App created successfully")
-            expect(res.body._id).toBeDefined()            
+            expect(res.body.message).toEqual("Application My App created successfully");            
             done();
         });
       })

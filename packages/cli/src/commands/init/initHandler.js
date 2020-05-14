@@ -3,8 +3,10 @@ const { exists, readFile, writeFile, ensureDir } = require("fs-extra")
 const chalk = require("chalk")
 const { serverFileName, xPlatHomeDir } = require("../../common")
 const { join } = require("path")
+const initialiseClientDb = require("@budibase/server/src/db/initialiseClientDb")
 const Sqrl = require("squirrelly")
 const uuid = require("uuid")
+const CouchDB = require("@budibase/server/src/db/client")
 
 module.exports = opts => {
   run(opts)
@@ -55,9 +57,6 @@ const prompts = async opts => {
 
 const createClientDatabase = async opts => {
   if (opts.clientId === "new") {
-    // cannot be a top level require as it
-    // will cause environment module to be loaded prematurely
-    const CouchDB = require("@budibase/server/src/db/client")
     const existing = await CouchDB.allDbs()
 
     let i = 0
@@ -69,10 +68,8 @@ const createClientDatabase = async opts => {
     }
   }
 
-  // cannot be a top level require as it
-  // will cause environment module to be loaded prematurely
-  const clientDb = require("@budibase/server/src/db/clientDb")
-  await clientDb.create(opts.clientId)
+  const db = new CouchDB(`client-${opts.clientId}`)
+  await initialiseClientDb(db)
 }
 
 const createDevEnvFile = async opts => {

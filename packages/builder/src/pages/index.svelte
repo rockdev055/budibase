@@ -8,7 +8,7 @@
   let promise = getApps()
 
   async function getApps() {
-    const res = await fetch(`/api/applications`)
+    const res = await fetch(`/api/${$store.clientId}/applications`)
     const json = await res.json()
 
     if (res.ok) {

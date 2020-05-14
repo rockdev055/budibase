@@ -9,7 +9,7 @@
   let password
 
   $: valid = username && password
-  $: instanceId = $backendUiStore.selectedDatabase._id
+  $: instanceId = $backendUiStore.selectedDatabase.id
   $: appId = $store.appId
 
   async function createUser() {

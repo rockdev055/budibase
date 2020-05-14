@@ -1,8 +1,5 @@
 const CouchDB = require("../../db")
 const bcrypt = require("../../utilities/bcrypt")
-const env = require("../../environment")
-
-const getUserId = userName => `user_${userName}`
 
 exports.fetch = async function(ctx) {
   const database = new CouchDB(ctx.params.instanceId)
@@ -16,22 +13,20 @@ exports.fetch = async function(ctx) {
 
 exports.create = async function(ctx) {
   const database = new CouchDB(ctx.params.instanceId)
-  const appId = (await database.get("_design/database")).metadata.applicationId
   const { username, password, name } = ctx.request.body
 
   if (!username || !password) ctx.throw(400, "Username and Password Required.")
 
   const response = await database.post({
-    _id: getUserId(username),
     username,
     password: await bcrypt.hash(password),
-    name: name || username,
+    name,
     type: "user",
   })
 
   // the clientDB needs to store a map of users against the app
-  const clientDb = new CouchDB(`client-${env.CLIENT_ID}`)
-  const app = await clientDb.get(appId)
+  const clientDb = new CouchDB(`client-${process.env.CLIENT_ID}`)
+  const app = await clientDb.get(ctx.params.appId)
 
   app.userInstanceMap = {
     ...app.userInstanceMap,
@@ -39,28 +34,24 @@ exports.create = async function(ctx) {
   }
   await clientDb.put(app)
 
-  ctx.status = 200
-  ctx.message = "User created successfully."
   ctx.body = {
-    _rev: response.rev,
-    username,
-    name,
+    user: {
+      id: response.id,
+      rev: response.rev,
+      username,
+      name,
+    },
+    message: `User created successfully.`,
+    status: 200,
   }
 }
 
 exports.destroy = async function(ctx) {
   const database = new CouchDB(ctx.params.instanceId)
-  await database.destroy(getUserId(ctx.params.username))
-  ctx.message = `User ${ctx.params.username} deleted.`
-  ctx.status = 200
-}
-
-exports.find = async function(ctx) {
-  const database = new CouchDB(ctx.params.instanceId)
-  const user = await database.get(getUserId(ctx.params.username))
+  const response = await database.destroy(ctx.params.userId)
   ctx.body = {
-    username: user.username,
-    name: user.name,
-    _rev: user._rev,
+    ...response,
+    message: `User deleted.`,
+    status: 200,
   }
 }

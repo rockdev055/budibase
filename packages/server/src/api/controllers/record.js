@@ -1,16 +1,11 @@
 const CouchDB = require("../../db")
 const Ajv = require("ajv")
-const uuid = require("uuid")
 
 const ajv = new Ajv()
 
 exports.save = async function(ctx) {
   const db = new CouchDB(ctx.params.instanceId)
   const record = ctx.request.body
-
-  if (!record._rev && !record._id) {
-    record._id = uuid.v4().replace(/-/, "")
-  }
 
   // validation with ajv
   const model = await db.get(record.modelId)
@@ -28,15 +23,18 @@ exports.save = async function(ctx) {
     return
   }
 
-  const existingRecord = record._rev && (await db.get(record._id))
+  const existingRecord = record._id && (await db.get(record._id))
 
   if (existingRecord) {
-    const response = await db.put(record)
-    record._rev = response.rev
-    record.type = "record"
-    ctx.body = record
-    ctx.status = 200
-    ctx.message = `${model.name} updated successfully.`
+    const response = await db.put({ ...record, _id: existingRecord._id })
+    ctx.body = {
+      message: `${model.name} updated successfully.`,
+      status: 200,
+      record: {
+        ...record,
+        ...response,
+      },
+    }
     return
   }
 
@@ -47,7 +45,10 @@ exports.save = async function(ctx) {
   //   record: record,
   // })
 
-  ctx.body = record
+  ctx.body = {
+    ...record,
+    ...response
+  } 
   ctx.status = 200
   ctx.message = `${model.name} created successfully`
 }

@@ -16,7 +16,7 @@
     const response = await api.delete(DELETE_DATABASE_URL)
     store.update(state => {
       state.appInstances = state.appInstances.filter(
-        db => db._id !== database._id
+        db => db.id !== database.id
       )
       return state
     })
@@ -28,14 +28,14 @@
     {#each $store.appInstances as database}
       <li>
         <span class="icon">
-          {#if database._id === $backendUiStore.selectedDatabase._id}
+          {#if database.id === $backendUiStore.selectedDatabase.id}
             <CheckIcon />
           {/if}
         </span>
         <button
-          class:active={database._id === $backendUiStore.selectedDatabase._id}
+          class:active={database.id === $backendUiStore.selectedDatabase.id}
           on:click={() => {
-            $goto(`./database/${database._id}`), selectDatabase(database)
+            $goto(`./database/${database.id}`), selectDatabase(database)
           }}>
           {database.name}
         </button>

@@ -40,7 +40,7 @@
     </ActionButton>
   {/if}
 </div>
-{#if $backendUiStore.selectedDatabase._id}
+{#if $backendUiStore.selectedDatabase.id}
   <ModelDataTable {selectRecord} />
 {/if}
 
