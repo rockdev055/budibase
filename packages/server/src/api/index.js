@@ -30,7 +30,6 @@ router
       deflate: {
         flush: zlib.Z_SYNC_FLUSH,
       },
-      br: false,
     })
   )
   .use(async (ctx, next) => {
@@ -48,7 +47,7 @@ router.use(async (ctx, next) => {
   try {
     await next()
   } catch (err) {
-    ctx.log.error(err)
+    if (env.LOGGER !== "off") console.trace(err)
     ctx.status = err.status || err.statusCode || 500
     ctx.body = {
       message: err.message,

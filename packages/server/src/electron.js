@@ -18,8 +18,8 @@ const APP_TITLE = "Budibase Builder"
 
 let win
 
-async function createWindow() {
-  app.server = await require("./app")()
+function createWindow() {
+  app.server = require("./app")
   win = new BrowserWindow({ width: 1920, height: 1080 })
   win.setTitle(APP_TITLE)
   win.loadURL(APP_URL)

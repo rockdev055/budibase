@@ -46,7 +46,7 @@
 
   $: frontendDefinition = {
     appId: $store.appId,
-    libraries: $store.libraries,
+    libraries: Object.keys($store.libraries),
     page: $store.currentPreviewItem,
     screens: screensExist
       ? $store.currentPreviewItem._screens

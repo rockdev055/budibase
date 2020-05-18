@@ -34,6 +34,11 @@
     title: lastPartOfName(layout),
   }
 
+  const isScreenSelected = component =>
+    component.component &&
+    $store.currentPreviewItem &&
+    component.component.name === $store.currentPreviewItem.name
+
   const confirmDeleteComponent = async component => {
     componentToDelete = component
     confirmDeleteDialog.show()
