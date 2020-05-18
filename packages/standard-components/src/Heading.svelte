@@ -11,6 +11,7 @@
 
   $: containerElement && !text && _bb.attachChildren(containerElement)
   $: style = buildStyle({ "font-family": fontFamily, color })
+  // $: console.log("HEADING", color)
 </script>
 
 {#if type === 'h1'}
