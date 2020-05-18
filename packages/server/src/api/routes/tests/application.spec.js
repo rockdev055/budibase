@@ -15,11 +15,11 @@ describe("/applications", () => {
   });
 
   beforeEach(async () => {
-    await createClientDatabase()
+    await createClientDatabase(request)
   })
 
   afterEach(async () => {
-    await destroyClientDatabase()
+    await destroyClientDatabase(request)
   })
 
   afterAll(async () => {

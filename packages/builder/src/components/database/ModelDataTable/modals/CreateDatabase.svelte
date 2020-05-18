@@ -9,7 +9,10 @@
   let databaseName
 
   async function createDatabase() {
-    const response = await api.createDatabase($store.appId, databaseName)
+    const response = await api.createDatabase(
+      $store.appId,
+      databaseName
+    )
     store.createDatabaseForApp(response)
     onClosed()
   }

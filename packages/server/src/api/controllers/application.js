@@ -37,7 +37,6 @@ exports.create = async function(ctx) {
 
   const { rev } = await db.post(newApplication)
   newApplication._rev = rev
-
   ctx.body = newApplication
   ctx.message = `Application ${ctx.request.body.name} created successfully`
 }

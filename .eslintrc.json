@@ -21,7 +21,6 @@
     }
   ],
   "rules": {
-    "prettier/prettier": "error",
-    "no-self-assign": "off"
+    "prettier/prettier": "error"
   }
 }
