@@ -35,10 +35,10 @@
     styles = styles
   }
 
-  $: stylesheetLinks = pipe($store.pages.stylesheets, [
-    map(s => `<link rel="stylesheet" href="${s}"/>`),
-    join("\n"),
-  ])
+  $: stylesheetLinks = pipe(
+    $store.pages.stylesheets,
+    [map(s => `<link rel="stylesheet" href="${s}"/>`), join("\n")]
+  )
 
   $: screensExist =
     $store.currentPreviewItem._screens &&
@@ -46,7 +46,7 @@
 
   $: frontendDefinition = {
     appId: $store.appId,
-    libraries: Object.keys($store.libraries),
+    libraries: $store.libraries,
     page: $store.currentPreviewItem,
     screens: screensExist
       ? $store.currentPreviewItem._screens
@@ -60,7 +60,7 @@
               _children: [
                 {
                   _component: "@budibase/standard-components/container",
-                  _styles: { position: {}, layout: {} },
+                  _styles: {},
                   _id: "__screenslot__text",
                   _code: "",
                   className: "",
@@ -69,7 +69,7 @@
                   _children: [
                     {
                       _component: "@budibase/standard-components/text",
-                      _styles: { position: {}, layout: {} },
+                      _styles: {},
                       _id: "__screenslot__text_2",
                       _code: "",
                       text: "content",
