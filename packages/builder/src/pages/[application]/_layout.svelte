@@ -2,7 +2,7 @@
   import { store } from "builderStore"
 
   import { fade } from "svelte/transition"
-  import { isActive, goto, layout } from "@sveltech/routify"
+  import { isActive, goto, context } from "@sveltech/routify"
 
   import { SettingsIcon, PreviewIcon } from "components/common/Icons/"
   import IconButton from "components/common/IconButton.svelte"
@@ -23,6 +23,8 @@
       throw new Error(pkg)
     }
   }
+  $: ({ component } = $context)
+  $: list = component.parent.children.filter(child => child.isIndexable)
 </script>
 
 <div class="root">
@@ -36,12 +38,12 @@
       </button>
 
       <!-- This gets all indexable subroutes and sticks them in the top nav. -->
-      {#each $layout.children as { path, title }}
+      {#each list as { path, prettyName, children, meta }}
         <span
           class:active={$isActive(path)}
           class="topnavitem"
           on:click={() => $goto(path)}>
-          {title}
+          {prettyName}
         </span>
       {/each}
       <!-- <IconButton icon="home"
