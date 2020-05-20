@@ -8,22 +8,8 @@ const TEST_CLIENT_ID = "test-client-id"
 exports.supertest = async () => {
   let request
   let port = 4002
-  let started = false
   let server
-  while (!started && port < 4020) {
-    try {
-      server = await app(port)
-      started = true
-    } catch (err) {
-      if (err.code === "EADDRINUSE") {
-        port = port + 1
-      } else {
-        throw err
-      }
-    }
-  }
-
-  if (!started) throw Error("Application failed to start")
+  server = await app(port)
 
   request = supertest(server)
   return { request, server }
@@ -90,14 +76,9 @@ exports.createUser = async (
 
 exports.insertDocument = async (databaseId, document) => {
   const { id, ...documentFields } = document
-  await new CouchDB(databaseId).put({ _id: id, ...documentFields })
+  return await new CouchDB(databaseId).put({ _id: id, ...documentFields })
 }
 
-exports.createSchema = async (request, instanceId, schema) => {
-  for (let model of schema.models) {
-    await request.post(`/api/${instanceId}/models`).send(model)
-  }
-  for (let view of schema.views) {
-    await request.post(`/api/${instanceId}/views`).send(view)
-  }
+exports.destroyDocument = async (databaseId, documentId) => {
+  return await new CouchDB(databaseId).destroy(documentId);
 }

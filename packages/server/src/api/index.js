@@ -15,6 +15,7 @@ const {
   viewRoutes,
   staticRoutes,
   componentRoutes,
+  workflowRoutes
 } = require("./routes")
 
 const router = new Router()
@@ -48,7 +49,7 @@ router.use(async (ctx, next) => {
   try {
     await next()
   } catch (err) {
-    if (env.LOGGER !== "off") console.trace(err)
+    ctx.log.error(err)
     ctx.status = err.status || err.statusCode || 500
     ctx.body = {
       message: err.message,
@@ -75,6 +76,9 @@ router.use(recordRoutes.allowedMethods())
 
 router.use(instanceRoutes.routes())
 router.use(instanceRoutes.allowedMethods())
+
+router.use(workflowRoutes.routes())
+router.use(workflowRoutes.allowedMethods())
 // end auth routes
 
 router.use(pageRoutes.routes())

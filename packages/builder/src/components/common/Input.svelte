@@ -1,11 +1,8 @@
 <script>
   export let value = ""
-  export let width = ""
-
-  let style = { width }
 </script>
 
-<input type="text" style={`width: ${width};`} on:change bind:value />
+<input type="text" on:change bind:value />
 
 <style>
   input {
