@@ -8,8 +8,22 @@ const TEST_CLIENT_ID = "test-client-id"
 exports.supertest = async () => {
   let request
   let port = 4002
+  let started = false
   let server
-  server = await app(port)
+  while (!started && port < 4020) {
+    try {
+      server = await app(port)
+      started = true
+    } catch (err) {
+      if (err.code === "EADDRINUSE") {
+        port = port + 1
+      } else {
+        throw err
+      }
+    }
+  }
+
+  if (!started) throw Error("Application failed to start")
 
   request = supertest(server)
   return { request, server }
