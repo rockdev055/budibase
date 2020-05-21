@@ -4,11 +4,25 @@
   export let className = ""
   export let onLoad
   export let type = "div"
+  export let backgroundColor
+  export let color
+  export let borderWidth
+  export let borderColor
+  export let borderStyle
   export let _bb
 
   let containerElement
   let hasLoaded
   let currentChildren
+
+  $: cssVariables = {
+    backgroundColor,
+    color,
+    borderWidth,
+    borderColor,
+    borderStyle,
+  }
+  $: classes = `${createClasses(cssVariables)} ${className}`
 
   $: {
     if (containerElement) {
@@ -22,29 +36,87 @@
 </script>
 
 {#if type === 'div'}
-  <div bind:this={containerElement} />
+  <div
+    class={classes}
+    bind:this={containerElement}
+    use:cssVars={cssVariables} />
 {:else if type === 'header'}
-  <header bind:this={containerElement} />
+  <header
+    class={classes}
+    bind:this={containerElement}
+    use:cssVars={cssVariables} />
 {:else if type === 'main'}
-  <main bind:this={containerElement} />
+  <main
+    class={classes}
+    bind:this={containerElement}
+    use:cssVars={cssVariables} />
 {:else if type === 'footer'}
-  <footer bind:this={containerElement} />
+  <footer
+    class={classes}
+    bind:this={containerElement}
+    use:cssVars={cssVariables} />
 {:else if type === 'aside'}
-  <aside bind:this={containerElement} />
+  <aside
+    class={classes}
+    bind:this={containerElement}
+    use:cssVars={cssVariables} />
 {:else if type === 'summary'}
-  <summary bind:this={containerElement} />
+  <summary
+    class={classes}
+    bind:this={containerElement}
+    use:cssVars={cssVariables} />
 {:else if type === 'details'}
-  <details bind:this={containerElement} />
+  <details
+    class={classes}
+    bind:this={containerElement}
+    use:cssVars={cssVariables} />
 {:else if type === 'article'}
-  <article bind:this={containerElement} />
+  <article
+    class={classes}
+    bind:this={containerElement}
+    use:cssVars={cssVariables} />
 {:else if type === 'nav'}
-  <nav bind:this={containerElement} />
+  <nav
+    class={classes}
+    bind:this={containerElement}
+    use:cssVars={cssVariables} />
 {:else if type === 'mark'}
-  <mark bind:this={containerElement} />
+  <mark
+    class={classes}
+    bind:this={containerElement}
+    use:cssVars={cssVariables} />
 {:else if type === 'figure'}
-  <figure bind:this={containerElement} />
+  <figure
+    class={classes}
+    bind:this={containerElement}
+    use:cssVars={cssVariables} />
 {:else if type === 'figcaption'}
-  <figcaption bind:this={containerElement} />
+  <figcaption
+    class={classes}
+    bind:this={containerElement}
+    use:cssVars={cssVariables} />
 {:else if type === 'paragraph'}
-  <p bind:this={containerElement} />
+  <p class={classes} bind:this={containerElement} use:cssVars={cssVariables} />
 {/if}
+
+<style>
+  .backgroundColor {
+    background-color: var(--backgroundColor);
+  }
+
+  .color {
+    color: var(--color);
+  }
+
+  .borderColor {
+    border-color: var(--borderColor);
+  }
+
+  .borderWidth {
+    border-width: var(--borderWidth);
+  }
+
+  .borderStyle {
+    border-style: var(--borderStyle);
+  }
+</style>
