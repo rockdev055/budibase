@@ -16,15 +16,12 @@
   const joinPath = join("/")
 
   const normalizedName = name =>
-    pipe(
-      name,
-      [
-        trimCharsStart("./"),
-        trimCharsStart("~/"),
-        trimCharsStart("../"),
-        trimChars(" "),
-      ]
-    )
+    pipe(name, [
+      trimCharsStart("./"),
+      trimCharsStart("~/"),
+      trimCharsStart("../"),
+      trimChars(" "),
+    ])
 
   const lastPartOfName = c => {
     if (!c) return ""
@@ -34,10 +31,10 @@
 
   const isComponentSelected = (current, comp) => current === comp
 
-  $: _screens = pipe(
-    screens,
-    [map(c => ({ component: c, title: lastPartOfName(c) })), sortBy("title")]
-  )
+  $: _screens = pipe(screens, [
+    map(c => ({ component: c, title: lastPartOfName(c) })),
+    sortBy("title"),
+  ])
 
   const confirmDeleteComponent = component => {
     componentToDelete = component
@@ -51,7 +48,6 @@
 </script>
 
 <div class="root">
-
   {#each _screens as screen}
     <div
       class="budibase__nav-item component"

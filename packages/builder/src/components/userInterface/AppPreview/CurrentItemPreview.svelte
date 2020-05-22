@@ -35,10 +35,10 @@
     styles = styles
   }
 
-  $: stylesheetLinks = pipe(
-    $store.pages.stylesheets,
-    [map(s => `<link rel="stylesheet" href="${s}"/>`), join("\n")]
-  )
+  $: stylesheetLinks = pipe($store.pages.stylesheets, [
+    map(s => `<link rel="stylesheet" href="${s}"/>`),
+    join("\n"),
+  ])
 
   $: screensExist =
     $store.currentPreviewItem._screens &&
@@ -60,7 +60,7 @@
               _children: [
                 {
                   _component: "@budibase/standard-components/container",
-                  _styles: { normal: {}, hover: {}, active: {}, selected: {} },
+                  _styles: { position: {}, layout: {} },
                   _id: "__screenslot__text",
                   _code: "",
                   className: "",
@@ -69,12 +69,7 @@
                   _children: [
                     {
                       _component: "@budibase/standard-components/text",
-                      _styles: {
-                        normal: {},
-                        hover: {},
-                        active: {},
-                        selected: {},
-                      },
+                      _styles: { position: {}, layout: {} },
                       _id: "__screenslot__text_2",
                       _code: "",
                       text: "content",
