@@ -9,7 +9,6 @@ const modelRoutes = require("./model")
 const viewRoutes = require("./view")
 const staticRoutes = require("./static")
 const componentRoutes = require("./component")
-const workflowRoutes = require("./workflow");
 
 module.exports = {
   authRoutes,
@@ -23,5 +22,4 @@ module.exports = {
   viewRoutes,
   staticRoutes,
   componentRoutes,
-  workflowRoutes
 }

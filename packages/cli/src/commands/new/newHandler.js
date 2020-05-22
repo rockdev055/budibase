@@ -11,7 +11,9 @@ module.exports = opts => {
 
 const run = async opts => {
   try {
-    setup(opts)
+    opts.dir = xPlatHomeDir(opts.dir)
+    const bbconfig = dotenv.config({ path: resolve(opts.dir, ".env") })
+    console.log(bbconfig)
     await createAppInstance(opts)
     await createEmptyAppPackage(opts)
     exec(`cd ${join(opts.dir, opts.applicationId)} && npm install`)
@@ -21,13 +23,6 @@ const run = async opts => {
       chalk.red("Error creating new app", JSON.stringify(error, { space: 2 }))
     )
   }
-}
-
-const setup = opts => {
-  opts.dir = xPlatHomeDir(opts.dir)
-  process.env.BUDIBASE_DIR = opts.dir
-  const bbconfig = dotenv.config({ path: resolve(opts.dir, ".env") })
-  console.log(JSON.stringify(bbconfig))
 }
 
 const createAppInstance = async opts => {
@@ -50,7 +45,7 @@ const createAppInstance = async opts => {
   // this cannot be a top level require as it will cause
   // the environment module to be loaded prematurely
   const instanceController = require("@budibase/server/src/api/controllers/instance")
-  const createInstCtx = {
+  await instanceController.create({
     params: {
       clientId: process.env.CLIENT_ID,
       applicationId: opts.applicationId,
@@ -58,11 +53,9 @@ const createAppInstance = async opts => {
     request: {
       body: { name: `dev-${process.env.CLIENT_ID}` },
     },
-  }
-  await instanceController.create(createInstCtx)
+  })
 
   console.log(chalk.green(`Default Instance Created`))
-  console.log(JSON.stringify(createInstCtx.body))
 }
 
 const createEmptyAppPackage = async opts => {
