@@ -31,7 +31,7 @@
     <div class="topleftnav">
       <button class="home-logo">
         <img
-          src="/_builder/assets/bb-logo.svg"
+          src="/_builder/assets/budibase-emblem-white.svg"
           alt="budibase icon" />
       </button>
 
@@ -85,14 +85,13 @@
 
   .top-nav {
     flex: 0 0 auto;
-    height: 60px;
-    background: #fff;
+    height: 48px;
+    background: #0d203b;
     padding: 0px 20px 0 20px;
     display: flex;
     box-sizing: border-box;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--grey);
   }
 
   .content > div {
@@ -111,8 +110,8 @@
 
   .topnavitem {
     cursor: pointer;
-    color: var(--ink-lighter);
-    margin: 0px 00px 0px 20px;
+    color: rgb(255, 255, 255, 0.6);
+    margin: 0px 10px;
     padding-top: 4px;
     font-weight: 500;
     font-size: 1rem;
@@ -122,19 +121,19 @@
   }
 
   .topnavitem:hover {
-    color: var(--ink-light);
+    color: rgb(255, 255, 255, 0.8);
     font-weight: 500;
   }
 
   .active {
-    color: var(--ink);
-    font-weight: 500;
+    color: white;
+    font-weight: 600;
   }
 
   .topnavitemright {
     cursor: pointer;
-    color: var(--ink-light);
-    margin: 0px 20px 0px 0px;
+    color: rgb(255, 255, 255, 0.6);
+    margin: 0px 5px;
     padding-top: 4px;
     font-weight: 500;
     font-size: 1rem;
@@ -156,8 +155,7 @@
     cursor: pointer;
     outline: none;
     height: 40px;
-    padding: 0px 10px 8px 0;
-    align-items: center;
+    padding: 8px 10px 8px 0;
   }
 
   .home-logo:hover {
@@ -169,7 +167,7 @@
   }
 
   .home-logo img {
-    height: 40px;
+    height: 100%;
   }
   span:first-letter {
     text-transform: capitalize;
