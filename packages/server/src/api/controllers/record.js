@@ -1,6 +1,6 @@
 const CouchDB = require("../../db")
 const Ajv = require("ajv")
-const newid = require("../../db/newid")
+const uuid = require("uuid")
 
 const ajv = new Ajv()
 
@@ -9,7 +9,7 @@ exports.save = async function(ctx) {
   const record = ctx.request.body
 
   if (!record._rev && !record._id) {
-    record._id = newid()
+    record._id = uuid.v4().replace(/-/, "")
   }
 
   // validation with ajv
@@ -43,7 +43,9 @@ exports.save = async function(ctx) {
   record.type = "record"
   const response = await db.post(record)
   record._rev = response.rev
-  ctx.eventPublisher.emit("RECORD_CREATED", record)
+  // await ctx.publish(events.recordApi.save.onRecordCreated, {
+  //   record: record,
+  // })
 
   ctx.body = record
   ctx.status = 200
