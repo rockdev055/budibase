@@ -24,13 +24,13 @@
       <button
         class:selected={selected === COMPONENT_SELECTION_TAB}
         on:click={() => selectTab(COMPONENT_SELECTION_TAB)}>
-        Add
+        Components
       </button>
 
       <button
         class:selected={selected === PROPERTIES_TAB}
         on:click={() => selectTab(PROPERTIES_TAB)}>
-        Edit
+        Properties
       </button>
 
     </div>
@@ -54,28 +54,33 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    padding: 20px 20px;
-    border-left: solid 1px #e8e8ef;
+    padding: 20px 0;
   }
 
   .switcher {
     display: flex;
-    margin: 0px 20px 20px 0px;
+    justify-content: space-between;
+    margin: 20px;
   }
 
   .switcher > button {
+    text-rendering: optimizeLegibility;
     display: inline-block;
     border: none;
     margin: 0;
     padding: 0;
     cursor: pointer;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--ink-lighter);
+    font-size: 14px;
+    text-transform: uppercase;
+    background: rgba(0, 0, 0, 0);
+    font-weight: 500;
+    color: var(--secondary40);
     margin-right: 20px;
+    letter-spacing: 1px;
   }
 
   .switcher > .selected {
-    color: var(--ink);
+    color: var(--secondary100);
+    font-weight: 600;
   }
 </style>

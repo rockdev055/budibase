@@ -54,7 +54,9 @@
 
     <div class="pages-list-container">
       <div class="nav-header">
-        <span class="navigator-title">Navigate</span>
+        <span class="navigator-title">Navigator</span>
+        <div class="border-line" />
+
         <span class="components-nav-page">Pages</span>
       </div>
 
@@ -127,16 +129,18 @@
   .root {
     display: grid;
     grid-template-columns: 275px 1fr 275px;
+    height: 100%;
     width: 100%;
-    background: var(--grey-light);
+    background: #fafafa;
   }
 
   @media only screen and (min-width: 1800px) {
     .root {
       display: grid;
       grid-template-columns: 300px 1fr 300px;
+      height: 100%;
       width: 100%;
-      background: var(--grey-light);
+      background: #fafafa;
     }
   }
 
@@ -155,16 +159,20 @@
     margin: 40px;
     background: #fff;
     border-radius: 5px;
+    box-shadow: 0 0px 6px rgba(0, 0, 0, 0.05);
   }
 
   .components-pane {
     grid-column: 3;
     background-color: var(--white);
+    min-height: 0px;
+    overflow-y: scroll;
   }
 
   .components-nav-page {
     font-size: 13px;
-    color: var(--ink);
+    color: #000333;
+    text-transform: uppercase;
     padding-left: 20px;
     margin-top: 20px;
     font-weight: 600;
@@ -174,7 +182,8 @@
 
   .components-nav-header {
     font-size: 13px;
-    color: var(--ink);
+    color: #000333;
+    text-transform: uppercase;
     margin-top: 20px;
     font-weight: 600;
     opacity: 0.4;
@@ -226,10 +235,13 @@
   }
 
   .navigator-title {
-    font-size: 18px;
-    color: var(--ink);
-    font-weight: bold;
+    font-size: 14px;
+    color: var(--secondary100);
+    font-weight: 600;
+    text-transform: uppercase;
     padding: 0 20px 20px 20px;
+    line-height: 1rem !important;
+    letter-spacing: 1px;
   }
 
   .border-line {

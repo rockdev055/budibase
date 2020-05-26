@@ -1,14 +1,57 @@
 <script>
+  import { cssVars, createClasses } from "./cssVars"
+  import { buildStyle } from "./buildStyle"
   export let className = "default"
   export let disabled = false
-  export let text
+  export let contentText
   export let onClick
+  export let background
+  export let color
+  export let border
+  export let padding
+  export let hoverColor
+  export let hoverBackground
+  export let hoverBorder
+  export let fontFamily
 
   export let _bb
   let theButton
+  let cssVariables
+  let buttonStyles
+
+  let customHoverColorClass
+  let customHoverBorderClass
+  let customHoverBackClass
+
+  let customClasses = ""
 
   $: if (_bb.props._children && _bb.props._children.length > 0)
     theButton && _bb.attachChildren(theButton)
+
+  $: {
+    cssVariables = {
+      hoverColor,
+      hoverBorder,
+      hoverBackground,
+      background,
+      color,
+      border,
+    }
+
+    buttonStyles = buildStyle({
+      padding,
+      "font-family": fontFamily,
+    })
+
+    customClasses = createClasses({
+      hoverColor,
+      hoverBorder,
+      hoverBackground,
+      background,
+      border,
+      color,
+    })
+  }
 
   const clickHandler = () => {
     _bb.call(onClick)
@@ -17,10 +60,15 @@
 
 <button
   bind:this={theButton}
-  class={className}
+  use:cssVars={cssVariables}
+  class="{className}
+  {customClasses}"
   disabled={disabled || false}
-  on:click={clickHandler}>
-  {#if !_bb.props._children || _bb.props._children.length === 0}{text}{/if}
+  on:click={clickHandler}
+  style={buttonStyles}>
+  {#if !_bb.props._children || _bb.props._children.length === 0}
+    {contentText}
+  {/if}
 </button>
 
 <style>
