@@ -6,7 +6,6 @@ const {
   defaultHeaders,
   createUser,
 } = require("./couchTestUtils")
-const { POWERUSER_LEVEL_ID } = require("../../../utilities/accessLevels")
 
 describe("/users", () => {
   let request
@@ -52,7 +51,7 @@ describe("/users", () => {
       const res = await request
         .post(`/api/${instance._id}/users`)
         .set(defaultHeaders)
-        .send({ name: "Bill", username: "bill", password: "bills_password", accessLevelId: POWERUSER_LEVEL_ID })
+        .send({ name: "Bill", username: "bill", password: "bills_password" })
         .expect(200)
         .expect('Content-Type', /json/)
 

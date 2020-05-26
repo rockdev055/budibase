@@ -3,8 +3,7 @@ const {
   createModel, 
   supertest, 
   createClientDatabase, 
-  createApplication ,
-  defaultHeaders
+  createApplication 
 } = require("./couchTestUtils")
 
 describe("/models", () => {
@@ -39,7 +38,7 @@ describe("/models", () => {
             name: { type: "string" }
           }
         })
-        .set(defaultHeaders)
+        .set("Accept", "application/json")
         .expect('Content-Type', /json/)
         .expect(200)
         .end(async (err, res) => {
@@ -61,7 +60,7 @@ describe("/models", () => {
     it("returns all the models for that instance in the response body", done => {
       request
         .get(`/api/${instance._id}/models`)
-        .set(defaultHeaders)
+        .set("Accept", "application/json")
         .expect('Content-Type', /json/)
         .expect(200)
         .end(async (_, res) => {
@@ -84,7 +83,7 @@ describe("/models", () => {
     it("returns a success response when a model is deleted.", done => {
       request
         .delete(`/api/${instance._id}/models/${testModel._id}/${testModel._rev}`)
-        .set(defaultHeaders)
+        .set("Accept", "application/json")
         .expect('Content-Type', /json/)
         .expect(200)
         .end(async (_, res) => {
