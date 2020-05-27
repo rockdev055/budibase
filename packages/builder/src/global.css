@@ -13,7 +13,6 @@
     
     --grey: #F2F2F2;
     --grey-light: #FBFBFB;
-    --grey-medium: #e8e8ef;
     --grey-dark: #E6E6E6;
 
     --primary100: #0055ff;
@@ -124,10 +123,6 @@ h5 {
     font-family: var(--fontblack);
     font-size: 12pt;
     color: var(--darkslate);
-}
-
-textarea {
-    font-family: var(--fontnormal);
 }
 
 .hoverable:hover {
