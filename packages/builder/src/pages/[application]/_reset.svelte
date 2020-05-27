@@ -20,7 +20,6 @@
       await store.setPackage(pkg)
       return pkg
     } else {
-      console.log(pkg)
       throw new Error(pkg)
     }
   }

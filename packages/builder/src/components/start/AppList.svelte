@@ -26,9 +26,8 @@
 <style>
   .apps {
     display: grid;
-    grid-template-columns: repeat(auto-fill, 400px);
-    grid-gap: 40px 85px;
-    justify-content: start;
+    grid-template-columns: repeat(auto-fit, minmax(400, 1fr));
+    gap: 85px;
   }
   .root {
     margin: 40px 80px;

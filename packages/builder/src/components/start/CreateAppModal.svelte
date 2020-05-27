@@ -6,27 +6,6 @@
   export let onOkay = () => {}
 
   const { close } = getContext("simple-modal")
-  
-  let name = ""
-  let description = ""
-  
-  const createNewApp = async () => {
-    const data = { name, description}    
-    
-    try {
-      const response = await fetch('/api/applications', {
-        method: 'POST', // *GET, POST, PUT, DELETE, etc.
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-          'Content-Type': 'application/json'
-          // 'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: JSON.stringify(data) // body data type must match "Content-Type" header
-      });
-    } catch (error) {
-      
-    }
-  }
 
   let value
   let onChange = () => {}
@@ -36,10 +15,12 @@
     close()
   }
 
-  async function _onOkay() {
-    await createNewApp()
+  function _onOkay() {
+    onOkay(value)
     close()
   }
+
+  $: onChange(value)
 </script>
 
 <div class="container">
@@ -48,9 +29,8 @@
       <span class="icon"><AppsIcon /></span>
       <h3>Create new web app</h3>
     </div>
-    <Input name="name" label="Name" placeholder="Enter application name" on:change={(e) => name = e.target.value} on:input={(e) => name = e.target.value} />
+    <Input name="name" label="Name" placeholder="Enter application name" />
     <TextArea
-      bind:value={description}
       name="description"
       label="Description"
       placeholder="Describe your application" />
