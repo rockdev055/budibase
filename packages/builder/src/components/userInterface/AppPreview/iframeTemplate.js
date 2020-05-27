@@ -1,7 +1,6 @@
 export default ({
   styles,
   stylesheetLinks,
-  selectedComponentType,
   selectedComponentId,
   frontendDefinition,
   currentPageFunctions,
@@ -12,7 +11,7 @@ export default ({
     <style>
       ${styles || ""}
 
-      .${selectedComponentType}-${selectedComponentId} {
+      .pos-${selectedComponentId} {
         border: 2px solid #0055ff; 
       }
 
