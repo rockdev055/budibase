@@ -11,6 +11,13 @@ module.exports = {
       default: "~/.budibase",
       alias: "d",
     })
+    yargs.positional("database", {
+      type: "string",
+      describe: "use a local (PouchDB) or remote (CouchDB) database",
+      alias: "b",
+      default: "local",
+      choices: ["local", "remote"],
+    })
     yargs.positional("clientId", {
       type: "string",
       describe: "used to determine the name of the global databse",
@@ -21,7 +28,7 @@ module.exports = {
       type: "string",
       describe:
         "connection string for couch db, format: https://username:password@localhost:5984",
-      alias: "u",
+      alias: "x",
       default: "",
     })
     yargs.positional("quiet", {
