@@ -1,9 +1,3 @@
-import Input from "../common/Input.svelte"
-import OptionSelect from "./OptionSelect.svelte"
-import Checkbox from "../common/Checkbox.svelte"
-
-import { all } from "./propertyCategories.js"
-
 export default {
   categories: [
     {
@@ -15,7 +9,7 @@ export default {
           name: "Screenslot",
           description:
             "This component is a placeholder for the rendering of a screen within a page.",
-          icon: "ri-crop-2-fill",
+          icon: "ri-crop-2-line",
           commonProps: {},
           children: [],
         },
@@ -26,31 +20,6 @@ export default {
           icon: "ri-layout-row-fill",
           commonProps: {},
           children: [],
-          properties: {
-            design: { ...all },
-            settings: [
-              {
-                key: "type",
-                label: "Type",
-                control: OptionSelect,
-                options: [
-                  { label: "article" },
-                  { label: "aside" },
-                  { label: "details" },
-                  { label: "div" },
-                  { label: "figure" },
-                  { label: "figcaption" },
-                  { label: "footer" },
-                  { label: "header" },
-                  { label: "main" },
-                  { label: "mark" },
-                  { label: "nav" },
-                  { label: "paragraph" },
-                  { label: "summary" },
-                ],
-              },
-            ],
-          },
         },
         {
           name: "Text",
@@ -63,21 +32,13 @@ export default {
               name: "Headline",
               description: "A component for displaying heading text",
               icon: "ri-heading",
-              properties: {
-                design: { ...all },
-                settings: [
-                  {
-                    key: "text",
-                    label: "Text",
-                    control: Input,
-                  },
-                  {
-                    key: "type",
-                    label: "Type",
-                    control: OptionSelect,
-                    options: ["h1", "h2", "h3", "h4", "h5", "h6"],
-                  },
-                ],
+              props: {
+                type: {
+                  type: "options",
+                  options: ["h1", "h2", "h3", "h4", "h5", "h6"],
+                  default: "h1",
+                },
+                text: "string",
               },
             },
             {
@@ -85,41 +46,14 @@ export default {
               name: "Paragraph",
               description: "A component for displaying paragraph text.",
               icon: "ri-paragraph",
-              properties: {
-                design: { ...all },
-                settings: [
-                  {
-                    label: "Text",
-                    key: "text",
-                    control: Input,
-                  },
-                  {
-                    label: "Type",
-                    key: "type",
-                    control: OptionSelect,
-                    options: [
-                      "none",
-                      "bold",
-                      "strong",
-                      "italic",
-                      "emphasis",
-                      "mark",
-                      "small",
-                      "del",
-                      "ins",
-                      "sub",
-                      "sup",
-                    ],
-                  },
-                ],
-              },
+              props: {},
             },
           ],
         },
         {
           name: "Input",
           description: "These components handle user input.",
-          icon: "ri-edit-box-fill",
+          icon: "ri-edit-box-line",
           commonProps: {},
           children: [
             {
@@ -127,50 +61,30 @@ export default {
               name: "Textfield",
               description:
                 "A textfield component that allows the user to input text.",
-              icon: "ri-edit-box-fill",
-              properties: {
-                design: { ...all },
-                settings: [
-                  { label: "Label", key: "label", control: Input },
-                  {
-                    label: "Type",
-                    key: "type",
-                    control: OptionSelect,
-                    options: ["text", "password"],
-                  },
-                ],
-              },
+              icon: "ri-edit-box-line",
+              props: {},
             },
             {
               _component: "@budibase/standard-components/checkbox",
               name: "Checkbox",
               description: "A selectable checkbox component",
-              icon: "ri-checkbox-fill",
-              properties: {
-                design: { ...all },
-                settings: [{ label: "Label", key: "label", control: Input }],
-              },
+              icon: "ri-checkbox-line",
+              props: {},
             },
             {
               _component: "@budibase/standard-components/radiobutton",
               name: "Radiobutton",
               description: "A selectable radiobutton component",
               icon: "ri-radio-button-line",
-              properties: {
-                design: { ...all },
-                settings: [{ label: "Label", key: "label", control: Input }],
-              },
+              props: {},
             },
             {
               _component: "@budibase/standard-components/select",
               name: "Select",
               description:
                 "A select component for choosing from different options",
-              icon: "ri-file-list-fill",
-              properties: {
-                design: { ...all },
-                settings: [],
-              },
+              icon: "ri-file-list-line",
+              props: {},
             },
           ],
         },
@@ -179,51 +93,24 @@ export default {
           name: "Button",
           description: "A basic html button that is ready for styling",
           icon: "ri-radio-button-fill",
+          commonProps: {},
           children: [],
-          properties: {
-            design: {
-              ...all,
-            },
-            settings: [
-              { label: "Text", key: "text", control: Input },
-              {
-                label: "Disabled",
-                key: "disabled",
-                valueKey: "checked",
-                control: Checkbox,
-              },
-            ],
-          },
         },
         {
           _component: "@budibase/standard-components/icon",
           name: "Icon",
           description: "A basic component for displaying icons",
           icon: "ri-sun-fill",
+          commonProps: {},
           children: [],
-          properties: {
-            design: { ...all },
-          },
         },
         {
           _component: "@budibase/standard-components/link",
           name: "Link",
           description: "A basic link component for internal and external links",
           icon: "ri-link",
+          commonProps: {},
           children: [],
-          properties: {
-            design: { ...all },
-            settings: [
-              { label: "Text", key: "text", control: Input },
-              { label: "Url", key: "url", control: Input },
-              {
-                label: "Open New Tab",
-                key: "openInNewTab",
-                valueKey: "checked",
-                control: Checkbox,
-              },
-            ],
-          },
         },
       ],
     },
@@ -236,26 +123,27 @@ export default {
           name: "Card",
           description:
             "A basic card component that can contain content and actions.",
-          icon: "ri-layout-bottom-fill",
+          icon: "ri-layout-bottom-line",
+          commonProps: {},
           children: [],
-          properties: { design: { ...all } },
         },
         {
+          _component: "@budibase/standard-components/login",
           name: "Login",
           description:
             "A component that automatically generates a login screen for your app.",
           icon: "ri-login-box-fill",
+          commonProps: {},
           children: [],
-          properties: { design: { ...all } },
         },
         {
-          name: "Nav Bar",
+          name: "Navigation Bar",
           _component: "@budibase/standard-components/Navigation",
           description:
             "A component for handling the navigation within your app.",
           icon: "ri-navigation-fill",
+          commonProps: {},
           children: [],
-          properties: { design: { ...all } },
         },
       ],
     },
@@ -265,17 +153,19 @@ export default {
       children: [
         {
           name: "Table",
+          _component: "@budibase/materialdesign-components/Datatable",
           description: "A component that generates a table from your data.",
           icon: "ri-archive-drawer-fill",
-          properties: { design: { ...all } },
+          commonProps: {},
           children: [],
         },
         {
+          _component: "@budibase/materialdesign-components/Form",
           name: "Form",
           description: "A component that generates a form from your data.",
           icon: "ri-file-edit-fill",
-          properties: { design: { ...all } },
-          _component: "@budibase/materialdesign-components/Form",
+          commonProps: {},
+          component: "@budibase/materialdesign-components/Form",
           template: {
             component: "@budibase/materialdesign-components/Form",
             description: "Form for saving a record",
@@ -288,7 +178,7 @@ export default {
           name: "DataTable",
           description: "A table for displaying data from the backend.",
           icon: "ri-archive-drawer-fill",
-          properties: { design: { ...all } },
+          commonProps: {},
           children: [],
         },
         {
@@ -296,31 +186,31 @@ export default {
           name: "DataForm",
           description: "Form stuff",
           icon: "ri-file-edit-fill",
-          properties: { design: { ...all } },
+          commonProps: {},
           children: [],
         },
         {
           name: "Chart",
           _component: "@budibase/standard-components/datachart",
           description: "Shiny chart",
-          icon: "ri-bar-chart-fill",
-          properties: { design: { ...all } },
+          icon: "ri-bar-chart-line",
+          commonProps: {},
           children: [],
         },
         {
           name: "List",
           _component: "@budibase/standard-components/datalist",
           description: "Shiny list",
-          icon: "ri-file-list-fill",
-          properties: { design: { ...all } },
+          icon: "ri-file-list-line",
+          commonProps: {},
           children: [],
         },
         {
           name: "Map",
           _component: "@budibase/standard-components/datamap",
           description: "Shiny map",
-          icon: "ri-map-pin-fill",
-          properties: { design: { ...all } },
+          icon: "ri-map-pin-line",
+          commonProps: {},
           children: [],
         },
       ],

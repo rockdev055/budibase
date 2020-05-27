@@ -30,7 +30,7 @@
       <button
         class:selected={selected === PROPERTIES_TAB}
         on:click={() => selectTab(PROPERTIES_TAB)}>
-        Edit
+        Properties
       </button>
 
     </div>
@@ -50,17 +50,9 @@
 </div>
 
 <style>
-  .root {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 20px 20px;
-    border-left: solid 1px var(--grey);
-  }
-
   .switcher {
     display: flex;
-    margin: 0px 20px 20px 0px;
+    margin: 0px 20px 20px 20px;
   }
 
   .switcher > button {

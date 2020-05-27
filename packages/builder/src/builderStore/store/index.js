@@ -140,11 +140,10 @@ const _saveScreen = async (store, s, screen) => {
   return s
 }
 
-const _saveScreenApi = (screen, s) => {
+const _saveScreenApi = (screen, s) =>
   api
     .post(`/_builder/api/${s.appId}/pages/${s.currentPageName}/screen`, screen)
     .then(() => _savePage(s))
-}
 
 const createScreen = store => (screenName, route, layoutComponentName) => {
   store.update(state => {
@@ -279,6 +278,7 @@ const removeStylesheet = store => stylesheet => {
 
 const _savePage = async s => {
   const page = s.pages[s.currentPageName]
+
   await api.post(`/_builder/api/${s.appId}/pages/${s.currentPageName}`, {
     page: { componentLibraries: s.pages.componentLibraries, ...page },
     uiFunctions: s.currentPageFunctions,
@@ -427,7 +427,6 @@ const setComponentStyle = store => (type, name, value) => {
       state.currentComponentInfo._styles = {}
     }
     state.currentComponentInfo._styles[type][name] = value
-
     state.currentPreviewItem._css = generate_screen_css([
       state.currentPreviewItem.props,
     ])
