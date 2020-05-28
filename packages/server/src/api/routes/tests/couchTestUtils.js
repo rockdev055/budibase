@@ -2,7 +2,6 @@ const CouchDB = require("../../../db")
 const { create, destroy } = require("../../../db/clientDb")
 const supertest = require("supertest")
 const app = require("../../../app")
-const { POWERUSER_LEVEL_ID } = require("../../../utilities/accessLevels")
 
 const TEST_CLIENT_ID = "test-client-id"
 
@@ -18,7 +17,7 @@ exports.supertest = async () => {
 
 exports.defaultHeaders = {
   Accept: "application/json",
-  Cookie: ["builder:token=test-admin-secret"],
+  Authorization: "Basic test-admin-secret",
 }
 
 exports.createModel = async (request, instanceId, model) => {
@@ -27,12 +26,7 @@ exports.createModel = async (request, instanceId, model) => {
     type: "model",
     key: "name",
     schema: {
-      name: {
-        type: "text",
-        constraints: {
-          type: "string",
-        },
-      },
+      name: { type: "string" },
     },
   }
 
@@ -40,18 +34,6 @@ exports.createModel = async (request, instanceId, model) => {
     .post(`/api/${instanceId}/models`)
     .set(exports.defaultHeaders)
     .send(model)
-  return res.body
-}
-
-exports.createView = async (request, instanceId, view) => {
-  view = view || {
-    map: "function(doc) { emit(doc[doc.key], doc._id); } ",
-  }
-
-  const res = await request
-    .post(`/api/${instanceId}/views`)
-    .set(exports.defaultHeaders)
-    .send(view)
   return res.body
 }
 
@@ -88,20 +70,20 @@ exports.createUser = async (
   const res = await request
     .post(`/api/${instanceId}/users`)
     .set(exports.defaultHeaders)
-    .send({
-      name: "Bill",
-      username,
-      password,
-      accessLevelId: POWERUSER_LEVEL_ID,
-    })
+    .send({ name: "Bill", username, password })
   return res.body
 }
 
 exports.insertDocument = async (databaseId, document) => {
   const { id, ...documentFields } = document
-  return await new CouchDB(databaseId).put({ _id: id, ...documentFields })
+  await new CouchDB(databaseId).put({ _id: id, ...documentFields })
 }
 
-exports.destroyDocument = async (databaseId, documentId) => {
-  return await new CouchDB(databaseId).destroy(documentId)
+exports.createSchema = async (request, instanceId, schema) => {
+  for (let model of schema.models) {
+    await request.post(`/api/${instanceId}/models`).send(model)
+  }
+  for (let view of schema.views) {
+    await request.post(`/api/${instanceId}/views`).send(view)
+  }
 }

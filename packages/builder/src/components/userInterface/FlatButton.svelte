@@ -19,16 +19,16 @@
 <style>
   .flatbutton {
     cursor: pointer;
-    padding: 8px 4px;
+    padding: 5px;
     text-align: center;
     background: #ffffff;
-    color: var(--ink-light);
-    border-radius: 5px;
+    color: #808192;
+    border-radius: 4px;
     font-family: Roboto;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 500;
+    letter-spacing: 0.11px;
     transition: background 0.5s, color 0.5s ease;
-    text-rendering: optimizeLegibility;
   }
 
   .selected {

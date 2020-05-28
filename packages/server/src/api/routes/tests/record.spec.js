@@ -3,8 +3,7 @@ const {
   createClientDatabase,
   createInstance, 
   createModel,
-  supertest,
-  defaultHeaders,
+  supertest
 } = require("./couchTestUtils");
 
 describe("/records", () => {
@@ -25,23 +24,23 @@ describe("/records", () => {
     server.close();
   })
 
-  beforeEach(async () => {
-    instance = await createInstance(request, app._id)
-    model = await createModel(request, instance._id)
-    record = {
-      name: "Test Contact",
-      status: "new",
-      modelId: model._id
-    }
-  })
-
   describe("save, load, update, delete", () => {
+
+    beforeEach(async () => {
+      instance = await createInstance(request, app._id)
+      model = await createModel(request, instance._id)
+      record = {
+        name: "Test Contact",
+        status: "new",
+        modelId: model._id
+      }
+    })
 
     const createRecord = async r => 
       await request
-        .post(`/api/${instance._id}/${model._id}/records`)
+        .post(`/api/${instance._id}/records`)
         .send(r || record)
-        .set(defaultHeaders)
+        .set("Accept", "application/json")
         .expect('Content-Type', /json/)
         .expect(200)
 
@@ -57,14 +56,14 @@ describe("/records", () => {
       const existing = rec.body
 
       const res = await request
-        .post(`/api/${instance._id}/${model._id}/records`)
+        .post(`/api/${instance._id}/records`)
         .send({
           _id: existing._id,
           _rev: existing._rev,
           modelId: model._id,
           name: "Updated Name",
         })
-        .set(defaultHeaders)
+        .set("Accept", "application/json")
         .expect('Content-Type', /json/)
         .expect(200)
       
@@ -77,8 +76,8 @@ describe("/records", () => {
       const existing = rec.body
 
       const res = await request
-        .get(`/api/${instance._id}/${model._id}/records/${existing._id}`)
-        .set(defaultHeaders)
+        .get(`/api/${instance._id}/records/${existing._id}`)
+        .set("Accept", "application/json")
         .expect('Content-Type', /json/)
         .expect(200)
 
@@ -100,8 +99,8 @@ describe("/records", () => {
       await createRecord(newRecord)
 
       const res = await request
-        .get(`/api/${instance._id}/${model._id}/records`)
-        .set(defaultHeaders)
+        .get(`/api/${instance._id}/all_${newRecord.modelId}/records`)
+        .set("Accept", "application/json")
         .expect('Content-Type', /json/)
         .expect(200)
 
@@ -113,37 +112,10 @@ describe("/records", () => {
     it("load should return 404 when record does not exist", async () => {
       await createRecord()
       await request
-        .get(`/api/${instance._id}/${model._id}/records/not-a-valid-id`)
-        .set(defaultHeaders)
+        .get(`/api/${instance._id}/records/not-a-valid-id`)
+        .set("Accept", "application/json")
         .expect('Content-Type', /json/)
         .expect(404)
-    })
-  })
-
-  describe("validate", () => {
-    it("should return no errors on valid record", async () => {
-      const result = await request
-        .post(`/api/${instance._id}/${model._id}/records/validate`)
-        .send({ name: "ivan" })
-        .set(defaultHeaders)
-        .expect('Content-Type', /json/)
-        .expect(200)
-      
-      expect(result.body.valid).toBe(true)
-      expect(Object.keys(result.body.errors)).toEqual([])
-    })
-
-    it("should errors on invalid record", async () => {
-      const result = await request
-        .post(`/api/${instance._id}/${model._id}/records/validate`)
-        .send({ name: 1 })
-        .set(defaultHeaders)
-        .expect('Content-Type', /json/)
-        .expect(200)
-      
-      expect(result.body.valid).toBe(false)
-      expect(Object.keys(result.body.errors)).toEqual(["name"])
-
     })
   })
 })

@@ -44,9 +44,11 @@
 <style>
   .flatbutton-group {
     display: flex;
+    flex-flow: row nowrap;
   }
 
   .button-container {
     flex: 1;
+    margin: 5px;
   }
 </style>

@@ -29,6 +29,7 @@
 
 <style>
   .input-container {
+    display: flex;
   }
 
   .label {
@@ -42,18 +43,16 @@
   input {
     width: 40px;
     height: 32px;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 700;
-    margin: 0px 0px 0px 1px;
-    text-align: center;
-    color: var(--ink);
+    margin: 0px 5px;
+    color: #163057;
     opacity: 0.7;
-    padding: 0px 4px;
+    padding: 5px 10px;
     box-sizing: border-box;
-    border: 1px solid var(--grey);
+    border: 1px solid #dbdbdb;
     border-radius: 2px;
     outline: none;
-    float: right;
   }
 
   input[type="number"]::-webkit-inner-spin-button,
