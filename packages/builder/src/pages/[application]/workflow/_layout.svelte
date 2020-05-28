@@ -1,18 +1,20 @@
 <script>
   import { workflowStore } from "builderStore"
-  import { WorkflowPanel } from "./WorkflowPanel"
-  import { SetupPanel } from "./SetupPanel"
+  import { WorkflowList } from "./WorkflowList"
+  import { BlockPanel } from "./BlockPanel"
 </script>
 
 <div class="root">
   <div class="nav">
-    <WorkflowPanel />
+    <WorkflowList />
   </div>
   <div class="content">
     <slot />
   </div>
   <div class="nav">
-    <SetupPanel />
+    {#if $workflowStore.selectedWorkflowId}
+      <BlockPanel />
+    {/if}
   </div>
 </div>
 

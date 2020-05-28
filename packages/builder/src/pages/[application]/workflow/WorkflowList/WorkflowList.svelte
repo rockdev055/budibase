@@ -23,16 +23,17 @@
 </script>
 
 <section>
-  <button class="new-workflow-button hoverable" on:click={newWorkflow}>
-    Create New Workflow
-  </button>
+  <header>
+    Workflows
+    <i on:click={newWorkflow} class="ri-add-circle-fill" />
+  </header>
   <ul>
     {#each $workflowStore.workflows as workflow}
       <li
         class="workflow-item"
         class:selected={workflow._id === $workflowStore.selectedWorkflowId}
         on:click={() => workflowStore.actions.select(workflow)}>
-        <i class="ri-stackshare-line" class:live={workflow.live} />
+        <i class="ri-stackshare-line" />
         {workflow.name}
       </li>
     {/each}
@@ -40,8 +41,16 @@
 </section>
 
 <style>
+  header {
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
   i {
-    color: #adaec4;
+    color: var(--dark-grey);
   }
 
   i:hover {
@@ -51,10 +60,6 @@
   ul {
     list-style-type: none;
     padding: 0;
-  }
-
-  .live {
-    color: var(--primary);
   }
 
   li {
@@ -67,7 +72,6 @@
     align-items: center;
     border-radius: 3px;
     height: 40px;
-    font-weight: 500;
   }
 
   .workflow-item i {
@@ -82,16 +86,5 @@
 
   .workflow-item.selected {
     background: var(--secondary);
-  }
-
-  .new-workflow-button {
-    font-family: Roboto;
-    width: 100%;
-    border: solid 1px #f2f2f2;
-    border-radius: 2px;
-    background: var(--white);
-    height: 32px;
-    font-size: 12px;
-    font-weight: 500;
   }
 </style>

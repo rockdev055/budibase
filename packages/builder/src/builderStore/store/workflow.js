@@ -36,10 +36,9 @@ const workflowActions = store => ({
   select: workflow => {
     store.update(state => {
       state.selectedWorkflowId = workflow._id
-      state.selectedWorkflowBlock = null
       return state;
     })
-  }
+  } 
 });
 
 export const getWorkflowStore = () => {

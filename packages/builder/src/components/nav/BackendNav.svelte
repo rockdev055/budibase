@@ -81,10 +81,12 @@
 
   .hierarchy-title {
     align-items: center;
-    font-size: 18px;
-    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 13px;
+    font-weight: bold;
+    opacity: 0.6;
+    letter-spacing: 1px;
     text-rendering: optimizeLegibility;
-    color: var(--ink);
   }
 
   .hierarchy {
