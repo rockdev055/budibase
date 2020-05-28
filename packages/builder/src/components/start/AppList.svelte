@@ -1,52 +1,43 @@
 <script>
-  import Button from "components/common/Button.svelte"
+  import AppCard from "./AppCard.svelte"
   export let apps
+
+  function myFunction() {
+    var x = new Date(document.lastModified)
+    document.getElementById("demo").innerHTML = x
+  }
 </script>
 
 <div class="root">
   <div class="inner">
-    <img
-      src="/_builder/assets/budibase-logo.png"
-      class="logo"
-      alt="budibase logo" />
     <div>
       <div>
-        <h4 style="margin-bottom: 20px">Choose an Application</h4>
-        {#each apps as app}
-          <a href={`/_builder/${app._id}`} class="app-link">{app.name}</a>
-        {/each}
+        <div class="app-section-title">Your Web Apps</div>
+          <div class="apps">
+            {#each apps as app}
+              <AppCard {...app} />
+            {/each}
+          </div>
       </div>
     </div>
   </div>
 </div>
 
 <style>
+  .apps {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 400px);
+    grid-gap: 40px 85px;
+    justify-content: start;
+  }
   .root {
-    position: fixed;
-    margin: 0 auto;
-    text-align: center;
-    top: 20%;
-    /*color: #333333;
-    background-color: #fdfdfd;*/
-    width: 100%;
+    margin: 40px 80px;
   }
 
-  .inner {
-    display: inline-block;
-    margin: auto;
-  }
-
-  .logo {
-    width: 300px;
-    margin-bottom: 40px;
-  }
-
-  .root :global(.option) {
-    width: 250px;
-  }
-
-  .app-link {
-    margin-top: 10px;
-    display: block;
+  .app-section-title {
+    font-size: 20px;
+    color: var(--ink);
+    font-weight: 700;
+    margin-bottom: 20px;
   }
 </style>
