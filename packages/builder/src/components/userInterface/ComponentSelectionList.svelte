@@ -32,7 +32,7 @@
 
   const onComponentChosen = component => {
     store.addChildComponent(component._component)
-    toggleTab("Navigate")
+    toggleTab()
   }
 </script>
 
