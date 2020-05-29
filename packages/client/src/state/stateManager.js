@@ -4,10 +4,8 @@ import {
   EVENT_TYPE_MEMBER_NAME,
 } from "./eventHandlers"
 import { bbFactory } from "./bbComponentApi"
-import { createTreeNode } from "../render/prepareRenderComponent"
 import { getState } from "./getState"
 import { attachChildren } from "../render/attachChildren"
-import mustache from "mustache"
 
 import { parseBinding } from "./parseBinding"
 
@@ -20,14 +18,14 @@ const isMetaProp = propName =>
   propName === "_id" ||
   propName === "_style" ||
   propName === "_code" ||
-  propName === "_codeMeta" ||
-  propName === "_styles"
+  propName === "_codeMeta"
 
 export const createStateManager = ({
   store,
   appRootPath,
   frontendDefinition,
   componentLibraries,
+  uiFunctions,
   onScreenSlotRendered,
   routeTo,
 }) => {
@@ -35,32 +33,34 @@ export const createStateManager = ({
   let currentState
 
   // any nodes that have props that are bound to the store
-  // let nodesBoundByProps = []
+  let nodesBoundByProps = []
 
   // any node whose children depend on code, that uses the store
-  // let nodesWithCodeBoundChildren = []
+  let nodesWithCodeBoundChildren = []
 
   const getCurrentState = () => currentState
-  // const registerBindings = _registerBindings(
-  //   nodesBoundByProps,
-  //   nodesWithCodeBoundChildren
-  // )
+  const registerBindings = _registerBindings(
+    nodesBoundByProps,
+    nodesWithCodeBoundChildren
+  )
   const bb = bbFactory({
     store,
     getCurrentState,
     frontendDefinition,
     componentLibraries,
+    uiFunctions,
     onScreenSlotRendered,
   })
 
-  const setup = _setup(handlerTypes, getCurrentState, bb)
+  const setup = _setup(handlerTypes, getCurrentState, registerBindings, bb)
 
   const unsubscribe = store.subscribe(
     onStoreStateUpdated({
-      setCurrentState: state => (currentState = state),
+      setCurrentState: s => (currentState = s),
       getCurrentState,
-      // nodesWithCodeBoundChildren,
-      // nodesBoundByProps,
+      nodesWithCodeBoundChildren,
+      nodesBoundByProps,
+      uiFunctions,
       componentLibraries,
       onScreenSlotRendered,
       setupState: setup,
@@ -78,93 +78,93 @@ export const createStateManager = ({
 const onStoreStateUpdated = ({
   setCurrentState,
   getCurrentState,
+  nodesWithCodeBoundChildren,
+  nodesBoundByProps,
+  uiFunctions,
   componentLibraries,
   onScreenSlotRendered,
   setupState,
-}) => state => {
-    setCurrentState(state)
+}) => s => {
+  setCurrentState(s)
+
+  // the original array gets changed by components' destroy()
+  // so we make a clone and check if they are still in the original
+  const nodesWithBoundChildren_clone = [...nodesWithCodeBoundChildren]
+  for (let node of nodesWithBoundChildren_clone) {
+    if (!nodesWithCodeBoundChildren.includes(node)) continue
     attachChildren({
+      uiFunctions,
       componentLibraries,
-      treeNode: createTreeNode(),
+      treeNode: node,
       onScreenSlotRendered,
       setupState,
       getCurrentState,
-    })(document.querySelector("#app"), { hydrate: true, force: true })
+    })(node.rootElement, { hydrate: true, force: true })
+  }
 
-  // // the original array gets changed by components' destroy()
-  // // so we make a clone and check if they are still in the original
-  // const nodesWithBoundChildren_clone = [...nodesWithCodeBoundChildren]
-  // for (let node of nodesWithBoundChildren_clone) {
-  //   if (!nodesWithCodeBoundChildren.includes(node)) continue
-  //   attachChildren({
-  //     componentLibraries,
-  //     treeNode: node,
-  //     onScreenSlotRendered,
-  //     setupState,
-  //     getCurrentState,
-  //   })(node.rootElement, { hydrate: true, force: true })
-  // }
+  for (let node of nodesBoundByProps) {
+    setNodeState(s, node)
+  }
 }
 
-// const _registerBindings = (nodesBoundByProps, nodesWithCodeBoundChildren) => (
-//   node,
-//   bindings
-// ) => {
-//   if (bindings.length > 0) {
-//     node.bindings = bindings
-//     nodesBoundByProps.push(node)
-//     const onDestroy = () => {
-//       nodesBoundByProps = nodesBoundByProps.filter(n => n === node)
-//       node.onDestroy = node.onDestroy.filter(d => d === onDestroy)
-//     }
-//     node.onDestroy.push(onDestroy)
-//   }
-//   if (
-//     node.props._children &&
-//     node.props._children.filter(c => c._codeMeta && c._codeMeta.dependsOnStore)
-//       .length > 0
-//   ) {
-//     nodesWithCodeBoundChildren.push(node)
-//     const onDestroy = () => {
-//       nodesWithCodeBoundChildren = nodesWithCodeBoundChildren.filter(
-//         n => n === node
-//       )
-//       node.onDestroy = node.onDestroy.filter(d => d === onDestroy)
-//     }
-//     node.onDestroy.push(onDestroy)
-//   }
-// }
+const _registerBindings = (nodesBoundByProps, nodesWithCodeBoundChildren) => (
+  node,
+  bindings
+) => {
+  if (bindings.length > 0) {
+    node.bindings = bindings
+    nodesBoundByProps.push(node)
+    const onDestroy = () => {
+      nodesBoundByProps = nodesBoundByProps.filter(n => n === node)
+      node.onDestroy = node.onDestroy.filter(d => d === onDestroy)
+    }
+    node.onDestroy.push(onDestroy)
+  }
+  if (
+    node.props._children &&
+    node.props._children.filter(c => c._codeMeta && c._codeMeta.dependsOnStore)
+      .length > 0
+  ) {
+    nodesWithCodeBoundChildren.push(node)
+    const onDestroy = () => {
+      nodesWithCodeBoundChildren = nodesWithCodeBoundChildren.filter(
+        n => n === node
+      )
+      node.onDestroy = node.onDestroy.filter(d => d === onDestroy)
+    }
+    node.onDestroy.push(onDestroy)
+  }
+}
 
-// const setNodeState = (storeState, node) => {
-//   if (!node.component) return
-//   const newProps = { ...node.bindings.initialProps }
+const setNodeState = (storeState, node) => {
+  if (!node.component) return
+  const newProps = { ...node.bindings.initialProps }
 
-//   for (let binding of node.bindings) {
-//     const val = getState(storeState, binding.path, binding.fallback)
+  for (let binding of node.bindings) {
+    const val = getState(storeState, binding.path, binding.fallback)
 
-//     if (val === undefined && newProps[binding.propName] !== undefined) {
-//       delete newProps[binding.propName]
-//     }
+    if (val === undefined && newProps[binding.propName] !== undefined) {
+      delete newProps[binding.propName]
+    }
 
-//     if (val !== undefined) {
-//       newProps[binding.propName] = val
-//     }
-//   }
+    if (val !== undefined) {
+      newProps[binding.propName] = val
+    }
+  }
 
-//   node.component.$set(newProps)
-// }
+  node.component.$set(newProps)
+}
 
 const _setup = (
   handlerTypes,
   getCurrentState,
+  registerBindings,
   bb
 ) => node => {
-
-  console.log(node);
   const props = node.props
   const context = node.context || {}
   const initialProps = { ...props }
-  // const storeBoundProps = []
+  const storeBoundProps = []
   const currentStoreState = getCurrentState()
 
   for (let propName in props) {
@@ -172,36 +172,29 @@ const _setup = (
 
     const propValue = props[propName]
 
-    // const binding = parseBinding(propValue)
-    // const isBound = !!binding
+    const binding = parseBinding(propValue)
+    const isBound = !!binding
 
-    if (typeof propValue === "string") {
-      initialProps[propName] = mustache.render(propValue, {
-        state: currentStoreState,
-        context
-      })
+    if (isBound) binding.propName = propName
+
+    if (isBound && binding.source === "state") {
+      storeBoundProps.push(binding)
+
+      initialProps[propName] = !currentStoreState
+        ? binding.fallback
+        : getState(
+            currentStoreState,
+            binding.path,
+            binding.fallback,
+            binding.source
+          )
     }
 
-    // if (isBound) binding.propName = propName
-
-    // if (isBound && binding.source === "state") {
-    //   storeBoundProps.push(binding)
-
-    //   initialProps[propName] = !currentStoreState
-    //     ? binding.fallback
-    //     : getState(
-    //         currentStoreState,
-    //         binding.path,
-    //         binding.fallback,
-    //         binding.source
-    //       )
-    // }
-
-    // if (isBound && binding.source === "context") {
-    //   initialProps[propName] = !context
-    //     ? propValue
-    //     : getState(context, binding.path, binding.fallback, binding.source)
-    // }
+    if (isBound && binding.source === "context") {
+      initialProps[propName] = !context
+        ? propValue
+        : getState(context, binding.path, binding.fallback, binding.source)
+    }
 
     if (isEventType(propValue)) {
       const handlersInfos = []
@@ -210,38 +203,33 @@ const _setup = (
           handlerType: event[EVENT_TYPE_MEMBER_NAME],
           parameters: event.parameters,
         }
-
         const resolvedParams = {}
         for (let paramName in handlerInfo.parameters) {
           const paramValue = handlerInfo.parameters[paramName]
-          resolvedParams[paramName] = () => mustache.render(paramValue, {
-            state: getCurrentState(),
-            context,
-          })
-          // const paramBinding = parseBinding(paramValue)
-          // if (!paramBinding) {
-          //   resolvedParams[paramName] = () => paramValue
-          //   continue
-          // }
+          const paramBinding = parseBinding(paramValue)
+          if (!paramBinding) {
+            resolvedParams[paramName] = () => paramValue
+            continue
+          }
 
-          // let paramValueSource
+          let paramValueSource
 
-          // if (paramBinding.source === "context") paramValueSource = context
-          // if (paramBinding.source === "state")
-          //   paramValueSource = getCurrentState()
+          if (paramBinding.source === "context") paramValueSource = context
+          if (paramBinding.source === "state")
+            paramValueSource = getCurrentState()
+          if (paramBinding.source === "context") paramValueSource = context
 
-          // // The new dynamic event parameter bound to the relevant source
-          // resolvedParams[paramName] = () =>
-          //   getState(paramValueSource, paramBinding.path, paramBinding.fallback)
+          // The new dynamic event parameter bound to the relevant source
+          resolvedParams[paramName] = () =>
+            getState(paramValueSource, paramBinding.path, paramBinding.fallback)
         }
 
         handlerInfo.parameters = resolvedParams
         handlersInfos.push(handlerInfo)
       }
 
-      if (handlersInfos.length === 0) {
-        initialProps[propName] = doNothing
-      } else {
+      if (handlersInfos.length === 0) initialProps[propName] = doNothing
+      else {
         initialProps[propName] = async context => {
           for (let handlerInfo of handlersInfos) {
             const handler = makeHandler(handlerTypes, handlerInfo)
@@ -252,9 +240,9 @@ const _setup = (
     }
   }
 
-  // registerBindings(node, storeBoundProps)
+  registerBindings(node, storeBoundProps)
 
-  const setup = _setup(handlerTypes, getCurrentState, bb)
+  const setup = _setup(handlerTypes, getCurrentState, registerBindings, bb)
   initialProps._bb = bb(node, setup)
 
   return initialProps
