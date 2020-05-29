@@ -3,6 +3,7 @@
   const dispatch = createEventDispatcher()
 
   import Item from "./Item.svelte"
+  import { store } from "builderStore"
   export let list
 
   let category = list

@@ -20,8 +20,7 @@
     },
   ]
 
-  if (!$store.currentPageName)
-    store.setCurrentPage($params.page ? $params.page : "main")
+  store.setCurrentPage($params.page ? $params.page : "main")
 
   const changePage = id => {
     store.setCurrentPage(id)
