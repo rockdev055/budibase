@@ -4,12 +4,13 @@ import { createTreeNode } from "./render/prepareRenderComponent"
 import { screenRouter } from "./render/screenRouter"
 import { createStateManager } from "./state/stateManager"
 
-export const createApp = ({
+export const createApp = (
   componentLibraries,
   frontendDefinition,
   user,
+  uiFunctions,
   window
-}) => {
+) => {
   let routeTo
   let currentUrl
   let screenStateManager
@@ -20,6 +21,7 @@ export const createApp = ({
         store,
         frontendDefinition,
         componentLibraries,
+        uiFunctions,
         onScreenSlotRendered: () => {},
         routeTo,
         appRootPath: frontendDefinition.appRootPath,
@@ -51,6 +53,7 @@ export const createApp = ({
   const attachChildrenParams = stateManager => {
     const getInitialiseParams = treeNode => ({
       componentLibraries,
+      uiFunctions,
       treeNode,
       onScreenSlotRendered,
       setupState: stateManager.setup,
@@ -65,6 +68,7 @@ export const createApp = ({
     store: writable({ _bbuser: user }),
     frontendDefinition,
     componentLibraries,
+    uiFunctions,
     onScreenSlotRendered,
     appRootPath: frontendDefinition.appRootPath,
     // seems weird, but the routeTo variable may not be available at this point

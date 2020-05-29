@@ -6,7 +6,6 @@ import {
 import { bbFactory } from "./bbComponentApi"
 import { getState } from "./getState"
 import { attachChildren } from "../render/attachChildren"
-import mustache from "mustache"
 
 import { parseBinding } from "./parseBinding"
 
@@ -19,14 +18,14 @@ const isMetaProp = propName =>
   propName === "_id" ||
   propName === "_style" ||
   propName === "_code" ||
-  propName === "_codeMeta" ||
-  propName === "_styles"
+  propName === "_codeMeta"
 
 export const createStateManager = ({
   store,
   appRootPath,
   frontendDefinition,
   componentLibraries,
+  uiFunctions,
   onScreenSlotRendered,
   routeTo,
 }) => {
@@ -49,6 +48,7 @@ export const createStateManager = ({
     getCurrentState,
     frontendDefinition,
     componentLibraries,
+    uiFunctions,
     onScreenSlotRendered,
   })
 
@@ -60,6 +60,7 @@ export const createStateManager = ({
       getCurrentState,
       nodesWithCodeBoundChildren,
       nodesBoundByProps,
+      uiFunctions,
       componentLibraries,
       onScreenSlotRendered,
       setupState: setup,
@@ -78,12 +79,13 @@ const onStoreStateUpdated = ({
   setCurrentState,
   getCurrentState,
   nodesWithCodeBoundChildren,
-  // nodesBoundByProps,
+  nodesBoundByProps,
+  uiFunctions,
   componentLibraries,
   onScreenSlotRendered,
   setupState,
-}) => state => {
-  setCurrentState(state)
+}) => s => {
+  setCurrentState(s)
 
   // the original array gets changed by components' destroy()
   // so we make a clone and check if they are still in the original
@@ -91,6 +93,7 @@ const onStoreStateUpdated = ({
   for (let node of nodesWithBoundChildren_clone) {
     if (!nodesWithCodeBoundChildren.includes(node)) continue
     attachChildren({
+      uiFunctions,
       componentLibraries,
       treeNode: node,
       onScreenSlotRendered,
@@ -99,9 +102,9 @@ const onStoreStateUpdated = ({
     })(node.rootElement, { hydrate: true, force: true })
   }
 
-  // for (let node of nodesBoundByProps) {
-  //   setNodeState(state, node)
-  // }
+  for (let node of nodesBoundByProps) {
+    setNodeState(s, node)
+  }
 }
 
 const _registerBindings = (nodesBoundByProps, nodesWithCodeBoundChildren) => (
@@ -169,36 +172,29 @@ const _setup = (
 
     const propValue = props[propName]
 
-    // const binding = parseBinding(propValue)
-    // const isBound = !!binding
+    const binding = parseBinding(propValue)
+    const isBound = !!binding
 
-    if (typeof propValue === "string") {
-      initialProps[propName] = mustache.render(propValue, {
-        state: currentStoreState,
-        context
-      })
+    if (isBound) binding.propName = propName
+
+    if (isBound && binding.source === "state") {
+      storeBoundProps.push(binding)
+
+      initialProps[propName] = !currentStoreState
+        ? binding.fallback
+        : getState(
+            currentStoreState,
+            binding.path,
+            binding.fallback,
+            binding.source
+          )
     }
 
-    // if (isBound) binding.propName = propName
-
-    // if (isBound && binding.source === "state") {
-    //   storeBoundProps.push(binding)
-
-    //   initialProps[propName] = !currentStoreState
-    //     ? binding.fallback
-    //     : getState(
-    //         currentStoreState,
-    //         binding.path,
-    //         binding.fallback,
-    //         binding.source
-    //       )
-    // }
-
-    // if (isBound && binding.source === "context") {
-    //   initialProps[propName] = !context
-    //     ? propValue
-    //     : getState(context, binding.path, binding.fallback, binding.source)
-    // }
+    if (isBound && binding.source === "context") {
+      initialProps[propName] = !context
+        ? propValue
+        : getState(context, binding.path, binding.fallback, binding.source)
+    }
 
     if (isEventType(propValue)) {
       const handlersInfos = []
@@ -207,38 +203,33 @@ const _setup = (
           handlerType: event[EVENT_TYPE_MEMBER_NAME],
           parameters: event.parameters,
         }
-
         const resolvedParams = {}
         for (let paramName in handlerInfo.parameters) {
           const paramValue = handlerInfo.parameters[paramName]
-          resolvedParams[paramName] = () => mustache.render(paramValue, {
-            state: getCurrentState(),
-            context,
-          })
-          // const paramBinding = parseBinding(paramValue)
-          // if (!paramBinding) {
-          //   resolvedParams[paramName] = () => paramValue
-          //   continue
-          // }
+          const paramBinding = parseBinding(paramValue)
+          if (!paramBinding) {
+            resolvedParams[paramName] = () => paramValue
+            continue
+          }
 
-          // let paramValueSource
+          let paramValueSource
 
-          // if (paramBinding.source === "context") paramValueSource = context
-          // if (paramBinding.source === "state")
-          //   paramValueSource = getCurrentState()
+          if (paramBinding.source === "context") paramValueSource = context
+          if (paramBinding.source === "state")
+            paramValueSource = getCurrentState()
+          if (paramBinding.source === "context") paramValueSource = context
 
-          // // The new dynamic event parameter bound to the relevant source
-          // resolvedParams[paramName] = () =>
-          //   getState(paramValueSource, paramBinding.path, paramBinding.fallback)
+          // The new dynamic event parameter bound to the relevant source
+          resolvedParams[paramName] = () =>
+            getState(paramValueSource, paramBinding.path, paramBinding.fallback)
         }
 
         handlerInfo.parameters = resolvedParams
         handlersInfos.push(handlerInfo)
       }
 
-      if (handlersInfos.length === 0) {
-        initialProps[propName] = doNothing
-      } else {
+      if (handlersInfos.length === 0) initialProps[propName] = doNothing
+      else {
         initialProps[propName] = async context => {
           for (let handlerInfo of handlersInfos) {
             const handler = makeHandler(handlerTypes, handlerInfo)

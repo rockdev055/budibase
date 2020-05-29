@@ -20,7 +20,6 @@ const WORKFLOW_SCHEMA = {
         next: {
           type: "object",
           properties: {
-            environment: { environment: "string" },
             type: { type: "string" },
             actionId: { type: "string" },
             args: { type: "object" },

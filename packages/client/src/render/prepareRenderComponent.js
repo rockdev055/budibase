@@ -1,11 +1,14 @@
 export const prepareRenderComponent = ({
   ComponentConstructor,
+  uiFunctions,
   htmlElement,
   anchor,
   props,
   parentNode,
   getCurrentState,
 }) => {
+  const func = props._id ? uiFunctions[props._id] : undefined
+
   const parentContext = (parentNode && parentNode.context) || {}
 
   let nodesToRender = []
@@ -39,7 +42,13 @@ export const prepareRenderComponent = ({
     }
   }
 
-  createNodeAndRender()
+  if (func) {
+    const state = getCurrentState()
+    const routeParams = state["##routeParams"]
+    func(createNodeAndRender, parentContext, getCurrentState(), routeParams)
+  } else {
+    createNodeAndRender()
+  }
 
   return nodesToRender
 }
