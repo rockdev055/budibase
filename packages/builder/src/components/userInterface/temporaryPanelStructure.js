@@ -11,6 +11,15 @@ export default {
       isCategory: true,
       children: [
         {
+          _component: "##builtin/screenslot",
+          name: "Screenslot",
+          description:
+            "This component is a placeholder for the rendering of a screen within a page.",
+          icon: "ri-crop-2-line",
+          commonProps: {},
+          children: [],
+        },
+        {
           _component: "@budibase/standard-components/container",
           name: "Container",
           description: "This component contains things within itself",
@@ -110,7 +119,7 @@ export default {
         {
           name: "Input",
           description: "These components handle user input.",
-          icon: "ri-edit-box-fill",
+          icon: "ri-edit-box-line",
           commonProps: {},
           children: [
             {
@@ -118,7 +127,7 @@ export default {
               name: "Textfield",
               description:
                 "A textfield component that allows the user to input text.",
-              icon: "ri-edit-box-fill",
+              icon: "ri-edit-box-line",
               properties: {
                 design: { ...all },
                 settings: [
@@ -136,7 +145,7 @@ export default {
               _component: "@budibase/standard-components/checkbox",
               name: "Checkbox",
               description: "A selectable checkbox component",
-              icon: "ri-checkbox-fill",
+              icon: "ri-checkbox-line",
               properties: {
                 design: { ...all },
                 settings: [{ label: "Label", key: "label", control: Input }],
@@ -157,7 +166,7 @@ export default {
               name: "Select",
               description:
                 "A select component for choosing from different options",
-              icon: "ri-file-list-fill",
+              icon: "ri-file-list-line",
               properties: {
                 design: { ...all },
                 settings: [],
@@ -227,7 +236,7 @@ export default {
           name: "Card",
           description:
             "A basic card component that can contain content and actions.",
-          icon: "ri-layout-bottom-fill",
+          icon: "ri-layout-bottom-line",
           children: [],
           properties: { design: { ...all } },
         },
@@ -239,6 +248,21 @@ export default {
           children: [],
           properties: { design: { ...all } },
         },
+        {
+          name: "Navigation Bar",
+          _component: "@budibase/standard-components/Navigation",
+          description:
+            "A component for handling the navigation within your app.",
+          icon: "ri-navigation-fill",
+          children: [],
+          properties: { design: { ...all } },
+        },
+      ],
+    },
+    {
+      name: "Data",
+      isCategory: true,
+      children: [
         {
           name: "Table",
           description: "A component that generates a table from your data.",
@@ -260,10 +284,26 @@ export default {
           children: [],
         },
         {
+          _component: "@budibase/standard-components/datatable",
+          name: "DataTable",
+          description: "A table for displaying data from the backend.",
+          icon: "ri-archive-drawer-fill",
+          properties: { design: { ...all } },
+          children: [],
+        },
+        {
+          _component: "@budibase/standard-components/dataform",
+          name: "DataForm",
+          description: "Form stuff",
+          icon: "ri-file-edit-fill",
+          properties: { design: { ...all } },
+          children: [],
+        },
+        {
           name: "Chart",
           _component: "@budibase/standard-components/datachart",
           description: "Shiny chart",
-          icon: "ri-bar-chart-fill",
+          icon: "ri-bar-chart-line",
           properties: { design: { ...all } },
           children: [],
         },
@@ -271,7 +311,7 @@ export default {
           name: "List",
           _component: "@budibase/standard-components/datalist",
           description: "Shiny list",
-          icon: "ri-file-list-fill",
+          icon: "ri-file-list-line",
           properties: { design: { ...all } },
           children: [],
         },
@@ -279,34 +319,9 @@ export default {
           name: "Map",
           _component: "@budibase/standard-components/datamap",
           description: "Shiny map",
-          icon: "ri-map-pin-fill",
+          icon: "ri-map-pin-line",
           properties: { design: { ...all } },
           children: [],
-        },
-      ],
-    },
-    {
-      name: "Layouts",
-      isCategory: true,
-      children: [
-        {
-          _component: "##builtin/screenslot",
-          name: "Screenslot",
-          description:
-            "This component is a placeholder for the rendering of a screen within a page.",
-          icon: "ri-crop-2-fill",
-          properties: { design: { ...all } },
-          commonProps: {},
-          children: [],
-        },
-        {
-          name: "Nav Bar",
-          _component: "@budibase/standard-components/Navigation",
-          description:
-            "A component for handling the navigation within your app.",
-          icon: "ri-navigation-fill",
-          children: [],
-          properties: { design: { ...all } },
         },
       ],
     },

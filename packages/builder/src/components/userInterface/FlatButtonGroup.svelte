@@ -1,5 +1,6 @@
 <script>
   import { onMount } from "svelte"
+
   import FlatButton from "./FlatButton.svelte"
   export let buttonProps = []
   export let isMultiSelect = false
@@ -43,9 +44,11 @@
 <style>
   .flatbutton-group {
     display: flex;
+    flex-flow: row nowrap;
   }
 
   .button-container {
     flex: 1;
+    margin: 5px;
   }
 </style>

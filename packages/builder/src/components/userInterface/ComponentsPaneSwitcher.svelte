@@ -54,13 +54,13 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    padding: 20px 20px;
-    border-left: solid 1px var(--grey);
+    padding: 20px 0;
+    border-left: solid 1px #e8e8ef;
   }
 
   .switcher {
     display: flex;
-    margin: 0px 20px 20px 0px;
+    margin: 0px 20px 20px 20px;
   }
 
   .switcher > button {
@@ -77,5 +77,9 @@
 
   .switcher > .selected {
     color: var(--ink);
+  }
+
+  .panel {
+    height: 100%;
   }
 </style>

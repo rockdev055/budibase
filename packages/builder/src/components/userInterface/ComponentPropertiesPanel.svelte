@@ -109,7 +109,7 @@
 
   .title > div:nth-child(1) {
     grid-column-start: name;
-    color: var(--ink);
+    color: var(--secondary100);
   }
 
   .title > div:nth-child(2) {
@@ -117,7 +117,7 @@
   }
 
   .component-props-container {
-    margin-top: 20px;
+    margin-top: 10px;
     flex: 1 1 auto;
   }
 </style>

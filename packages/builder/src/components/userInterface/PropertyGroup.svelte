@@ -42,15 +42,14 @@
     display: flex;
     flex-direction: column;
     height: auto;
-    background: var(--grey-light);
-    margin: 0px 0px 4px 0px;
-    padding: 8px 12px;
-    justify-content: center;
-    border-radius: 4px;
+    background: #fbfbfb;
+    margin: 5px;
+    padding: 5px;
   }
 
   .property-group-name {
     cursor: pointer;
+    flex: 0 0 20px;
     display: flex;
     flex-flow: row nowrap;
   }
@@ -62,7 +61,7 @@
     font-size: 14px;
     font-weight: 500;
     letter-spacing: 0.14px;
-    color: var(--ink);
+    color: #393c44;
   }
 
   .icon {
@@ -71,12 +70,16 @@
   }
 
   .property-panel {
-    height: 0px;
-    overflow: hidden;
+    /* height: 0px;
+    overflow: hidden; */
+    display: none;
   }
 
   .show {
-    overflow: auto;
-    height: auto;
+    /* overflow: auto;
+    height: auto; */
+    display: flex;
+    flex-direction: column;
+    flex: 1;
   }
 </style>

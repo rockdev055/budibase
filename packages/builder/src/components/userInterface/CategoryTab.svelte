@@ -4,7 +4,7 @@
   export let onClick = category => {}
 </script>
 
-<div class="tabs">
+<ul class="tabs">
   {#each categories as category}
     <li
       on:click={() => onClick(category)}
@@ -13,23 +13,31 @@
     </li>
   {/each}
 
-</div>
+</ul>
 
 <style>
   .tabs {
     display: flex;
+    justify-content: center;
     list-style: none;
-    font-size: 18px;
-    font-weight: 700;
+    margin: 0 auto;
+    padding: 0 30px;
+    border-bottom: 1px solid #d8d8d8;
+
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.14px;
   }
 
   li {
-    color: var(--ink-lighter);
+    color: #808192;
+    margin: 0 5px;
+    padding: 0 8px;
     cursor: pointer;
-    margin-right: 20px;
   }
 
   .active {
-    color: var(--ink);
+    border-bottom: solid 3px #0055ff;
+    color: #393c44;
   }
 </style>
