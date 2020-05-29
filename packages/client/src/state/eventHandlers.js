@@ -22,7 +22,7 @@ export const eventHandlers = (store, rootPath, routeTo) => {
   const api = createApi({
     rootPath,
     setState: setStateWithStore,
-    getState: (path, fallback) => getState(currentState, path, fallback),
+    getState: (path, fallback) => getState(currentState, path, fallback)
   })
 
   const setStateHandler = ({ path, value }) => setState(store, path, value)
@@ -33,7 +33,7 @@ export const eventHandlers = (store, rootPath, routeTo) => {
     "List Records": handler(["indexKey", "statePath"], api.listRecords),
     "Save Record": handler(["statePath"], api.saveRecord),
     "Navigate To": handler(["url"], param => routeTo(param && param.url)),
-
+    "Trigger Workflow": handler(["workflow"], api.triggerWorkflow),
     Authenticate: handler(["username", "password"], api.authenticate),
   }
 }
