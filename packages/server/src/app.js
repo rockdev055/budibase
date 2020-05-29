@@ -4,6 +4,7 @@ const logger = require("koa-pino-logger")
 const http = require("http")
 const api = require("./api")
 const env = require("./environment")
+const eventPublisher = require("./events")
 
 const app = new Koa()
 
@@ -15,9 +16,11 @@ app.use(
     prettyPrint: {
       levelFirst: true,
     },
-    level: env.LOG_LEVEL || "error",
+    level: process.env.NODE_ENV === "jest" ? "silent" : "info",
   })
 )
+
+app.context.publisher = eventPublisher
 
 // api routes
 app.use(api.routes())

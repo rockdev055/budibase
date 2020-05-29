@@ -1,56 +1,66 @@
 <script>
-  import { fly } from "svelte/transition"
   export let item
 </script>
 
-<div class="item-item" in:fly={{ y: 100, duration: 1000 }} on:click>
+<div class="item-item" on:click>
   <div class="item-icon">
     <i class={item.icon} />
   </div>
   <div class="item-text">
     <div class="item-name">{item.name}</div>
+    <div class="item-description">
+      <p>{item.description}</p>
+    </div>
   </div>
 </div>
 
 <style>
   .item-item {
     display: flex;
-    flex-direction: column;
-    cursor: pointer;
-    margin-bottom: 8px;
-    padding: 8px 0px 16px 0px;
-    width: 120px;
-    height: 80px;
-    justify-content: center;
+    flex-direction: row;
+    padding: 10px 0px 8px 10px;
     align-items: center;
-    margin-right: 8px;
-    background-color: var(--grey-light);
-    border-radius: 3px;
+    cursor: pointer;
   }
 
   .item-item:hover {
-    background: var(--grey);
-    border-radius: 3px;
-    transition: all 0.2s;
+    background: #fbfbfb;
+    border-radius: 5px;
   }
 
   .item-icon {
-    border-radius: 3px;
+    flex: 0 0 40px;
+    background: #f1f4fc;
+    height: 40px;
+    border-radius: 5px;
     display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .item-text {
     display: flex;
+    padding-left: 16px;
+    padding-top: 8px;
     flex-direction: column;
   }
 
   .item-name {
     font-size: 14px;
-    font-weight: 400;
+    font-weight: 500;
+  }
+
+  .item-description {
+    font-size: 12px;
+    color: #808192;
+  }
+
+  p {
+    line-height: 15px;
   }
 
   i {
     font-size: 24px;
-    color: var(--ink-light);
+    color: #808192;
   }
 </style>
