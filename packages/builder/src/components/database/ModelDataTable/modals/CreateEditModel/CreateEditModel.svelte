@@ -35,7 +35,7 @@
   }
 </script>
 
-<header>
+<heading>
   {#if !showFieldView}
     <i class="ri-list-settings-line button--toggled" />
     <h3 class="budibase__title--3">Create / Edit Model</h3>
@@ -43,7 +43,7 @@
     <i class="ri-file-list-line button--toggled" />
     <h3 class="budibase__title--3">Create / Edit Field</h3>
   {/if}
-</header>
+</heading>
 {#if !showFieldView}
   <div class="padding">
     <h4 class="budibase__label--big">Settings</h4>

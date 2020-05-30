@@ -155,6 +155,7 @@ const createScreen = store => (screenName, route, layoutComponentName) => {
       description: "",
       url: "",
       _css: "",
+      uiFunctions: "",
       props: createProps(rootComponent).props,
     }
 
@@ -280,6 +281,7 @@ const _savePage = async s => {
   const page = s.pages[s.currentPageName]
   await api.post(`/_builder/api/${s.appId}/pages/${s.currentPageName}`, {
     page: { componentLibraries: s.pages.componentLibraries, ...page },
+    uiFunctions: s.currentPageFunctions,
     screens: page._screens,
   })
 }

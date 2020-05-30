@@ -18,12 +18,10 @@ const post = apiCall("POST")
 const get = apiCall("GET")
 const patch = apiCall("PATCH")
 const del = apiCall("DELETE")
-const put = apiCall("PUT")
 
 export default {
   post,
   get,
   patch,
   delete: del,
-  put,
 }
