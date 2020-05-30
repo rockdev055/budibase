@@ -78,8 +78,4 @@
   .switcher > .selected {
     color: var(--ink);
   }
-
-  .panel {
-    height: 100%;
-  }
 </style>

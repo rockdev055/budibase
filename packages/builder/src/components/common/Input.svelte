@@ -1,33 +1,30 @@
 <script>
-  import {buildStyle} from "../../helpers.js"
   export let value = ""
-  export let textAlign = "left"
-  export let width = "160px"
-  export let placeholder = ""
+  export let width = ""
 
-  let style = buildStyle({ width, textAlign })
+  let style = { width }
 </script>
 
-<input type="text" {placeholder} {style} on:change bind:value />
+<input type="text" style={`width: ${width};`} on:change bind:value />
 
 <style>
-    input {
-    width: 32px;
-    height: 32px;
-    font-size: 12px;
-    font-weight: 700;
-    margin: 0px 0px 0px 1px;
+  input {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
     color: var(--ink);
-    opacity: 0.7;
-    padding: 0px 4px;
-    box-sizing: border-box;
-    border: 1px solid var(--grey);
-    border-radius: 2px;
-    outline: none;
+    line-height: 1.3;
+    padding: 12px;
+    width: 164px;
     float: right;
-  }
-
-   input::placeholder {
-    text-align: center;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background: #fff;
+    border: 1px solid var(--grey-dark);
+    height: 32px;
   }
 </style>
