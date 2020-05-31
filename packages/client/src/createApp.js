@@ -4,24 +4,21 @@ import { createTreeNode } from "./render/prepareRenderComponent"
 import { screenRouter } from "./render/screenRouter"
 import { createStateManager } from "./state/stateManager"
 
-export const createApp = (
+export const createApp = ({
   componentLibraries,
   frontendDefinition,
   user,
-  uiFunctions,
   window
-) => {
+}) => {
   let routeTo
   let currentUrl
   let screenStateManager
 
   const onScreenSlotRendered = screenSlotNode => {
-    const onScreenSelected = (screen, store, url) => {
+    const onScreenSelected = (screen, url) => {
       const stateManager = createStateManager({
-        store,
         frontendDefinition,
         componentLibraries,
-        uiFunctions,
         onScreenSlotRendered: () => {},
         routeTo,
         appRootPath: frontendDefinition.appRootPath,
@@ -38,11 +35,11 @@ export const createApp = (
       currentUrl = url
     }
 
-    routeTo = screenRouter(
-      frontendDefinition.screens,
+    routeTo = screenRouter({
+      screens: frontendDefinition.screens,
       onScreenSelected,
-      frontendDefinition.appRootPath
-    )
+      appRootPath: frontendDefinition.appRootPath
+    })
     const fallbackPath = window.location.pathname.replace(
       frontendDefinition.appRootPath,
       ""
@@ -53,7 +50,6 @@ export const createApp = (
   const attachChildrenParams = stateManager => {
     const getInitialiseParams = treeNode => ({
       componentLibraries,
-      uiFunctions,
       treeNode,
       onScreenSlotRendered,
       setupState: stateManager.setup,
@@ -65,10 +61,9 @@ export const createApp = (
 
   let rootTreeNode
   const pageStateManager = createStateManager({
-    store: writable({ _bbuser: user }),
+    // store: writable({ _bbuser: user }),
     frontendDefinition,
     componentLibraries,
-    uiFunctions,
     onScreenSlotRendered,
     appRootPath: frontendDefinition.appRootPath,
     // seems weird, but the routeTo variable may not be available at this point
@@ -82,7 +77,6 @@ export const createApp = (
     rootTreeNode.props = {
       _children: [page.props],
     }
-    rootTreeNode.rootElement = target
     const getInitialiseParams = attachChildrenParams(pageStateManager)
     const initChildParams = getInitialiseParams(rootTreeNode)
 
