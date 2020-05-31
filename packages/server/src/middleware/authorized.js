@@ -31,10 +31,10 @@ module.exports = (permName, getItemId) => async (ctx, next) => {
     return
   }
 
-  const thisPermissionId = permissionId({
+  const thisPermissionId = {
     name: permName,
     itemId: getItemId && getItemId(ctx),
-  })
+  }
 
   // power user has everything, except the admin specific perms
   if (
