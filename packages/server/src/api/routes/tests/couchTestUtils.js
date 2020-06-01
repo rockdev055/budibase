@@ -27,12 +27,7 @@ exports.createModel = async (request, instanceId, model) => {
     type: "model",
     key: "name",
     schema: {
-      name: {
-        type: "text",
-        constraints: {
-          type: "string",
-        },
-      },
+      name: { type: "string" },
     },
   }
 

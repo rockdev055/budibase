@@ -28,11 +28,6 @@ router
     authorized(WRITE_MODEL, ctx => ctx.params.modelId),
     recordController.save
   )
-  .post(
-    "/api/:instanceId/:modelId/records/validate",
-    authorized(WRITE_MODEL, ctx => ctx.params.modelId),
-    recordController.validate
-  )
   .delete(
     "/api/:instanceId/:modelId/records/:recordId/:revId",
     authorized(WRITE_MODEL, ctx => ctx.params.modelId),
