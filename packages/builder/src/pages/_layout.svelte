@@ -119,10 +119,20 @@
 <style>
   .root {
     display: grid;
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: 275px 1fr;
     height: 100%;
     width: 100%;
     background: var(--grey-light);
+  }
+
+  @media only screen and (min-width: 1800px) {
+    .root {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      height: 100%;
+      width: 100%;
+      background: var(--grey-light);
+    }
   }
 
   .main {
@@ -197,7 +207,7 @@
   .nav-item-title {
     font-size: 14px;
     color: var(--ink);
-    font-weight: 400;
+    font-weight: 500;
     margin-left: 12px;
   }
 

@@ -27,6 +27,11 @@
     settingsView.show()
   }
 
+  const confirmDeleteComponent = component => {
+    componentToDelete = component
+    confirmDeleteDialog.show()
+  }
+
   const lastPartOfName = c => (c ? last(c.split("/")) : "")
 </script>
 
@@ -37,6 +42,7 @@
     <div class="pages-list-container">
       <div class="nav-header">
         <span class="navigator-title">Navigator</span>
+        <div class="border-line" />
 
         <span class="components-nav-page">Pages</span>
       </div>
@@ -46,7 +52,11 @@
       </div>
     </div>
 
+    <div class="border-line" />
+
     <PageLayout layout={$store.pages[$store.currentPageName]} />
+
+    <div class="border-line" />
 
     <div class="components-list-container">
       <div class="nav-group-header">
@@ -81,6 +91,13 @@
 <NewScreen bind:this={newScreenPicker} />
 <SettingsView bind:this={settingsView} />
 
+<ConfirmDialog
+  bind:this={confirmDeleteDialog}
+  title="Confirm Delete"
+  body={`Are you sure you wish to delete this '${lastPartOfName(componentToDelete)}' component`}
+  okText="Delete Component"
+  onOk={() => store.deleteComponent(componentToDelete)} />
+
 <style>
   button {
     cursor: pointer;
@@ -97,10 +114,20 @@
 
   .root {
     display: grid;
-    grid-template-columns: 300px 1fr 300px;
+    grid-template-columns: 275px 1fr 300px;
     height: 100%;
     width: 100%;
-    background: #fbfbfb;
+    background: #fafafa;
+  }
+
+  @media only screen and (min-width: 1800px) {
+    .root {
+      display: grid;
+      grid-template-columns: 300px 1fr 300px;
+      height: 100%;
+      width: 100%;
+      background: #fafafa;
+    }
   }
 
   .ui-nav {
@@ -108,6 +135,7 @@
     background-color: var(--white);
     height: calc(100vh - 49px);
     padding: 0;
+    overflow: scroll;
     display: flex;
     flex-direction: column;
   }
@@ -123,8 +151,7 @@
   .components-pane {
     grid-column: 3;
     background-color: var(--white);
-    height: 100vh;
-    overflow-y: scroll;
+    height: calc(100vh - 49px);
   }
 
   .components-nav-page {
@@ -200,6 +227,10 @@
     padding: 0 20px 20px 20px;
     line-height: 1rem !important;
     letter-spacing: 1px;
+  }
+
+  .border-line {
+    border-bottom: 1px solid #d8d8d8;
   }
 
   .components-list-container {
