@@ -25,15 +25,16 @@
   export const EVENT_TYPE = "event"
 
   export let component
+  export let components
 
   let modalOpen = false
   let events = []
   let selectedEvent = null
 
   $: {
-    events = Object.keys(component)
-      // TODO: use real events
-      .filter(propName => ["onChange", "onClick", "onLoad"].includes(propName))
+    const componentDefinition = components[component._component]
+    events = Object.keys(componentDefinition.props)
+      .filter(propName => componentDefinition.props[propName] === EVENT_TYPE)
       .map(propName => ({
         name: propName,
         handlers: component[propName] || [],

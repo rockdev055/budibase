@@ -17,19 +17,17 @@ const WORKFLOW_SCHEMA = {
       type: "object",
       properties: {
         triggers: { type: "array" },
-        steps: { type: "array" },
-        // next: {
-        //   type: "object",
-        //   properties: {
-        //     environment: { environment: "string" },
-        //     type: { type: "string" },
-        //     actionId: { type: "string" },
-        //     args: { type: "object" },
-        //     conditions: { type: "array" },
-        //     errorHandling: { type: "object" },
-        //     next: { type: "object" },
-        //   },
-        // },
+        next: {
+          type: "object",
+          properties: {
+            type: { type: "string" },
+            actionId: { type: "string" },
+            args: { type: "object" },
+            conditions: { type: "array" },
+            errorHandling: { type: "object" },
+            next: { type: "object" },
+          },
+        },
       },
     },
   },
