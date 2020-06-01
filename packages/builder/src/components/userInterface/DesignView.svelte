@@ -55,7 +55,6 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 100%;
   }
 
   .design-view-state-categories {
@@ -64,9 +63,6 @@
 
   .design-view-property-groups {
     flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
-    max-height: 500px;
   }
 
   .no-design {
