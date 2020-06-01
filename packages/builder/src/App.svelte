@@ -7,6 +7,7 @@
   import AppNotification, {
     showAppNotification,
   } from "components/common/AppNotification.svelte"
+  import { NotificationDisplay } from "@beyonk/svelte-notifications"
 
   function showErrorBanner() {
     showAppNotification({
@@ -26,4 +27,9 @@
 
 <AppNotification />
 
-<Router {routes} />
+<!-- svelte-notifications -->
+<NotificationDisplay />
+
+<Modal>
+  <Router {routes} />
+</Modal>

@@ -1,14 +1,13 @@
+import { appStore } from "../state/store"
+import mustache from "mustache"
+
 export const prepareRenderComponent = ({
   ComponentConstructor,
-  uiFunctions,
   htmlElement,
   anchor,
   props,
   parentNode,
-  getCurrentState,
 }) => {
-  const func = props._id ? uiFunctions[props._id] : undefined
-
   const parentContext = (parentNode && parentNode.context) || {}
 
   let nodesToRender = []
@@ -39,16 +38,26 @@ export const prepareRenderComponent = ({
       if (props._id && thisNode.rootElement) {
         thisNode.rootElement.classList.add(`${componentName}-${props._id}`)
       }
+
+      // make this node listen to the store
+      if (thisNode.stateBound) {
+        const unsubscribe = appStore.subscribe(state => {
+          const storeBoundProps = { ...initialProps._bb.props }
+          for (let prop in storeBoundProps) {
+            if (typeof storeBoundProps[prop] === "string") {
+              storeBoundProps[prop] = mustache.render(storeBoundProps[prop], {
+                state,
+              })
+            }
+          }
+          thisNode.component.$set(storeBoundProps)
+        })
+        thisNode.unsubscribe = unsubscribe
+      }
     }
   }
 
-  if (func) {
-    const state = getCurrentState()
-    const routeParams = state["##routeParams"]
-    func(createNodeAndRender, parentContext, getCurrentState(), routeParams)
-  } else {
-    createNodeAndRender()
-  }
+  createNodeAndRender()
 
   return nodesToRender
 }
