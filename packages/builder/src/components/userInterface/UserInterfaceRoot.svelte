@@ -27,6 +27,11 @@
     settingsView.show()
   }
 
+  const confirmDeleteComponent = component => {
+    componentToDelete = component
+    confirmDeleteDialog.show()
+  }
+
   const lastPartOfName = c => (c ? last(c.split("/")) : "")
 </script>
 
@@ -81,6 +86,13 @@
 <NewScreen bind:this={newScreenPicker} />
 <SettingsView bind:this={settingsView} />
 
+<ConfirmDialog
+  bind:this={confirmDeleteDialog}
+  title="Confirm Delete"
+  body={`Are you sure you wish to delete this '${lastPartOfName(componentToDelete)}' component`}
+  okText="Delete Component"
+  onOk={() => store.deleteComponent(componentToDelete)} />
+
 <style>
   button {
     cursor: pointer;
@@ -108,6 +120,7 @@
     background-color: var(--white);
     height: calc(100vh - 49px);
     padding: 0;
+    overflow: scroll;
     display: flex;
     flex-direction: column;
   }
@@ -200,6 +213,10 @@
     padding: 0 20px 20px 20px;
     line-height: 1rem !important;
     letter-spacing: 1px;
+  }
+
+  .border-line {
+    border-bottom: 1px solid #d8d8d8;
   }
 
   .components-list-container {

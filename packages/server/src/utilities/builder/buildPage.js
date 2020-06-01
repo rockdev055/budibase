@@ -103,6 +103,7 @@ const buildFrontendAppDefinition = async (config, appId, pageName, pkg) => {
     filename,
     `
      window['##BUDIBASE_FRONTEND_DEFINITION##'] = ${clientUiDefinition};
+     window['##BUDIBASE_FRONTEND_FUNCTIONS##'] = ${pkg.uiFunctions};
     `
   )
 }

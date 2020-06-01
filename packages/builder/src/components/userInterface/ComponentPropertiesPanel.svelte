@@ -25,7 +25,7 @@
   let categories = [
     { value: "design", name: "Design" },
     { value: "settings", name: "Settings" },
-    { value: "events", name: "Events" },
+    { value: "actions", name: "Actions" },
   ]
   let selectedCategory = categories[0]
 
@@ -93,8 +93,6 @@
         {componentDefinition}
         {panelDefinition}
         onChange={onPropChanged} />
-    {:else if selectedCategory.value === 'events'}
-      <EventsEditor component={componentInstance} />
     {/if}
 
   </div>
@@ -107,7 +105,6 @@
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
-    padding: 20px;
   }
 
   .title > div:nth-child(1) {
