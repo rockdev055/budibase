@@ -1,7 +1,6 @@
 import { setState } from "./setState"
 import { getState } from "./getState"
 import { isArray, isUndefined } from "lodash/fp"
-import { appStore } from "./store"
 
 import { createApi } from "../api"
 
@@ -13,6 +12,8 @@ export const eventHandlers = (store, rootPath, routeTo) => {
     parameters,
   })
 
+  const setStateWithStore = (path, value) => setState(store, path, value)
+
   let currentState
   store.subscribe(state => {
     currentState = state
@@ -20,16 +21,20 @@ export const eventHandlers = (store, rootPath, routeTo) => {
 
   const api = createApi({
     rootPath,
-    setState,
-    getState: (path, fallback) => getState(path, fallback),
+    setState: setStateWithStore,
+    getState: (path, fallback) => getState(currentState, path, fallback),
   })
 
-  const setStateHandler = ({ path, value }) => setState(path, value)
+  const setStateHandler = ({ path, value }) => setState(store, path, value)
 
   return {
     "Set State": handler(["path", "value"], setStateHandler),
+    "Load Record": handler(["recordKey", "statePath"], api.loadRecord),
+    "List Records": handler(["indexKey", "statePath"], api.listRecords),
+    "Save Record": handler(["statePath"], api.saveRecord),
     "Navigate To": handler(["url"], param => routeTo(param && param.url)),
-    "Trigger Workflow": handler(["workflow"], api.triggerWorkflow),
+
+    Authenticate: handler(["username", "password"], api.authenticate),
   }
 }
 
