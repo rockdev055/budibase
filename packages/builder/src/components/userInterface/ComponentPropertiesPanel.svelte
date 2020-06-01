@@ -105,9 +105,7 @@
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
-    overflow-y:  hidden;
     padding: 20px;
-    box-sizing: border-box;
   }
 
   .title > div:nth-child(1) {
@@ -122,7 +120,5 @@
   .component-props-container {
     margin-top: 20px;
     flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
   }
 </style>

@@ -76,9 +76,6 @@
     grid-template-columns: 300px 1fr 300px;
     width: 100%;
     background: var(--grey-light);
-    flex: 1;
-    min-height: 0;
-    align-items: stretch;
   }
 
   .ui-nav {
@@ -101,7 +98,6 @@
   .components-pane {
     grid-column: 3;
     background-color: var(--white);
-    min-height: 0;
   }
 
   .nav-group-header > div:nth-child(1) {
