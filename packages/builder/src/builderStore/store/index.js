@@ -64,15 +64,10 @@ export const getStore = () => {
   store.getPathToComponent = getPathToComponent(store)
   store.addTemplatedComponent = addTemplatedComponent(store)
   store.setMetadataProp = setMetadataProp(store)
-  store.storeComponentForCopy = storeComponentForCopy(store)
-  store.pasteComponent = pasteComponent(store)
   return store
 }
 
 export default getStore
-
-export const getComponentDefinition = (state, name) =>
-  name.startsWith("##") ? getBuiltin(name) : state.components[name]
 
 const setPackage = (store, initial) => async pkg => {
   const [main_screens, unauth_screens] = await Promise.all([
@@ -160,7 +155,6 @@ const createScreen = store => (screenName, route, layoutComponentName) => {
       description: "",
       url: "",
       _css: "",
-      uiFunctions: "",
       props: createProps(rootComponent).props,
     }
 
@@ -286,7 +280,6 @@ const _savePage = async s => {
   const page = s.pages[s.currentPageName]
   await api.post(`/_builder/api/${s.appId}/pages/${s.currentPageName}`, {
     page: { componentLibraries: s.pages.componentLibraries, ...page },
-    uiFunctions: s.currentPageFunctions,
     screens: page._screens,
   })
 }
@@ -322,6 +315,8 @@ const setCurrentPage = store => pageName => {
   })
 }
 
+// const getComponentDefinition = (components, name) => components.find(c => c.name === name)
+
 /**
  * @param  {string} componentToAdd - name of the component to add to the application
  * @param  {string} presetName - name of the component preset if defined
@@ -347,7 +342,9 @@ const addChildComponent = store => (componentToAdd, presetName) => {
       return state
     }
 
-    const component = getComponentDefinition(componentToAdd)
+    const component = componentToAdd.startsWith("##")
+      ? getBuiltin(componentToAdd)
+      : state.components[componentToAdd]
 
     const presetProps = presetName ? component.presets[presetName] : {}
 
@@ -399,18 +396,14 @@ const addTemplatedComponent = store => props => {
   })
 }
 
-const _selectComponent = (state, component) => {
-  const componentDef = component._component.startsWith("##")
-    ? component
-    : state.components[component._component]
-  state.currentComponentInfo = makePropsSafe(componentDef, component)
-  state.currentView = "component"
-  return state
-}
-
 const selectComponent = store => component => {
   store.update(state => {
-    return _selectComponent(state, component)
+    const componentDef = component._component.startsWith("##")
+      ? component
+      : state.components[component._component]
+    state.currentComponentInfo = makePropsSafe(componentDef, component)
+    state.currentView = "component"
+    return state
   })
 }
 
@@ -539,6 +532,7 @@ const copyComponent = store => component => {
       p._id = uuid()
     })
     parent._children = [...parent._children, copiedComponent]
+    s.curren
     _saveCurrentPreviewItem(s)
     s.currentComponentInfo = copiedComponent
     return s
@@ -576,58 +570,10 @@ const getPathToComponent = store => component => {
   return path
 }
 
-const generateNewIdsForComponent = component =>
-  walkProps(component, p => {
-    p._id = uuid()
-  })
-
-const storeComponentForCopy = store => (component, cut = false) => {
-  store.update(s => {
-    const copiedComponent = cloneDeep(component)
-    s.componentToPaste = copiedComponent
-    if (cut) {
-      const parent = getParent(s.currentPreviewItem.props, component._id)
-      parent._children = parent._children.filter(c => c._id !== component._id)
-      _selectComponent(s, parent)
-    }
-
-    return s
-  })
-}
-
-const pasteComponent = store => (targetComponent, mode) => {
-  store.update(s => {
-    if (!s.componentToPaste) return s
-
-    const componentToPaste = cloneDeep(s.componentToPaste)
-    generateNewIdsForComponent(componentToPaste)
-    delete componentToPaste._cutId
-
-    if (mode === "inside") {
-      targetComponent._children.push(componentToPaste)
-      return s
-    }
-
-    const parent = getParent(s.currentPreviewItem.props, targetComponent)
-
-    const targetIndex = parent._children.indexOf(targetComponent)
-    const index = mode === "above" ? targetIndex : targetIndex + 1
-    parent._children.splice(index, 0, cloneDeep(componentToPaste))
-
-    _saveCurrentPreviewItem(s)
-    _selectComponent(s, componentToPaste)
-
-    return s
-  })
-}
-
 const getParent = (rootProps, child) => {
   let parent
   walkProps(rootProps, (p, breakWalk) => {
-    if (
-      p._children &&
-      (p._children.includes(child) || p._children.some(c => c._id === child))
-    ) {
+    if (p._children && p._children.includes(child)) {
       parent = p
       breakWalk()
     }

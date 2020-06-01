@@ -1,5 +1,4 @@
 <script>
-  import { goto } from "@sveltech/routify"
   import { splitName } from "./pagesParsing/splitRootComponentName.js"
   import components from "./temporaryPanelStructure.js"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
@@ -33,15 +32,7 @@
 
   const onComponentChosen = component => {
     store.addChildComponent(component._component)
-    
-    toggleTab("Navigate")
-    
-    // Get ID path
-    const path = store.getPathToComponent($store.currentComponentInfo)
-
-    // Go to correct URL
-    $goto(`./:page/:screen/${path}`)
-    
+    toggleTab()
   }
 </script>
 
@@ -61,9 +52,32 @@
 </div>
 
 <style>
-  .panel {
-    padding: 20px 0px;
+  .tabs {
     display: flex;
-    flex-wrap: wrap;
+    justify-content: center;
+    list-style: none;
+    margin: 0 auto;
+    padding: 0 30px;
+    border-bottom: 1px solid #d8d8d8;
+
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.14px;
+  }
+
+  li {
+    color: #808192;
+    margin: 0 5px;
+    padding: 0 8px;
+    cursor: pointer;
+  }
+
+  .panel {
+    padding: 20px;
+  }
+
+  .active {
+    border-bottom: solid 3px #0055ff;
+    color: #393c44;
   }
 </style>
