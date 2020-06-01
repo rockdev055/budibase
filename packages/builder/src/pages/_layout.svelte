@@ -197,7 +197,7 @@
   .nav-item-title {
     font-size: 14px;
     color: var(--ink);
-    font-weight: 400;
+    font-weight: 500;
     margin-left: 12px;
   }
 
