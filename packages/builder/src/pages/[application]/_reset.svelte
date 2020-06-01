@@ -87,11 +87,6 @@
     flex-direction: column;
   }
 
-  a {
-    text-transform: none;
-    color: var(--ink-lighter);
-  }
-
   .top-nav {
     flex: 0 0 auto;
     height: 60px;
