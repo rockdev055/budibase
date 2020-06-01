@@ -1,6 +1,7 @@
 <script>
   import { params, goto } from "@sveltech/routify"
   import ComponentsHierarchyChildren from "./ComponentsHierarchyChildren.svelte"
+
   import { last, sortBy, map, trimCharsStart, trimChars, join } from "lodash/fp"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
   import { pipe } from "components/common/core"
@@ -61,7 +62,9 @@
         {/if}
       </span>
 
-      <i class="ri-artboard-2-fill icon" />
+      <span class="icon">
+        <ShapeIcon />
+      </span>
 
       <span class="title">{screen.title}</span>
     </div>
@@ -89,23 +92,21 @@
 <style>
   .root {
     font-weight: 400;
-    color: var(--ink);
+    color: #000333;
   }
 
   .title {
     margin-left: 10px;
     margin-top: 2px;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 13px;
   }
 
   .icon {
     display: inline-block;
     transition: 0.2s;
-    font-size: 24px;
     width: 20px;
     margin-top: 2px;
-    color: var(--ink-light);
+    color: #333;
   }
 
   .icon:nth-of-type(2) {
