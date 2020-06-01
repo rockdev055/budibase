@@ -156,6 +156,7 @@ const createScreen = store => (screenName, route, layoutComponentName) => {
       description: "",
       url: "",
       _css: "",
+      uiFunctions: "",
       props: createProps(rootComponent).props,
     }
 
