@@ -26,7 +26,7 @@ export const layout = [
     options: [
       { label: "Row", value: "row" },
       { label: "Row Reverse", value: "rowReverse" },
-      { label: "Column", value: "column" },
+      { label: "column", value: "column" },
       { label: "Column Reverse", value: "columnReverse" },
     ],
   },
@@ -71,10 +71,10 @@ export const layout = [
 ]
 
 const spacingMeta = [
-  { placeholder: "T" },
-  { placeholder: "R" },
-  { placeholder: "B" },
   { placeholder: "L" },
+  { placeholder: "B" },
+  { placeholder: "R" },
+  { placeholder: "T" },
 ]
 
 export const spacing = [
