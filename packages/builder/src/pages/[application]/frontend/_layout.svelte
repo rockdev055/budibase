@@ -160,6 +160,7 @@
   .components-pane {
     grid-column: 3;
     background-color: var(--white);
+    min-height: 0px;
   }
 
   .components-nav-page {
