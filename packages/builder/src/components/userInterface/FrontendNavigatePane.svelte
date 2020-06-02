@@ -14,10 +14,7 @@
 
 <PagesList />
 
-<button class="newscreen" on:click={newScreen}>
-  <i class="icon ri-add-circle-fill" />
-  Create New Screen
-</button>
+<button class="newscreen" on:click={newScreen}>Create New Screen</button>
 
 <PageLayout layout={$store.pages[$store.currentPageName]} />
 
@@ -34,7 +31,7 @@
     border-radius: 3px;
     width: 100%;
     padding: 8px 16px;
-    margin: 20px 0px 12px 0px;
+    margin: 12px 0px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -47,11 +44,5 @@
 
   .newscreen:hover {
     background: var(--grey-light);
-  }
-
-  .icon {
-    color: var(--ink);
-    font-size: 16px;
-    margin-right: 4px;
   }
 </style>

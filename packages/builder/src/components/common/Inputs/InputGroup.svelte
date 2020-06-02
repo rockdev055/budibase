@@ -4,7 +4,7 @@
   export let meta = []
   export let label = ""
   export let value = [0, 0, 0, 0]
-  export let type = "text"
+  export let type = "number"
   export let onChange = () => {}
 
   function handleChange(val, idx) {
@@ -28,6 +28,9 @@
 </div>
 
 <style>
+  .input-container {
+  }
+
   .label {
     flex: 0;
   }
@@ -50,17 +53,18 @@
     border: 1px solid var(--grey);
     border-radius: 2px;
     outline: none;
+    float: right;
   }
 
-  input[type="text"]::-webkit-inner-spin-button,
-  input[type="text"]::-webkit-outer-spin-button {
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
     margin: 0;
   }
 
-  input[type="text"] {
+  input[type="number"] {
     -moz-appearance: textfield;
   }
 
