@@ -18,7 +18,7 @@
     onChange(_value)
   }
 
-  $: displayValue = suffix && value.endsWith(suffix) ? value.replace(new RegExp(`${suffix}$`), "") : value
+  $: displayValue = suffix && value && value.endsWith(suffix) ? value.replace(new RegExp(`${suffix}$`), "") : (value || "")
   
 </script>
 
