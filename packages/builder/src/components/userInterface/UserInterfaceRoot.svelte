@@ -123,7 +123,8 @@
   .components-pane {
     grid-column: 3;
     background-color: var(--white);
-    height: calc(100vh - 49px);
+    height: 100vh;
+    overflow-y: scroll;
   }
 
   .components-nav-page {

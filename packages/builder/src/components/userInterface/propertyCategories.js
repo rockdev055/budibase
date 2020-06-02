@@ -1,7 +1,6 @@
 import Input from "../common/Input.svelte"
 import OptionSelect from "./OptionSelect.svelte"
 import InputGroup from "../common/Inputs/InputGroup.svelte"
-import FlatButtonGroup from "./FlatButtonGroup.svelte"
 // import Colorpicker from "../common/Colorpicker.svelte"
 /*
   TODO: Allow for default values for all properties
@@ -12,8 +11,9 @@ export const layout = [
     label: "Display",
     key: "display",
     control: OptionSelect,
-    initialValue: "Flex",
+    initialValue: "Select Option",
     options: [
+      { label: "Select Option", value: "" },
       { label: "Flex", value: "flex" },
       { label: "Inline Flex", value: "inline-flex" },
     ],
@@ -21,24 +21,23 @@ export const layout = [
   {
     label: "Direction",
     key: "flex-direction",
-    control: FlatButtonGroup,
-    buttonProps: [
-      { icon: "ri-arrow-right-line", padding: "0px 5px", value: "row" },
-      { icon: "ri-arrow-left-line", padding: "0px 5px", value: "rowReverse" },
-      { icon: "ri-arrow-down-line", padding: "0px 5px", value: "column" },
-      {
-        icon: "ri-arrow-up-line",
-        padding: "0px 5px",
-        value: "columnReverse",
-      },
+    control: OptionSelect,
+    initialValue: "Select Option",
+    options: [
+      { label: "Select Option", value: "" },
+      { label: "Row", value: "row" },
+      { label: "Row Reverse", value: "rowReverse" },
+      { label: "Column", value: "column" },
+      { label: "Column Reverse", value: "columnReverse" },
     ],
   },
   {
     label: "Justify",
     key: "justify-content",
     control: OptionSelect,
-    initialValue: "Flex Start",
+    initialValue: "Select Option",
     options: [
+      { label: "Select Option", value: "" },
       { label: "Flex Start", value: "flex-start" },
       { label: "Flex End", value: "flex-end" },
       { label: "Center", value: "center" },
@@ -51,8 +50,9 @@ export const layout = [
     label: "Align",
     key: "align-items",
     control: OptionSelect,
-    initialValue: "Flex Start",
+    initialValue: "Select Option",
     options: [
+      { label: "Select Option", value: "" },
       { label: "Flex Start", value: "flex-start" },
       { label: "Flex End", value: "flex-end" },
       { label: "Center", value: "center" },
@@ -64,9 +64,12 @@ export const layout = [
     label: "Wrap",
     key: "flex-wrap",
     control: OptionSelect,
+    initialValue: "Select Option",
     options: [
-      { label: "wrap", value: "wrap" },
-      { label: "no wrap", value: "noWrap" },
+      { label: "Select Option", value: "" },
+      { label: "No Wrap", value: "nowrap" },
+      { label: "Wrap", value: "wrap" },
+      { label: "Wrap Reverse", value: "wrap-reverse" },
     ],
   },
 ]
@@ -79,73 +82,22 @@ const spacingMeta = [
 ]
 
 export const spacing = [
-  {
-    label: "Margin",
-    key: "margin",
-    control: InputGroup,
-    meta: spacingMeta,
-    suffix: "px",
-    defaultValue: ["0", "0", "0", "0"],
-  },
+  { label: "Margin", key: "margin", control: InputGroup, meta: spacingMeta },
   {
     label: "Padding",
     key: "padding",
     control: InputGroup,
     meta: spacingMeta,
-    suffix: "px",
-    defaultValue: ["0", "0", "0", "0"],
   },
 ]
 
 export const size = [
-  {
-    label: "Width",
-    key: "width",
-    control: Input,
-    placeholder: "px",
-    width: "48px",
-    textAlign: "center",
-  },
-  {
-    label: "Height",
-    key: "height",
-    control: Input,
-    placeholder: "px",
-    width: "48px",
-    textAlign: "center",
-  },
-  {
-    label: "Min W",
-    key: "min-width",
-    control: Input,
-    placeholder: "px",
-    width: "48px",
-    textAlign: "center",
-  },
-  {
-    label: "Min H",
-    key: "min-height",
-    control: Input,
-    placeholder: "px",
-    width: "48px",
-    textAlign: "center",
-  },
-  {
-    label: "Max W",
-    key: "max-width",
-    control: Input,
-    placeholder: "px",
-    width: "48px",
-    textAlign: "center",
-  },
-  {
-    label: "Max H",
-    key: "max-height",
-    control: Input,
-    placeholder: "px",
-    width: "48px",
-    textAlign: "center",
-  },
+  { label: "Width", key: "width", control: Input },
+  { label: "Height", key: "height", control: Input },
+  { label: "Min W", key: "min-width", control: Input },
+  { label: "Min H", key: "min-height", control: Input },
+  { label: "Max W", key: "max-width", control: Input },
+  { label: "Max H", key: "max-height", control: Input },
 ]
 
 export const position = [
@@ -166,41 +118,26 @@ export const position = [
     label: "Top",
     key: "top",
     control: Input,
-    placeholder: "px",
-    width: "48px",
-    textAlign: "center",
   },
   {
     label: "Right",
     key: "right",
     control: Input,
-    placeholder: "px",
-    width: "48px",
-    textAlign: "center",
   },
   {
     label: "Bottom",
     key: "bottom",
     control: Input,
-    placeholder: "px",
-    width: "48px",
-    textAlign: "center",
   },
   {
     label: "Left",
     key: "left",
     control: Input,
-    placeholder: "px",
-    width: "48px",
-    textAlign: "center",
   },
   {
     label: "Z-index",
     key: "z-index",
     control: Input,
-    placeholder: "num",
-    width: "48px",
-    textAlign: "center",
   },
 ]
 
@@ -234,59 +171,47 @@ export const typography = [
     label: "Weight",
     key: "font-weight",
     control: OptionSelect,
-    options: ["normal", "bold", "bolder", "lighter"],
+    options: [
+      { label: "100", value: "100" },
+      { label: "200", value: "200" },
+      { label: "300", value: "300" },
+      { label: "400", value: "400" },
+      { label: "500", value: "500" },
+      { label: "600", value: "600" },
+      { label: "700", value: "700" },
+      { label: "800", value: "800" },
+      { label: "900", value: "900" },
+    ],
   },
-  {
-    label: "size",
-    key: "font-size",
-    defaultValue: "",
-    control: Input,
-    placeholder: "px",
-    width: "48px",
-    textAlign: "center",
-  },
-  {
-    label: "Line H",
-    key: "line-height",
-    control: Input,
-    placeholder: "lh",
-    width: "48px",
-    textAlign: "center",
-  },
+  { label: "size", key: "font-size", defaultValue: "", control: Input },
+  { label: "Line H", key: "line-height", control: Input },
   {
     label: "Color",
     key: "color",
     control: Input,
-    placeholder: "hex",
   },
   {
     label: "align",
     key: "text-align",
-    control: FlatButtonGroup,
-    buttonProps: [
-      { icon: "ri-align-left", padding: "0px 5px", value: "left" },
-      { icon: "ri-align-center", padding: "0px 5px", value: "center" },
-      { icon: "ri-align-right", padding: "0px 5px", value: "right" },
-      { icon: "ri-align-justify", padding: "0px 5px", value: "justify" },
-    ],
-  },
+    control: OptionSelect,
+    options: ["initial", "left", "right", "center", "justify"],
+  }, //custom
   {
-    label: "transform",
-    key: "text-transform",
-    control: FlatButtonGroup,
-    buttonProps: [
-      { text: "BB", padding: "0px 5px", fontWeight: 500, value: "uppercase" },
-      { text: "Bb", padding: "0px 5px", fontWeight: 500, value: "capitalize" },
-      { text: "bb", padding: "0px 5px", fontWeight: 500, value: "lowercase" },
-      {
-        text: "&times;",
-        padding: "0px 5px",
-        fontWeight: 500,
-        value: "none",
-      },
+    label: "Decoration",
+    key: "text-decoration-line",
+    control: OptionSelect,
+    defaultValue: "None",
+    options: [
+      { label: "None", value: "none" },
+      { label: "Underline", value: "underline" },
+      { label: "Overline", value: "overline" },
+      { label: "Line-through", value: "line-through" },
+      { label: "Under Over", value: "underline overline" },
     ],
   },
-  { label: "style", key: "font-style", control: Input },
+
+  { label: "transform", key: "text-transform", control: Input }, //custom
+  { label: "style", key: "font-style", control: Input }, //custom
 ]
 
 export const background = [
@@ -295,31 +220,12 @@ export const background = [
     key: "background",
     control: Input,
   },
-  {
-    label: "Image",
-    key: "background-image",
-    control: Input,
-    placeholder: "src",
-  },
+  { label: "Image", key: "image", control: Input }, //custom
 ]
 
 export const border = [
-  {
-    label: "Radius",
-    key: "border-radius",
-    control: Input,
-    width: "48px",
-    placeholder: "px",
-    textAlign: "center",
-  },
-  {
-    label: "Width",
-    key: "border-width",
-    control: Input,
-    width: "48px",
-    placeholder: "px",
-    textAlign: "center",
-  }, //custom
+  { label: "Radius", key: "border-radius", control: Input },
+  { label: "Width", key: "border-width", control: Input }, //custom
   {
     label: "Color",
     key: "border-color",
@@ -345,65 +251,30 @@ export const border = [
 ]
 
 export const effects = [
-  {
-    label: "Opacity",
-    key: "opacity",
-    control: Input,
-    width: "48px",
-    textAlign: "center",
-    placeholder: "%",
-  },
+  { label: "Opacity", key: "opacity", control: Input },
   {
     label: "Rotate",
     key: "transform",
-    control: Input,
-    width: "48px",
-    textAlign: "center",
-    placeholder: "deg",
+    control: OptionSelect,
+    options: [
+      { label: "None", value: "rotate(0deg)" },
+      { label: "45 degrees", value: "rotate(45deg)" },
+      { label: "90 degrees", value: "rotate(90deg)" },
+      { label: "135 degrees", value: "rotate(135deg)" },
+      { label: "180 degrees", value: "rotate(180deg)" },
+      { label: "225 degrees", value: "rotate(225deg)" },
+      { label: "270 degrees", value: "rotate(270deg)" },
+      { label: "315 degrees", value: "rotate(315deg)" },
+      { label: "360 degrees", value: "rotate(360deg)" },
+    ],
   }, //needs special control
-  {
-    label: "Shadow",
-    key: "box-shadow",
-    control: InputGroup,
-    meta: [{ placeholder: "X" }, { placeholder: "Y" }, { placeholder: "B" }],
-  },
+  { label: "Shadow", key: "box-shadow", control: Input },
 ]
 
 export const transitions = [
-  {
-    label: "Property",
-    key: "transition-property",
-    control: OptionSelect,
-    options: [
-      "None",
-      "All",
-      "Background Color",
-      "Color",
-      "Font Size",
-      "Font Weight",
-      "Height",
-      "Margin",
-      "Opacity",
-      "Padding",
-      "Rotate",
-      "Shadow",
-      "Width",
-    ],
-  },
-  {
-    label: "Duration",
-    key: "transition-timing-function",
-    control: Input,
-    width: "48px",
-    textAlign: "center",
-    placeholder: "sec",
-  },
-  {
-    label: "Ease",
-    key: "transition-ease",
-    control: OptionSelect,
-    options: ["linear", "ease", "ease-in", "ease-out", "ease-in-out"],
-  },
+  { label: "Property", key: "transition-property", control: Input },
+  { label: "Duration", key: "transition-timing-function", control: Input },
+  { label: "Ease", key: "transition-ease", control: Input },
 ]
 
 export const all = {

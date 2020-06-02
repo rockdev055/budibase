@@ -364,7 +364,6 @@ const addChildComponent = store => (componentToAdd, presetName) => {
 /**
  * @param  {string} props - props to add, as child of current component
  */
-
 const addTemplatedComponent = store => props => {
   store.update(state => {
     walkProps(props, p => {

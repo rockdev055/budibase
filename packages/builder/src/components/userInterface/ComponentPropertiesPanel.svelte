@@ -106,12 +106,10 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    /* Merge Check */
     overflow-x: hidden;
-    overflow-y:  hidden;
+    overflow-y: hidden;
     padding: 20px;
     box-sizing: border-box;
-    /* Merge Check */
   }
 
   .title > div:nth-child(1) {
