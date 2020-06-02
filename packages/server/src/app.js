@@ -4,7 +4,6 @@ const logger = require("koa-pino-logger")
 const http = require("http")
 const api = require("./api")
 const env = require("./environment")
-const eventEmitter = require("./events")
 
 const app = new Koa()
 
@@ -19,8 +18,6 @@ app.use(
     level: env.LOG_LEVEL || "error",
   })
 )
-
-app.context.eventEmitter = eventEmitter
 
 // api routes
 app.use(api.routes())
