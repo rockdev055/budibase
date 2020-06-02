@@ -14,7 +14,8 @@
     background: var(--secondary80);
     color: var(--white);
     font-family: "Courier New", Courier, monospace;
-    height: 200px;
+    width: 95%;
+    height: 100px;
     border-radius: 5px;
   }
 </style>

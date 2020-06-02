@@ -39,49 +39,51 @@
   }
 </script>
 
-<div class="header">
+<heading>
   <i class="ri-eye-line button--toggled" />
   <h3 class="budibase__title--3">Create / Edit View</h3>
-</div>
+</heading>
 <form on:submit|preventDefault class="uk-form-stacked root">
+  <h4 class="budibase__label--big">Settings</h4>
   {#if $store.errors && $store.errors.length > 0}
     <ErrorsBox errors={$store.errors} />
   {/if}
-  <div class="main">
-    <div class="uk-grid-small" uk-grid>
-      <div class="uk-width-1-2@s">
-        <Textbox bind:text={view.name} label="Name" />
-      </div>
-    </div>
-    <div class="code-snippets">
-      {#each Object.values(SNIPPET_EDITORS) as snippetType}
-        <span
-          class="snippet-selector__heading hoverable"
-          class:highlighted={currentSnippetEditor === snippetType}
-          on:click={() => (currentSnippetEditor = snippetType)}>
-          {snippetType}
-        </span>
-      {/each}
-      {#if currentSnippetEditor === SNIPPET_EDITORS.MAP}
-        <CodeArea bind:text={view.map} label="Map" />
-      {:else if currentSnippetEditor === SNIPPET_EDITORS.FILTER}
-        <CodeArea bind:text={view.filter} label="Filter" />
-      {:else if currentSnippetEditor === SNIPPET_EDITORS.REDUCE}
-        <CodeArea bind:text={view.reduce} label="Reduce" />
-      {/if}
+  <div class="uk-grid-small" uk-grid>
+    <div class="uk-width-1-2@s">
+      <Textbox bind:text={view.name} label="Name" />
     </div>
   </div>
-  <div class="buttons">
-    <div class="button">
-      <ActionButton secondary on:click={deleteView}>Delete</ActionButton>
-    </div>
-    <ActionButton color="secondary" on:click={saveView}>Save</ActionButton>
-  </div>
+
+  <h4 class="budibase__label--big">Snippets</h4>
+  {#each Object.values(SNIPPET_EDITORS) as snippetType}
+    <span
+      class="snippet-selector__heading hoverable"
+      class:highlighted={currentSnippetEditor === snippetType}
+      on:click={() => (currentSnippetEditor = snippetType)}>
+      {snippetType}
+    </span>
+  {/each}
+  {#if currentSnippetEditor === SNIPPET_EDITORS.MAP}
+    <CodeArea bind:text={view.map} label="Map" />
+  {:else if currentSnippetEditor === SNIPPET_EDITORS.FILTER}
+    <CodeArea bind:text={view.filter} label="Filter" />
+  {:else if currentSnippetEditor === SNIPPET_EDITORS.REDUCE}
+    <CodeArea bind:text={view.reduce} label="Reduce" />
+  {/if}
+
+  <ActionButton color="secondary" on:click={saveView}>Save</ActionButton>
+  <ActionButton alert on:click={deleteView}>Delete</ActionButton>
 </form>
 
 <style>
   .root {
     height: 100%;
+    padding: 15px;
+  }
+
+  .snippet-selector__heading {
+    margin-right: 20px;
+    opacity: 0.7;
   }
 
   .highlighted {
@@ -90,38 +92,11 @@
 
   h3 {
     margin: 0 0 0 10px;
-    color: var(--ink);
   }
 
-  .snippet-selector__heading {
-    margin-right: 20px;
-    font-size: 14px;
-    color: var(--ink-lighter);
-  }
-
-  .header {
-    padding: 20px 40px 0 40px;
+  heading {
+    padding: 20px 20px 0 20px;
     display: flex;
     align-items: center;
-  }
-
-  .main {
-    margin: 20px 40px 0px 40px;
-  }
-
-  .code-snippets {
-    margin: 20px 0px 20px 0px;
-  }
-
-  .buttons {
-    display: flex;
-    justify-content: flex-end;
-    background-color: var(--grey-light);
-    margin: 0 40px;
-    padding: 20px 0;
-  }
-
-  .button {
-    margin-right: 20px;
   }
 </style>

@@ -29,7 +29,7 @@
   <div class="inputs-group">
     {#each meta as m, i}
       <Input
-        width="37px"
+        width="32px"
         textAlign="center"
         placeholder={m.placeholder || ''}
         value={!displayValues || displayValues[i] === '0' ? '' : displayValues[i]}
