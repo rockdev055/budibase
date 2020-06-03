@@ -23,7 +23,7 @@ export const bbFactory = ({
   }
 
   const apiCall = method => (url, body) =>
-    fetch(url, {
+    fetch(relativeUrl(url), {
       method: method,
       headers: {
         "Content-Type": "application/json",
