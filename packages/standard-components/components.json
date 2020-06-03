@@ -59,7 +59,6 @@
 		"props": {
 			"logo": "asset",
 			"loginRedirect": "string",
-			"name": "string",
 			"usernameLabel": {
 				"type": "string",
 				"default": "Username"
