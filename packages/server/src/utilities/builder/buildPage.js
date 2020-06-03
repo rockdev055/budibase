@@ -28,7 +28,8 @@ module.exports = async (config, appId, pageName, pkg) => {
   await savePageJson(appPath, pageName, pkg)
 }
 
-const rootPath = (config, appId) => (config.useAppRootPath ? `/${appId}` : "")
+const rootPath = (config, appname) =>
+  config.useAppRootPath ? `/${appname}` : ""
 
 const copyClientLib = async (appPath, pageName) => {
   const sourcepath = require.resolve("@budibase/client")
