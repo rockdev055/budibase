@@ -10,15 +10,13 @@
   let store = _bb.store
 
   async function fetchData() {
-    if (!model || !model.length) return
-
-    const FETCH_RECORDS_URL = `/api/${_instanceId}/views/all_${model}`
+    const FETCH_RECORDS_URL = `/api/${_instanceId}/all_${model._id}/records`
     const response = await _bb.api.get(FETCH_RECORDS_URL)
     if (response.status === 200) {
       const json = await response.json()
 
       store.update(state => {
-        state[model] = json
+        state[model._id] = json
         return state
       })
     } else {
@@ -26,8 +24,7 @@
     }
   }
 
-  $: data = $store[model] || []
-  $: if (model) fetchData()
+  $: data = $store[model._id] || []
 
   onMount(async () => {
     await fetchData()

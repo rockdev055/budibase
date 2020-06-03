@@ -1,7 +1,6 @@
 import Input from "../common/Input.svelte"
 import OptionSelect from "./OptionSelect.svelte"
 import Checkbox from "../common/Checkbox.svelte"
-import ModelSelect from "components/userInterface/ModelSelect.svelte"
 
 import { all } from "./propertyCategories.js"
 
@@ -262,47 +261,25 @@ export default {
         },
         {
           name: "Login",
-          _component: "@budibase/standard-components/login",
           description:
             "A component that automatically generates a login screen for your app.",
           icon: "ri-login-box-fill",
           children: [],
-          properties: {
-            design: { ...all },
-            settings: [
-              {
-                label: "Name",
-                key: "name",
-                control: Input,
-              },
-              {
-                label: "Logo",
-                key: "logo",
-                control: Input,
-              },
-            ],
-          },
+          properties: { design: { ...all } },
         },
         {
           name: "Table",
-          _component: "@budibase/standard-components/datatable",
           description: "A component that generates a table from your data.",
           icon: "ri-archive-drawer-fill",
-          properties: {
-            design: { ...all },
-            settings: [{ label: "Model", key: "model", control: ModelSelect }],
-          },
+          properties: { design: { ...all } },
           children: [],
         },
         {
           name: "Form",
           description: "A component that generates a form from your data.",
           icon: "ri-file-edit-fill",
-          properties: {
-            design: { ...all },
-            settings: [{ label: "Model", key: "model", control: ModelSelect }],
-          },
-          _component: "@budibase/standard-components/dataform",
+          properties: { design: { ...all } },
+          _component: "@budibase/materialdesign-components/Form",
           template: {
             component: "@budibase/materialdesign-components/Form",
             description: "Form for saving a record",
@@ -315,10 +292,7 @@ export default {
           _component: "@budibase/standard-components/datachart",
           description: "Shiny chart",
           icon: "ri-bar-chart-fill",
-          properties: {
-            design: { ...all },
-            settings: [{ label: "Model", key: "model", control: ModelSelect }],
-          },
+          properties: { design: { ...all } },
           children: [],
         },
         {
@@ -326,10 +300,7 @@ export default {
           _component: "@budibase/standard-components/datalist",
           description: "Shiny list",
           icon: "ri-file-list-fill",
-          properties: {
-            design: { ...all },
-            settings: [{ label: "Model", key: "model", control: ModelSelect }],
-          },
+          properties: { design: { ...all } },
           children: [],
         },
         {
@@ -363,15 +334,10 @@ export default {
             "A component for handling the navigation within your app.",
           icon: "ri-navigation-fill",
           children: [],
-          properties: {
-            design: { ...all },
-            settings: [
-              { label: "Logo URL", key: "logoUrl", control: Input },
-              { label: "Title", key: "title", control: Input },
-              { label: "Color", key: "color", control: Input },
-              { label: "Background", key: "backgroundColor", control: Input },
-            ],
-          },
+          properties: { 
+            design: { ...all }, 
+            settings: [{ label: "Logo URL", key: "logoUrl", control: Input }, ],
+           },
         },
       ],
     },

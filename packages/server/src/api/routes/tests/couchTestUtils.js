@@ -22,7 +22,6 @@ exports.supertest = async () => {
 exports.defaultHeaders = {
   Accept: "application/json",
   Cookie: ["builder:token=test-admin-secret"],
-  "x-user-agent": "Budibase Builder",
 }
 
 exports.createModel = async (request, instanceId, model) => {

@@ -50,10 +50,10 @@
 <style>
   .uk-modal-dialog {
     border-radius: 0.3rem;
-    width: 520px;
+    width: 60%;
     height: 80vh;
     display: flex;
     flex-direction: column;
-    padding: 40px;
+    padding: 0;
   }
 </style>
