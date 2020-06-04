@@ -2,7 +2,6 @@
   import { onMount } from "svelte"
   import { buildStyle } from "../../helpers.js"
   export let value = ""
-  export let name = ""
   export let textAlign = "left"
   export let width = "160px"
   export let placeholder = ""
@@ -26,7 +25,6 @@
 </script>
 
 <input
-  {name}
   class:centerPlaceholder
   type="text"
   value={displayValue}
