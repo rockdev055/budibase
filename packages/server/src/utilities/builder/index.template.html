@@ -1,17 +1,14 @@
 <!doctype html>
 <html>
-
 <head>
-    <meta charset='utf8'>
-    <meta name='viewport' content='width=device-width'>
+	<meta charset='utf8'>
+	<meta name='viewport' content='width=device-width'>
 
-    <title>{{ title }}</title>
+	<title>{{ title }}</title>
     <link rel='icon' type='image/png' href='{{ favicon }}'>
-
+    
     <style>
-        html,
-        body {
-            font-family: Roboto;
+        html, body {
             height: 100%;
             width: 100%;
             margin: 0px;
@@ -33,14 +30,13 @@
 
     <script src='{{ appRootPath }}/clientFrontendDefinition.js'></script>
     <script src='{{ appRootPath }}/budibase-client.js'></script>
-
+    
 </head>
 
 <body id="app">
-
+	
     <script>
         loadBudibase();
     </script>
 </body>
-
 </html>

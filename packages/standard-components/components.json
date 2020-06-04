@@ -59,7 +59,6 @@
 		"props": {
 			"logo": "asset",
 			"loginRedirect": "string",
-			"name": "string",
 			"usernameLabel": {
 				"type": "string",
 				"default": "Username"
@@ -203,6 +202,21 @@
 		}
 	},
 	"datalist": {
+		"description": "A configurable data list that attaches to your backend models.",
+		"data": true,
+		"props": {
+			"model": "models",
+			"layout": {
+				"type": "options",
+				"default": "list",
+				"options": [
+					"list",
+					"grid"
+				]
+			}
+		}
+	},
+	"list": {
 		"description": "A configurable data list that attaches to your backend models.",
 		"data": true,
 		"props": {

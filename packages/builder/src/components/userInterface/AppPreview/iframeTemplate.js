@@ -17,7 +17,6 @@ export default ({
 
       body, html {
         height: 100%!important;
-        font-family: Roboto !important;
       }
       .lay-__screenslot__text {
           width: 100%;

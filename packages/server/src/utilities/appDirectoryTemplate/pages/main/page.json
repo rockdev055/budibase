@@ -1,5 +1,5 @@
 {
-	"title": "{{ name }}",
+	"title": "Test App",
 	"favicon": "./_shared/favicon.png",
 	"stylesheets": [],
 	"componentLibraries": ["@budibase/standard-components", "@budibase/materialdesign-components"],

@@ -267,21 +267,7 @@ export default {
             "A component that automatically generates a login screen for your app.",
           icon: "ri-login-box-fill",
           children: [],
-          properties: {
-            design: { ...all },
-            settings: [
-              {
-                label: "Name",
-                key: "name",
-                control: Input,
-              },
-              {
-                label: "Logo",
-                key: "logo",
-                control: Input,
-              },
-            ],
-          },
+          properties: { design: { ...all } },
         },
         {
           name: "Table",
@@ -317,34 +303,24 @@ export default {
           icon: "ri-bar-chart-fill",
           properties: {
             design: { ...all },
-            settings: [
-              { label: "Model", key: "model", control: ModelSelect },
-              {
-                label: "Chart Type",
-                key: "type",
-                control: OptionSelect,
-                options: [
-                  "column2d",
-                  "column3d",
-                  "line",
-                  "area2d",
-                  "bar2d",
-                  "bar3d",
-                  "pie2d",
-                  "pie3d",
-                  "doughnut2d",
-                  "doughnut3d",
-                  "pareto2d",
-                  "pareto3d",
-                ],
-              },
-            ],
+            settings: [{ label: "Model", key: "model", control: ModelSelect }],
+          },
+          children: [],
+        },
+        {
+          name: "Data List",
+          _component: "@budibase/standard-components/datalist",
+          description: "Shiny list",
+          icon: "ri-file-list-fill",
+          properties: {
+            design: { ...all },
+            settings: [{ label: "Model", key: "model", control: ModelSelect }],
           },
           children: [],
         },
         {
           name: "List",
-          _component: "@budibase/standard-components/datalist",
+          _component: "@budibase/standard-components/list",
           description: "Shiny list",
           icon: "ri-file-list-fill",
           properties: {
@@ -384,15 +360,7 @@ export default {
             "A component for handling the navigation within your app.",
           icon: "ri-navigation-fill",
           children: [],
-          properties: {
-            design: { ...all },
-            settings: [
-              { label: "Logo URL", key: "logoUrl", control: Input },
-              { label: "Title", key: "title", control: Input },
-              { label: "Color", key: "color", control: Input },
-              { label: "Background", key: "backgroundColor", control: Input },
-            ],
-          },
+          properties: { design: { ...all } },
         },
       ],
     },

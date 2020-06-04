@@ -22,6 +22,7 @@
     font-size: 14px;
     position: relative;
     border: var(--grey-dark) 1px solid;
+    max-width: 256px;
   }
 
   .adjusted {
