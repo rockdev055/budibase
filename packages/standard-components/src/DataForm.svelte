@@ -8,32 +8,19 @@
   let username
   let password
   let newModel = {
-    modelId: model,
+    modelId: model._id,
   }
   let store = _bb.store
-  let schema = {}
-  let modelDef = {}
 
-  $: if (model && model.length !== 0) {
-    fetchModel()
-  }
-
-  $: fields = Object.keys(schema)
-
-  async function fetchModel() {
-    const FETCH_MODEL_URL = `/api/${_instanceId}/models/${model}`
-    const response = await _bb.api.get(FETCH_MODEL_URL)
-    modelDef = await response.json()
-    schema = modelDef.schema
-  }
+  $: fields = Object.keys(model.schema)
 
   async function save() {
-    const SAVE_RECORD_URL = `/api/${_instanceId}/${model}/records`
+    const SAVE_RECORD_URL = `/api/${_instanceId}/records`
     const response = await _bb.api.post(SAVE_RECORD_URL, newModel)
     const json = await response.json()
 
     store.update(state => {
-      state[model._id] = [...state[model], json]
+      state[model._id] = [...state[model._id], json]
       return state
     })
   }
@@ -59,14 +46,14 @@
 </script>
 
 <form class="uk-form" on:submit|preventDefault>
-  <h4>{modelDef.name}</h4>
+  <h4>{model.name}</h4>
   <div>
     {#each fields as field}
       <div class="uk-margin">
         <label class="form-label" for="form-stacked-text">{field}</label>
         <input
           class="uk-input"
-          type={schema[field].type === 'string' ? 'text' : schema[field].type}
+          type={model.schema[field].type === 'string' ? 'text' : model.schema[field].type}
           on:change={handleInput(field)} />
       </div>
     {/each}

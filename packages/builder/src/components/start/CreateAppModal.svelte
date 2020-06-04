@@ -5,7 +5,6 @@
   import { AppsIcon, InfoIcon, CloseIcon } from "components/common/Icons/"
   import { getContext } from "svelte"
   import { fade } from "svelte/transition"
-  import { post } from "builderStore/api"
 
   const { open, close } = getContext("simple-modal")
 
@@ -34,7 +33,15 @@
       const data = { name, description }
       loading = true
       try {
-        const response = await post("/api/applications", data)
+        const response = await fetch("/api/applications", {
+          method: "POST", // *GET, POST, PUT, DELETE, etc.
+          credentials: "same-origin", // include, *same-origin, omit
+          headers: {
+            "Content-Type": "application/json",
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: JSON.stringify(data), // body data type must match "Content-Type" header
+        })
 
         const res = await response.json()
 
