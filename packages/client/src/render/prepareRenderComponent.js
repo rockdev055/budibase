@@ -7,12 +7,11 @@ export const prepareRenderComponent = ({
   anchor,
   props,
   parentNode,
-  context,
 }) => {
   const parentContext = (parentNode && parentNode.context) || {}
 
   let nodesToRender = []
-  const createNodeAndRender = () => {
+  const createNodeAndRender = context => {
     let componentContext = parentContext
     if (context) {
       componentContext = { ...context }
@@ -49,7 +48,6 @@ export const prepareRenderComponent = ({
             if (typeof propValue === "string") {
               storeBoundProps[prop] = mustache.render(propValue, {
                 state,
-                context: componentContext,
               })
             }
           }
