@@ -35,7 +35,7 @@
   }
 </script>
 
-<div class="heading">
+<heading>
   {#if !showFieldView}
     <i class="ri-list-settings-line button--toggled" />
     <h3 class="budibase__title--3">Create / Edit Model</h3>
@@ -43,20 +43,22 @@
     <i class="ri-file-list-line button--toggled" />
     <h3 class="budibase__title--3">Create / Edit Field</h3>
   {/if}
-</div>
+</heading>
 {#if !showFieldView}
   <div class="padding">
+    <h4 class="budibase__label--big">Settings</h4>
+
     {#if $store.errors && $store.errors.length > 0}
       <ErrorsBox errors={$store.errors} />
     {/if}
-    <div class="textbox">
-      <Textbox label="Name" bind:text={model.name} />
-    </div>
+
+    <Textbox label="Name" bind:text={model.name} />
+
     <div class="table-controls">
-      <span class="label">Fields</span>
-      <div class="hoverable new-field" on:click={() => (showFieldView = true)}>
+      <span class="budibase__label--big">Fields</span>
+      <h4 class="hoverable new-field" on:click={() => (showFieldView = true)}>
         Add new field
-      </div>
+      </h4>
     </div>
 
     <table class="uk-table fields-table budibase__table">
@@ -65,6 +67,7 @@
           <th>Edit</th>
           <th>Name</th>
           <th>Type</th>
+          <th>Values</th>
           <th />
         </tr>
       </thead>
@@ -87,9 +90,9 @@
         {/each}
       </tbody>
     </table>
-    <footer>
+    <div class="uk-margin">
       <ActionButton color="secondary" on:click={saveModel}>Save</ActionButton>
-    </footer>
+    </div>
   </div>
 {:else}
   <FieldView
@@ -101,63 +104,41 @@
 
 <style>
   .padding {
-    padding-top: 40px;
-  }
-
-  .label {
-    font-size: 14px;
-    font-weight: 500;
-  }
-
-  .textbox {
-    margin: 0px 40px 0px 40px;
-    font-size: 14px;
-    font-weight: 500;
+    padding: 20px;
   }
 
   .new-field {
     font-size: 16px;
     font-weight: bold;
-    color: var(--blue);
+    color: var(--button-text);
   }
 
   .fields-table {
-    margin: 8px 40px 0px 40px;
+    margin: 1rem 1rem 0rem 0rem;
     border-collapse: collapse;
-    width: 88%;
   }
 
   tbody > tr:hover {
-    background-color: var(--grey-light);
+    background-color: var(--primary10);
   }
 
   .table-controls {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 0px 40px;
   }
 
   .ri-more-line:hover {
     cursor: pointer;
   }
 
-  .heading {
-    padding: 40px 40px 0 40px;
+  heading {
+    padding: 20px 20px 0 20px;
     display: flex;
     align-items: center;
   }
 
   h3 {
     margin: 0 0 0 10px;
-    color: var(--ink);
-  }
-
-  footer {
-    background-color: var(--grey-light);
-    margin-top: 40px;
-    padding: 20px 40px 20px 40px;
-    display: flex;
-    justify-content: flex-end;
   }
 </style>

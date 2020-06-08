@@ -1,9 +1,23 @@
-export default `<html>
+export default ({
+  styles,
+  stylesheetLinks,
+  selectedComponentType,
+  selectedComponentId,
+  frontendDefinition,
+  currentPageFunctions,
+}) => `<html>
   <head>
+    ${stylesheetLinks}
+
     <style>
+      ${styles || ""}
+
+      .${selectedComponentType}-${selectedComponentId} {
+        border: 2px solid #0055ff; 
+      }
+
       body, html {
         height: 100%!important;
-        font-family: Roboto !important;
       }
       .lay-__screenslot__text {
           width: 100%;
@@ -21,45 +35,13 @@ export default `<html>
         }
     </style>
     <script>
-      function receiveMessage(event) { 
+        window["##BUDIBASE_FRONTEND_DEFINITION##"] = ${frontendDefinition};
+        window["##BUDIBASE_FRONTEND_FUNCTIONS##"] = ${currentPageFunctions};
 
-        if (!event.data) return
-
-        const data = JSON.parse(event.data)
-
-        try {
-          if (styles) document.head.removeChild(styles)
-        } catch(_) { }
-
-        try {
-          if (selectedComponentStyle) document.head.removeChild(selectedComponentStyle)
-        } catch(_) { }
-
-        selectedComponentStyle = document.createElement('style');
-        document.head.appendChild(selectedComponentStyle)
-        var selectedCss = '.' + data.selectedComponentType + '-' + data.selectedComponentId + '{ border: 2px solid #0055ff;  }'
-        selectedComponentStyle.appendChild(document.createTextNode(selectedCss))
-
-        styles = document.createElement('style')
-        document.head.appendChild(styles)
-        styles.appendChild(document.createTextNode(data.styles))
-
-        window["##BUDIBASE_FRONTEND_DEFINITION##"] = data.frontendDefinition;
-        if (clientModule) {
-          clientModule.loadBudibase({ window, localStorage })
-        }
-      }
-      let clientModule
-      let styles
-      let selectedComponentStyle
-
-
-      import('/_builder/budibase-client.esm.mjs')
-      .then(module => {
-        clientModule = module
-        window.addEventListener('message', receiveMessage)
-        window.dispatchEvent(new Event('bb-ready'))
-      })
+        import('/_builder/budibase-client.esm.mjs')
+        .then(module => {
+            module.loadBudibase({ window, localStorage });
+        })
     </script>
   </head>
   <body>

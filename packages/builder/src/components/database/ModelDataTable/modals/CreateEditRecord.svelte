@@ -8,6 +8,10 @@
   import * as api from "../api"
   import ErrorsBox from "components/common/ErrorsBox.svelte"
 
+  const CLASS_NAME_MAP = {
+    boolean: "uk-checkbox",
+  }
+
   export let record = {}
   export let onClosed
 
@@ -24,23 +28,12 @@
     onClosed()
   }
 
-  const isSelect = meta =>
-    meta.type === "string" &&
-    meta.constraints &&
-    meta.constraints.inclusion &&
-    meta.constraints.inclusion.length > 0
-
   function determineInputType(meta) {
     if (meta.type === "datetime") return "date"
     if (meta.type === "number") return "number"
     if (meta.type === "boolean") return "checkbox"
-    if (isSelect(meta)) return "select"
 
     return "text"
-  }
-
-  function determineOptions(meta) {
-    return isSelect(meta) ? meta.constraints.inclusion : []
   }
 
   async function saveRecord() {
@@ -53,9 +46,7 @@
       $backendUiStore.selectedModel._id
     )
     if (recordResponse.errors) {
-      errors = Object.keys(recordResponse.errors)
-        .map(k => ({ dataPath: k, message: recordResponse.errors[k] }))
-        .flat()
+      errors = recordResponse.errors
       return
     }
 
@@ -74,8 +65,8 @@
     {#each modelSchema as [key, meta]}
       <div class="uk-margin">
         <RecordFieldControl
+          className={CLASS_NAME_MAP[meta.type]}
           type={determineInputType(meta)}
-          options={determineOptions(meta)}
           label={key}
           bind:value={record[key]} />
       </div>

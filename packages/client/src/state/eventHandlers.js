@@ -6,24 +6,35 @@ import { createApi } from "../api"
 
 export const EVENT_TYPE_MEMBER_NAME = "##eventHandlerType"
 
-export const eventHandlers = (rootPath, routeTo) => {
+export const eventHandlers = (store, rootPath, routeTo) => {
   const handler = (parameters, execute) => ({
     execute,
     parameters,
   })
 
-  const api = createApi({
-    rootPath,
-    setState,
-    getState: (path, fallback) => getState(path, fallback),
+  const setStateWithStore = (path, value) => setState(store, path, value)
+
+  let currentState
+  store.subscribe(state => {
+    currentState = state
   })
 
-  const setStateHandler = ({ path, value }) => setState(path, value)
+  const api = createApi({
+    rootPath,
+    setState: setStateWithStore,
+    getState: (path, fallback) => getState(currentState, path, fallback),
+  })
+
+  const setStateHandler = ({ path, value }) => setState(store, path, value)
 
   return {
     "Set State": handler(["path", "value"], setStateHandler),
+    "Load Record": handler(["recordKey", "statePath"], api.loadRecord),
+    "List Records": handler(["indexKey", "statePath"], api.listRecords),
+    "Save Record": handler(["statePath"], api.saveRecord),
     "Navigate To": handler(["url"], param => routeTo(param && param.url)),
-    "Trigger Workflow": handler(["workflow"], api.triggerWorkflow),
+
+    Authenticate: handler(["username", "password"], api.authenticate),
   }
 }
 

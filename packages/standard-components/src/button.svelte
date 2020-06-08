@@ -17,7 +17,7 @@
 
 <button
   bind:this={theButton}
-  class="default"
+  class={className}
   disabled={disabled || false}
   on:click={clickHandler}>
   {#if !_bb.props._children || _bb.props._children.length === 0}{text}{/if}
@@ -25,21 +25,23 @@
 
 <style>
   .default {
-    align-items: center;
-    font-family: Inter;
-    font-size: 16px;
-    padding: 0px 16px;
+    font-family: inherit;
+    font-size: inherit;
+    padding: 0.4em;
+    margin: 0 0 0.5em 0;
     box-sizing: border-box;
-    border-radius: 4px;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+    color: #000333;
     outline: none;
-    height: 40px;
-    cursor: pointer;
-    transition: all 0.2s ease 0s;
-    overflow: hidden;
-    outline: none;
-    user-select: none;
-    white-space: nowrap;
-    text-align: center;
+  }
+
+  .default:active {
+    background-color: #f9f9f9;
+  }
+
+  .default:focus {
+    border-color: #666;
   }
 
   .border {

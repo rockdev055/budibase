@@ -1,6 +1,7 @@
 <script>
   import { params, goto } from "@sveltech/routify"
   import ComponentsHierarchyChildren from "./ComponentsHierarchyChildren.svelte"
+
   import { last, sortBy, map, trimCharsStart, trimChars, join } from "lodash/fp"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
   import { pipe } from "components/common/core"
@@ -35,6 +36,11 @@
     sortBy("title"),
   ])
 
+  const confirmDeleteComponent = component => {
+    componentToDelete = component
+    confirmDeleteDialog.show()
+  }
+
   const changeScreen = screen => {
     store.setCurrentScreen(screen.title)
     $goto(`./:page/${screen.title}`)
@@ -56,7 +62,9 @@
         {/if}
       </span>
 
-      <i class="ri-artboard-2-fill icon" />
+      <span class="icon">
+        <ShapeIcon />
+      </span>
 
       <span class="title">{screen.title}</span>
     </div>
@@ -64,32 +72,41 @@
     {#if $store.currentPreviewItem.name === screen.title && screen.component.props._children}
       <ComponentsHierarchyChildren
         components={screen.component.props._children}
-        currentComponent={$store.currentComponentInfo} />
+        currentComponent={$store.currentComponentInfo}
+        onDeleteComponent={confirmDeleteComponent}
+        onMoveUpComponent={store.moveUpComponent}
+        onMoveDownComponent={store.moveDownComponent}
+        onCopyComponent={store.copyComponent} />
     {/if}
   {/each}
 
 </div>
 
+<ConfirmDialog
+  bind:this={confirmDeleteDialog}
+  title="Confirm Delete"
+  body={`Are you sure you wish to delete this '${lastPartOfName(componentToDelete)}' component?`}
+  okText="Delete Component"
+  onOk={() => store.deleteComponent(componentToDelete)} />
+
 <style>
   .root {
     font-weight: 400;
-    color: var(--ink);
+    color: #000333;
   }
 
   .title {
     margin-left: 10px;
     margin-top: 2px;
-    font-size: 14px;
-    font-weight: 400;
+    font-size: 13px;
   }
 
   .icon {
     display: inline-block;
     transition: 0.2s;
-    font-size: 24px;
     width: 20px;
     margin-top: 2px;
-    color: var(--ink-light);
+    color: #333;
   }
 
   .icon:nth-of-type(2) {

@@ -16,7 +16,7 @@
   }
 </script>
 
-{#if panelDefinition && panelDefinition.length > 0}
+{#if panelDefinition.length > 0}
   {#each panelDefinition as definition}
     {#if propExistsOnComponentDef(definition.key)}
       <PropertyControl

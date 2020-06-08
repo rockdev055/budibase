@@ -11,8 +11,7 @@ const controller = {
       if (
         !name.startsWith("all") &&
         name !== "by_type" &&
-        name !== "by_username" &&
-        name !== "by_workflow_trigger"
+        name !== "by_username"
       ) {
         response.push({
           name,

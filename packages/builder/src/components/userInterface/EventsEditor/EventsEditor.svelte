@@ -1,5 +1,4 @@
 <script>
-  import { getContext } from "svelte"
   import {
     keys,
     map,
@@ -18,6 +17,7 @@
   import PlusButton from "components/common/PlusButton.svelte"
   import IconButton from "components/common/IconButton.svelte"
   import EventEditorModal from "./EventEditorModal.svelte"
+  import HandlerSelector from "./HandlerSelector.svelte"
 
   import { PencilIcon } from "components/common/Icons"
   import { EVENT_TYPE_MEMBER_NAME } from "components/common/eventHandlers"
@@ -25,49 +25,37 @@
   export const EVENT_TYPE = "event"
 
   export let component
+  export let components
 
+  let modalOpen = false
   let events = []
   let selectedEvent = null
 
   $: {
-    events = Object.keys(component)
-      // TODO: use real events
-      .filter(propName => ["onChange", "onClick", "onLoad"].includes(propName))
+    const componentDefinition = components[component._component]
+    events = Object.keys(componentDefinition.props)
+      .filter(propName => componentDefinition.props[propName] === EVENT_TYPE)
       .map(propName => ({
         name: propName,
         handlers: component[propName] || [],
       }))
   }
 
-  // Handle create app modal
-  const { open, close } = getContext("simple-modal")
-
   const openModal = event => {
     selectedEvent = event
-    open(
-      EventEditorModal,
-      {
-        eventOptions: events,
-        event: selectedEvent,
-        onClose: () => {
-          close()
-          selectedEvent = null
-        },
-      },
-      {
-        closeButton: false,
-        closeOnEsc: false,
-        styleContent: { padding: 0 },
-        closeOnOuterClick: true,
-      }
-    )
+    modalOpen = true
+  }
+
+  const closeModal = () => {
+    selectedEvent = null
+    modalOpen = false
   }
 </script>
 
-<button class="newevent" on:click={() => openModal()}>
-  <i class="icon ri-add-circle-fill" />
-  Create New Event
-</button>
+<header>
+  <h3>Events</h3>
+  <PlusButton on:click={() => openModal()} />
+</header>
 
 <div class="root">
   <form on:submit|preventDefault class="uk-form-stacked form-root">
@@ -84,38 +72,24 @@
     {/each}
   </form>
 </div>
+<EventEditorModal
+  open={modalOpen}
+  onClose={closeModal}
+  eventOptions={events}
+  event={selectedEvent} />
 
 <style>
+  h3 {
+    text-transform: uppercase;
+    font-size: 13px;
+    font-weight: 700;
+    color: #8997ab;
+    margin-bottom: 10px;
+  }
+
   .root {
     font-size: 10pt;
     width: 100%;
-  }
-
-  .newevent {
-    cursor: pointer;
-    border: 1px solid var(--grey-dark);
-    border-radius: 3px;
-    width: 100%;
-    padding: 8px 16px;
-    margin: 0px 0px 12px 0px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: white;
-    color: var(--ink);
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 2ms;
-  }
-
-  .newevent:hover {
-    background: var(--grey-light);
-  }
-
-  .icon {
-    color: var(--ink);
-    font-size: 16px;
-    margin-right: 4px;
   }
 
   .form-root {

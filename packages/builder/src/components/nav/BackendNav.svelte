@@ -33,7 +33,18 @@
 </script>
 
 <div class="items-root">
-  <div class="hierarchy" />
+  <div class="hierarchy">
+    <div class="components-list-container">
+      <div class="nav-group-header">
+        <div class="hierarchy-title">Databases</div>
+        <i class="ri-add-line hoverable" on:click={openDatabaseCreator} />
+      </div>
+    </div>
+
+    <div class="hierarchy-items-container">
+      <DatabasesList />
+    </div>
+  </div>
   {#if $backendUiStore.selectedDatabase._id}
     <div class="hierarchy">
       <div class="components-list-container">

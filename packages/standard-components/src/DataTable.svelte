@@ -10,14 +10,13 @@
   let store = _bb.store
 
   async function fetchData() {
-    const FETCH_RECORDS_URL = `/api/${_instanceId}/views/all_${model}`
-
+    const FETCH_RECORDS_URL = `/api/${_instanceId}/all_${model._id}/records`
     const response = await _bb.api.get(FETCH_RECORDS_URL)
     if (response.status === 200) {
       const json = await response.json()
 
       store.update(state => {
-        state[model] = json
+        state[model._id] = json
         return state
       })
 
@@ -27,8 +26,7 @@
     }
   }
 
-  $: data = $store[model] || []
-  $: if (model) fetchData()
+  $: data = $store[model._id] || []
 
   onMount(async () => {
     await fetchData()
@@ -65,31 +63,24 @@
   }
 
   thead {
-    background: #393C44;
+    background: #f9f9f9;
     border: 1px solid #ccc;
-    height: 40px;
-    text-align: left;
-    margin-right: 60px;
   }
 
   thead th {
-    color: #ffffff;
+    color: var(--button-text);
     text-transform: capitalize;
     font-weight: 500;
     font-size: 14px;
     text-rendering: optimizeLegibility;
     letter-spacing: 1px;
-    justify-content: left;
-    padding: 16px 20px 16px 8px;
-    margin-right: 20px;
   }
 
   tbody tr {
     border-bottom: 1px solid #ccc;
     transition: 0.3s background-color;
-    color: #393C44;
+    color: var(--secondary100);
     font-size: 14px;
-    height: 40px;
   }
 
   tbody tr:hover {

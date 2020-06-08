@@ -28,7 +28,8 @@ module.exports = async (config, appId, pageName, pkg) => {
   await savePageJson(appPath, pageName, pkg)
 }
 
-const rootPath = (config, appId) => (config.useAppRootPath ? `/${appId}` : "")
+const rootPath = (config, appname) =>
+  config.useAppRootPath ? `/${appname}` : ""
 
 const copyClientLib = async (appPath, pageName) => {
   const sourcepath = require.resolve("@budibase/client")
@@ -45,7 +46,7 @@ const copyClientLib = async (appPath, pageName) => {
 
 const buildIndexHtml = async (config, appId, pageName, appPath, pkg) => {
   const appPublicPath = publicPath(appPath, pageName)
-  const appRootPath = rootPath(config, appId)
+  const appRootPath = appId
 
   const stylesheetUrl = s =>
     s.startsWith("http") ? s : `/${rootPath(config, appId)}/${s}`
@@ -102,6 +103,7 @@ const buildFrontendAppDefinition = async (config, appId, pageName, pkg) => {
     filename,
     `
      window['##BUDIBASE_FRONTEND_DEFINITION##'] = ${clientUiDefinition};
+     window['##BUDIBASE_FRONTEND_FUNCTIONS##'] = ${pkg.uiFunctions};
     `
   )
 }
