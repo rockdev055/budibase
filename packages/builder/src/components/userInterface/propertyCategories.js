@@ -2,10 +2,16 @@ import Input from "../common/Input.svelte"
 import OptionSelect from "./OptionSelect.svelte"
 import InputGroup from "../common/Inputs/InputGroup.svelte"
 import FlatButtonGroup from "./FlatButtonGroup.svelte"
-// import Colorpicker from "../common/Colorpicker.svelte"
-/*
-  TODO: Allow for default values for all properties
-*/
+
+export const screen = [
+  { label: "Description", key: "description", control: Input },
+  { label: "Route", key: "route", control: Input },
+]
+
+export const page = [
+  { label: "Title", key: "title", control: Input },
+  { label: "Favicon", key: "favicon", control: Input },
+]
 
 export const layout = [
   {
@@ -84,7 +90,6 @@ export const spacing = [
     key: "margin",
     control: InputGroup,
     meta: spacingMeta,
-    suffix: "px",
     defaultValue: ["0", "0", "0", "0"],
   },
   {
@@ -92,7 +97,6 @@ export const spacing = [
     key: "padding",
     control: InputGroup,
     meta: spacingMeta,
-    suffix: "px",
     defaultValue: ["0", "0", "0", "0"],
   },
 ]
@@ -103,7 +107,6 @@ export const size = [
     key: "width",
     control: Input,
     placeholder: "px",
-    suffix: "px",
     width: "48px",
     textAlign: "center",
   },
@@ -112,7 +115,6 @@ export const size = [
     key: "height",
     control: Input,
     placeholder: "px",
-    suffix: "px",
     width: "48px",
     textAlign: "center",
   },
@@ -121,7 +123,6 @@ export const size = [
     key: "min-width",
     control: Input,
     placeholder: "px",
-    suffix: "px",
     width: "48px",
     textAlign: "center",
   },
@@ -129,7 +130,6 @@ export const size = [
     label: "Min H",
     key: "min-height",
     control: Input,
-    suffix: "px",
     placeholder: "px",
     width: "48px",
     textAlign: "center",
@@ -139,7 +139,6 @@ export const size = [
     key: "max-width",
     control: Input,
     placeholder: "px",
-    suffix: "px",
     width: "48px",
     textAlign: "center",
   },
@@ -148,7 +147,6 @@ export const size = [
     key: "max-height",
     control: Input,
     placeholder: "px",
-    suffix: "px",
     width: "48px",
     textAlign: "center",
   },
