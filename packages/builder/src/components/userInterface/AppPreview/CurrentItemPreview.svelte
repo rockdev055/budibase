@@ -21,48 +21,14 @@
     return componentName || "element"
   }
 
-  const screenPlaceholder =  {
-    name: "Screen Placeholder",
-    route: "*",
-    props: {
-      _component: "@budibase/standard-components/container",
-      type: "div",
-      _children: [
-        {
-          _component: "@budibase/standard-components/container",
-          _styles: { normal: {}, hover: {}, active: {}, selected: {} },
-          _id: "__screenslot__text",
-          _code: "",
-          className: "",
-          onLoad: [],
-          type: "div",
-          _children: [
-            {
-              _component: "@budibase/standard-components/text",
-              _styles: {
-                normal: {},
-                hover: {},
-                active: {},
-                selected: {},
-              },
-              _id: "__screenslot__text_2",
-              _code: "",
-              text: "content",
-              font: "",
-              color: "",
-              textAlign: "inline",
-              verticalAlign: "inline",
-              formattingTag: "none",
-            },
-          ],
-        },
-      ],
-    },
-  }
-
-
+  $: iframe &&
+    console.log(
+      iframe.contentDocument.head.insertAdjacentHTML(
+        "beforeend",
+        `<\style></style>`
+      )
+    )
   $: hasComponent = !!$store.currentPreviewItem
-  
   $: {
     styles = ""
     // Apply the CSS from the currently selected page and its screens
@@ -86,12 +52,49 @@
   $: frontendDefinition = {
     appId: $store.appId,
     libraries: $store.libraries,
-    page: $store.pages[$store.currentPageName],
-    screens: [
-          $store.currentFrontEndType === "page"
-          ? screenPlaceholder
-          : $store.currentPreviewItem,
-    ],
+    page: $store.currentPreviewItem,
+    screens: screensExist
+      ? $store.currentPreviewItem._screens
+      : [
+          {
+            name: "Screen Placeholder",
+            route: "*",
+            props: {
+              _component: "@budibase/standard-components/container",
+              type: "div",
+              _children: [
+                {
+                  _component: "@budibase/standard-components/container",
+                  _styles: { normal: {}, hover: {}, active: {}, selected: {} },
+                  _id: "__screenslot__text",
+                  _code: "",
+                  className: "",
+                  onLoad: [],
+                  type: "div",
+                  _children: [
+                    {
+                      _component: "@budibase/standard-components/text",
+                      _styles: {
+                        normal: {},
+                        hover: {},
+                        active: {},
+                        selected: {},
+                      },
+                      _id: "__screenslot__text_2",
+                      _code: "",
+                      text: "content",
+                      font: "",
+                      color: "",
+                      textAlign: "inline",
+                      verticalAlign: "inline",
+                      formattingTag: "none",
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ],
     appRootPath: "",
   }
 
@@ -100,22 +103,6 @@
   $: selectedComponentId = $store.currentComponentInfo
     ? $store.currentComponentInfo._id
     : ""
-
-  const refreshContent = () => {
-    iframe.contentWindow.postMessage(JSON.stringify({
-      styles,
-      stylesheetLinks,
-      selectedComponentType,
-      selectedComponentId,
-      frontendDefinition,
-    }))
-  }
-
-  $: if(iframe) iframe.contentWindow.addEventListener("bb-ready", refreshContent, { once: true })
-
-  $: if(iframe && frontendDefinition) {
-		refreshContent()
-	}
 </script>
 
 <div class="component-container">
@@ -124,7 +111,13 @@
       style="height: 100%; width: 100%"
       title="componentPreview"
       bind:this={iframe}
-      srcdoc={iframeTemplate} />
+      srcdoc={iframeTemplate({
+        styles,
+        stylesheetLinks,
+        selectedComponentType,
+        selectedComponentId,
+        frontendDefinition: JSON.stringify(frontendDefinition),
+      })} />
   {/if}
 </div>
 
