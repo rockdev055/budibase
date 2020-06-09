@@ -188,17 +188,6 @@ export default {
           },
         },
         {
-          _component: "@budibase/standard-components/image",
-          name: "Image",
-          description: "A basic component for displaying images",
-          icon: "ri-image-fill",
-          children: [],
-          properties: {
-            design: { ...all },
-            settings: [{label: "URL", key: "url", control: Input }],
-          },
-        },
-        {
           _component: "@budibase/standard-components/icon",
           name: "Icon",
           description: "A basic component for displaying icons",
@@ -354,19 +343,8 @@ export default {
           children: [],
         },
         {
-          name: "Data List",
-          _component: "@budibase/standard-components/datalist",
-          description: "Shiny list",
-          icon: "ri-file-list-fill",
-          properties: {
-            design: { ...all },
-            settings: [{ label: "Model", key: "model", control: ModelSelect }],
-          },
-          children: [],
-        },
-        {
           name: "List",
-          _component: "@budibase/standard-components/list",
+          _component: "@budibase/standard-components/datalist",
           description: "Shiny list",
           icon: "ri-file-list-fill",
           properties: {

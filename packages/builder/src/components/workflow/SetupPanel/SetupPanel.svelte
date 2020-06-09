@@ -45,15 +45,6 @@
   function testWorkflow() {
     testResult = "PASSED"
   }
-
-  async function saveWorkflow() {
-    const workflow = $workflowStore.currentWorkflow.workflow
-    await workflowStore.actions.save({
-      instanceId: $backendUiStore.selectedDatabase._id,
-      workflow,
-    })
-    notifier.success(`Workflow ${workflow.name} saved.`)
-  }
 </script>
 
 <section>
@@ -69,7 +60,7 @@
     </span>
     {#if !workflowBlock}
       <span
-        class="test-tab"
+        class="hoverable"
         class:selected={selectedTab === 'TEST'}
         on:click={() => (selectedTab = 'TEST')}>
         Test
@@ -95,47 +86,36 @@
   {#if selectedTab === 'SETUP'}
     {#if workflowBlock}
       <WorkflowBlockSetup {workflowBlock} />
-      <div class="buttons">
-        <button class="workflow-button hoverable" on:click={saveWorkflow}>
-          Save Workflow
-        </button>
-        <button
-          class="delete-workflow-button hoverable"
-          on:click={deleteWorkflowBlock}>
-          Delete Block
-        </button>
-      </div>
+      <button class="workflow-button hoverable" on:click={deleteWorkflowBlock}>
+        Delete Block
+      </button>
     {:else if $workflowStore.currentWorkflow}
-      <div class="panel">
-        <div class="panel-body">
-          <div class="block-label">Workflow: {workflow.name}</div>
-          <div class="config-item">
-            <label>Name</label>
-            <div class="form">
-              <input
-                type="text"
-                class="budibase_input"
-                bind:value={workflow.name} />
-            </div>
-          </div>
-          <div class="config-item">
-            <label class="uk-form-label">User Access</label>
-            <div class="access-levels">
-              {#each ACCESS_LEVELS as { name, key }}
-                <span class="access-level">
-                  <label>{name}</label>
-                  <input class="uk-checkbox" type="checkbox" />
-                </span>
-              {/each}
-            </div>
+      <div class="panel-body">
+        <label class="uk-form-label">Workflow: {workflow.name}</label>
+        <div class="uk-margin config-item">
+          <label class="uk-form-label">Name</label>
+          <div class="uk-form-controls">
+            <input
+              type="text"
+              class="budibase__input"
+              bind:value={workflow.name} />
           </div>
         </div>
-        <div class="buttons">
-          <button class="delete-workflow-button" on:click={deleteWorkflow}>
-            Delete Workflow
-          </button>
+        <div class="uk-margin config-item">
+          <label class="uk-form-label">User Access</label>
+          <div class="access-levels">
+            {#each ACCESS_LEVELS as { name, key }}
+              <span class="access-level">
+                <label>{name}</label>
+                <input class="uk-checkbox" type="checkbox" />
+              </span>
+            {/each}
+          </div>
         </div>
       </div>
+      <button class="workflow-button hoverable" on:click={deleteWorkflow}>
+        Delete Workflow
+      </button>
     {/if}
   {/if}
 </section>
@@ -145,119 +125,53 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    justify-content: space-between;
   }
 
   .panel-body {
     flex: 1;
   }
 
-  .panel {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-
   header {
     font-size: 20px;
-    font-weight: 700;
+    font-weight: bold;
     display: flex;
     align-items: center;
-    margin-bottom: 18px;
-    color: var(--ink);
+    margin-bottom: 20px;
   }
 
   .selected {
-    color: var(--ink);
-  }
-
-  .block-label {
-    font-weight: 500;
-    font-size: 14px;
-    color: var(--ink);
-    margin: 0px 0px 16px 0px;
+    color: var(--font);
   }
 
   .config-item {
-    margin: 0px 0px 4px 0px;
-    padding: 12px;
+    padding: 20px;
     background: var(--light-grey);
   }
 
-  .budibase_input {
-    height: 35px;
-    width: 220px;
-    border-radius: 3px;
-    border: 1px solid var(--grey-dark);
-    text-align: left;
-    color: var(--ink);
-    font-size: 14px;
-    padding-left: 12px;
-  }
-
   header > span {
-    color: var(--ink-lighter);
+    color: var(--dark-grey);
     margin-right: 20px;
-  }
-
-  .form {
-    margin-top: 12px;
   }
 
   label {
     font-weight: 500;
     font-size: 14px;
-    color: var(--ink);
-  }
-
-  .buttons {
-    position: absolute;
-    bottom: 10px;
-  }
-
-  .delete-workflow-button {
-    cursor: pointer;
-    border: 1px solid var(--red);
-    border-radius: 3px;
-    width: 260px;
-    padding: 8px 16px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: var(--white);
-    color: var(--red);
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 2ms;
-    align-self: flex-end;
-    margin-bottom: 10px;
-  }
-
-  .delete-workflow-button:hover {
-    background: var(--red);
-    border: 1px solid var(--red);
-    color: var(--white);
+    color: var(--font);
   }
 
   .workflow-button {
-    cursor: pointer;
-    border: 1px solid var(--grey-dark);
-    border-radius: 3px;
+    font-family: Roboto;
     width: 100%;
-    padding: 8px 16px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: white;
-    color: var(--ink);
-    font-size: 14px;
+    border: solid 1px #f2f2f2;
+    border-radius: 2px;
+    background: var(--white);
+    height: 32px;
+    font-size: 12px;
     font-weight: 500;
-    transition: all 2ms;
-    margin-bottom: 10px;
   }
 
   .workflow-button:hover {
-    background: var(--grey-light);
+    background: var(--light-grey);
   }
 
   .access-level {
@@ -269,15 +183,14 @@
 
   .access-level label {
     font-weight: normal;
-    color: var(--ink);
   }
 
   .test-result {
     border: none;
     width: 100%;
-    border-radius: 3px;
+    border-radius: 2px;
     height: 32px;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 500;
     color: var(--white);
     text-align: center;
@@ -289,6 +202,6 @@
   }
 
   .failed {
-    background: var(--red);
+    background: var(--coral);
   }
 </style>

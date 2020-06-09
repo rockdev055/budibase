@@ -25,11 +25,19 @@
   onMount(() => {
     workflowStore.actions.fetch($backendUiStore.selectedDatabase._id)
   })
+
+  async function saveWorkflow() {
+    const workflow = $workflowStore.currentWorkflow.workflow
+    await workflowStore.actions.save({
+      instanceId: $backendUiStore.selectedDatabase._id,
+      workflow,
+    })
+    notifier.success(`Workflow ${workflow.name} saved.`)
+  }
 </script>
 
 <section>
   <button class="new-workflow-button hoverable" on:click={newWorkflow}>
-    <i class="icon ri-add-circle-fill" />
     Create New Workflow
   </button>
   <ul>
@@ -43,6 +51,11 @@
       </li>
     {/each}
   </ul>
+  {#if $workflowStore.currentWorkflow}
+    <button class="new-workflow-button hoverable" on:click={saveWorkflow}>
+      Save Workflow
+    </button>
+  {/if}
 </section>
 
 <style>
@@ -74,13 +87,12 @@
   }
 
   .workflow-item {
+    padding: 20px;
     display: flex;
-    border-radius: 3px;
-    padding-left: 12px;
     align-items: center;
-    height: 40px;
-    margin-bottom: 4px;
-    color: var(--ink);
+    border-radius: 3px;
+    height: 32px;
+    font-weight: 500;
   }
 
   .workflow-item i {
@@ -90,36 +102,25 @@
 
   .workflow-item:hover {
     cursor: pointer;
-    background: var(--grey-light);
+    background: var(--secondary);
   }
 
   .workflow-item.selected {
-    background: var(--blue-light);
+    background: var(--secondary);
   }
 
   .new-workflow-button {
-    cursor: pointer;
-    border: 1px solid var(--grey-dark);
-    border-radius: 3px;
+    font-family: Roboto;
     width: 100%;
-    padding: 8px 16px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: white;
-    color: var(--ink);
-    font-size: 14px;
+    border: solid 1px #f2f2f2;
+    border-radius: 2px;
+    background: var(--white);
+    height: 32px;
+    font-size: 12px;
     font-weight: 500;
-    transition: all 2ms;
   }
 
   .new-workflow-button:hover {
-    background: var(--grey-light);
-  }
-
-  .icon {
-    color: var(--ink);
-    font-size: 16px;
-    margin-right: 4px;
+    background: var(--light-grey);
   }
 </style>

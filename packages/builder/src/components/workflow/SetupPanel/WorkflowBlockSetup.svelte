@@ -15,12 +15,12 @@
 
 <label class="uk-form-label">{workflowBlock.type}: {workflowBlock.name}</label>
 {#each workflowParams as [parameter, type]}
-  <div class="block-field">
+  <div class="uk-margin block-field">
     <label class="uk-form-label">{parameter}</label>
     <div class="uk-form-controls">
       {#if Array.isArray(type)}
         <select
-          class="budibase_input"
+          class="budibase__input"
           bind:value={workflowBlock.args[parameter]}>
           {#each type as option}
             <option value={option}>{option}</option>
@@ -67,20 +67,8 @@
 <style>
   .block-field {
     border-radius: 3px;
-    background: var(--grey-light);
-    padding: 12px;
-    margin: 0px 0px 4px 0px;
-  }
-
-  .budibase_input {
-    height: 35px;
-    width: 220px;
-    border-radius: 3px;
-    border: 1px solid var(--grey-dark);
-    text-align: left;
-    color: var(--ink);
-    font-size: 14px;
-    padding-left: 12px;
+    background: var(--light-grey);
+    padding: 20px;
   }
 
   label {
