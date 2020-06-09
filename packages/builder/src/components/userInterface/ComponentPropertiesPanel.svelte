@@ -25,7 +25,7 @@
   let categories = [
     { value: "design", name: "Design" },
     { value: "settings", name: "Settings" },
-    { value: "actions", name: "Actions" },
+    { value: "events", name: "Events" },
   ]
   let selectedCategory = categories[0]
 
@@ -93,6 +93,8 @@
         {componentDefinition}
         {panelDefinition}
         onChange={onPropChanged} />
+    {:else if selectedCategory.value === 'events'}
+      <EventsEditor component={componentInstance} />
     {/if}
 
   </div>
@@ -104,7 +106,12 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    /* Merge Check */
     overflow-x: hidden;
+    overflow-y: hidden;
+    padding: 20px;
+    box-sizing: border-box;
+    /* Merge Check */
   }
 
   .title > div:nth-child(1) {
@@ -119,5 +126,7 @@
   .component-props-container {
     margin-top: 20px;
     flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
   }
 </style>
