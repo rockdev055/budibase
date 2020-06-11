@@ -30,9 +30,8 @@ export const searchAllComponents = (components, phrase) => {
 
 export const getExactComponent = (components, name) => {
   const stringEquals = (s1, s2) => normalString(s1) === normalString(s2)
-  return pipe(components, [
-    find(c => stringEquals(c.props._instanceName, name)),
-  ])
+
+  return pipe(components, [find(c => stringEquals(c.name, name))])
 }
 
 export const getAncestorProps = (components, name, found = []) => {

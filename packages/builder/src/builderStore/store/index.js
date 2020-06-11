@@ -1,5 +1,4 @@
 import { values } from "lodash/fp"
-import { get_capitalised_name } from "../../helpers"
 import { backendUiStore } from "builderStore"
 import * as backendStoreActions from "./backend"
 import { writable, get } from "svelte/store"
@@ -154,6 +153,7 @@ const createScreen = store => (screenName, route, layoutComponentName) => {
     const rootComponent = state.components[layoutComponentName]
 
     const newScreen = {
+      name: screenName || "",
       description: "",
       url: "",
       _css: "",
@@ -161,7 +161,6 @@ const createScreen = store => (screenName, route, layoutComponentName) => {
     }
 
     newScreen.route = route
-    newScreen.props._instanceName = screenName || ""
     state.currentPreviewItem = newScreen
     state.currentComponentInfo = newScreen.props
     state.currentFrontEndType = "screen"
@@ -337,14 +336,12 @@ const addChildComponent = store => (componentToAdd, presetName) => {
     const presetProps = presetName ? component.presets[presetName] : {}
 
     const instanceId = get(backendUiStore).selectedDatabase._id
-    const instanceName = get_capitalised_name(componentToAdd)
 
     const newComponent = createProps(
       component,
       {
         ...presetProps,
         _instanceId: instanceId,
-        _instanceName: instanceName,
       },
       state
     )

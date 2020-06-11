@@ -66,8 +66,6 @@
   const onStyleChanged = store.setComponentStyle
   const onPropChanged = store.setComponentProp
 
-  $: displayName = $store.currentFrontEndType === "screen" && componentInstance._instanceName
-
   function walkProps(component, action) {
     action(component)
     if (component.children) {
@@ -101,12 +99,6 @@
     {categories}
     {selectedCategory} />
 
-    {#if displayName}
-      <div class="instance-name">
-        <strong>{componentInstance._instanceName}</strong>
-      </div>
-    {/if}
-
   <div class="component-props-container">
     {#if selectedCategory.value === 'design'}
       <DesignView {panelDefinition} {componentInstance} {onStyleChanged} />
@@ -115,7 +107,6 @@
         {componentInstance}
         {componentDefinition}
         {panelDefinition}
-        displayNameField={displayName}
         onChange={onPropChanged} />
     {:else if selectedCategory.value === 'events'}
       <EventsEditor component={componentInstance} />
@@ -146,14 +137,9 @@
   }
 
   .component-props-container {
-    margin-top: 10px;
+    margin-top: 20px;
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
-  }
-
-  .instance-name {
-    margin-top: 10px;
-    font-size: 12px;
   }
 </style>
