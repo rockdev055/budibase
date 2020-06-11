@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken")
 const CouchDB = require("../../db")
 const ClientDb = require("../../db/clientDb")
 const bcrypt = require("../../utilities/bcrypt")
+const env = require("../../environment")
 
 exports.authenticate = async ctx => {
   const { username, password } = ctx.request.body
@@ -9,14 +10,8 @@ exports.authenticate = async ctx => {
   if (!username) ctx.throw(400, "Username Required.")
   if (!password) ctx.throw(400, "Password Required")
 
-  const masterDb = new CouchDB("clientAppLookup")
-  const { clientId } = await masterDb.get(ctx.params.appId)
-
-  if (!clientId) {
-    ctx.throw(400, "ClientId not suplied")
-  }
   // find the instance that the user is associated with
-  const db = new CouchDB(ClientDb.name(clientId))
+  const db = new CouchDB(ClientDb.name(env.CLIENT_ID))
   const appId = ctx.params.appId
   const app = await db.get(appId)
   const instanceId = app.userInstanceMap[username]
