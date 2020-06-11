@@ -50,7 +50,6 @@
         class:highlighted={!workflowLive}
         class:hoverable={!workflowLive}
         class="play-button hoverable"
-        data-cy="activate-workflow"
         on:click={() => setWorkflowLive(true)}>
         <i class="ri-play-fill" />
       </button>

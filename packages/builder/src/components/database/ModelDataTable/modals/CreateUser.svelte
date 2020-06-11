@@ -29,26 +29,15 @@
     </div>
     <div class="uk-margin">
       <label class="uk-form-label" for="form-stacked-text">Username</label>
-      <input
-        data-cy="username"
-        class="uk-input"
-        type="text"
-        bind:value={username} />
+      <input class="uk-input" type="text" bind:value={username} />
     </div>
     <div class="uk-margin">
       <label class="uk-form-label" for="form-stacked-text">Password</label>
-      <input
-        data-cy="password"
-        class="uk-input"
-        type="password"
-        bind:value={password} />
+      <input class="uk-input" type="password" bind:value={password} />
     </div>
     <div class="uk-margin">
       <label class="uk-form-label" for="form-stacked-text">Access Level</label>
-      <select
-        data-cy="accessLevel"
-        class="uk-select"
-        bind:value={accessLevelId}>
+      <select class="uk-select" bind:value={accessLevelId}>
         <option value="" />
         <option value="POWER_USER">Power User</option>
         <option value="ADMIN">Admin</option>
