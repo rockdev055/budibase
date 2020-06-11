@@ -19,10 +19,9 @@
     onChange(_value)
   }
 
-  $: displayValues =
-    value && suffix
-      ? value.map(v => v.replace(new RegExp(`${suffix}$`), ""))
-      : value || []
+  $: displayValues = value && suffix
+    ? value.map(v => v.replace(new RegExp(`${suffix}$`), ""))
+    : value || []
 </script>
 
 <div class="input-container">

@@ -87,6 +87,7 @@
 
   .form-content {
     margin-bottom: 20px;
+
   }
 
   .input {
