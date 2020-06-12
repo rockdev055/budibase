@@ -28,6 +28,11 @@ router
     authorized(WRITE_MODEL, ctx => ctx.params.modelId),
     recordController.save
   )
+  .post(
+    "/api/:instanceId/:modelId/records/validate",
+    authorized(WRITE_MODEL, ctx => ctx.params.modelId),
+    recordController.validate
+  )
   .delete(
     "/api/:instanceId/:modelId/records/:recordId/:revId",
     authorized(WRITE_MODEL, ctx => ctx.params.modelId),
@@ -38,6 +43,7 @@ router
 
 router
   .get("/api/:instanceId/models", authorized(BUILDER), modelController.fetch)
+  .get("/api/:instanceId/models/:id", authorized(BUILDER), modelController.find)
   .post("/api/:instanceId/models", authorized(BUILDER), modelController.create)
   // .patch("/api/:instanceId/models", controller.update)
   .delete(
