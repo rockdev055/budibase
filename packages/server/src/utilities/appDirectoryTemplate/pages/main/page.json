@@ -1,5 +1,5 @@
 {
-	"title": "{{ name }}",
+	"title": "Test App",
 	"favicon": "./_shared/favicon.png",
 	"stylesheets": [],
 	"componentLibraries": ["@budibase/standard-components", "@budibase/materialdesign-components"],
@@ -9,10 +9,8 @@
 		"_id": 0,
 		"type": "div",
 		"_styles": {
-			"active": {},
-			"hover": {},
-			"normal": {},
-			"selected": {}
+			"layout": {},
+			"position": {}
 		},
 		"_code": ""
 	},

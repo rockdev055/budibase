@@ -5,11 +5,10 @@ const {
   budibaseTempDir,
   budibaseAppsDir,
 } = require("../../utilities/budibaseDir")
+const env = require("../../environment")
 
 exports.fetchAppComponentDefinitions = async function(ctx) {
-  const masterDb = new CouchDB("clientAppLookup")
-  const { clientId } = await masterDb.get(ctx.params.appId)
-  const db = new CouchDB(ClientDb.name(clientId))
+  const db = new CouchDB(ClientDb.name(env.CLIENT_ID))
   const app = await db.get(ctx.params.appId)
 
   const componentDefinitions = app.componentLibraries.reduce(

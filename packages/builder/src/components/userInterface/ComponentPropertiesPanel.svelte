@@ -25,7 +25,7 @@
   let categories = [
     { value: "design", name: "Design" },
     { value: "settings", name: "Settings" },
-    { value: "events", name: "Events" },
+    { value: "actions", name: "Actions" },
   ]
   let selectedCategory = categories[0]
 
@@ -38,30 +38,15 @@
       c => c._component === componentInstance._component
     ) || {}
 
-  let panelDefinition = {}
+  $: panelDefinition = componentPropDefinition.properties
+    ? componentPropDefinition.properties[selectedCategory.value]
+    : {}
 
-  $: {
-    if (componentPropDefinition.properties) {
-      if (selectedCategory.value === "design") {
-        panelDefinition = componentPropDefinition.properties["design"]
-      } else {
-        let panelDef = componentPropDefinition.properties["settings"]
-        if (
-          $store.currentFrontEndType === "page" &&
-          $store.currentView !== "component"
-        ) {
-          panelDefinition = [...page, ...panelDef]
-        } else if (
-          $store.currentFrontEndType === "screen" &&
-          $store.currentView !== "component"
-        ) {
-          panelDefinition = [...screen, ...panelDef]
-        } else {
-          panelDefinition = panelDef
-        }
-      }
-    }
-  }
+  // SCREEN PROPS =============================================
+  $: screen_props =
+    $store.currentFrontEndType === "page"
+      ? getProps($store.currentPreviewItem, ["name", "favicon"])
+      : getProps($store.currentPreviewItem, ["name", "description", "route"])
 
   const onStyleChanged = store.setComponentStyle
   const onPropChanged = store.setComponentProp
@@ -108,8 +93,6 @@
         {componentDefinition}
         {panelDefinition}
         onChange={onPropChanged} />
-    {:else if selectedCategory.value === 'events'}
-      <EventsEditor component={componentInstance} />
     {/if}
 
   </div>
@@ -122,9 +105,6 @@
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
-    overflow-y: hidden;
-    padding: 20px;
-    box-sizing: border-box;
   }
 
   .title > div:nth-child(1) {
@@ -139,7 +119,5 @@
   .component-props-container {
     margin-top: 20px;
     flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
   }
 </style>

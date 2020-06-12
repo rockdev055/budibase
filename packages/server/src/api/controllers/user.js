@@ -1,6 +1,7 @@
 const CouchDB = require("../../db")
 const clientDb = require("../../db/clientDb")
 const bcrypt = require("../../utilities/bcrypt")
+const env = require("../../environment")
 const getUserId = userName => `user_${userName}`
 const {
   POWERUSER_LEVEL_ID,
@@ -41,11 +42,8 @@ exports.create = async function(ctx) {
 
   const response = await database.post(user)
 
-  const masterDb = new CouchDB("clientAppLookup")
-  const { clientId } = await masterDb.get(appId)
-
   // the clientDB needs to store a map of users against the app
-  const db = new CouchDB(clientDb.name(clientId))
+  const db = new CouchDB(clientDb.name(env.CLIENT_ID))
   const app = await db.get(appId)
 
   app.userInstanceMap = {

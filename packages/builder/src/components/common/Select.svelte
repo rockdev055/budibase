@@ -20,8 +20,11 @@
 <style>
   .select-container {
     font-size: 14px;
+    color: var(--secondary60);
+    font-weight: bold;
     position: relative;
-    border: var(--grey-dark) 1px solid;
+    max-width: 400px;
+    min-width: 275px;
   }
 
   .adjusted {
@@ -40,7 +43,7 @@
     font-family: sans-serif;
     font-weight: 400;
     font-size: 14px;
-    color: var(--ink);
+    color: #000333;
     padding: 0 40px 0px 20px;
     width: 100%;
     max-width: 100%;
@@ -60,6 +63,6 @@
     width: 30px;
     height: 30px;
     pointer-events: none;
-    color: var(--ink);
+    color: var(--secondary100);
   }
 </style>

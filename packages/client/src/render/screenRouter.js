@@ -1,7 +1,7 @@
 import regexparam from "regexparam"
-import { routerStore } from "../state/store"
+import { writable } from "svelte/store"
 
-export const screenRouter = ({ screens, onScreenSelected, appRootPath }) => {
+export const screenRouter = (screens, onScreenSelected, appRootPath) => {
   const makeRootedPath = url => {
     if (appRootPath) {
       if (url) return `${appRootPath}${url.startsWith("/") ? "" : "/"}${url}`
@@ -40,14 +40,13 @@ export const screenRouter = ({ screens, onScreenSelected, appRootPath }) => {
       })
     }
 
-    routerStore.update(state => {
-      state["##routeParams"] = params
-      return state
-    })
+    const storeInitial = {}
+    storeInitial["##routeParams"] = params
+    const store = writable(storeInitial)
 
     const screenIndex = current !== -1 ? current : fallback
 
-    onScreenSelected(screens[screenIndex], _url)
+    onScreenSelected(screens[screenIndex], store, _url)
 
     try {
       !url.state && history.pushState(_url, null, _url)
@@ -70,8 +69,7 @@ export const screenRouter = ({ screens, onScreenSelected, appRootPath }) => {
     )
       return
 
-    const target = x.target || "_self"
-    if (!y || target !== "_self" || x.host !== location.host) return
+    if (!y || x.target || x.host !== location.host) return
 
     e.preventDefault()
     route(y)

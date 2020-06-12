@@ -43,6 +43,13 @@
     )
   }
 
+  async function selectRecord(record) {
+    return await api.loadRecord(record.key, {
+      appname: $store.appname,
+      instanceId: $backendUiStore.selectedDatabase._id,
+    })
+  }
+
   const ITEMS_PER_PAGE = 10
   // Internal headers we want to hide from the user
   const INTERNAL_HEADERS = ["_id", "_rev", "modelId", "type"]
@@ -145,19 +152,19 @@
   }
 
   table {
-    border: 1px solid var(--grey-dark);
+    border: 1px solid #ccc;
     background: #fff;
     border-radius: 3px;
     border-collapse: collapse;
   }
 
   thead {
-    background: var(--blue-light);
-    border: 1px solid var(--grey-dark);
+    background: #f9f9f9;
+    border: 1px solid #ccc;
   }
 
   thead th {
-    color: var(--ink);
+    color: var(--button-text);
     text-transform: capitalize;
     font-weight: 500;
     font-size: 14px;
@@ -166,14 +173,14 @@
   }
 
   tbody tr {
-    border-bottom: 1px solid var(--grey-dark);
+    border-bottom: 1px solid #ccc;
     transition: 0.3s background-color;
-    color: var(--ink);
+    color: var(--secondary100);
     font-size: 14px;
   }
 
   tbody tr:hover {
-    background: var(--grey-light);
+    background: #fafafa;
   }
 
   .table-controls {

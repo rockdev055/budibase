@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken")
 const CouchDB = require("../../db")
 const ClientDb = require("../../db/clientDb")
 const bcrypt = require("../../utilities/bcrypt")
+const env = require("../../environment")
 
 exports.authenticate = async ctx => {
   const { username, password } = ctx.request.body
@@ -9,15 +10,12 @@ exports.authenticate = async ctx => {
   if (!username) ctx.throw(400, "Username Required.")
   if (!password) ctx.throw(400, "Password Required")
 
-  const masterDb = new CouchDB("clientAppLookup")
-  const { clientId } = await masterDb.get(ctx.params.appId)
+  // TODO: Don't use this. It can't be relied on
+  const referer = ctx.request.headers.referer.split("/")
+  const appId = referer[3]
 
-  if (!clientId) {
-    ctx.throw(400, "ClientId not suplied")
-  }
   // find the instance that the user is associated with
-  const db = new CouchDB(ClientDb.name(clientId))
-  const appId = ctx.params.appId
+  const db = new CouchDB(ClientDb.name(env.CLIENT_ID))
   const app = await db.get(appId)
   const instanceId = app.userInstanceMap[username]
 
@@ -26,15 +24,14 @@ exports.authenticate = async ctx => {
 
   // Check the user exists in the instance DB by username
   const instanceDb = new CouchDB(instanceId)
+  const { rows } = await instanceDb.query("database/by_username", {
+    include_docs: true,
+    username,
+  })
 
-  let dbUser
-  try {
-    dbUser = await instanceDb.get(`user_${username}`)
-  } catch (_) {
-    // do not want to throw a 404 - as this could be
-    // used to dtermine valid usernames
-    ctx.throw(401, "Invalid Credentials")
-  }
+  if (rows.length === 0) ctx.throw(500, `User does not exist.`)
+
+  const dbUser = rows[0].doc
 
   // authenticate
   if (await bcrypt.compare(password, dbUser.password)) {

@@ -7,7 +7,7 @@ const Sqrl = require("squirrelly")
 const uuid = require("uuid")
 
 module.exports = opts => {
-  return run(opts)
+  run(opts)
 }
 
 const run = async opts => {

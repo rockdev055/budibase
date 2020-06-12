@@ -5,13 +5,11 @@ const newid = require("../../db/newid")
 const env = require("../../environment")
 const instanceController = require("./instance")
 const { resolve, join } = require("path")
-const { copy, exists, readFile, writeFile } = require("fs-extra")
-const { budibaseAppsDir } = require("../../utilities/budibaseDir")
+const { copy, readJSON, writeJSON, exists } = require("fs-extra")
 const { exec } = require("child_process")
-const sqrl = require("squirrelly")
 
 exports.fetch = async function(ctx) {
-  const db = new CouchDB(ClientDb.name(getClientId(ctx)))
+  const db = new CouchDB(ClientDb.name(env.CLIENT_ID))
   const body = await db.query("client/by_type", {
     include_docs: true,
     key: ["app"],
@@ -21,30 +19,16 @@ exports.fetch = async function(ctx) {
 }
 
 exports.fetchAppPackage = async function(ctx) {
-  const clientId = await lookupClientId(ctx.params.applicationId)
-  const db = new CouchDB(ClientDb.name(clientId))
+  const db = new CouchDB(ClientDb.name(env.CLIENT_ID))
   const application = await db.get(ctx.params.applicationId)
   ctx.body = await getPackageForBuilder(ctx.config, application)
 }
 
 exports.create = async function(ctx) {
-  const clientId =
-    (ctx.request.body && ctx.request.body.clientId) || env.CLIENT_ID
-
-  if (!clientId) {
-    ctx.throw(400, "ClientId not suplied")
-  }
-  const appId = newid()
-  // insert an appId -> clientId lookup
-  const masterDb = new CouchDB("clientAppLookup")
-  await masterDb.put({
-    _id: appId,
-    clientId,
-  })
-  const db = new CouchDB(ClientDb.name(clientId))
+  const db = new CouchDB(ClientDb.name(env.CLIENT_ID))
 
   const newApplication = {
-    _id: appId,
+    _id: newid(),
     type: "app",
     instances: [],
     userInstanceMap: {},
@@ -61,10 +45,11 @@ exports.create = async function(ctx) {
 
   const createInstCtx = {
     params: {
+      clientId: env.CLIENT_ID,
       applicationId: newApplication._id,
     },
     request: {
-      body: { name: `dev-${clientId}` },
+      body: { name: `dev-${env.CLIENT_ID}` },
     },
   }
   await instanceController.create(createInstCtx)
@@ -74,7 +59,6 @@ exports.create = async function(ctx) {
     await runNpmInstall(newAppFolder)
   }
 
-  ctx.status = 200
   ctx.body = newApplication
   ctx.message = `Application ${ctx.request.body.name} created successfully`
 }
@@ -88,52 +72,24 @@ const createEmptyAppPackage = async (ctx, app) => {
     "appDirectoryTemplate"
   )
 
-  const appsFolder = budibaseAppsDir()
+  const appsFolder = env.BUDIBASE_DIR
   const newAppFolder = resolve(appsFolder, app._id)
 
   if (await exists(newAppFolder)) {
     ctx.throw(400, "App folder already exists for this application")
+    return
   }
 
   await copy(templateFolder, newAppFolder)
 
-  await updateJsonFile(join(appsFolder, app._id, "package.json"), {
-    name: npmFriendlyAppName(app.name),
-  })
-  await updateJsonFile(
-    join(appsFolder, app._id, "pages", "main", "page.json"),
-    app
-  )
-  await updateJsonFile(
-    join(appsFolder, app._id, "pages", "unauthenticated", "page.json"),
-    app
-  )
+  const packageJsonPath = join(appsFolder, app._id, "package.json")
+  const packageJson = await readJSON(packageJsonPath)
+
+  packageJson.name = npmFriendlyAppName(app.name)
+
+  await writeJSON(packageJsonPath, packageJson)
 
   return newAppFolder
-}
-
-const lookupClientId = async appId => {
-  const masterDb = new CouchDB("clientAppLookup")
-  const { clientId } = await masterDb.get(appId)
-  return clientId
-}
-
-const getClientId = ctx => {
-  const clientId =
-    (ctx.request.body && ctx.request.body.clientId) ||
-    (ctx.query && ctx.query.clientId) ||
-    env.CLIENT_ID
-
-  if (!clientId) {
-    ctx.throw(400, "ClientId not suplied")
-  }
-  return clientId
-}
-
-const updateJsonFile = async (filePath, app) => {
-  const json = await readFile(filePath, "utf8")
-  const newJson = sqrl.Render(json, app)
-  await writeFile(filePath, newJson, "utf8")
 }
 
 const runNpmInstall = async newAppFolder => {
