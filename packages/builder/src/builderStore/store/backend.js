@@ -39,6 +39,18 @@ export const getBackendUiStore = () => {
           state.views = views
           return state
         })
+        /** TODO: DEMO SOLUTION**/
+        if (!models || models.length === 0) {
+          const { open, close } = getContext("simple-modal")
+          open(
+            CreateEditModelModal,
+            {
+              onClosed: close,
+            },
+            { styleContent: { padding: "0" } }
+          )
+        }
+        /** DEMO SOLUTION  END **/
       },
     },
     records: {
@@ -59,10 +71,6 @@ export const getBackendUiStore = () => {
         }),
     },
     models: {
-      select: model => store.update(state => {
-        state.selectedModel = model;
-        return state;
-      }),
       create: model =>
         store.update(state => {
           state.models.push(model)
@@ -70,7 +78,7 @@ export const getBackendUiStore = () => {
           state.selectedModel = model
           state.selectedView = `all_${model._id}`
           return state
-        })
+        }),
     },
     views: {
       select: view =>
