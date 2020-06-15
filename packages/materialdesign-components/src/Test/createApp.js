@@ -14,6 +14,12 @@ export default async () => {
   componentLibraries["@budibase/standard-components"] = standardcomponents
   const appDef = { hierarchy: {}, actions: {} }
   const user = { name: "yeo", permissions: [] }
-  const { initialisePage } = createApp(componentLibraries, {}, appDef, user, {})
+  const { initialisePage } = createApp(
+    componentLibraries,
+    { appRootPath: "" },
+    appDef,
+    user,
+    {}
+  )
   return initialisePage
 }

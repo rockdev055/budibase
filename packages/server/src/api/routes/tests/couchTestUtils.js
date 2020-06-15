@@ -177,8 +177,7 @@ const createUserWithPermissions = async (
   const designDoc = await db.get("_design/database")
 
   const loginResult = await request
-    .post(`/api/authenticate`)
-    .set({ Cookie: `budibase:appid=${designDoc.metadata.applicationId}` })
+    .post(`/${designDoc.metadata.applicationId}/api/authenticate`)
     .send({ username, password })
 
   // returning necessary request headers
@@ -253,8 +252,4 @@ exports.insertDocument = async (databaseId, document) => {
 
 exports.destroyDocument = async (databaseId, documentId) => {
   return await new CouchDB(databaseId).destroy(documentId)
-}
-
-exports.getDocument = async (databaseId, documentId) => {
-  return await new CouchDB(databaseId).get(documentId)
 }

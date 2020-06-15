@@ -9,11 +9,11 @@
 
   const pages = [
     {
-      title: "Private",
+      title: "Main",
       id: "main",
     },
     {
-      title: "Public",
+      title: "Login",
       id: "unauthenticated",
     },
   ]

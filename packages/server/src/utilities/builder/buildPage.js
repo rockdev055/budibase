@@ -45,16 +45,18 @@ const copyClientLib = async (appPath, pageName) => {
 
 const buildIndexHtml = async (config, appId, pageName, appPath, pkg) => {
   const appPublicPath = publicPath(appPath, pageName)
+  const appRootPath = rootPath(config, appId)
 
   const stylesheetUrl = s =>
     s.startsWith("http") ? s : `/${rootPath(config, appId)}/${s}`
 
   const templateObj = {
     title: pkg.page.title || "Budibase App",
-    favicon: `${pkg.page.favicon || "/_shared/favicon.png"}`,
+    favicon: `${appRootPath}/${pkg.page.favicon || "/_shared/favicon.png"}`,
     stylesheets: (pkg.page.stylesheets || []).map(stylesheetUrl),
     screenStyles: pkg.screens.filter(s => s._css).map(s => s._css),
     pageStyle: pkg.page._css,
+    appRootPath,
   }
 
   const indexHtmlTemplate = await readFile(
@@ -72,6 +74,7 @@ const buildIndexHtml = async (config, appId, pageName, appPath, pkg) => {
 const buildFrontendAppDefinition = async (config, appId, pageName, pkg) => {
   const appPath = appPackageFolder(config, appId)
   const appPublicPath = publicPath(appPath, pageName)
+  const appRootPath = rootPath(config, appId)
 
   const filename = join(appPublicPath, "clientFrontendDefinition.js")
 
@@ -86,6 +89,7 @@ const buildFrontendAppDefinition = async (config, appId, pageName, pkg) => {
   }
 
   const clientUiDefinition = JSON.stringify({
+    appRootPath: appRootPath,
     page: pkg.page,
     screens: pkg.screens,
     libraries: [
