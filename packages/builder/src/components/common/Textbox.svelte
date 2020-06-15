@@ -13,7 +13,6 @@
   <label class="uk-form-label">{label}</label>
   <div class="uk-form-controls">
     <input
-      data-cy={label}
       class="budibase__input"
       class:uk-form-danger={hasError}
       on:change

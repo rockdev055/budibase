@@ -1,11 +1,11 @@
 import { values } from "lodash/fp"
+import { get_capitalised_name } from "../../helpers"
 import { backendUiStore } from "builderStore"
 import * as backendStoreActions from "./backend"
 import { writable, get } from "svelte/store"
 import api from "../api"
 import { DEFAULT_PAGES_OBJECT } from "../../constants"
 import { getExactComponent } from "components/userInterface/pagesParsing/searchComponents"
-import { rename } from "components/userInterface/pagesParsing/renameScreen"
 import {
   createProps,
   makePropsSafe,
@@ -24,6 +24,7 @@ import {
   saveCurrentPreviewItem as _saveCurrentPreviewItem,
   saveScreenApi as _saveScreenApi,
   regenerateCssForCurrentScreen,
+  renameCurrentScreen,
 } from "../storeUtils"
 
 export const getStore = () => {
@@ -52,7 +53,6 @@ export const getStore = () => {
   store.createDatabaseForApp = backendStoreActions.createDatabaseForApp(store)
 
   store.saveScreen = saveScreen(store)
-  store.renameScreen = renameScreen(store)
   store.deleteScreen = deleteScreen(store)
   store.setCurrentScreen = setCurrentScreen(store)
   store.setCurrentPage = setCurrentPage(store)
@@ -63,12 +63,14 @@ export const getStore = () => {
   store.addChildComponent = addChildComponent(store)
   store.selectComponent = selectComponent(store)
   store.setComponentProp = setComponentProp(store)
+  store.setPageOrScreenProp = setPageOrScreenProp(store)
   store.setComponentStyle = setComponentStyle(store)
   store.setComponentCode = setComponentCode(store)
   store.setScreenType = setScreenType(store)
   store.getPathToComponent = getPathToComponent(store)
   store.addTemplatedComponent = addTemplatedComponent(store)
   store.setMetadataProp = setMetadataProp(store)
+  store.editPageOrScreen = editPageOrScreen(store)
   return store
 }
 
@@ -153,14 +155,13 @@ const createScreen = store => (screenName, route, layoutComponentName) => {
     const rootComponent = state.components[layoutComponentName]
 
     const newScreen = {
-      name: screenName || "",
       description: "",
       url: "",
       _css: "",
       props: createProps(rootComponent).props,
     }
-
     newScreen.route = route
+    newScreen.props._instanceName = screenName || ""
     state.currentPreviewItem = newScreen
     state.currentComponentInfo = newScreen.props
     state.currentFrontEndType = "screen"
@@ -173,7 +174,7 @@ const createScreen = store => (screenName, route, layoutComponentName) => {
 
 const setCurrentScreen = store => screenName => {
   store.update(s => {
-    const screen = getExactComponent(s.screens, screenName)
+    const screen = getExactComponent(s.screens, screenName, true)
     s.currentPreviewItem = screen
     s.currentFrontEndType = "screen"
     s.currentView = "detail"
@@ -202,46 +203,6 @@ const deleteScreen = store => name => {
     }
 
     api.delete(`/_builder/api/${s.appId}/screen/${name}`)
-
-    return s
-  })
-}
-
-const renameScreen = store => (oldname, newname) => {
-  store.update(s => {
-    const { screens, pages, error, changedScreens } = rename(
-      s.pages,
-      s.screens,
-      oldname,
-      newname
-    )
-
-    if (error) {
-      // should really do something with this
-      return s
-    }
-
-    s.screens = screens
-    s.pages = pages
-    if (s.currentPreviewItem.name === oldname)
-      s.currentPreviewItem.name = newname
-
-    const saveAllChanged = async () => {
-      for (let screenName of changedScreens) {
-        const changedScreen = getExactComponent(screens, screenName)
-        await api.post(`/_builder/api/${s.appId}/screen`, changedScreen)
-      }
-    }
-
-    api
-      .patch(`/_builder/api/${s.appId}/screen`, {
-        oldname,
-        newname,
-      })
-      .then(() => saveAllChanged())
-      .then(() => {
-        _savePage(s)
-      })
 
     return s
   })
@@ -284,6 +245,7 @@ const setCurrentPage = store => pageName => {
     const currentPage = state.pages[pageName]
 
     state.currentFrontEndType = "page"
+    state.currentView = "detail"
     state.currentPageName = pageName
     state.screens = Array.isArray(current_screens)
       ? current_screens
@@ -336,12 +298,14 @@ const addChildComponent = store => (componentToAdd, presetName) => {
     const presetProps = presetName ? component.presets[presetName] : {}
 
     const instanceId = get(backendUiStore).selectedDatabase._id
+    const instanceName = get_capitalised_name(componentToAdd)
 
     const newComponent = createProps(
       component,
       {
         ...presetProps,
         _instanceId: instanceId,
+        _instanceName: instanceName,
       },
       state
     )
@@ -400,6 +364,18 @@ const setComponentProp = store => (name, value) => {
   })
 }
 
+const setPageOrScreenProp = store => (name, value) => {
+  store.update(state => {
+    if (name === "_instanceName" && state.currentFrontEndType === "screen") {
+      state.currentPreviewItem.props[name] = value
+    } else {
+      state.currentPreviewItem[name] = value
+    }
+    _saveCurrentPreviewItem(state)
+    return state
+  })
+}
+
 const setComponentStyle = store => (type, name, value) => {
   store.update(state => {
     if (!state.currentComponentInfo._styles) {
@@ -445,6 +421,18 @@ const setScreenType = store => type => {
 
     state.currentComponentInfo = pageOrScreen ? pageOrScreen.props : null
     state.currentPreviewItem = pageOrScreen
+    state.currentView = "detail"
+    return state
+  })
+}
+
+const editPageOrScreen = store => (key, value, setOnComponent = false) => {
+  store.update(state => {
+    setOnComponent
+      ? (state.currentPreviewItem.props[key] = value)
+      : (state.currentPreviewItem[key] = value)
+    _saveCurrentPreviewItem(state)
+
     return state
   })
 }
