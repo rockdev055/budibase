@@ -1,6 +1,7 @@
 <script>
   import { setContext, onMount } from "svelte"
   import PropsView from "./PropsView.svelte"
+
   import { store } from "builderStore"
   import IconButton from "components/common/IconButton.svelte"
   import {
@@ -29,7 +30,7 @@
   let selectedCategory = categories[0]
 
   $: components = $store.components
-  $: componentInstance = $store.currentComponentInfo
+  $: componentInstance = $store.currentView !== "component" ? {...$store.currentPreviewItem, ...$store.currentComponentInfo} : $store.currentComponentInfo
   $: componentDefinition = $store.components[componentInstance._component]
   $: componentPropDefinition =
     flattenedPanel.find(
@@ -39,12 +40,20 @@
 
   let panelDefinition = {}
 
-  $: panelDefinition =
-    componentPropDefinition.properties &&
-    componentPropDefinition.properties[selectedCategory.value]
+  $: panelDefinition = componentPropDefinition.properties && 
+      componentPropDefinition.properties[selectedCategory.value]
 
   const onStyleChanged = store.setComponentStyle
-  const onPropChanged = store.setComponentProp
+
+   function onPropChanged(key, value) {
+    if($store.currentView !== "component") {
+      store.setPageOrScreenProp(key, value)
+      return
+    }
+    store.setComponentProp(key, value)
+  }
+
+  $: displayName = ( $store.currentView === "component" || $store.currentFrontEndType === "screen") && componentInstance._instanceName && componentInstance._component !== "##builtin/screenslot"
 
   function walkProps(component, action) {
     action(component)
@@ -79,6 +88,12 @@
     {categories}
     {selectedCategory} />
 
+    {#if displayName}
+      <div class="instance-name">
+        <strong>{componentInstance._instanceName}</strong>
+      </div>
+    {/if}
+
   <div class="component-props-container">
     {#if selectedCategory.value === 'design'}
       <DesignView {panelDefinition} {componentInstance} {onStyleChanged} />
@@ -87,9 +102,9 @@
         {componentInstance}
         {componentDefinition}
         {panelDefinition}
+        displayNameField={displayName}
         onChange={onPropChanged}
-        onScreenPropChange={store.setPageOrScreenProp}
-        screenOrPageInstance={$store.currentView !== 'component' && $store.currentPreviewItem} />
+        screenOrPageInstance={$store.currentView !== "component" && $store.currentPreviewItem} />
     {:else if selectedCategory.value === 'events'}
       <EventsEditor component={componentInstance} />
     {/if}
@@ -119,9 +134,14 @@
   }
 
   .component-props-container {
-    margin-top: 20px;
+    margin-top: 10px;
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
+  }
+
+  .instance-name {
+    margin-top: 10px;
+    font-size: 12px;
   }
 </style>
