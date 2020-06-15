@@ -20,7 +20,6 @@
   const get_name = s => (!s ? "" : last(s.split("/")))
 
   const get_capitalised_name = name => pipe(name, [get_name, capitalise])
-  const isScreenslot = name => name === "##builtin/screenslot"
 
   const selectComponent = component => {
     // Set current component
@@ -43,7 +42,7 @@
         style="padding-left: {level * 20 + 53}px">
         <div class="nav-item">
           <i class="icon ri-arrow-right-circle-fill" />
-          {isScreenslot(component._component) ? "Screenslot" : component._instanceName}
+          {get_capitalised_name(component._component)}
         </div>
         <div class="actions">
           <ComponentDropdownMenu {component} />

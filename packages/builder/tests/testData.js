@@ -1,7 +1,7 @@
 export const componentsAndScreens = () => ({
   components: [
     {
-      _instanceName: "TextBox",
+      name: "budibase-components/TextBox",
       tags: ["Text", "input"],
       children: false,
       props: {
@@ -12,7 +12,7 @@ export const componentsAndScreens = () => ({
       },
     },
     {
-      _instanceName: "Button",
+      name: "budibase-components/Button",
       tags: ["input"],
       children: true,
       props: {
@@ -22,14 +22,14 @@ export const componentsAndScreens = () => ({
       },
     },
     {
-      _instanceName: "div",
+      name: "budibase-components/div",
       tags: ["input"],
       props: {
         width: "number",
       },
     },
     {
-      _instanceName: "Record View",
+      name: "budibase-components/RecordView",
       tags: ["record"],
       props: {
         data: "state",
@@ -38,9 +38,9 @@ export const componentsAndScreens = () => ({
   ],
   screens: [
     {
+      name: "common/SmallTextbox",
       props: {
         _component: "budibase-components/TextBox",
-        _instanceName: "SmallTextbox",
         size: "small",
       },
     },
@@ -50,40 +50,36 @@ export const componentsAndScreens = () => ({
       tags: ["mask"],
       props: {
         _component: "budibase-components/TextBox",
-        _instanceName: "PasswordBox",
         isPassword: true,
         size: "small",
       },
     },
 
     {
+      name: "PrimaryButton",
       props: {
         _component: "budibase-components/Button",
-        _instanceName: "PrimaryButton",
         css: "btn-primary",
       },
     },
 
     {
+      name: "Screen 1",
       route: "",
       props: {
         _component: "budibase-components/div",
         width: 100,
-        _instanceName: "Screen 1",
         _children: [
           {
             _component: "budibase-components/Button",
             contentText: "Button 1",
-            _instanceName: "Button 1",
           },
           {
             _component: "budibase-components/Button",
             contentText: "Button 2",
-            _instanceName: "Button 2",
           },
           {
             _component: "budibase-components/TextBox",
-            _instanceName: "TextBox",
             isPassword: true,
             size: "small",
           },
@@ -92,9 +88,9 @@ export const componentsAndScreens = () => ({
     },
 
     {
+      name: "Field",
       props: {
         _component: "budibase-components/div",
-        _instanceName: "Field",
         _children: [
           {
             _component: "common/SmallTextbox",

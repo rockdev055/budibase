@@ -1,7 +1,6 @@
 <script>
   import { setContext, onMount } from "svelte"
   import PropsView from "./PropsView.svelte"
-
   import { store } from "builderStore"
   import IconButton from "components/common/IconButton.svelte"
   import {
@@ -14,6 +13,7 @@
   import CodeEditor from "./CodeEditor.svelte"
   import LayoutEditor from "./LayoutEditor.svelte"
   import EventsEditor from "./EventsEditor"
+
   import panelStructure from "./temporaryPanelStructure.js"
   import CategoryTab from "./CategoryTab.svelte"
   import DesignView from "./DesignView.svelte"
@@ -30,7 +30,7 @@
   let selectedCategory = categories[0]
 
   $: components = $store.components
-  $: componentInstance = $store.currentView !== "component" ? {...$store.currentPreviewItem, ...$store.currentComponentInfo} : $store.currentComponentInfo
+  $: componentInstance = $store.currentComponentInfo
   $: componentDefinition = $store.components[componentInstance._component]
   $: componentPropDefinition =
     flattenedPanel.find(
@@ -40,20 +40,31 @@
 
   let panelDefinition = {}
 
-  $: panelDefinition = componentPropDefinition.properties && 
-      componentPropDefinition.properties[selectedCategory.value]
-
-  const onStyleChanged = store.setComponentStyle
-
-   function onPropChanged(key, value) {
-    if($store.currentView !== "component") {
-      store.setPageOrScreenProp(key, value)
-      return
+  $: {
+    if (componentPropDefinition.properties) {
+      if (selectedCategory.value === "design") {
+        panelDefinition = componentPropDefinition.properties["design"]
+      } else {
+        let panelDef = componentPropDefinition.properties["settings"]
+        if (
+          $store.currentFrontEndType === "page" &&
+          $store.currentView !== "component"
+        ) {
+          panelDefinition = [...page, ...panelDef]
+        } else if (
+          $store.currentFrontEndType === "screen" &&
+          $store.currentView !== "component"
+        ) {
+          panelDefinition = [...screen, ...panelDef]
+        } else {
+          panelDefinition = panelDef
+        }
+      }
     }
-    store.setComponentProp(key, value)
   }
 
-  $: displayName = ( $store.currentView === "component" || $store.currentFrontEndType === "screen") && componentInstance._instanceName && componentInstance._component !== "##builtin/screenslot"
+  const onStyleChanged = store.setComponentStyle
+  const onPropChanged = store.setComponentProp
 
   function walkProps(component, action) {
     action(component)
@@ -88,12 +99,6 @@
     {categories}
     {selectedCategory} />
 
-    {#if displayName}
-      <div class="instance-name">
-        <strong>{componentInstance._instanceName}</strong>
-      </div>
-    {/if}
-
   <div class="component-props-container">
     {#if selectedCategory.value === 'design'}
       <DesignView {panelDefinition} {componentInstance} {onStyleChanged} />
@@ -102,9 +107,7 @@
         {componentInstance}
         {componentDefinition}
         {panelDefinition}
-        displayNameField={displayName}
-        onChange={onPropChanged}
-        screenOrPageInstance={$store.currentView !== "component" && $store.currentPreviewItem} />
+        onChange={onPropChanged} />
     {:else if selectedCategory.value === 'events'}
       <EventsEditor component={componentInstance} />
     {/if}
@@ -134,14 +137,9 @@
   }
 
   .component-props-container {
-    margin-top: 10px;
+    margin-top: 20px;
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
-  }
-
-  .instance-name {
-    margin-top: 10px;
-    font-size: 12px;
   }
 </style>

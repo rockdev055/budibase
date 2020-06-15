@@ -45,20 +45,6 @@ export const saveScreenApi = (screen, s) => {
     .then(() => savePage(s))
 }
 
-export const renameCurrentScreen = (newname, state) => {
-  const oldname = state.currentPreviewItem.props._instanceName
-  state.currentPreviewItem.props._instanceName = newname
-
-  api.patch(
-    `/_builder/api/${state.appId}/pages/${state.currentPageName}/screen`,
-    {
-      oldname,
-      newname,
-    }
-  )
-  return state
-}
-
 export const walkProps = (props, action, cancelToken = null) => {
   cancelToken = cancelToken || { cancelled: false }
   action(props, () => {

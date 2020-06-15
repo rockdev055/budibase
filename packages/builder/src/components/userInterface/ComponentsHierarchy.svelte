@@ -7,7 +7,7 @@
   import { store } from "builderStore"
   import { ArrowDownIcon, ShapeIcon } from "components/common/Icons/"
 
-  export let screens = []  
+  export let screens = []
 
   let confirmDeleteDialog
   let componentToDelete = ""
@@ -22,35 +22,48 @@
       trimChars(" "),
     ])
 
+  const lastPartOfName = c => {
+    if (!c) return ""
+    const name = c.name ? c.name : c._component ? c._component : c
+    return last(name.split("/"))
+  }
+
+  const isComponentSelected = (current, comp) => current === comp
+
+  $: _screens = pipe(screens, [
+    map(c => ({ component: c, title: lastPartOfName(c) })),
+    sortBy("title"),
+  ])
+
   const changeScreen = screen => {
-    store.setCurrentScreen(screen.props._instanceName)
+    store.setCurrentScreen(screen.title)
     $goto(`./:page/${screen.title}`)
   }
 </script>
 
 <div class="root">
-  {#each screens as screen}
+  {#each _screens as screen}
     <div
       class="budibase__nav-item component"
-      class:selected={$store.currentComponentInfo._id === screen.props._id}
+      class:selected={$store.currentComponentInfo._id === screen.component.props._id}
       on:click|stopPropagation={() => changeScreen(screen)}>
 
       <span
         class="icon"
-        class:rotate={$store.currentPreviewItem.name !== screen.props._instanceName}>
-        {#if screen.props._children.length}
+        class:rotate={$store.currentPreviewItem.name !== screen.title}>
+        {#if screen.component.props._children.length}
           <ArrowDownIcon />
         {/if}
       </span>
 
       <i class="ri-artboard-2-fill icon" />
 
-      <span class="title">{screen.props._instanceName}</span>
+      <span class="title">{screen.title}</span>
     </div>
 
-    {#if $store.currentPreviewItem.props._instanceName && $store.currentPreviewItem.props._instanceName === screen.props._instanceName && screen.props._children}
+    {#if $store.currentPreviewItem.name === screen.title && screen.component.props._children}
       <ComponentsHierarchyChildren
-        components={screen.props._children}
+        components={screen.component.props._children}
         currentComponent={$store.currentComponentInfo} />
     {/if}
   {/each}
