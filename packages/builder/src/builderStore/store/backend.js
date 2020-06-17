@@ -1,13 +1,6 @@
 import { writable } from "svelte/store"
+import { cloneDeep } from "lodash/fp";
 import api from "../api"
-import { getContext } from "svelte"
-
-/** TODO: DEMO SOLUTION
- * this section should not be here, it is a quick fix for a demo
- * when we reorg the backend UI, this should disappear
- *  **/
-import { CreateEditModelModal } from "components/database/ModelDataTable/modals"
-/** DEMO SOLUTION  END **/
 
 export const getBackendUiStore = () => {
   const INITIAL_BACKEND_UI_STATE = {
@@ -17,6 +10,7 @@ export const getBackendUiStore = () => {
     users: [],
     selectedDatabase: {},
     selectedModel: {},
+    draftModel: {}
   }
 
   const store = writable(INITIAL_BACKEND_UI_STATE)
@@ -31,26 +25,13 @@ export const getBackendUiStore = () => {
         store.update(state => {
           state.selectedDatabase = db
           if (models && models.length > 0) {
-            state.selectedModel = models[0]
-            state.selectedView = `all_${models[0]._id}`
+            store.actions.models.select(models[0]);
           }
           state.breadcrumbs = [db.name]
           state.models = models
           state.views = views
           return state
         })
-        /** TODO: DEMO SOLUTION**/
-        if (!models || models.length === 0) {
-          const { open, close } = getContext("simple-modal")
-          open(
-            CreateEditModelModal,
-            {
-              onClosed: close,
-            },
-            { styleContent: { padding: "0" } }
-          )
-        }
-        /** DEMO SOLUTION  END **/
       },
     },
     records: {
@@ -71,14 +52,59 @@ export const getBackendUiStore = () => {
         }),
     },
     models: {
-      create: model =>
+      select: model => store.update(state => {
+        state.selectedModel = model;
+        state.draftModel = cloneDeep(model);
+        state.selectedField = ""
+        state.selectedView = `all_${model._id}`
+        return state;
+      }),
+      save: async ({ instanceId, model }) => {
+        const updatedModel = cloneDeep(model);
+
+        // TODO: refactor
+        for (let key in updatedModel.schema) {
+          const field = updatedModel.schema[key]
+          if (field.name && field.name !== key) { 
+            updatedModel.schema[field.name] = field 
+            delete updatedModel.schema[key];
+          } 
+        }
+
+        const SAVE_MODEL_URL = `/api/${instanceId}/models`
+        const response = await api.post(SAVE_MODEL_URL, updatedModel)
+        const savedModel = await response.json()
+
         store.update(state => {
-          state.models.push(model)
-          state.models = state.models
-          state.selectedModel = model
-          state.selectedView = `all_${model._id}`
+          // New model
+          if (!model._id) {
+            state.models = [...state.models, savedModel]
+          } else {
+            const existingIdx = state.models.findIndex(({ _id }) => _id === model._id);
+            state.models.splice(existingIdx, 1, savedModel);
+            state.models = state.models
+          }
+
+          store.actions.models.select(savedModel)
           return state
-        }),
+        })
+      },
+      addField: field => {
+        store.update(state => {
+          if (!state.draftModel.schema) {
+            state.draftModel.schema = {}
+          }
+
+          state.draftModel.schema = {
+            ...state.draftModel.schema,
+            [field.name]: field
+          }
+
+          state.selectedField = field.name
+
+          return state
+        });
+      },
     },
     views: {
       select: view =>
