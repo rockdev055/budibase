@@ -1,6 +1,5 @@
 <script>
   import { getContext } from "svelte"
-  import NewModel from "./NewModel.svelte"
   import ModelDataTable from "components/database/ModelDataTable"
   import { store, backendUiStore } from "builderStore"
   import ActionButton from "components/common/ActionButton.svelte"
@@ -23,6 +22,13 @@
 
   let selectedRecord
 
+  async function selectRecord(record) {
+    selectedRecord = await api.loadRecord(record.key, {
+      appname: $store.appname,
+      instanceId: selectedDatabase,
+    })
+  }
+
   $: breadcrumbs = $backendUiStore.breadcrumbs.join(" / ")
 </script>
 
@@ -34,10 +40,8 @@
     </ActionButton>
   {/if}
 </div>
-{#if $backendUiStore.selectedModel.schema && Object.keys($backendUiStore.selectedModel.schema).length === 0}
-  <NewModel />
-{:else if $backendUiStore.selectedDatabase._id && $backendUiStore.selectedModel.name}
-  <ModelDataTable />
+{#if $backendUiStore.selectedDatabase._id && $backendUiStore.selectedModel.name}
+  <ModelDataTable {selectRecord} />
 {:else}
   <i style="color: var(--grey-dark)">
     create your first model to start building
