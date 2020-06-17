@@ -1,6 +1,13 @@
 import { writable } from "svelte/store"
-import { cloneDeep } from "lodash/fp";
 import api from "../api"
+import { getContext } from "svelte"
+
+/** TODO: DEMO SOLUTION
+ * this section should not be here, it is a quick fix for a demo
+ * when we reorg the backend UI, this should disappear
+ *  **/
+import { CreateEditModelModal } from "components/database/ModelDataTable/modals"
+/** DEMO SOLUTION  END **/
 
 export const getBackendUiStore = () => {
   const INITIAL_BACKEND_UI_STATE = {
@@ -10,7 +17,6 @@ export const getBackendUiStore = () => {
     users: [],
     selectedDatabase: {},
     selectedModel: {},
-    draftModel: {}
   }
 
   const store = writable(INITIAL_BACKEND_UI_STATE)
@@ -26,7 +32,6 @@ export const getBackendUiStore = () => {
           state.selectedDatabase = db
           if (models && models.length > 0) {
             state.selectedModel = models[0]
-            state.draftModel = models[0]
             state.selectedView = `all_${models[0]._id}`
           }
           state.breadcrumbs = [db.name]
@@ -34,6 +39,18 @@ export const getBackendUiStore = () => {
           state.views = views
           return state
         })
+        /** TODO: DEMO SOLUTION**/
+        if (!models || models.length === 0) {
+          const { open, close } = getContext("simple-modal")
+          open(
+            CreateEditModelModal,
+            {
+              onClosed: close,
+            },
+            { styleContent: { padding: "0" } }
+          )
+        }
+        /** DEMO SOLUTION  END **/
       },
     },
     records: {
@@ -54,50 +71,14 @@ export const getBackendUiStore = () => {
         }),
     },
     models: {
-      select: model => store.update(state => {
-        state.selectedModel = model;
-        // TODO: prevent pointing to same obj
-        state.draftModel = cloneDeep(model);
-        state.selectedField = null
-        return state;
-      }),
-      save: async ({ instanceId, model }) => {
-        const SAVE_MODEL_URL = `/api/${instanceId}/models`
-        const response = await api.post(SAVE_MODEL_URL, model)
-        const savedModel = await response.json()
-
+      create: model =>
         store.update(state => {
-          // New model
-          if (!model._id) {
-            state.models = [...state.models, savedModel]
-          } else {
-            const existingIdx = state.models.findIndex(({ _id }) => _id === model._id);
-            state.models.splice(existingIdx, 1, savedModel);
-            state.models = state.models
-          }
-
-          state.selectedModel = savedModel
-          state.draftModel = savedModel
-          state.selectedView = `all_${savedModel._id}`
+          state.models.push(model)
+          state.models = state.models
+          state.selectedModel = model
+          state.selectedView = `all_${model._id}`
           return state
-        })
-      },
-      addField: field => {
-        store.update(state => {
-          if (!state.draftModel.schema) {
-            state.draftModel.schema = {}
-          }
-
-          state.draftModel.schema = {
-            ...state.draftModel.schema,
-            [field.name]: field
-          }
-
-          state.selectedField = field
-
-          return state
-        });
-      }
+        }),
     },
     views: {
       select: view =>

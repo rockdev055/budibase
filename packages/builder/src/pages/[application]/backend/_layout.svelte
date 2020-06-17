@@ -3,19 +3,19 @@
   import { store, backendUiStore } from "builderStore"
   import * as api from "components/database/ModelDataTable/api"
 
-  import ModelNavigator from "components/nav/ModelNavigator/ModelNavigator.svelte"
-  import { ModelSetupNav } from "components/nav/ModelSetupNav"
+  import BackendNav from "components/nav/BackendNav.svelte"
+  import SchemaManagementDrawer from "components/nav/SchemaManagementDrawer.svelte"
 </script>
 
 <div class="root">
   <div class="nav">
-    <ModelNavigator />
+    <BackendNav />
   </div>
   <div class="content">
     <slot />
   </div>
   <div class="nav">
-    <ModelSetupNav />
+    <SchemaManagementDrawer />
   </div>
 </div>
 
