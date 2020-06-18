@@ -1,7 +1,18 @@
 <script>
   import { onMount, getContext } from "svelte"
   import { store, backendUiStore } from "builderStore"
-  import { Button } from "@budibase/bbui"
+  import {
+    tap,
+    get,
+    find,
+    last,
+    compose,
+    flatten,
+    map,
+    remove,
+    keys,
+    takeRight,
+  } from "lodash/fp"
   import Select from "components/common/Select.svelte"
   import ActionButton from "components/common/ActionButton.svelte"
   import TablePagination from "./TablePagination.svelte"
@@ -57,22 +68,10 @@
     }
   }
 
-  $: paginatedData = data
-    ? data.slice(
-        currentPage * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE + ITEMS_PER_PAGE
-      )
-    : []
-
-  const createNewRecord = () => {
-    open(
-      CreateEditRecordModal,
-      {
-        onClosed: close,
-      },
-      { styleContent: { padding: "0" } }
-    )
-  }
+  $: paginatedData = data.slice(
+    currentPage * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE + ITEMS_PER_PAGE
+  )
 
   onMount(() => {
     if (views.length) {
@@ -84,12 +83,6 @@
 <section>
   <div class="table-controls">
     <h2 class="title">{$backendUiStore.selectedModel.name}</h2>
-    <Button primary on:click={createNewRecord}>
-      <span class="button-inner">
-        <i class="ri-add-circle-fill" />
-        Create New Record
-      </span>
-    </Button>
   </div>
   <table class="uk-table">
     <thead>
@@ -197,15 +190,5 @@
 
   .no-data {
     padding: 20px;
-  }
-
-  .button-inner {
-    display: flex;
-    align-items: center;
-  }
-
-  .button-inner i {
-    margin-right: 5px;
-    font-size: 20px;
   }
 </style>

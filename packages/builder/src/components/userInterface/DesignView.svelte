@@ -31,24 +31,22 @@
     <FlatButtonGroup value={selectedCategory} {buttonProps} {onChange} />
   </div>
 
-  <div class="positioned-wrapper">
-    <div class="design-view-property-groups">
-      {#if propertyGroupNames.length > 0}
-        {#each propertyGroupNames as groupName}
-          <PropertyGroup
-            name={groupName}
-            properties={getProperties(groupName)}
-            styleCategory={selectedCategory}
-            {onStyleChanged}
-            {componentDefinition}
-            {componentInstance} />
-        {/each}
-      {:else}
-        <div class="no-design">
-          <span>This component does not have any design properties</span>
-        </div>
-      {/if}
-    </div>
+  <div class="design-view-property-groups">
+    {#if propertyGroupNames.length > 0}
+      {#each propertyGroupNames as groupName}
+        <PropertyGroup
+          name={groupName}
+          properties={getProperties(groupName)}
+          styleCategory={selectedCategory}
+          {onStyleChanged}
+          {componentDefinition}
+          {componentInstance} />
+      {/each}
+    {:else}
+      <div class="no-design">
+        <span>This component does not have any design properties</span>
+      </div>
+    {/if}
   </div>
 </div>
 
@@ -64,15 +62,10 @@
     flex: 0 0 50px;
   }
 
-  .positioned-wrapper {
-    position: relative;
-    display: flex;
-    min-height: 0;
-  }
-
   .design-view-property-groups {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     min-height: 0;
   }
 

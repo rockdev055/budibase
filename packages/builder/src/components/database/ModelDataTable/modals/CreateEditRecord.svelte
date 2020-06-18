@@ -1,10 +1,8 @@
 <script>
   import { onMount } from "svelte"
   import { store, backendUiStore } from "builderStore"
-  import { notifier } from "@beyonk/svelte-notifications"
   import { compose, map, get, flatten } from "lodash/fp"
   import ActionButton from "components/common/ActionButton.svelte"
-  import LinkedRecordSelector from "components/common/LinkedRecordSelector.svelte"
   import Select from "components/common/Select.svelte"
   import RecordFieldControl from "./RecordFieldControl.svelte"
   import * as api from "../api"
@@ -64,7 +62,6 @@
     backendUiStore.update(state => {
       state.selectedView = state.selectedView
       onClosed()
-      notifier.success("Record created successfully.")
       return state
     })
   }
@@ -76,15 +73,11 @@
   <form on:submit|preventDefault class="uk-form-stacked">
     {#each modelSchema as [key, meta]}
       <div class="uk-margin">
-        {#if meta.type === 'link'}
-          <LinkedRecordSelector modelId={meta.modelId} />
-        {:else}
-          <RecordFieldControl
-            type={determineInputType(meta)}
-            options={determineOptions(meta)}
-            label={key}
-            bind:value={record[key]} />
-        {/if}
+        <RecordFieldControl
+          type={determineInputType(meta)}
+          options={determineOptions(meta)}
+          label={key}
+          bind:value={record[key]} />
       </div>
     {/each}
   </form>
