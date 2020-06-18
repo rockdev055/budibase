@@ -5,8 +5,6 @@ const workflowController = require("../api/controllers/workflow")
 // Access Level IDs
 const ADMIN_LEVEL_ID = "ADMIN"
 const POWERUSER_LEVEL_ID = "POWER_USER"
-const BUILDER_LEVEL_ID = "BUILDER"
-const ANON_LEVEL_ID = "ANON"
 
 // Permissions
 const READ_MODEL = "read-model"
@@ -30,7 +28,7 @@ const generateAdminPermissions = async instanceId => [
 
 const generatePowerUserPermissions = async instanceId => {
   const fetchModelsCtx = {
-    user: {
+    params: {
       instanceId,
     },
   }
@@ -38,7 +36,7 @@ const generatePowerUserPermissions = async instanceId => {
   const models = fetchModelsCtx.body
 
   const fetchViewsCtx = {
-    user: {
+    params: {
       instanceId,
     },
   }
@@ -46,7 +44,7 @@ const generatePowerUserPermissions = async instanceId => {
   const views = fetchViewsCtx.body
 
   const fetchWorkflowsCtx = {
-    user: {
+    params: {
       instanceId,
     },
   }
@@ -85,8 +83,6 @@ const generatePowerUserPermissions = async instanceId => {
 module.exports = {
   ADMIN_LEVEL_ID,
   POWERUSER_LEVEL_ID,
-  BUILDER_LEVEL_ID,
-  ANON_LEVEL_ID,
   READ_MODEL,
   WRITE_MODEL,
   READ_VIEW,

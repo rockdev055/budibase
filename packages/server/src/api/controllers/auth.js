@@ -4,31 +4,25 @@ const ClientDb = require("../../db/clientDb")
 const bcrypt = require("../../utilities/bcrypt")
 
 exports.authenticate = async ctx => {
-  if (!ctx.user.appId) ctx.throw(400, "No appId")
-
   const { username, password } = ctx.request.body
 
   if (!username) ctx.throw(400, "Username Required.")
   if (!password) ctx.throw(400, "Password Required")
 
   const masterDb = new CouchDB("clientAppLookup")
-
-  const { clientId } = await masterDb.get(ctx.user.appId)
+  const { clientId } = await masterDb.get(ctx.params.appId)
 
   if (!clientId) {
     ctx.throw(400, "ClientId not suplied")
   }
   // find the instance that the user is associated with
   const db = new CouchDB(ClientDb.name(clientId))
-  const app = await db.get(ctx.user.appId)
+  const appId = ctx.params.appId
+  const app = await db.get(appId)
   const instanceId = app.userInstanceMap[username]
 
   if (!instanceId)
-    ctx.throw(
-      500,
-      "User is not associated with an instance of app",
-      ctx.user.appId
-    )
+    ctx.throw(500, "User is not associated with an instance of app", appId)
 
   // Check the user exists in the instance DB by username
   const instanceDb = new CouchDB(instanceId)
@@ -47,8 +41,7 @@ exports.authenticate = async ctx => {
     const payload = {
       userId: dbUser._id,
       accessLevelId: dbUser.accessLevelId,
-      appId: ctx.user.appId,
-      instanceId,
+      instanceId: instanceId,
     }
 
     const token = jwt.sign(payload, ctx.config.jwtSecret, {

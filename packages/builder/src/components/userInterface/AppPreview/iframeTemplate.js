@@ -20,7 +20,6 @@ export default `<html>
           font-weight: bold;
         }
     </style>
-    <script src='/assets/budibase-client.js'></script>
     <script>
       function receiveMessage(event) { 
 
@@ -46,10 +45,11 @@ export default `<html>
         styles.appendChild(document.createTextNode(data.styles))
 
         window["##BUDIBASE_FRONTEND_DEFINITION##"] = data.frontendDefinition;
-        if (window.loadBudibase) {
-          loadBudibase({ window, localStorage })
+        if (clientModule) {
+          clientModule.loadBudibase({ window, localStorage })
         }
       }
+      let clientModule
       let styles
       let selectedComponentStyle
 
@@ -59,9 +59,12 @@ export default `<html>
         return false;
       }, true)
 
-      window.addEventListener('message', receiveMessage)
-      window.dispatchEvent(new Event('bb-ready'))
-      
+      import('/_builder/budibase-client.esm.mjs')
+      .then(module => {
+        clientModule = module
+        window.addEventListener('message', receiveMessage)
+        window.dispatchEvent(new Event('bb-ready'))
+      })
     </script>
   </head>
   <body>
