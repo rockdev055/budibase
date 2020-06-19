@@ -63,8 +63,8 @@ describe("/workflows", () => {
   describe("create", () => {
     it("returns a success message when the workflow is successfully created", async () => {
       const res = await request
-        .post(`/api/workflows`)
-        .set(defaultHeaders(app._id, instance._id))
+        .post(`/api/${instance._id}/workflows`)
+        .set(defaultHeaders)
         .send(TEST_WORKFLOW)
         .expect('Content-Type', /json/)
         .expect(200)
@@ -77,9 +77,8 @@ describe("/workflows", () => {
       await builderEndpointShouldBlockNormalUsers({
         request,
         method: "POST",
-        url: `/api/workflows`,
+        url: `/api/${instance._id}/workflows`,
         instanceId: instance._id,
-        appId: app._id,
         body: TEST_WORKFLOW
       })
     })
@@ -93,8 +92,8 @@ describe("/workflows", () => {
       workflow.name = "Updated Name";
 
       const res = await request
-        .put(`/api/workflows`)
-        .set(defaultHeaders(app._id, instance._id))
+        .put(`/api/${instance._id}/workflows`)
+        .set(defaultHeaders)
         .send(workflow)
         .expect('Content-Type', /json/)
         .expect(200)
@@ -108,8 +107,8 @@ describe("/workflows", () => {
     it("return all the workflows for an instance", async () => {
       await createWorkflow();
       const res = await request
-        .get(`/api/workflows`)
-        .set(defaultHeaders(app._id, instance._id))
+        .get(`/api/${instance._id}/workflows`)
+        .set(defaultHeaders)
         .expect('Content-Type', /json/)
         .expect(200)
 
@@ -120,9 +119,8 @@ describe("/workflows", () => {
       await builderEndpointShouldBlockNormalUsers({
         request,
         method: "GET",
-        url: `/api/workflows`,
+        url: `/api/${instance._id}/workflows`,
         instanceId: instance._id,
-        appId: app._id,
       })
     })
   })
@@ -131,8 +129,8 @@ describe("/workflows", () => {
     it("deletes a workflow by its ID", async () => {
       await createWorkflow();
       const res = await request
-        .delete(`/api/workflows/${workflow.id}/${workflow.rev}`)
-        .set(defaultHeaders(app._id, instance._id))
+        .delete(`/api/${instance._id}/workflows/${workflow.id}/${workflow.rev}`)
+        .set(defaultHeaders)
         .expect('Content-Type', /json/)
         .expect(200)
 
@@ -144,9 +142,8 @@ describe("/workflows", () => {
       await builderEndpointShouldBlockNormalUsers({
         request,
         method: "DELETE",
-        url: `/api/workflows/${workflow.id}/${workflow._rev}`,
+        url: `/api/${instance._id}/workflows/${workflow.id}/${workflow._rev}`,
         instanceId: instance._id,
-        appId: app._id,
       })
     })
   })

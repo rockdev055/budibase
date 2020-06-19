@@ -7,6 +7,7 @@
     CreateEditModelModal,
     CreateEditViewModal,
   } from "components/database/ModelDataTable/modals"
+  import api from "builderStore/api"
 
   const { open, close } = getContext("simple-modal")
 
