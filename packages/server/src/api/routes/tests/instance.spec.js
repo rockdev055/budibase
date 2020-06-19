@@ -24,9 +24,9 @@ describe("/instances", () => {
 
     it("returns a success message when the instance database is successfully created", async () => {
       const res = await request
-        .post(`/api/instances`)
+        .post(`/api/${TEST_APP_ID}/instances`)
         .send({ name: "test-instance" })
-        .set(defaultHeaders(TEST_APP_ID))
+        .set(defaultHeaders)
         .expect('Content-Type', /json/)
         .expect(200)
 
@@ -42,7 +42,7 @@ describe("/instances", () => {
       const instance = await createInstance(request, TEST_APP_ID);
       const res = await request
         .delete(`/api/instances/${instance._id}`)
-        .set(defaultHeaders(TEST_APP_ID))
+        .set(defaultHeaders)
         .expect(200)
 
       expect(res.res.statusMessage).toEqual(`Instance Database ${instance._id} successfully destroyed.`);

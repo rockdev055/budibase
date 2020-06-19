@@ -36,11 +36,11 @@ describe("/users", () => {
   describe("fetch", () => {    
 
     it("returns a list of users from an instance db", async () => {
-      await createUser(request, app._id, instance._id, "brenda", "brendas_password")
-      await createUser(request, app._id, instance._id, "pam", "pam_password")
+      await createUser(request, instance._id, "brenda", "brendas_password")
+      await createUser(request, instance._id, "pam", "pam_password")
       const res = await request
-        .get(`/api/users`)
-        .set(defaultHeaders(app._id, instance._id))
+        .get(`/api/${instance._id}/users`)
+        .set(defaultHeaders)
         .expect('Content-Type', /json/)
         .expect(200)
       
@@ -50,13 +50,12 @@ describe("/users", () => {
     })
 
     it("should apply authorization to endpoint", async () => {
-      await createUser(request, app._id, instance._id, "brenda", "brendas_password")
+      await createUser(request, instance._id, "brenda", "brendas_password")
       await testPermissionsForEndpoint({
         request,
         method: "GET",
-        url: `/api/users`,
+        url: `/api/${instance._id}/users`,
         instanceId: instance._id,
-        appId: app._id,
         permissionName: LIST_USERS,
       })
     })
@@ -67,8 +66,8 @@ describe("/users", () => {
 
     it("returns a success message when a user is successfully created", async () => {
       const res = await request
-        .post(`/api/users`)
-        .set(defaultHeaders(app._id, instance._id))
+        .post(`/api/${instance._id}/users`)
+        .set(defaultHeaders)
         .send({ name: "Bill", username: "bill", password: "bills_password", accessLevelId: POWERUSER_LEVEL_ID })
         .expect(200)
         .expect('Content-Type', /json/)
@@ -82,9 +81,8 @@ describe("/users", () => {
         request,
         method: "POST",
         body: { name: "brandNewUser", username: "brandNewUser", password: "yeeooo", accessLevelId: POWERUSER_LEVEL_ID },
-        url: `/api/users`,
+        url: `/api/${instance._id}/users`,
         instanceId: instance._id,
-        appId: app._id,
         permissionName: USER_MANAGEMENT,
       })
     })

@@ -91,6 +91,7 @@
         ? screenPlaceholder
         : $store.currentPreviewItem,
     ],
+    appRootPath: "",
   }
 
   $: selectedComponentType = getComponentTypeName($store.currentComponentInfo)
@@ -107,8 +108,6 @@
         selectedComponentType,
         selectedComponentId,
         frontendDefinition,
-        appId: $store.appId,
-        instanceId: $backendUiStore.selectedDatabase._id,
       })
     )
   }
