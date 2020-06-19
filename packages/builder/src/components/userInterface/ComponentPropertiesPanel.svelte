@@ -39,9 +39,8 @@
 
   let panelDefinition = {}
 
-  $: panelDefinition =
-    componentPropDefinition.properties &&
-    componentPropDefinition.properties[selectedCategory.value]
+  $: panelDefinition = componentPropDefinition.properties && 
+      componentPropDefinition.properties[selectedCategory.value]
 
   const onStyleChanged = store.setComponentStyle
   const onPropChanged = store.setComponentProp
@@ -89,7 +88,7 @@
         {panelDefinition}
         onChange={onPropChanged}
         onScreenPropChange={store.setPageOrScreenProp}
-        screenOrPageInstance={$store.currentView !== 'component' && $store.currentPreviewItem} />
+        screenOrPageInstance={$store.currentView !== "component" && $store.currentPreviewItem} />
     {:else if selectedCategory.value === 'events'}
       <EventsEditor component={componentInstance} />
     {/if}
@@ -103,6 +102,8 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: hidden;
     padding: 20px;
     box-sizing: border-box;
   }
@@ -120,5 +121,6 @@
     margin-top: 20px;
     flex: 1 1 auto;
     min-height: 0;
+    overflow-y: auto;
   }
 </style>
