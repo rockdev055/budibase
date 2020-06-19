@@ -1,7 +1,6 @@
 <script>
   import Modal from "svelte-simple-modal"
   import { store } from "builderStore"
-  import { getContext } from "svelte"
   import { get } from "builderStore/api"
 
   import { fade } from "svelte/transition"
@@ -9,7 +8,6 @@
 
   import { SettingsIcon, PreviewIcon } from "components/common/Icons/"
   import IconButton from "components/common/IconButton.svelte"
-  import SettingsLink from "components/settings/Link.svelte"
 
   // Get Package and set store
   export let application
@@ -31,6 +29,7 @@
 
 <Modal>
   <div class="root">
+
     <div class="top-nav">
       <div class="topleftnav">
         <button class="home-logo">
@@ -54,7 +53,12 @@
                       hoverColor="var(--secondary75)"/> -->
       </div>
       <div class="toprightnav">
-        <SettingsLink />
+        <span
+          class:active={$isActive(`/settings`)}
+          class="topnavitemright"
+          on:click={() => $goto(`/settings`)}>
+          <SettingsIcon />
+        </span>
         <span
           class:active={false}
           class="topnavitemright"
