@@ -1,6 +1,10 @@
 <script>
-  export let value = "";
+  export let value = ""
 </script>
+
+<div>
+  <input on:input type="text" {value} maxlength="25" />
+</div>
 
 <style>
   div {
@@ -10,19 +14,15 @@
   }
 
   input {
-    width: 175px;
-    font-size: 13px;
+    width: 185px;
+    font-size: 14px;
     background: #f1f3f4;
     border-radius: 8px;
-    height: 20px;
+    height: 27px;
     outline-color: #003cb0;
-    color: inherit;
+    color: #565252;
     text-align: center;
+    /* border: none; */
     border: 1px solid #dadada;
-    font-weight: 550;
   }
 </style>
-
-<div>
-  <input on:input on:change type="text" {value} maxlength="25" />
-</div>

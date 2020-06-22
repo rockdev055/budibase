@@ -1,20 +1,11 @@
 import regexparam from "regexparam"
 import { routerStore } from "../state/store"
-import { getAppId } from "./getAppId"
 
-export const screenRouter = ({ screens, onScreenSelected, window }) => {
+export const screenRouter = ({ screens, onScreenSelected, appRootPath }) => {
   const makeRootedPath = url => {
-    if (
-      window.location &&
-      (window.location.hostname === "localhost" ||
-        window.location.hostname === "127.0.0.1")
-    ) {
-      const appId = getAppId(window.document.cookie)
-      if (url) {
-        if (url.startsWith(appId)) return url
-        return `/${appId}${url.startsWith("/") ? "" : "/"}${url}`
-      }
-      return appId
+    if (appRootPath) {
+      if (url) return `${appRootPath}${url.startsWith("/") ? "" : "/"}${url}`
+      return appRootPath
     }
     return url
   }
@@ -79,7 +70,7 @@ export const screenRouter = ({ screens, onScreenSelected, window }) => {
     )
       return
 
-    const target = (x && x.target) || "_self"
+    const target = x.target || "_self"
     if (!y || target !== "_self" || x.host !== location.host) return
 
     e.preventDefault()

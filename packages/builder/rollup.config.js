@@ -153,6 +153,10 @@ export default {
           find: "builderStore",
           replacement: path.resolve(projectRootDir, "src/builderStore"),
         },
+        {
+          find: "constants",
+          replacement: path.resolve(projectRootDir, "src/constants"),
+        },
       ],
       customResolver,
     }),
@@ -163,10 +167,6 @@ export default {
         { src: "assets", dest: outputpath },
         {
           src: "node_modules/@budibase/client/dist/budibase-client.esm.mjs",
-          dest: outputpath,
-        },
-        {
-          src: "node_modules/@budibase/bbui/dist/bbui.css",
           dest: outputpath,
         },
       ],

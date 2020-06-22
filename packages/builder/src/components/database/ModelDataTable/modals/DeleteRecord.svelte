@@ -1,11 +1,13 @@
 <script>
   import ActionButton from "components/common/ActionButton.svelte"
+  import { notifier } from "@beyonk/svelte-notifications"
   import { store, backendUiStore } from "builderStore"
   import * as api from "../api"
 
   export let record
   export let onClosed
 
+  $: instanceId = $backendUiStore.selectedDatabase._id
 </script>
 
 <section>
@@ -24,7 +26,8 @@
     <ActionButton
       alert
       on:click={async () => {
-        await api.deleteRecord(record)
+        await api.deleteRecord(record, instanceId)
+        notifier.danger("Record deleted")
         backendUiStore.actions.records.delete(record)
         onClosed()
       }}>

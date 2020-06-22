@@ -6,13 +6,14 @@ import { createApi } from "../api"
 
 export const EVENT_TYPE_MEMBER_NAME = "##eventHandlerType"
 
-export const eventHandlers = routeTo => {
+export const eventHandlers = (rootPath, routeTo) => {
   const handler = (parameters, execute) => ({
     execute,
     parameters,
   })
 
   const api = createApi({
+    rootPath,
     setState,
     getState: (path, fallback) => getState(path, fallback),
   })
