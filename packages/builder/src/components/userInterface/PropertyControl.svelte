@@ -38,8 +38,7 @@
       {...handlevalueKey(value)}
       on:change={val => handleChange(key, val)}
       onChange={val => handleChange(key, val)}
-      {...props}
-      name={key} />
+      {...props} />
   </div>
 </div>
 

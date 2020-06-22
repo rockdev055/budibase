@@ -1,11 +1,10 @@
 const jwt = require("jsonwebtoken")
 const STATUS_CODES = require("../utilities/statusCodes")
+const env = require("../environment")
 const accessLevelController = require("../api/controllers/accesslevel")
 const {
   ADMIN_LEVEL_ID,
   POWERUSER_LEVEL_ID,
-  BUILDER_LEVEL_ID,
-  ANON_LEVEL_ID,
 } = require("../utilities/accessLevels")
 
 module.exports = async (ctx, next) => {
@@ -16,21 +15,16 @@ module.exports = async (ctx, next) => {
 
   const appToken = ctx.cookies.get("budibase:token")
   const builderToken = ctx.cookies.get("builder:token")
+  const isBuilderAgent = ctx.headers["x-user-agent"] === "Budibase Builder"
 
-  if (builderToken) {
-    try {
-      const jwtPayload = jwt.verify(builderToken, ctx.config.jwtSecret)
-      ctx.isAuthenticated = jwtPayload.accessLevelId === BUILDER_LEVEL_ID
-      ctx.user = {
-        ...jwtPayload,
-        accessLevel: await getAccessLevel(
-          jwtPayload.instanceId,
-          jwtPayload.accessLevelId
-        ),
-      }
-    } catch (_) {
-      // empty: do nothing
-    }
+  // all admin api access should auth with buildertoken and 'Budibase Builder user agent
+  const shouldAuthAsBuilder = isBuilderAgent && builderToken
+
+  if (shouldAuthAsBuilder) {
+    const builderTokenValid = builderToken === env.ADMIN_SECRET
+
+    ctx.isAuthenticated = builderTokenValid
+    ctx.isBuilder = builderTokenValid
 
     await next()
     return
@@ -52,7 +46,7 @@ module.exports = async (ctx, next) => {
         jwtPayload.accessLevelId
       ),
     }
-    ctx.isAuthenticated = ctx.user.accessLevelId !== ANON_LEVEL_ID
+    ctx.isAuthenticated = true
   } catch (err) {
     ctx.throw(err.status || STATUS_CODES.FORBIDDEN, err.text)
   }
@@ -63,9 +57,7 @@ module.exports = async (ctx, next) => {
 const getAccessLevel = async (instanceId, accessLevelId) => {
   if (
     accessLevelId === POWERUSER_LEVEL_ID ||
-    accessLevelId === ADMIN_LEVEL_ID ||
-    accessLevelId === BUILDER_LEVEL_ID ||
-    accessLevelId === ANON_LEVEL_ID
+    accessLevelId === ADMIN_LEVEL_ID
   ) {
     return {
       _id: accessLevelId,
@@ -77,8 +69,6 @@ const getAccessLevel = async (instanceId, accessLevelId) => {
   const findAccessContext = {
     params: {
       levelId: accessLevelId,
-    },
-    user: {
       instanceId,
     },
   }

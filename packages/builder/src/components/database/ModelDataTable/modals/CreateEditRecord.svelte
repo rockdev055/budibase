@@ -14,6 +14,8 @@
   let errors = []
   let selectedModel
 
+  $: instanceId = $backendUiStore.selectedDatabase._id
+
   $: modelSchema = $backendUiStore.selectedModel
     ? Object.entries($backendUiStore.selectedModel.schema)
     : []
@@ -47,6 +49,7 @@
         ...record,
         modelId: $backendUiStore.selectedModel._id,
       },
+      instanceId,
       $backendUiStore.selectedModel._id
     )
     if (recordResponse.errors) {

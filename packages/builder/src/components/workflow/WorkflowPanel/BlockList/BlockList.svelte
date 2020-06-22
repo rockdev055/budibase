@@ -3,6 +3,7 @@
   import { backendUiStore, workflowStore } from "builderStore"
   import { WorkflowList } from "../"
   import WorkflowBlock from "./WorkflowBlock.svelte"
+  import api from "builderStore/api"
   import blockDefinitions from "../blockDefinitions"
 
   let selectedTab = "TRIGGER"

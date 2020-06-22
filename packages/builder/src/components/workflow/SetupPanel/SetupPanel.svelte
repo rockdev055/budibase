@@ -3,6 +3,7 @@
   import { onMount, getContext } from "svelte"
   import { backendUiStore, workflowStore } from "builderStore"
   import { notifier } from "@beyonk/svelte-notifications"
+  import api from "builderStore/api"
   import WorkflowBlockSetup from "./WorkflowBlockSetup.svelte"
   import DeleteWorkflowModal from "./DeleteWorkflowModal.svelte"
 
@@ -95,10 +96,7 @@
     {#if workflowBlock}
       <WorkflowBlockSetup {workflowBlock} />
       <div class="buttons">
-        <button
-          data-cy="save-workflow-setup"
-          class="workflow-button hoverable"
-          on:click={saveWorkflow}>
+        <button class="workflow-button hoverable" on:click={saveWorkflow}>
           Save Workflow
         </button>
         <button

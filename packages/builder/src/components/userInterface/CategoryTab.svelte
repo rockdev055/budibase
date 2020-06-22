@@ -7,7 +7,6 @@
 <div class="tabs">
   {#each categories as category}
     <li
-      data-cy={category.name}
       on:click={() => onClick(category)}
       class:active={selectedCategory === category}>
       {category.name}

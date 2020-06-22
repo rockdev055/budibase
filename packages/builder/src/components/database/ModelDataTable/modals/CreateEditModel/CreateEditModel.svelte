@@ -18,6 +18,7 @@
   let fieldToEdit
 
   $: modelFields = model.schema ? Object.entries(model.schema) : []
+  $: instanceId = $backendUiStore.selectedDatabase._id
 
   function editField() {}
 
@@ -26,7 +27,7 @@
   function onFinishedFieldEdit() {}
 
   async function saveModel() {
-    const SAVE_MODEL_URL = `/api/models`
+    const SAVE_MODEL_URL = `/api/${instanceId}/models`
     const response = await api.post(SAVE_MODEL_URL, model)
     const newModel = await response.json()
     backendUiStore.actions.models.create(newModel)
@@ -53,10 +54,7 @@
     </div>
     <div class="table-controls">
       <span class="label">Fields</span>
-      <div
-        data-cy="add-new-model-field"
-        class="hoverable new-field"
-        on:click={() => (showFieldView = true)}>
+      <div class="hoverable new-field" on:click={() => (showFieldView = true)}>
         Add new field
       </div>
     </div>
