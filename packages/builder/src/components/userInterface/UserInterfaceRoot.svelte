@@ -100,7 +100,7 @@
     grid-template-columns: 300px 1fr 300px;
     height: 100%;
     width: 100%;
-    background: var(--grey-1);
+    background: #fbfbfb;
   }
 
   .ui-nav {
@@ -128,21 +128,23 @@
 
   .components-nav-page {
     font-size: 13px;
-    color: var(--ink);
+    color: #000333;
     text-transform: uppercase;
     padding-left: 20px;
     margin-top: 20px;
     font-weight: 600;
     opacity: 0.4;
+    letter-spacing: 1px;
   }
 
   .components-nav-header {
     font-size: 13px;
-    color: var(--ink);
+    color: #000333;
     text-transform: uppercase;
     margin-top: 20px;
     font-weight: 600;
     opacity: 0.4;
+    letter-spacing: 1px;
   }
 
   .nav-header {
@@ -182,20 +184,21 @@
     vertical-align: bottom;
     grid-column-start: button;
     cursor: pointer;
-    color: var(--blue);
+    color: var(--primary75);
   }
 
   .nav-group-header > div:nth-child(3):hover {
-    color: var(--blue);
+    color: var(--primary75);
   }
 
   .navigator-title {
     font-size: 14px;
-    color: var(--ink);
+    color: var(--secondary100);
     font-weight: 600;
     text-transform: uppercase;
     padding: 0 20px 20px 20px;
     line-height: 1rem !important;
+    letter-spacing: 1px;
   }
 
   .components-list-container {

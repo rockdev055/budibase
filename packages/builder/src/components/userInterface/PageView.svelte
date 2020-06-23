@@ -59,7 +59,7 @@
     padding: 15px;
   }
   .help-text {
-    color: var(--grey-2);
+    color: var(--slate);
     font-size: 10pt;
   }
 </style>

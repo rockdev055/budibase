@@ -39,7 +39,7 @@
       <div
         class="budibase__nav-item item"
         class:selected={currentComponent === component}
-        style="padding-left: {level * 16 + 32}px">
+        style="padding-left: {level * 20 + 53}px">
         <div class="nav-item">
           <i class="icon ri-arrow-right-circle-fill" />
           {get_capitalised_name(component._component)}
@@ -90,7 +90,7 @@
   }
 
   .item:hover {
-    background: var(--grey-1);
+    background: var(--grey-light);
     cursor: pointer;
   }
   .item:hover .actions {
@@ -105,7 +105,7 @@
   }
 
   .icon {
-    color: var(--grey-7);
+    color: var(--ink-light);
     margin-right: 8px;
   }
 </style>

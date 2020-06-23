@@ -15,8 +15,11 @@
   }
 </script>
 
-<div class="workflow-block hoverable" on:click={addBlockToWorkflow}>
-  <div class="icon">
+<div
+  class="workflow-block hoverable"
+  on:click={addBlockToWorkflow}
+  data-cy={actionId}>
+  <div>
     <i class={blockDefinition.icon} />
   </div>
   <div class="workflow-text">
@@ -27,34 +30,19 @@
 
 <style>
   .workflow-block {
-    display: grid;
-    grid-template-columns: 40px auto;
+    display: flex;
+    padding: 20px;
     align-items: center;
-    margin-top: 16px;
-    padding: 16px 0px;
-    border-radius: var(--border);
-  }
-
-  .workflow-block:hover {
-    background-color: var(--grey-1);
   }
 
   .workflow-text {
-    margin-left: 12px;
-  }
-
-  .icon {
-    height: 40px;
-    width: 40px;
-    background: var(--blue-light);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin-left: 10px;
   }
 
   i {
-    color: var(--grey-7);
-    font-size: 20px;
+    background: var(--secondary);
+    color: var(--dark-grey);
+    padding: 10px;
   }
 
   h4 {
@@ -65,7 +53,7 @@
 
   p {
     font-size: 12px;
-    color: var(--grey-7);
+    color: var(--dark-grey);
     margin: 0;
   }
 </style>

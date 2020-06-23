@@ -15,6 +15,7 @@
 <PagesList />
 
 <button class="newscreen" on:click={newScreen}>
+  <i class="icon ri-add-circle-fill" />
   Create New Screen
 </button>
 
@@ -29,26 +30,23 @@
 <style>
   .newscreen {
     cursor: pointer;
-    border: 1px solid var(--purple);
-    border-radius: 5px;
+    border: 1px solid var(--grey-dark);
+    border-radius: 3px;
     width: 100%;
-    height: 36px;
     padding: 8px 16px;
     margin: 20px 0px 12px 0px;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: var(--purple);
-    color: var(--white);
+    background: white;
+    color: var(--ink);
     font-size: 14px;
     font-weight: 500;
-    transition: all 3ms;
-    outline: none;
+    transition: all 2ms;
   }
 
   .newscreen:hover {
-    background: var(--purple-light);
-    color: var(--purple);
+    background: var(--grey-light);
   }
 
   .icon {

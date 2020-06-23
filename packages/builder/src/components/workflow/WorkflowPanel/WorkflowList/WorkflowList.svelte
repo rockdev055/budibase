@@ -3,7 +3,6 @@
   import { notifier } from "@beyonk/svelte-notifications"
   import { onMount, getContext } from "svelte"
   import { backendUiStore, workflowStore } from "builderStore"
-  import api from "builderStore/api"
   import CreateWorkflowModal from "./CreateWorkflowModal.svelte"
 
   const { open, close } = getContext("simple-modal")
@@ -23,7 +22,7 @@
   }
 
   onMount(() => {
-    workflowStore.actions.fetch($backendUiStore.selectedDatabase._id)
+    workflowStore.actions.fetch()
   })
 </script>
 
@@ -90,7 +89,7 @@
 
   .workflow-item:hover {
     cursor: pointer;
-    background: var(--grey-1);
+    background: var(--grey-light);
   }
 
   .workflow-item.selected {
@@ -99,7 +98,7 @@
 
   .new-workflow-button {
     cursor: pointer;
-    border: 1px solid var(--grey-4);
+    border: 1px solid var(--grey-dark);
     border-radius: 3px;
     width: 100%;
     padding: 8px 16px;
@@ -114,7 +113,7 @@
   }
 
   .new-workflow-button:hover {
-    background: var(--grey-1);
+    background: var(--grey-light);
   }
 
   .icon {

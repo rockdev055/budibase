@@ -41,7 +41,7 @@
 
   .secondary {
     color: var(--ink);
-    border: solid 1px var(--grey-4);
+    border: solid 1px var(--grey-dark);
     background: white;
   }
 

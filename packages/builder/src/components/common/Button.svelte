@@ -42,14 +42,14 @@
 
   /* ---- PRIMARY ----*/
   .primary {
-    background-color: var(--blue);
-    border-color: var(--blue);
+    background-color: var(--primary100);
+    border-color: var(--primary100);
     color: var(--white);
   }
 
   .primary:hover {
-    background-color: var(--blue);
-    border-color: var(--blue);
+    background-color: var(--primary75);
+    border-color: var(--primary75);
   }
 
   .primary:active {
@@ -59,8 +59,8 @@
 
   .primary-outline {
     background-color: var(--white);
-    border-color: var(--blue);
-    color: var(--blue);
+    border-color: var(--primary100);
+    color: var(--primary100);
   }
 
   .primary-outline:hover {
@@ -74,8 +74,8 @@
   /* ---- secondary ----*/
 
   .secondary {
-    background-color: var(--ink);
-    border-color: var(--ink);
+    background-color: var(--secondary100);
+    border-color: var(--secondary100);
     color: var(--white);
   }
 
@@ -91,8 +91,8 @@
 
   .secondary-outline {
     background-color: var(--white);
-    border-color: var(--ink);
-    color: var(--ink);
+    border-color: var(--secondary100);
+    color: var(--secondary100);
   }
 
   .secondary-outline:hover {
@@ -136,36 +136,32 @@
 
   /* ---- deletion ----*/
   .deletion {
-    background-color: var(--red);
-    border-color: var(--red);
+    background-color: var(--deletion100);
+    border-color: var(--deletion100);
     color: var(--white);
   }
 
   .deletion:hover {
-    background-color: var(--red-light);
-    border-color: var(--red);
-    color: var(--red);
+    background-color: var(--deletion75);
+    border-color: var(--deletion75);
   }
 
   .deletion:pressed {
-    background-color: var(--red-dark);
-    border-color: var(--red-dark);
-    color: var(--white);
+    background-color: var(--deletiondark);
+    border-color: var(--deletiondark);
   }
 
   .deletion-outline {
     background-color: var(--white);
-    border-color: var(--red);
-    color: var(--red);
+    border-color: var(--deletion100);
+    color: var(--deletion100);
   }
 
   .deletion-outline:hover {
-    background-color: var(--red-light);
-    color: var(--red);
+    background-color: var(--deletion10);
   }
 
   .deletion-outline:pressed {
-    background-color: var(--red-dark);
-    color: var(--white);
+    background-color: var(--deletion25);
   }
 </style>
