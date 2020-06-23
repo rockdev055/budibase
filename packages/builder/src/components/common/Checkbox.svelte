@@ -3,8 +3,8 @@
   export let label = ""
 </script>
 
-{label}
 <input class="uk-checkbox" type="checkbox" bind:checked on:change />
+{label}
 
 <style>
   input {

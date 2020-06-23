@@ -5,5 +5,4 @@ package-lock.json
 yarn.lock
 release/
 dist/
-cypress/screenshots
 routify

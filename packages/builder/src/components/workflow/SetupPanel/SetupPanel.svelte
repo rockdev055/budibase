@@ -3,6 +3,7 @@
   import { onMount, getContext } from "svelte"
   import { backendUiStore, workflowStore } from "builderStore"
   import { notifier } from "@beyonk/svelte-notifications"
+  import api from "builderStore/api"
   import WorkflowBlockSetup from "./WorkflowBlockSetup.svelte"
   import DeleteWorkflowModal from "./DeleteWorkflowModal.svelte"
 
@@ -95,10 +96,7 @@
     {#if workflowBlock}
       <WorkflowBlockSetup {workflowBlock} />
       <div class="buttons">
-        <button
-          data-cy="save-workflow-setup"
-          class="workflow-button hoverable"
-          on:click={saveWorkflow}>
+        <button class="workflow-button hoverable" on:click={saveWorkflow}>
           Save Workflow
         </button>
         <button
@@ -162,7 +160,7 @@
 
   header {
     font-size: 20px;
-    font-weight: 700;
+    font-weight: 600;
     display: flex;
     align-items: center;
     margin-bottom: 18px;
@@ -182,15 +180,15 @@
 
   .config-item {
     margin: 0px 0px 4px 0px;
-    padding: 12px;
-    background: var(--light-grey);
+    padding: 12px 0px;
   }
 
   .budibase_input {
     height: 35px;
-    width: 220px;
+    width: 244px;
     border-radius: 3px;
-    border: 1px solid var(--grey-dark);
+    background-color: var(--grey-2);
+    border: 1px solid var(--grey-2);
     text-align: left;
     color: var(--ink);
     font-size: 14px;
@@ -198,7 +196,7 @@
   }
 
   header > span {
-    color: var(--ink-lighter);
+    color: var(--grey-5);
     margin-right: 20px;
   }
 
@@ -243,7 +241,7 @@
 
   .workflow-button {
     cursor: pointer;
-    border: 1px solid var(--grey-dark);
+    border: 1px solid var(--grey-4);
     border-radius: 3px;
     width: 100%;
     padding: 8px 16px;
@@ -259,7 +257,7 @@
   }
 
   .workflow-button:hover {
-    background: var(--grey-light);
+    background: var(--grey-1);
   }
 
   .access-level {

@@ -14,7 +14,7 @@ export const layout = [
     control: OptionSelect,
     initialValue: "",
     options: [
-      { label: "", value: "" },
+      { label: " ", value: " " },
       { label: "Flex", value: "flex" },
       { label: "Inline Flex", value: "inline-flex" },
     ],
@@ -103,7 +103,6 @@ export const size = [
     key: "width",
     control: Input,
     placeholder: "px",
-    width: "48px",
     textAlign: "center",
   },
   {
@@ -111,7 +110,6 @@ export const size = [
     key: "height",
     control: Input,
     placeholder: "px",
-    width: "48px",
     textAlign: "center",
   },
   {
@@ -119,7 +117,6 @@ export const size = [
     key: "min-width",
     control: Input,
     placeholder: "px",
-    width: "48px",
     textAlign: "center",
   },
   {
@@ -127,7 +124,6 @@ export const size = [
     key: "min-height",
     control: Input,
     placeholder: "px",
-    width: "48px",
     textAlign: "center",
   },
   {
@@ -135,7 +131,6 @@ export const size = [
     key: "max-width",
     control: Input,
     placeholder: "px",
-    width: "48px",
     textAlign: "center",
   },
   {
@@ -143,7 +138,6 @@ export const size = [
     key: "max-height",
     control: Input,
     placeholder: "px",
-    width: "48px",
     textAlign: "center",
   },
 ]
@@ -167,7 +161,6 @@ export const position = [
     key: "top",
     control: Input,
     placeholder: "px",
-    width: "48px",
     textAlign: "center",
   },
   {
@@ -175,7 +168,6 @@ export const position = [
     key: "right",
     control: Input,
     placeholder: "px",
-    width: "48px",
     textAlign: "center",
   },
   {
@@ -183,7 +175,6 @@ export const position = [
     key: "bottom",
     control: Input,
     placeholder: "px",
-    width: "48px",
     textAlign: "center",
   },
   {
@@ -191,7 +182,6 @@ export const position = [
     key: "left",
     control: Input,
     placeholder: "px",
-    width: "48px",
     textAlign: "center",
   },
   {
@@ -199,7 +189,6 @@ export const position = [
     key: "z-index",
     control: Input,
     placeholder: "num",
-    width: "48px",
     textAlign: "center",
   },
 ]
@@ -242,7 +231,6 @@ export const typography = [
     defaultValue: "",
     control: Input,
     placeholder: "px",
-    width: "48px",
     textAlign: "center",
   },
   {
@@ -250,7 +238,6 @@ export const typography = [
     key: "line-height",
     control: Input,
     placeholder: "lh",
-    width: "48px",
     textAlign: "center",
   },
   {
@@ -275,15 +262,10 @@ export const typography = [
     key: "text-transform",
     control: FlatButtonGroup,
     buttonProps: [
-      { text: "BB", padding: "0px 5px", fontWeight: 500, value: "uppercase" },
-      { text: "Bb", padding: "0px 5px", fontWeight: 500, value: "capitalize" },
-      { text: "bb", padding: "0px 5px", fontWeight: 500, value: "lowercase" },
-      {
-        text: "&times;",
-        padding: "0px 5px",
-        fontWeight: 500,
-        value: "none",
-      },
+      { text: "BB", value: "uppercase" },
+      { text: "Bb", value: "capitalize" },
+      { text: "bb", value: "lowercase" },
+      { text: "&times;", value: "none" },
     ],
   },
   {

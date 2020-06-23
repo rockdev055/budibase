@@ -12,7 +12,7 @@
     if (v.target) {
       let val = props.valueKey ? v.target[props.valueKey] : v.target.value
       onChange(key, val)
-    } else if (v.detail) {
+    }else if(v.detail) {
       onChange(key, v.detail)
     } else {
       onChange(key, v)
@@ -38,8 +38,7 @@
       {...handlevalueKey(value)}
       on:change={val => handleChange(key, val)}
       onChange={val => handleChange(key, val)}
-      {...props}
-      name={key} />
+      {...props} />
   </div>
 </div>
 
@@ -55,7 +54,6 @@
     flex: 0 0 50px;
     display: flex;
     align-items: center;
-    padding: 0px 5px;
     font-size: 12px;
     font-weight: 400;
     text-align: left;

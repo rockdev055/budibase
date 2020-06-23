@@ -1,19 +1,14 @@
 <script>
-  import { buildStyle } from "./helpers.js"
-  import { fade } from "svelte/transition"
+    import {buildStyle} from "./helpers.js"
 
-  export let backgroundSize = "10px"
-  export let borderRadius = ""
-  export let height = ""
-  export let width = ""
-  export let margin = ""
+    export let backgroundSize = "10px"
+    export let borderRadius = ""
+    export let height = ""
+    export let width = ""
 
-  $: style = buildStyle({ backgroundSize, borderRadius, height, width, margin })
+    $: style = buildStyle({backgroundSize, borderRadius, height, width})
+
 </script>
-
-<div in:fade {style}>
-  <slot />
-</div>
 
 <style>
   div {
@@ -22,3 +17,7 @@
     width: fit-content;
   }
 </style>
+
+<div {style}>
+    <slot />
+</div>

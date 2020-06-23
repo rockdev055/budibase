@@ -21,11 +21,13 @@ const isMetaProp = propName =>
   propName === "_styles"
 
 export const createStateManager = ({
+  appRootPath,
+  frontendDefinition,
   componentLibraries,
   onScreenSlotRendered,
   routeTo,
 }) => {
-  let handlerTypes = eventHandlers(routeTo)
+  let handlerTypes = eventHandlers(appRootPath, routeTo)
   let currentState
 
   const getCurrentState = () => currentState
@@ -33,6 +35,7 @@ export const createStateManager = ({
   const bb = bbFactory({
     store: appStore,
     getCurrentState,
+    frontendDefinition,
     componentLibraries,
     onScreenSlotRendered,
   })

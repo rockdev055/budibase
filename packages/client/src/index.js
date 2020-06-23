@@ -1,6 +1,5 @@
 import { createApp } from "./createApp"
 import { builtins, builtinLibName } from "./render/builtinComponents"
-import { getAppId } from "./render/getAppId"
 
 /**
  * create a web application from static budibase definition files.
@@ -9,7 +8,7 @@ import { getAppId } from "./render/getAppId"
 export const loadBudibase = async opts => {
   const _window = (opts && opts.window) || window
   // const _localStorage = (opts && opts.localStorage) || localStorage
-  const appId = getAppId(_window.document.cookie)
+
   const frontendDefinition = _window["##BUDIBASE_FRONTEND_DEFINITION##"]
 
   const user = {}
@@ -21,7 +20,9 @@ export const loadBudibase = async opts => {
   for (let library of libraries) {
     // fetch the JavaScript for the component libraries from the server
     componentLibraryModules[library] = await import(
-      `/componentlibrary?library=${encodeURI(library)}`
+      `/${frontendDefinition.appId}/componentlibrary?library=${encodeURI(
+        library
+      )}`
     )
   }
 
@@ -37,11 +38,11 @@ export const loadBudibase = async opts => {
     componentLibraries: componentLibraryModules,
     frontendDefinition,
     user,
-    window: _window,
+    window,
   })
 
   const route = _window.location
-    ? _window.location.pathname.replace(`${appId}/`, "").replace(appId, "")
+    ? _window.location.pathname.replace(frontendDefinition.appRootPath, "")
     : ""
 
   initialisePage(frontendDefinition.page, _window.document.body, route)
