@@ -55,8 +55,9 @@
   }
 
   :global(.uk-notification-message-danger) {
-    background: var(--grey-7) !important;
+    background: var(--ink-light) !important;
     color: #fff !important;
+    font-family: Roboto;
     font-size: 16px !important;
   }
 
@@ -71,6 +72,6 @@
   }
 
   :global(.refresh-page-button):hover {
-    background: var(--grey-1);
+    background: var(--grey-light);
   }
 </style>

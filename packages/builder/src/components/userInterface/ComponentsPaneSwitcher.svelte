@@ -55,7 +55,7 @@
     display: flex;
     flex-direction: column;
     padding: 20px 5px 20px 10px;
-    border-left: solid 1px var(--grey-2);
+    border-left: solid 1px var(--grey);
   }
 
   .switcher {
@@ -70,8 +70,8 @@
     padding: 0;
     cursor: pointer;
     font-size: 18px;
-    font-weight: 600;
-    color: var(--grey-5);
+    font-weight: 700;
+    color: var(--ink-lighter);
     margin-right: 20px;
   }
 

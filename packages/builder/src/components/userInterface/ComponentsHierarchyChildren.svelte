@@ -90,7 +90,7 @@
   }
 
   .item:hover {
-    background: var(--grey-1);
+    background: var(--grey-light);
     cursor: pointer;
   }
   .item:hover .actions {
@@ -105,7 +105,7 @@
   }
 
   .icon {
-    color: var(--grey-7);
+    color: var(--ink-light);
     margin-right: 8px;
   }
 </style>

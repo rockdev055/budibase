@@ -89,7 +89,7 @@
     font-size: 24px;
     width: 20px;
     margin-top: 2px;
-    color: var(--grey-7);
+    color: var(--ink-light);
   }
 
   .icon:nth-of-type(2) {

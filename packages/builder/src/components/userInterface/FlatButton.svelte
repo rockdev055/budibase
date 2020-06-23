@@ -32,8 +32,9 @@
     padding: 8px 2px;
     text-align: center;
     background: #ffffff;
-    color: var(--grey-7);
+    color: var(--ink-light);
     border-radius: 5px;
+    font-family: Roboto;
     font-size: 14px;
     font-weight: 400;
     transition: all 0.3s;
@@ -42,8 +43,8 @@
   }
 
   .selected {
-    background: var(--grey-3);
-    color: var(--ink);
+    background: var(--ink-light);
+    color: #ffffff;
   }
 
   i {

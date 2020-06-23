@@ -72,18 +72,18 @@
 }
 
 .budibase__nav-item:hover {
-    background: var(--grey-1);
+    background: var(--grey-light);
 }
 
 .budibase__input {
     height: 35px;
-    width: 220px;
+    width: 100%;
+    max-width: 220px;
     border-radius: 3px;
-    border: 1px solid var(--grey-4);
+    border: 1px solid var(--grey-dark);
     text-align: left;
     color: var(--ink);
     font-size: 14px;
-    padding-left: 12px;
 }
 
 .uk-text-right {
@@ -100,7 +100,7 @@
 }
 
 .budibase__table {
-    border: 1px solid var(--grey-4);
+    border: 1px solid var(--grey-dark);
     background: #fff;
     border-radius: 2px;
 }
@@ -116,12 +116,12 @@
 }
 
 .budibase__table tr {
-    border-bottom: 1px solid var(--grey-1);
+    border-bottom: 1px solid var(--grey-light);
 }
 
 .button--toggled {
     background: var(--blue-light);
-    color: var(--grey-7);
+    color: var(--ink-light);
     width: 40px;
     height: 40px;
     display: flex;

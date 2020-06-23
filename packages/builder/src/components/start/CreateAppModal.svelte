@@ -142,11 +142,11 @@
     background-color: var(--blue-light);
   }
   .info {
-    color: var(--blue);
-    text-decoration-color: var(--blue);
+    color: var(--primary100);
+    text-decoration-color: var(--primary100);
   }
   .info :global(svg) {
-    fill: var(--blue);
+    fill: var(--primary100);
     margin-right: 8px;
     width: 24px;
     height: 24px;
@@ -164,7 +164,7 @@
     padding: 30px 40px;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 50px;
-    background-color: var(--grey-1);
+    background-color: var(--grey-light);
   }
   .spinner-container {
     background: white;
@@ -183,7 +183,7 @@
     font-size: 2em;
   }
   .error {
-    color: var(--red);
+    color: var(--deletion100);
     font-weight: bold;
     font-size: 0.8em;
   }

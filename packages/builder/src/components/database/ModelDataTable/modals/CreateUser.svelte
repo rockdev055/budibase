@@ -10,12 +10,11 @@
   let accessLevelId
 
   $: valid = username && password && accessLevelId
-  $: instanceId = $backendUiStore.selectedDatabase._id
   $: appId = $store.appId
 
   async function createUser() {
     const user = { name: username, username, password, accessLevelId }
-    const response = await api.createUser(user, instanceId)
+    const response = await api.createUser(user)
     backendUiStore.actions.users.create(response)
     onClosed()
   }
@@ -29,15 +28,26 @@
     </div>
     <div class="uk-margin">
       <label class="uk-form-label" for="form-stacked-text">Username</label>
-      <input class="uk-input" type="text" bind:value={username} />
+      <input
+        data-cy="username"
+        class="uk-input"
+        type="text"
+        bind:value={username} />
     </div>
     <div class="uk-margin">
       <label class="uk-form-label" for="form-stacked-text">Password</label>
-      <input class="uk-input" type="password" bind:value={password} />
+      <input
+        data-cy="password"
+        class="uk-input"
+        type="password"
+        bind:value={password} />
     </div>
     <div class="uk-margin">
       <label class="uk-form-label" for="form-stacked-text">Access Level</label>
-      <select class="uk-select" bind:value={accessLevelId}>
+      <select
+        data-cy="accessLevel"
+        class="uk-select"
+        bind:value={accessLevelId}>
         <option value="" />
         <option value="POWER_USER">Power User</option>
         <option value="ADMIN">Admin</option>
@@ -59,7 +69,7 @@
 
   .title {
     font-size: 24px;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--ink);
     margin-left: 12px;
   }
@@ -74,7 +84,7 @@
     align-items: center;
     justify-content: flex-end;
     padding: 20px;
-    background: var(--grey-1);
+    background: var(--grey-light);
     border-radius: 0 0 5px 5px;
   }
 

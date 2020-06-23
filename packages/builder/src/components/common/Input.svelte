@@ -2,6 +2,7 @@
   import { onMount } from "svelte"
   import { buildStyle } from "../../helpers.js"
   export let value = ""
+  export let name = ""
   export let textAlign = "left"
   export let width = "160px"
   export let placeholder = ""
@@ -25,6 +26,7 @@
 </script>
 
 <input
+  {name}
   class:centerPlaceholder
   type="text"
   value={displayValue}
@@ -37,7 +39,7 @@
     /* width: 32px; */
     height: 32px;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 700;
     margin: 0px 0px 0px 1px;
     color: var(--ink);
     opacity: 0.7;
@@ -46,7 +48,7 @@
     /* padding: 12px; */
     width: 164px;
     box-sizing: border-box;
-    border: 1px solid var(--grey-2);
+    border: 1px solid var(--grey);
     border-radius: 2px;
     outline: none;
   }

@@ -3,7 +3,6 @@
   import { backendUiStore, workflowStore } from "builderStore"
   import { WorkflowList } from "../"
   import WorkflowBlock from "./WorkflowBlock.svelte"
-  import api from "builderStore/api"
   import blockDefinitions from "../blockDefinitions"
 
   let selectedTab = "TRIGGER"
@@ -64,18 +63,18 @@
   .subtabs span {
     transition: 0.3s all;
     text-align: center;
-    color: var(--grey-7);
+    color: var(--dark-grey);
     font-weight: 500;
     padding: 10px;
   }
 
   .subtabs span.selected {
-    background: var(--grey-7);
+    background: var(--dark-grey);
     color: var(--white);
     border-radius: 2px;
   }
 
   .subtabs span:not(.selected) {
-    color: var(--grey-7);
+    color: var(--dark-grey);
   }
 </style>
