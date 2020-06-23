@@ -1,7 +1,6 @@
 const CouchDB = require("../../db")
 const validateJs = require("validate.js")
 const newid = require("../../db/newid")
-const { link } = require("pouchdb-adapter-memory")
 
 exports.save = async function(ctx) {
   const db = new CouchDB(ctx.params.instanceId)
@@ -43,28 +42,6 @@ exports.save = async function(ctx) {
   record.type = "record"
   const response = await db.post(record)
   record._rev = response.rev
-
-  // create links in other tables
-  for (let key in record) {
-    // link
-    if (Array.isArray(record[key])) {
-      const linked = await db.allDocs({
-        include_docs: true,
-        keys: record[key],
-      })
-
-      // add this record to the linked records in attached models
-      const linkedDocs = linked.rows.map(row => {
-        const doc = row.doc
-        return {
-          ...doc,
-          [model.name]: doc[model.name] ? [...doc[model.name], record._id] : [record._id]
-        }
-      })
-
-      await db.bulkDocs(linkedDocs)
-    }
-  }
 
   ctx.eventEmitter &&
     ctx.eventEmitter.emit(`record:save`, {
