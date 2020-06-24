@@ -1,6 +1,4 @@
 import { values } from "lodash/fp"
-import { get_capitalised_name } from "../../helpers"
-import { backendUiStore } from "builderStore"
 import * as backendStoreActions from "./backend"
 import { writable, get } from "svelte/store"
 import api from "../api"
@@ -24,6 +22,7 @@ import {
   saveCurrentPreviewItem as _saveCurrentPreviewItem,
   saveScreenApi as _saveScreenApi,
   regenerateCssForCurrentScreen,
+  renameCurrentScreen,
 } from "../storeUtils"
 
 export const getStore = () => {
@@ -69,7 +68,6 @@ export const getStore = () => {
   store.getPathToComponent = getPathToComponent(store)
   store.addTemplatedComponent = addTemplatedComponent(store)
   store.setMetadataProp = setMetadataProp(store)
-  store.editPageOrScreen = editPageOrScreen(store)
   return store
 }
 
@@ -154,13 +152,14 @@ const createScreen = store => (screenName, route, layoutComponentName) => {
     const rootComponent = state.components[layoutComponentName]
 
     const newScreen = {
+      name: screenName || "",
       description: "",
       url: "",
       _css: "",
       props: createProps(rootComponent).props,
     }
+
     newScreen.route = route
-    newScreen.props._instanceName = screenName || ""
     state.currentPreviewItem = newScreen
     state.currentComponentInfo = newScreen.props
     state.currentFrontEndType = "screen"
@@ -173,7 +172,7 @@ const createScreen = store => (screenName, route, layoutComponentName) => {
 
 const setCurrentScreen = store => screenName => {
   store.update(s => {
-    const screen = getExactComponent(s.screens, screenName, true)
+    const screen = getExactComponent(s.screens, screenName)
     s.currentPreviewItem = screen
     s.currentFrontEndType = "screen"
     s.currentView = "detail"
@@ -244,7 +243,6 @@ const setCurrentPage = store => pageName => {
     const currentPage = state.pages[pageName]
 
     state.currentFrontEndType = "page"
-    state.currentView = "detail"
     state.currentPageName = pageName
     state.screens = Array.isArray(current_screens)
       ? current_screens
@@ -296,15 +294,10 @@ const addChildComponent = store => (componentToAdd, presetName) => {
 
     const presetProps = presetName ? component.presets[presetName] : {}
 
-    const instanceId = get(backendUiStore).selectedDatabase._id
-    const instanceName = get_capitalised_name(componentToAdd)
-
     const newComponent = createProps(
       component,
       {
         ...presetProps,
-        _instanceId: instanceId,
-        _instanceName: instanceName,
       },
       state
     )
@@ -353,23 +346,24 @@ const selectComponent = store => component => {
 
 const setComponentProp = store => (name, value) => {
   store.update(state => {
-    let current_component = state.currentComponentInfo
-    current_component[name] = value
+    const current_component = state.currentComponentInfo
+    state.currentComponentInfo[name] = value
+
+    _saveCurrentPreviewItem(state)
 
     state.currentComponentInfo = current_component
-    _saveCurrentPreviewItem(state)
     return state
   })
 }
 
 const setPageOrScreenProp = store => (name, value) => {
   store.update(state => {
-    if (name === "_instanceName" && state.currentFrontEndType === "screen") {
-      state.currentPreviewItem.props[name] = value
+    if (name === "name" && state.currentFrontEndType === "screen") {
+      state = renameCurrentScreen(value, state)
     } else {
       state.currentPreviewItem[name] = value
+      _saveCurrentPreviewItem(state)
     }
-    _saveCurrentPreviewItem(state)
     return state
   })
 }
@@ -419,18 +413,6 @@ const setScreenType = store => type => {
 
     state.currentComponentInfo = pageOrScreen ? pageOrScreen.props : null
     state.currentPreviewItem = pageOrScreen
-    state.currentView = "detail"
-    return state
-  })
-}
-
-const editPageOrScreen = store => (key, value, setOnComponent = false) => {
-  store.update(state => {
-    setOnComponent
-      ? (state.currentPreviewItem.props[key] = value)
-      : (state.currentPreviewItem[key] = value)
-    _saveCurrentPreviewItem(state)
-
     return state
   })
 }
