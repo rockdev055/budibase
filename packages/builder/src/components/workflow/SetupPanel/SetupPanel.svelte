@@ -12,14 +12,10 @@
     {
       name: "Admin",
       key: "ADMIN",
-      canExecute: true,
-      editable: false,
     },
     {
       name: "Power User",
       key: "POWER_USER",
-      canExecute: true,
-      editable: false,
     },
   ]
 
@@ -127,22 +123,16 @@
           <div class="config-item">
             <label class="uk-form-label">User Access</label>
             <div class="access-levels">
-              {#each ACCESS_LEVELS as level}
+              {#each ACCESS_LEVELS as { name, key }}
                 <span class="access-level">
-                  <label>{level.name}</label>
-                  <input class="uk-checkbox" type="checkbox" disabled={!level.editable} bind:checked={level.canExecute}/>
+                  <label>{name}</label>
+                  <input class="uk-checkbox" type="checkbox" />
                 </span>
               {/each}
             </div>
           </div>
         </div>
         <div class="buttons">
-          <button
-            data-cy="save-workflow-setup"
-            class="workflow-button hoverable"
-            on:click={saveWorkflow}>
-            Save Workflow
-          </button>
           <button class="delete-workflow-button" on:click={deleteWorkflow}>
             Delete Workflow
           </button>
