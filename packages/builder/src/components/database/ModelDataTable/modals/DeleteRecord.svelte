@@ -1,6 +1,5 @@
 <script>
   import ActionButton from "components/common/ActionButton.svelte"
-  import { notifier } from "builderStore/store/notifications"
   import { store, backendUiStore } from "builderStore"
   import * as api from "../api"
 
@@ -25,7 +24,6 @@
       alert
       on:click={async () => {
         await api.deleteRecord(record)
-        notifier.danger('Record deleted')
         backendUiStore.actions.records.delete(record)
         onClosed()
       }}>

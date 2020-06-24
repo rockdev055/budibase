@@ -63,7 +63,7 @@
   }
 
   .LOGIC {
-    background-color: var(--blue-light);
+    background-color: var(--secondary);
     color: var(--ink);
   }
 

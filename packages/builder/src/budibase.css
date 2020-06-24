@@ -84,6 +84,7 @@
     text-align: left;
     color: var(--ink);
     font-size: 14px;
+    padding-left: 12px;
 }
 
 .uk-text-right {
