@@ -90,7 +90,7 @@
   }
   footer {
     padding: 20px;
-    background: var(--grey-1);
+    background: #fafafa;
     border-radius: 0.5rem;
   }
 </style>

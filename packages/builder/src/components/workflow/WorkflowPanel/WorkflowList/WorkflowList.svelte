@@ -89,7 +89,7 @@
 
   .workflow-item:hover {
     cursor: pointer;
-    background: var(--grey-1);
+    background: var(--grey-light);
   }
 
   .workflow-item.selected {
@@ -98,7 +98,7 @@
 
   .new-workflow-button {
     cursor: pointer;
-    border: 1px solid var(--grey-4);
+    border: 1px solid var(--grey-dark);
     border-radius: 3px;
     width: 100%;
     padding: 8px 16px;
@@ -113,7 +113,7 @@
   }
 
   .new-workflow-button:hover {
-    background: var(--grey-1);
+    background: var(--grey-light);
   }
 
   .icon {

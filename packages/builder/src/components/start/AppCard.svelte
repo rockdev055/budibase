@@ -21,25 +21,23 @@
     max-width: 400px;
     max-height: 150px;
     border-radius: 5px;
-    border: 1px solid var(--grey-4);
+    border: 1px solid var(--grey-medium);
   }
 
   .app-button:hover {
-    background-color: var(--grey-1);
+    background-color: var(--grey-light);
     text-decoration: none;
   }
 
   .app-title {
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--ink);
     text-transform: capitalize;
-    font-family: Inter;
   }
 
   .app-desc {
-    color: var(--grey-7);
-    font-family: Inter;
+    color: var(--ink-light);
   }
 
   .card-footer {
@@ -58,7 +56,7 @@
     justify-content: center;
     padding: 12px 20px;
     border-radius: 5px;
-    border: 1px var(--grey-2) solid;
+    border: 1px var(--grey) solid;
     font-size: 14px;
     font-weight: 400;
     cursor: pointer;

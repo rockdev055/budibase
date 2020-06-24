@@ -52,31 +52,29 @@
 
 <style>
   .subtabs {
-    margin-top: 20px;
+    margin-top: 27px;
     display: grid;
+    grid-gap: 5px;
     grid-auto-flow: column;
     grid-auto-columns: 1fr 1fr 1fr;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
 
   .subtabs span {
     transition: 0.3s all;
     text-align: center;
-    color: var(--grey-7);
-    font-weight: 400;
-    padding: 8px 16px;
-    text-rendering: optimizeLegibility;
-    border: none !important;
-    outline: none;
+    color: var(--dark-grey);
+    font-weight: 500;
+    padding: 10px;
   }
 
   .subtabs span.selected {
-    background: var(--grey-3);
-    color: var(--ink);
-    border-radius: 5px;
+    background: var(--dark-grey);
+    color: var(--white);
+    border-radius: 2px;
   }
 
   .subtabs span:not(.selected) {
-    color: var(--ink);
+    color: var(--dark-grey);
   }
 </style>

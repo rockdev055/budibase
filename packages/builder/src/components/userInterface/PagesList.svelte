@@ -43,24 +43,22 @@
 
   button {
     cursor: pointer;
-    padding: 0px 16px;
-    height: 36px;
+    padding: 8px 16px;
     text-align: center;
     background: #ffffff;
-    color: var(--grey-7);
+    color: var(--ink-light);
     border-radius: 5px;
-    font-family: inter;
+    font-family: Roboto;
     font-size: 14px;
     font-weight: 400;
     transition: all 0.3s;
     text-rendering: optimizeLegibility;
     border: none !important;
     transition: 0.2s;
-    outline: none;
   }
 
   .active {
-    background: var(--grey-3);
-    color: var(--ink);
+    background: var(--ink-light);
+    color: var(--white);
   }
 </style>
