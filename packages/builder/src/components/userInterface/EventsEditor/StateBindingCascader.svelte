@@ -25,7 +25,6 @@
   {/if}
   {#if parameter.name === 'workflow'}
     <Select on:change bind:value={parameter.value}>
-      <option value=""></option>
       {#each $workflowStore.workflows.filter(wf => wf.live) as workflow}
         <option value={workflow._id}>{workflow.name}</option>
       {/each}
