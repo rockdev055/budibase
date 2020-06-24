@@ -6,19 +6,31 @@ export const trimSlash = str => str.replace(/^\/+|\/+$/g, "")
 
 export const bbFactory = ({
   store,
+  frontendDefinition,
   componentLibraries,
   onScreenSlotRendered,
 }) => {
-  const apiCall = method => (url, body) => {
-    return fetch(url, {
+  const relativeUrl = url => {
+    if (!frontendDefinition.appRootPath) return url
+    if (
+      url.startsWith("http:") ||
+      url.startsWith("https:") ||
+      url.startsWith("./")
+    )
+      return url
+
+    return frontendDefinition.appRootPath + "/" + trimSlash(url)
+  }
+
+  const apiCall = method => (url, body) =>
+    fetch(url, {
       method: method,
       headers: {
         "Content-Type": "application/json",
+        "x-user-agent": "Budibase Builder",
       },
       body: body && JSON.stringify(body),
-      credentials: "same-origin",
     })
-  }
 
   const api = {
     post: apiCall("POST"),
@@ -51,6 +63,7 @@ export const bbFactory = ({
       getContext: getContext(treeNode),
       setContext: setContext(treeNode),
       store: store,
+      relativeUrl,
       api,
       parent,
     }

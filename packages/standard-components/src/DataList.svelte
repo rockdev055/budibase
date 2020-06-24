@@ -2,6 +2,7 @@
   import { onMount } from "svelte"
 
   export let _bb
+  export let _instanceId
   export let model
   export let layout = "list"
 
@@ -11,7 +12,7 @@
   async function fetchData() {
     if (!model || !model.length) return
 
-    const FETCH_RECORDS_URL = `/api/views/all_${model}`
+    const FETCH_RECORDS_URL = `/api/${_instanceId}/views/all_${model}`
     const response = await _bb.api.get(FETCH_RECORDS_URL)
     if (response.status === 200) {
       const json = await response.json()
@@ -52,7 +53,7 @@
   .list {
     display: flex;
     flex-direction: column;
-    font-family: Roboto;
+    font-family: Inter;
   }
 
   .grid {

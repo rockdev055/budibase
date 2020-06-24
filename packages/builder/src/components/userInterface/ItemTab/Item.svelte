@@ -3,11 +3,7 @@
   export let item
 </script>
 
-<div
-  data-cy={item.name}
-  class="item-item"
-  in:fly={{ y: 100, duration: 1000 }}
-  on:click>
+<div class="item-item" in:fly={{ y: 100, duration: 1000 }} on:click>
   <div class="item-icon">
     <i class={item.icon} />
   </div>
@@ -28,12 +24,12 @@
     justify-content: center;
     align-items: center;
     margin-right: 8px;
-    background-color: var(--grey-light);
+    background-color: var(--grey-1);
     border-radius: 3px;
   }
 
   .item-item:hover {
-    background: var(--grey);
+    background: var(--grey-2);
     border-radius: 3px;
     transition: all 0.2s;
   }
@@ -55,6 +51,6 @@
 
   i {
     font-size: 24px;
-    color: var(--ink-light);
+    color: var(--grey-7);
   }
 </style>

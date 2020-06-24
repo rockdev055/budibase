@@ -1,7 +1,6 @@
 <script>
   import Modal from "svelte-simple-modal"
   import { store } from "builderStore"
-  import { getContext } from "svelte"
   import { get } from "builderStore/api"
 
   import { fade } from "svelte/transition"
@@ -9,7 +8,6 @@
 
   import { SettingsIcon, PreviewIcon } from "components/common/Icons/"
   import IconButton from "components/common/IconButton.svelte"
-  import SettingsLink from "components/settings/Link.svelte"
 
   // Get Package and set store
   export let application
@@ -31,6 +29,7 @@
 
 <Modal>
   <div class="root">
+
     <div class="top-nav">
       <div class="topleftnav">
         <button class="home-logo">
@@ -50,11 +49,16 @@
           </span>
         {/each}
         <!-- <IconButton icon="home"
-                      color="var(--slate)"
+                      color="var(--grey-2)"
                       hoverColor="var(--secondary75)"/> -->
       </div>
       <div class="toprightnav">
-        <SettingsLink />
+        <span
+          class:active={$isActive(`/settings`)}
+          class="topnavitemright"
+          on:click={() => $goto(`/settings`)}>
+          <SettingsIcon />
+        </span>
         <span
           class:active={false}
           class="topnavitemright"
@@ -87,7 +91,7 @@
 
   a {
     text-transform: none;
-    color: var(--ink-lighter);
+    color: var(--grey-5);
   }
 
   .top-nav {
@@ -99,7 +103,7 @@
     box-sizing: border-box;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--grey);
+    border-bottom: 1px solid var(--grey-2);
   }
 
   .content > div {
@@ -118,18 +122,18 @@
 
   .topnavitem {
     cursor: pointer;
-    color: var(--ink-lighter);
+    color: var(--grey-5);
     margin: 0px 00px 0px 20px;
     padding-top: 4px;
     font-weight: 500;
-    font-size: 1rem;
+    font-size: var(--font-size-md);
     height: 100%;
     align-items: center;
     box-sizing: border-box;
   }
 
   .topnavitem:hover {
-    color: var(--ink-light);
+    color: var(--grey-7);
     font-weight: 500;
   }
 
@@ -140,7 +144,7 @@
 
   .topnavitemright {
     cursor: pointer;
-    color: var(--ink-light);
+    color: var(--grey-7);
     margin: 0px 20px 0px 0px;
     padding-top: 4px;
     font-weight: 500;

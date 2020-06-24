@@ -1,4 +1,5 @@
 import { values } from "lodash/fp"
+import { backendUiStore } from "builderStore"
 import * as backendStoreActions from "./backend"
 import { writable, get } from "svelte/store"
 import api from "../api"
@@ -294,10 +295,13 @@ const addChildComponent = store => (componentToAdd, presetName) => {
 
     const presetProps = presetName ? component.presets[presetName] : {}
 
+    const instanceId = get(backendUiStore).selectedDatabase._id
+
     const newComponent = createProps(
       component,
       {
         ...presetProps,
+        _instanceId: instanceId,
       },
       state
     )

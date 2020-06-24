@@ -16,7 +16,6 @@ export default function(node) {
   function handleMouseUp() {
     window.removeEventListener("mousedown", handleMouseDown)
     window.removeEventListener("mousemove", handleMouseMove)
-    node.dispatchEvent(new CustomEvent("dragend"))
   }
 
   node.addEventListener("mousedown", handleMouseDown)
