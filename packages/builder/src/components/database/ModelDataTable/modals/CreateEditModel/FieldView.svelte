@@ -94,7 +94,7 @@
     border-radius: 0 0 5px 5px;
     bottom: 0;
     left: 0;
-    background: var(--grey-1);
+    background: var(--grey-light);
     display: flex;
     align-items: center;
     justify-content: flex-end;

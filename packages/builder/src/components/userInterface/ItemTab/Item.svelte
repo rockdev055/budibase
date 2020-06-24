@@ -28,12 +28,12 @@
     justify-content: center;
     align-items: center;
     margin-right: 8px;
-    background-color: var(--grey-1);
+    background-color: var(--grey-light);
     border-radius: 3px;
   }
 
   .item-item:hover {
-    background: var(--grey-2);
+    background: var(--grey);
     border-radius: 3px;
     transition: all 0.2s;
   }
@@ -55,6 +55,6 @@
 
   i {
     font-size: 24px;
-    color: var(--grey-7);
+    color: var(--ink-light);
   }
 </style>

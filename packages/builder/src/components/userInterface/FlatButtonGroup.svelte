@@ -46,7 +46,6 @@
 <style>
   .flatbutton-group {
     display: flex;
-    width: 100%;
   }
 
   .button-container {

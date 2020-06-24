@@ -5,6 +5,7 @@
 
   export let record
   export let onClosed
+
 </script>
 
 <section>
@@ -35,13 +36,13 @@
 <style>
   .alert {
     color: rgba(255, 0, 31, 1);
-    background: var(--grey-1);
+    background: #fafafa;
     padding: 5px;
   }
 
   .modal-actions {
     padding: 10px;
-    background: var(--grey-1);
+    background: #fafafa;
     border-top: 1px solid #ccc;
   }
 

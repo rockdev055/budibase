@@ -54,7 +54,7 @@
 
 <style>
   .uk-modal-footer {
-    background: var(--grey-1);
+    background: var(--lightslate);
   }
 
   .uk-modal-dialog {
