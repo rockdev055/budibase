@@ -8,10 +8,16 @@
   import { EVENT_TYPE_MEMBER_NAME } from "components/common/eventHandlers"
   import { store, workflowStore } from "builderStore"
   import { ArrowDownIcon } from "components/common/Icons/"
+  import { createEventDispatcher } from 'svelte'
 
   export let parameter
 
   let isOpen = false
+
+  $: {
+    let p = parameter
+    console.log(JSON.stringify(p))
+  }
 
   const capitalize = s => {
     if (typeof s !== "string") return ""
@@ -25,6 +31,7 @@
   {/if}
   {#if parameter.name === 'workflow'}
     <Select on:change bind:value={parameter.value}>
+      <option value=""></option>
       {#each $workflowStore.workflows.filter(wf => wf.live) as workflow}
         <option value={workflow._id}>{workflow.name}</option>
       {/each}

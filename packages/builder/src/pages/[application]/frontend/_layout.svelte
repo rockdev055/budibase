@@ -75,7 +75,7 @@
     display: grid;
     grid-template-columns: 300px 1fr 300px;
     width: 100%;
-    background: var(--grey-1);
+    background: var(--grey-light);
     flex: 1;
     min-height: 0;
     align-items: stretch;
@@ -116,10 +116,10 @@
     vertical-align: bottom;
     grid-column-start: button;
     cursor: pointer;
-    color: var(--blue);
+    color: var(--primary75);
   }
 
   .nav-group-header > div:nth-child(3):hover {
-    color: var(--blue);
+    color: var(--primary75);
   }
 </style>

@@ -67,16 +67,16 @@
 <style>
   .block-field {
     border-radius: 3px;
-    background: var(--grey-1);
+    background: var(--grey-light);
     padding: 12px;
     margin: 0px 0px 4px 0px;
   }
 
   .budibase_input {
-    height: 36px;
+    height: 35px;
     width: 220px;
     border-radius: 3px;
-    border: 1px solid var(--grey-4);
+    border: 1px solid var(--grey-dark);
     text-align: left;
     color: var(--ink);
     font-size: 14px;

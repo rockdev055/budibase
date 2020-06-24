@@ -53,7 +53,7 @@
 
   .title > div:nth-child(1) {
     grid-column-start: name;
-    color: var(--ink);
+    color: var(--secondary100);
   }
 
   .title > div:nth-child(2) {

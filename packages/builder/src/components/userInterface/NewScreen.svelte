@@ -137,7 +137,7 @@
     padding-bottom: 10px;
     font-weight: 500;
     font-size: 16px;
-    color: var(--grey-7);
+    color: var(--secondary80);
   }
 
   .uk-input {
@@ -148,8 +148,8 @@
   .uk-select {
     height: 40px !important;
     font-weight: 500px;
-    color: var(--grey-5);
-    border: 1px solid var(--grey-2);
+    color: var(--secondary60);
+    border: 1px solid var(--slate);
     border-radius: 3px;
   }
 </style>

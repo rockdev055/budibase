@@ -6,7 +6,6 @@
   export let record
   export let onClosed
 
-  $: instanceId = $backendUiStore.selectedDatabase._id
 </script>
 
 <section>
@@ -25,7 +24,7 @@
     <ActionButton
       alert
       on:click={async () => {
-        await api.deleteRecord(record, instanceId)
+        await api.deleteRecord(record)
         backendUiStore.actions.records.delete(record)
         onClosed()
       }}>
@@ -37,13 +36,13 @@
 <style>
   .alert {
     color: rgba(255, 0, 31, 1);
-    background: var(--grey-1);
+    background: #fafafa;
     padding: 5px;
   }
 
   .modal-actions {
     padding: 10px;
-    background: var(--grey-1);
+    background: #fafafa;
     border-top: 1px solid #ccc;
   }
 

@@ -7,6 +7,7 @@
 <div class="tabs">
   {#each categories as category}
     <li
+      data-cy={category.name}
       on:click={() => onClick(category)}
       class:active={selectedCategory === category}>
       {category.name}
@@ -20,11 +21,11 @@
     display: flex;
     list-style: none;
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
   }
 
   li {
-    color: var(--grey-5);
+    color: var(--ink-lighter);
     cursor: pointer;
     margin-right: 20px;
   }

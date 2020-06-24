@@ -38,7 +38,7 @@
     padding: 5px;
     border-style: solid;
     border-width: 0 0 1px 0;
-    border-color: var(--grey-1);
+    border-color: var(--lightslate);
     cursor: pointer;
   }
 
@@ -48,12 +48,12 @@
 
   .component > .title {
     font-size: 13pt;
-    color: var(--ink);
+    color: var(--secondary100);
   }
 
   .component > .description {
     font-size: 10pt;
-    color: var(--blue);
+    color: var(--primary75);
     font-style: italic;
   }
 </style>
