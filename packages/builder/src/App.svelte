@@ -4,10 +4,30 @@
   import { Router, basepath } from "@sveltech/routify"
   import { routes } from "../routify/routes"
   import { store, initialise } from "builderStore"
-  import NotificationDisplay from "components/common/Notification/NotificationDisplay.svelte"
+  import AppNotification, {
+    showAppNotification,
+  } from "components/common/AppNotification.svelte"
+  import { NotificationDisplay } from "@beyonk/svelte-notifications"
+
+  function showErrorBanner() {
+    showAppNotification({
+      status: "danger",
+      message:
+        "Whoops! Looks like we're having trouble. Please refresh the page.",
+    })
+  }
+
+  onMount(async () => {
+    window.addEventListener("error", showErrorBanner)
+    window.addEventListener("unhandledrejection", showErrorBanner)
+  })
 
   $basepath = "/_builder"
 </script>
 
+<AppNotification />
+
+<!-- svelte-notifications -->
 <NotificationDisplay />
+
 <Router {routes} />
