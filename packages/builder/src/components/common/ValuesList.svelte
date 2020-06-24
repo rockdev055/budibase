@@ -24,7 +24,7 @@
 
 <style>
   textarea {
-    width: 100%;
+    width: 300px;
     height: 100px;
   }
 </style>
