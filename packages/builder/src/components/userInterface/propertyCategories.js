@@ -123,7 +123,7 @@ export const margin = [
   },
   {
     label: "Bottom",
-    key: "margin-bottom",
+    key: "padding-bottom",
     control: OptionSelect,
     options: [
       { label: "None", value: "0px" },

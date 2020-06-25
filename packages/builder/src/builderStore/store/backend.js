@@ -60,10 +60,6 @@ export const getBackendUiStore = () => {
       },
       select: model =>
         store.update(state => {
-          model =
-            typeof model === "string"
-              ? state.models.find(m => m._id === model)
-              : model
           state.selectedModel = model
           state.draftModel = cloneDeep(model)
           state.selectedField = ""
@@ -73,10 +69,10 @@ export const getBackendUiStore = () => {
         }),
       save: async ({ model }) => {
         const updatedModel = cloneDeep(model)
+
         const SAVE_MODEL_URL = `/api/models`
-        const response = await api.post(SAVE_MODEL_URL, updatedModel)
+        await api.post(SAVE_MODEL_URL, updatedModel)
         await store.actions.models.fetch()
-        store.actions.models.select((await response.json())._id)
       },
       addField: field => {
         store.update(state => {
@@ -84,13 +80,11 @@ export const getBackendUiStore = () => {
             state.draftModel.schema = {}
           }
 
-          const id = uuid()
-
           state.draftModel.schema = {
             ...state.draftModel.schema,
-            [id]: field,
+            [field.name]: field,
           }
-          state.selectedField = id
+          state.selectedField = field.name
           state.tabs.NAVIGATION_PANEL = "NAVIGATE"
 
           return state
