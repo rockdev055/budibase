@@ -81,14 +81,14 @@
         </div>
       {/if}
       <footer>
-        <Button disabled={!edited} green={edited} wide on:click={saveModel}>
+        <Button disabled={!edited} attention={edited} wide on:click={saveModel}>
           Save
         </Button>
       </footer>
     {:else if selectedTab === 'DELETE'}
       <div class="titled-input">
         <header>Danger Zone</header>
-        <Button red wide on:click={deleteModel}>Delete</Button>
+        <Button error wide on:click={deleteModel}>Delete</Button>
       </div>
     {/if}
   </Switcher>
@@ -115,13 +115,14 @@
   }
 
   .titled-input {
-    margin-bottom: 16px;
-    display: grid;
+    padding: 12px;
+    background: var(--light-grey);
+    margin-bottom: 5px;
   }
 
   .titled-input header {
     display: block;
     font-size: 14px;
-    margin-bottom: 8px;
+    margin-bottom: 16px;
   }
 </style>

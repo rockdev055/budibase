@@ -93,12 +93,8 @@
   </form>
 </div>
 <footer>
-  <div class="button-margin-3">
-    <Button secondary on:click={onClosed}>Cancel</Button>
-  </div>
-  <div class="button-margin-4">
-    <Button blue on:click={saveRecord}>Save</Button>
-  </div>
+  <Button secondary on:click={onClosed}>Cancel</Button>
+  <Button attention on:click={saveRecord}>Save</Button>
 </footer>
 
 <style>
@@ -135,22 +131,8 @@
   }
 
   footer {
-    padding: 20px 30px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    gap: 20px;
+    padding: 20px;
     background: var(--grey-1);
-    border-bottom-left-radius: 0.5rem;
-    border-bottom-left-radius: 0.5rem;
-  }
-
-  .button-margin-3 {
-    grid-column-start: 3;
-    display: grid;
-  }
-
-  .button-margin-4 {
-    grid-column-start: 4;
-    display: grid;
+    border-radius: 0.5rem;
   }
 </style>

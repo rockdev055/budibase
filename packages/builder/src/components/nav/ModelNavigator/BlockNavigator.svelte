@@ -48,6 +48,7 @@
     margin-top: 20px;
     margin-bottom: 20px;
     display: grid;
+    grid-gap: 20px;
     grid-template-columns: repeat(3, 1fr);
   }
 
@@ -67,7 +68,7 @@
   }
 
   .selected {
-    background: var(--grey-3);
+    background: var(--blue-light);
     color: var(--ink);
   }
 

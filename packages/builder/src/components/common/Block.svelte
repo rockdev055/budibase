@@ -15,16 +15,16 @@
 <style>
   div {
     height: 80px;
-    border-radius: 5px;
+    border-radius: 3px;
     color: var(--ink);
-    font-weight: 400;
+    font-weight: 500;
     padding: 15px;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     transition: 0.3s transform;
-    background: var(--grey-1);
+    background: var(--light-grey);
   }
 
   i {
@@ -38,7 +38,7 @@
 
   div:hover {
     cursor: pointer;
-    background: var(--grey-2);
+    transform: scale(1.1);
   }
 
   .primary {

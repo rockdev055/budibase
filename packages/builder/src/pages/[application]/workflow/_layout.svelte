@@ -29,7 +29,6 @@
     height: 100%;
     display: flex;
     background: var(--grey-1);
-    line-height: 1;
   }
 
   .content {
