@@ -35,7 +35,7 @@
 <style>
   header {
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
     background: none;
     display: flex;
     align-items: center;
@@ -47,7 +47,7 @@
   }
 
   span:not(.selected) {
-    color: var(--grey-5);
+    color: var(--ink-lighter);
   }
 
   span:not(.selected):hover {

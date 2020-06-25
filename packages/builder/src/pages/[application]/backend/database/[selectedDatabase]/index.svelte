@@ -1,7 +1,5 @@
 <script>
   import { getContext } from "svelte"
-  import { Button } from "@budibase/bbui"
-  import EmptyModel from "components/nav/ModelNavigator/EmptyModel.svelte"
   import ModelDataTable from "components/database/ModelDataTable"
   import { store, backendUiStore } from "builderStore"
   import ActionButton from "components/common/ActionButton.svelte"
@@ -9,8 +7,6 @@
   import { CreateEditRecordModal } from "components/database/ModelDataTable/modals"
 
   const { open, close } = getContext("simple-modal")
-
-  $: selectedModel = $backendUiStore.selectedModel
 
   const createNewRecord = () => {
     open(
@@ -21,19 +17,40 @@
       { styleContent: { padding: "0" } }
     )
   }
+
+  export let selectedDatabase
+
+  let selectedRecord
+
+  async function selectRecord(record) {
+    selectedRecord = await api.loadRecord(record.key, {
+      appname: $store.appname,
+      instanceId: selectedDatabase,
+    })
+  }
+
+  $: breadcrumbs = $backendUiStore.breadcrumbs.join(" / ")
 </script>
 
-{#if selectedModel.schema && Object.keys(selectedModel.schema).length === 0}
-  <EmptyModel />
-{:else if $backendUiStore.selectedDatabase._id && selectedModel.name}
-  <ModelDataTable />
+<div class="database-actions">
+  <div class="budibase__label--big">{breadcrumbs}</div>
+  {#if $backendUiStore.selectedModel._id}
+    <ActionButton primary on:click={createNewRecord}>
+      Create new record
+    </ActionButton>
+  {/if}
+</div>
+{#if $backendUiStore.selectedDatabase._id && $backendUiStore.selectedModel.name}
+  <ModelDataTable {selectRecord} />
 {:else}
-  <i style="color: var(--grey-4)">create your first model to start building</i>
+  <i style="color: var(--grey-dark)">
+    create your first model to start building
+  </i>
 {/if}
 
 <style>
-  i {
-    font-size: 20px;
-    margin-right: 10px;
+  .database-actions {
+    display: flex;
+    justify-content: space-between;
   }
 </style>

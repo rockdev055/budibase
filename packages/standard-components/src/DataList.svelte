@@ -52,7 +52,7 @@
   .list {
     display: flex;
     flex-direction: column;
-    font-family: Inter;
+    font-family: Roboto;
   }
 
   .grid {

@@ -57,14 +57,13 @@
 .budibase__nav-item {
     cursor: pointer;
     padding: 0 4px 0 2px;
-    height: 36px;
-    margin: 0px 0px 0px 0px;
-    border-radius: 5px;
+    height: 35px;
+    margin: 5px 0px 4px 0px;
+    border-radius: 0 5px 5px 0;
     display: flex;
     align-items: center;
     font-size: 14px;
     transition: 0.2s;
-    border-top: var(--grey-1) .5px solid;
 }
 
 .budibase__nav-item.selected {
@@ -73,17 +72,18 @@
 }
 
 .budibase__nav-item:hover {
-    background: var(--grey-1);
+    background: var(--grey-light);
 }
 
 .budibase__input {
-    height: 36px;
+    height: 35px;
     width: 220px;
     border-radius: 3px;
-    border: 1px solid var(--grey-4);
+    border: 1px solid var(--grey-dark);
     text-align: left;
     color: var(--ink);
     font-size: 14px;
+    padding-left: 12px;
 }
 
 .uk-text-right {
@@ -100,7 +100,7 @@
 }
 
 .budibase__table {
-    border: 1px solid var(--grey-4);
+    border: 1px solid var(--grey-dark);
     background: #fff;
     border-radius: 2px;
 }
@@ -116,12 +116,12 @@
 }
 
 .budibase__table tr {
-    border-bottom: 1px solid var(--grey-1);
+    border-bottom: 1px solid var(--grey-light);
 }
 
 .button--toggled {
     background: var(--blue-light);
-    color: var(--grey-7);
+    color: var(--ink-light);
     width: 40px;
     height: 40px;
     display: flex;

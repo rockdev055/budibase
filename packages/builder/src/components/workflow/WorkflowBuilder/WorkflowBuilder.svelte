@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte"
   import { workflowStore, backendUiStore } from "builderStore"
-  import { notifier } from "builderStore/store/notifications"
+  import { notifier } from "@beyonk/svelte-notifications"
   import Flowchart from "./flowchart/FlowChart.svelte"
 
   let selectedWorkflow
@@ -85,6 +85,6 @@
   }
 
   .stop-button.highlighted {
-    background: var(--red);
+    background: var(--coral);
   }
 </style>

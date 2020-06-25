@@ -130,7 +130,7 @@
   }
 
   tbody > tr:hover {
-    background-color: var(--grey-1);
+    background-color: var(--grey-light);
   }
 
   .table-controls {
@@ -156,7 +156,7 @@
   }
 
   footer {
-    background-color: var(--grey-1);
+    background-color: var(--grey-light);
     margin-top: 40px;
     padding: 20px 40px 20px 40px;
     display: flex;

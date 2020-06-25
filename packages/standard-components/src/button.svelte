@@ -26,6 +26,7 @@
 <style>
   .default {
     align-items: center;
+    font-family: Inter;
     font-size: 16px;
     padding: 0px 16px;
     box-sizing: border-box;

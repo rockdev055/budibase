@@ -6,7 +6,7 @@ export const rename = (pages, screens, oldname, newname) => {
   screens = cloneDeep(screens)
   const changedScreens = []
 
-  const existingWithNewName = getExactComponent(screens, newname, true)
+  const existingWithNewName = getExactComponent(screens, newname)
   if (existingWithNewName)
     return {
       components: screens,
@@ -38,15 +38,19 @@ export const rename = (pages, screens, oldname, newname) => {
   for (let screen of screens) {
     let hasEdited = false
 
-    if (screen.props.instanceName === oldname) {
-      screen.props.instanceName = newname
+    if (screen.name === oldname) {
+      screen.name = newname
+      hasEdited = true
+    }
+
+    if (screen.props._component === oldname) {
+      screen.props._component = newname
       hasEdited = true
     }
 
     hasEdited = traverseProps(screen.props) || hasEdited
 
-    if (hasEdited && screen.props.instanceName !== newname)
-      changedScreens.push(screen.props.instanceName)
+    if (hasEdited && screen.name !== newname) changedScreens.push(screen.name)
   }
 
   for (let pageName in pages) {
