@@ -13,7 +13,7 @@
   let linkedRecords = new Set(linked)
 
   $: linked = [...linkedRecords]
-  $: FIELDS_TO_HIDE = [$backendUiStore.selectedModel.name]
+  $: FIELDS_TO_HIDE = [$backendUiStore.selectedModel._id]
   $: schema = $backendUiStore.selectedModel.schema
 
   async function fetchRecords() {
@@ -60,7 +60,7 @@
 
 <style>
   .fields.selected {
-    background: var(--grey-1);
+    background: var(--light-grey);
   }
 
   h3 {
