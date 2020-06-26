@@ -1,7 +1,6 @@
 <script>
   import Modal from "svelte-simple-modal"
-  import { store, workflowStore } from "builderStore"
-  import SettingsLink from "components/settings/Link.svelte"
+  import { store } from "builderStore"
   import { get } from "builderStore/api"
 
   import { fade } from "svelte/transition"
@@ -21,7 +20,6 @@
 
     if (res.ok) {
       await store.setPackage(pkg)
-      workflowStore.actions.fetch()
       return pkg
     } else {
       throw new Error(pkg)
@@ -55,7 +53,12 @@
                       hoverColor="var(--secondary75)"/> -->
       </div>
       <div class="toprightnav">
-        <SettingsLink />
+        <span
+          class:active={$isActive(`/settings`)}
+          class="topnavitemright"
+          on:click={() => $goto(`/settings`)}>
+          <SettingsIcon />
+        </span>
         <span
           class:active={false}
           class="topnavitemright"

@@ -12,7 +12,8 @@ router
     authorized(READ_MODEL, ctx => ctx.params.id),
     modelController.find
   )
-  .post("/api/models", authorized(BUILDER), modelController.save)
+  .post("/api/models", authorized(BUILDER), modelController.create)
+  // .patch("/api/:instanceId/models", controller.update)
   .delete(
     "/api/models/:modelId/:revId",
     authorized(BUILDER),
