@@ -24,7 +24,6 @@
         "passwordLabel": "Password",
         "loginButtonLabel": "Login",
         "buttonClass": "",
-        "_instanceName": "Login",
         "inputClass": "",
         "_children": [],
         "name": "{{ name }}",
