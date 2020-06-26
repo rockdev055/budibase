@@ -29,24 +29,19 @@
       "builderStore(.*)$": "<rootDir>/src/builderStore$1"
     },
     "moduleFileExtensions": [
-      "js",
-      "svelte"
+      "js"
     ],
     "moduleDirectories": [
       "node_modules"
     ],
     "transform": {
-      "^.+js$": "babel-jest",
-      "^.+.svelte$": "svelte-jester"
+      "^.+js$": "babel-jest"
     },
     "transformIgnorePatterns": [
       "/node_modules/(?!svelte).+\\.js$"
     ],
     "modulePathIgnorePatterns": [
       "<rootDir>/cypress/"
-    ],
-    "setupFilesAfterEnv": [
-      "@testing-library/jest-dom/extend-expect"
     ]
   },
   "eslintConfig": {
@@ -81,8 +76,6 @@
     "@rollup/plugin-alias": "^3.0.1",
     "@rollup/plugin-json": "^4.0.3",
     "@sveltech/routify": "1.7.11",
-    "@testing-library/jest-dom": "^5.11.0",
-    "@testing-library/svelte": "^3.0.0",
     "babel-jest": "^24.8.0",
     "browser-sync": "^2.26.7",
     "cypress": "^4.8.0",
@@ -104,8 +97,7 @@
     "rollup-plugin-terser": "^4.0.4",
     "rollup-plugin-url": "^2.2.2",
     "start-server-and-test": "^1.11.0",
-    "svelte": "3.23.x",
-    "svelte-jester": "^1.0.6"
+    "svelte": "3.23.x"
   },
   "gitHead": "115189f72a850bfb52b65ec61d932531bf327072"
 }

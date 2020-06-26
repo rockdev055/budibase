@@ -22,6 +22,18 @@
     field.constraints &&
     field.constraints.presence &&
     !constraints.presence.allowEmpty
+
+  function attachModelIdToSchema(evt) {
+    const { draftModel } = $backendUiStore
+    if ($backendUiStore.selectedField !== evt.target.value) {
+      delete draftModel.schema[$backendUiStore.selectedField]
+      draftModel.schema[evt.target.value] = field
+      backendUiStore.update(state => {
+        state.selectedField = evt.target.value
+        return state
+      })
+    }
+  }
 </script>
 
 <div class="info">
@@ -66,7 +78,10 @@
   {:else if field.type === 'link'}
     <div class="field">
       <label>Link</label>
-      <select class="budibase__input" bind:value={field.modelId}>
+      <select
+        class="budibase__input"
+        bind:value={field.modelId}
+        on:change={attachModelIdToSchema}>
         <option value={''} />
         {#each $backendUiStore.models as model}
           {#if model._id !== $backendUiStore.draftModel._id}

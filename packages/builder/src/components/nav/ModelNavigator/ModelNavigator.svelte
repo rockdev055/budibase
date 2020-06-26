@@ -64,13 +64,13 @@
                   on:click={() => selectModel(model)} />
                 {#if model._id === $backendUiStore.selectedModel._id}
                   <div in:slide>
-                    {#each Object.keys(model.schema) as fieldName}
+                    {#each Object.keys(model.schema) as fieldId}
                       <ListItem
-                        selected={model._id === $backendUiStore.selectedModel._id && fieldName === $backendUiStore.selectedField}
+                        selected={model._id === $backendUiStore.selectedModel._id && fieldId === $backendUiStore.selectedField}
                         indented
                         icon="ri-layout-column-fill"
-                        title={model.schema[fieldName].name}
-                        on:click={() => selectModel(model, fieldName)} />
+                        title={model.schema[fieldId].name}
+                        on:click={() => selectModel(model, fieldId)} />
                     {/each}
                   </div>
                 {/if}
