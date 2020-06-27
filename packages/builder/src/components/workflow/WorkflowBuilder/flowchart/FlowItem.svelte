@@ -67,10 +67,6 @@
     color: var(--ink);
   }
 
-  p {
-    color: inherit;
-  }
-
   div:hover {
     transform: scale(1.05);
   }
