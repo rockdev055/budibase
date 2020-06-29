@@ -63,17 +63,7 @@ exports.create = async function(ctx) {
   }
 }
 
-exports.update = async function(ctx) {
-  const db = new CouchDB(ctx.user.instanceId)
-  const user = ctx.request.body
-
-  const response = await db.put(user)
-  user._rev = response.rev
-
-  ctx.status = 200
-  ctx.message = `User ${ctx.request.body.username} updated successfully.`
-  ctx.body = response
-}
+exports.update = async function() {}
 
 exports.destroy = async function(ctx) {
   const database = new CouchDB(ctx.user.instanceId)
