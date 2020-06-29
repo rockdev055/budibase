@@ -1,7 +1,5 @@
 export default `<html>
   <head>
-    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto+Mono">
     <style>
       body, html {
         height: 100%!important;

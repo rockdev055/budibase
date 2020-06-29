@@ -8,12 +8,11 @@
   export let properties = []
   export let componentInstance = {}
   export let onStyleChanged = () => {}
-  export let open = false
 
   $: style = componentInstance["_styles"][styleCategory] || {}
 </script>
 
-<DetailSummary {name} on:open show={open} >
+<DetailSummary {name}>
   {#each properties as props}
     <PropertyControl
       label={props.label}

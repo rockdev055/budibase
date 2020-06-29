@@ -5,7 +5,6 @@
   import { notifier } from "builderStore/store/notifications"
   import WorkflowBlockSetup from "./WorkflowBlockSetup.svelte"
   import DeleteWorkflowModal from "./DeleteWorkflowModal.svelte"
-  import { Button } from "@budibase/bbui"
 
   const { open, close } = getContext("simple-modal")
 
@@ -91,21 +90,26 @@
           {testResult}
         </button>
       {/if}
-      <Button secondary wide on:click={testWorkflow}>Test Workflow</Button>
+      <button class="workflow-button hoverable" on:click={testWorkflow}>
+        Test
+      </button>
     </div>
   {/if}
   {#if selectedTab === 'SETUP'}
     {#if workflowBlock}
       <WorkflowBlockSetup {workflowBlock} />
       <div class="buttons">
-        <Button
-          green
-          wide
+        <button
           data-cy="save-workflow-setup"
+          class="workflow-button hoverable"
           on:click={saveWorkflow}>
           Save Workflow
-        </Button>
-        <Button red wide on:click={deleteWorkflowBlock}>Delete Block</Button>
+        </button>
+        <button
+          class="delete-workflow-button hoverable"
+          on:click={deleteWorkflowBlock}>
+          Delete Block
+        </button>
       </div>
     {:else if $workflowStore.currentWorkflow}
       <div class="panel">
@@ -137,14 +141,15 @@
           </div>
         </div>
         <div class="buttons">
-          <Button
-            green
-            wide
+          <button
             data-cy="save-workflow-setup"
+            class="workflow-button hoverable"
             on:click={saveWorkflow}>
             Save Workflow
-          </Button>
-          <Button red wide on:click={deleteWorkflow}>Delete Workflow</Button>
+          </button>
+          <button class="delete-workflow-button" on:click={deleteWorkflow}>
+            Delete Workflow
+          </button>
         </div>
       </div>
     {/if}
@@ -170,12 +175,11 @@
   }
 
   header {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 600;
-    font-family: inter;
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 18px;
     color: var(--ink);
   }
 
@@ -186,12 +190,13 @@
   .block-label {
     font-weight: 500;
     font-size: 14px;
-    color: var(--grey-7);
-    margin-bottom: 20px;
+    color: var(--ink);
+    margin: 0px 0px 16px 0px;
   }
 
   .config-item {
-    margin-bottom: 20px;
+    margin: 0px 0px 4px 0px;
+    padding: 12px 0px;
   }
 
   .budibase_input {
@@ -209,7 +214,6 @@
   header > span {
     color: var(--grey-5);
     margin-right: 20px;
-    cursor: pointer;
   }
 
   .form {
@@ -224,10 +228,52 @@
 
   .buttons {
     position: absolute;
-    bottom: 20px;
-    display: grid;
+    bottom: 10px;
+  }
+
+  .delete-workflow-button {
+    cursor: pointer;
+    border: 1px solid var(--red);
+    border-radius: 3px;
+    width: 260px;
+    padding: 8px 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--white);
+    color: var(--red);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 2ms;
+    align-self: flex-end;
+    margin-bottom: 10px;
+  }
+
+  .delete-workflow-button:hover {
+    background: var(--red);
+    border: 1px solid var(--red);
+    color: var(--white);
+  }
+
+  .workflow-button {
+    cursor: pointer;
+    border: 1px solid var(--grey-4);
+    border-radius: 3px;
     width: 100%;
-    gap: 12px;
+    padding: 8px 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 2ms;
+    margin-bottom: 10px;
+  }
+
+  .workflow-button:hover {
+    background: var(--grey-1);
   }
 
   .access-level {
@@ -255,7 +301,7 @@
   }
 
   .passed {
-    background: var(--green);
+    background: #84c991;
   }
 
   .failed {
