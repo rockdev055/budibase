@@ -11,18 +11,17 @@ const { exec } = require("child_process")
 const sqrl = require("squirrelly")
 const setBuilderToken = require("../../utilities/builder/setBuilderToken")
 
-exports.fetch = async function (ctx) {
+exports.fetch = async function(ctx) {
   const db = new CouchDB(ClientDb.name(getClientId(ctx)))
   const body = await db.query("client/by_type", {
     include_docs: true,
     key: ["app"],
   })
 
-
   ctx.body = body.rows.map(row => row.doc)
 }
 
-exports.fetchAppPackage = async function (ctx) {
+exports.fetchAppPackage = async function(ctx) {
   const clientId = await lookupClientId(ctx.params.applicationId)
   const db = new CouchDB(ClientDb.name(clientId))
   const application = await db.get(ctx.params.applicationId)
@@ -37,7 +36,7 @@ exports.fetchAppPackage = async function (ctx) {
   setBuilderToken(ctx, ctx.params.applicationId, devInstance._id)
 }
 
-exports.create = async function (ctx) {
+exports.create = async function(ctx) {
   const clientId =
     (ctx.request.body && ctx.request.body.clientId) || env.CLIENT_ID
 
@@ -89,22 +88,6 @@ exports.create = async function (ctx) {
   ctx.status = 200
   ctx.body = newApplication
   ctx.message = `Application ${ctx.request.body.name} created successfully`
-}
-
-exports.update = async function (ctx) {
-  const clientId = await lookupClientId(ctx.params.applicationId)
-  const db = new CouchDB(ClientDb.name(clientId))
-  const application = await db.get(ctx.params.applicationId)
-
-  const data = ctx.request.body
-  const newData = { ...application, ...data }
-
-  const response = await db.put(newData)
-  data._rev = response.rev
-
-  ctx.status = 200
-  ctx.message = `Application ${application.name} updated successfully.`
-  ctx.body = response
 }
 
 const createEmptyAppPackage = async (ctx, app) => {

@@ -7,7 +7,6 @@
   "favicon": "./_shared/favicon.png",
   "stylesheets": [],
   "props": {
-    "_id": "public-master-root",
     "_component": "@budibase/standard-components/container",
     "_children": [
       {
@@ -32,6 +31,7 @@
         "logo": ""
       }
     ],
+    "_id": 1,
     "type": "div",
     "_styles": {
       "layout": {},
