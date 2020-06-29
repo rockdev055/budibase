@@ -1,6 +1,5 @@
 <script>
-  import { onMount, beforeUpdate, afterUpdate } from "svelte"
-  import Portal from "svelte-portal"
+  import { onMount, beforeUpdate } from "svelte"
   import { buildStyle } from "../../helpers.js"
   export let options = []
   export let value = ""
@@ -13,73 +12,59 @@
   let selectMenu
   let icon
 
-  let selectAnchor = null;
-  let dimensions = {top: 0, bottom: 0, left: 0}
+  let selectYPosition = null
+  let availableSpace = 0
 
   let positionSide = "top"
-  let maxHeight = 0
-  let scrollTop = 0;
-  let containerEl = null;
+  let maxHeight = null
+  let menuHeight
 
   const handleStyleBind = value =>
     !!styleBindingProperty ? { style: `${styleBindingProperty}: ${value}` } : {}
 
   onMount(() => {
     if (select) {
-      select.addEventListener("keydown", handleEnter)
-      selectMenu.addEventListener("keydown", handleEscape)
+      select.addEventListener("keydown", addSelectKeyEvents)
     }
-
-
     return () => {
-      select.removeEventListener("keydown", handleEnter)
-      selectMenu.removeEventListener("keydown", handleEscape)
+      select.removeEventListener("keydown", addSelectKeyEvents)
     }
-
   })
 
-  function handleEscape(e) {
-    if(open && e.key === "Escape") {
-        toggleSelect(false)
-    }
-  }
-
-  function getDimensions() {
-    const { bottom, top: spaceAbove, left } = selectAnchor.getBoundingClientRect()
+  function checkPosition() {
+    const { bottom, top: spaceAbove } = select.getBoundingClientRect()
     const spaceBelow = window.innerHeight - bottom
-
-    let y;
 
     if (spaceAbove > spaceBelow) {
       positionSide = "bottom"
-      maxHeight = spaceAbove - 20  
-      y = (window.innerHeight - spaceAbove)
+      maxHeight = `${spaceAbove.toFixed(0) - 20}px`
     } else {
       positionSide = "top"
-      y = bottom
-      maxHeight = spaceBelow - 20
+      maxHeight = `${spaceBelow.toFixed(0) - 20}px`
     }
-
-    dimensions = {[positionSide]: y, left}
   }
 
-  function handleEnter(e) {
-    if (!open && e.key === "Enter") {
+  function addSelectKeyEvents(e) {
+    if (e.key === "Enter") {
+      if (!open) {
         toggleSelect(true)
-    } 
+      }
+    } else if (e.key === "Escape") {
+      if (open) {
+        toggleSelect(false)
+      }
+    }
   }
 
   function toggleSelect(isOpen) {
-    getDimensions()
+    checkPosition()
     if (isOpen) {
       icon.style.transform = "rotate(180deg)"
-      selectMenu.focus()
     } else {
       icon.style.transform = "rotate(0deg)"
     }
-    open = isOpen    
+    open = isOpen
   }
-
 
   function handleClick(val) {
     value = val
@@ -87,10 +72,9 @@
   }
 
   $: menuStyle = buildStyle({
-    "max-height": `${maxHeight.toFixed(0)}px`,
+    "max-height": maxHeight,
     "transform-origin": `center ${positionSide}`,
-    [positionSide]: `${dimensions[positionSide]}px`,
-    "left": `${dimensions.left.toFixed(0)}px`,
+    [positionSide]: "32px",
   })
 
   $: isOptionsObject = options.every(o => typeof o === "object")
@@ -108,40 +92,37 @@
   bind:this={select}
   class="bb-select-container"
   on:click={() => toggleSelect(!open)}>
-  <div bind:this={selectAnchor} class="bb-select-anchor selected">
+  <div class="bb-select-anchor selected">
     <span>{displayLabel}</span>
     <i bind:this={icon} class="ri-arrow-down-s-fill" />
   </div>
-  <Portal>
-    <div
-      tabindex="0"
-      bind:this={selectMenu}
-      style={menuStyle}
-      class="bb-select-menu"
-      class:open>
-      <ul>
-        {#if isOptionsObject}
-          {#each options as { value: v, label }}
-            <li
-              {...handleStyleBind(v)}
-              on:click|self={handleClick(v)}
-              class:selected={value === v}>
-              {label}
-            </li>
-          {/each}
-        {:else}
-          {#each options as v}
-            <li
-              {...handleStyleBind(v)}
-              on:click|self={handleClick(v)}
-              class:selected={value === v}>
-              {v}
-            </li>
-          {/each}
-        {/if}
-      </ul>
-    </div>
-  </Portal>
+  <div
+    bind:this={selectMenu}
+    style={menuStyle}
+    class="bb-select-menu"
+    class:open>
+    <ul>
+      {#if isOptionsObject}
+        {#each options as { value: v, label }}
+          <li
+            {...handleStyleBind(v)}
+            on:click|self={handleClick(v)}
+            class:selected={value === v}>
+            {label}
+          </li>
+        {/each}
+      {:else}
+        {#each options as v}
+          <li
+            {...handleStyleBind(v)}
+            on:click|self={handleClick(v)}
+            class:selected={value === v}>
+            {v}
+          </li>
+        {/each}
+      {/if}
+    </ul>
+  </div>
 </div>
 {#if open}
   <div on:click|self={() => toggleSelect(false)} class="overlay" />
@@ -149,7 +130,7 @@
 
 <style>
   .overlay {
-    position: fixed;
+    position: absolute;
     top: 0;
     bottom: 0;
     right: 0;
@@ -158,6 +139,7 @@
   }
 
   .bb-select-container {
+    position: relative;
     outline: none;
     width: 160px;
     height: 36px;
@@ -198,7 +180,6 @@
   .bb-select-menu {
     position: absolute;
     display: flex;
-    outline: none;
     box-sizing: border-box;
     flex-direction: column;
     opacity: 0;
@@ -209,6 +190,9 @@
     height: fit-content !important;
     border-bottom-left-radius: 2px;
     border-bottom-right-radius: 2px;
+    border-right: 1px solid var(--grey-4);
+    border-left: 1px solid var(--grey-4);
+    border-bottom: 1px solid var(--grey-4);
     background-color: var(--grey-2);
     transform: scale(0);
     transition: opacity 0.13s linear, transform 0.12s cubic-bezier(0, 0, 0.2, 1);
