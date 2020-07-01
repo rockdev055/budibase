@@ -313,13 +313,7 @@ export default {
           icon: "ri-archive-drawer-fill",
           properties: {
             design: { ...all },
-            settings: [
-              { label: "Model", key: "model", control: ModelSelect },
-              { label: "Stripe Color", key: "stripeColor", control: Input },
-              { label: "Border Color", key: "borderColor", control: Input },
-              { label: "TH Color", key: "backgroundColor", control: Input },
-              { label: "TH Font Color", key: "color", control: Input },
-            ],
+            settings: [{ label: "Model", key: "model", control: ModelSelect }],
           },
           children: [],
         },
@@ -336,7 +330,11 @@ export default {
               properties: {
                 design: { ...all },
                 settings: [
-                  { label: "Model", key: "model", control: ModelSelect },
+                  {
+                    label: "Model",
+                    key: "model",
+                    control: ModelSelect,
+                  },
                 ],
               },
               template: {
@@ -408,8 +406,20 @@ export default {
         {
           name: "List",
           _component: "@budibase/standard-components/list",
-          description: "Shiny list",
+          description: "Renders all children once per record, of a given model",
           icon: "ri-file-list-fill",
+          properties: {
+            design: { ...all },
+            settings: [{ label: "Model", key: "model", control: ModelSelect }],
+          },
+          children: [],
+        },
+        {
+          name: "Record Detail",
+          _component: "@budibase/standard-components/recorddetail",
+          description:
+            "Loads a record, using an id from the URL, which can be used with {{ context }}, in children",
+          icon: "ri-profile-line",
           properties: {
             design: { ...all },
             settings: [{ label: "Model", key: "model", control: ModelSelect }],

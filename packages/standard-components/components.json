@@ -190,22 +190,16 @@
 	"icon": {
 		"description": "A HTML icon tag",
 		"props": {
-			"url": "string",
-			"className": "string",
-			"description": "string",
-			"height": "string",
-			"width": "string"
+			"icon": "string",
+			"fontSize": "string",
+			"color": "string"
 		}
 	},
 	"datatable": {
 		"description": "an HTML table that fetches data from a model or view and displays it.",
 		"data": true,
 		"props": {
-			"model": "models",
-			"stripeColor": "string",
-			"borderColor": "string",
-			"backgroundColor": "string",
-			"color": "string"
+			"model": "models" 
 		}
 	},
 	"dataform": {
@@ -241,15 +235,14 @@
 		"description": "A configurable data list that attaches to your backend models.",
 		"data": true,
 		"props": {
-			"model": "models",
-			"layout": {
-				"type": "options",
-				"default": "list",
-				"options": [
-					"list",
-					"grid"
-				]
-			}
+			"model": "models"
+		}
+	},
+	"recorddetail": {
+		"description": "Loads a record, using an ID in the url",
+		"data": true,
+		"props": {
+			"model": "models"
 		}
 	},
 	"datamap": {
