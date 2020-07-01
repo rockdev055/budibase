@@ -36,7 +36,6 @@
     class={determineClassName(type)}
     bind:value
     class:uk-form-danger={errors.length > 0}>
-    <option></option>
     {#each options as opt}
       <option value={opt}>{opt}</option>
     {/each}
