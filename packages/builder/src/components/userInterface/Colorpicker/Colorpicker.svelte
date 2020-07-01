@@ -3,18 +3,17 @@
   import { fade } from "svelte/transition"
   import Swatch from "./Swatch.svelte"
   import CheckedBackground from "./CheckedBackground.svelte"
-  import {buildStyle} from "../helpers.js"
+  import { buildStyle } from "./helpers.js"
   import {
     getColorFormat,
     convertToHSVA,
     convertHsvaToFormat,
-  } from "../utils.js"
+  } from "./utils.js"
   import Slider from "./Slider.svelte"
   import Palette from "./Palette.svelte"
   import ButtonGroup from "./ButtonGroup.svelte"
   import Input from "./Input.svelte"
   import Portal from "./Portal.svelte"
-  import {keyevents} from "../actions"
 
   export let value = "#3ec1d3ff"
   export let open = false;
@@ -28,10 +27,10 @@
   let colorPicker = null
   let adder = null
 
-  let h = 0
-  let s = 0
-  let v = 0
-  let a = 0
+  let h = null
+  let s = null
+  let v = null
+  let a = null
 
   const dispatch = createEventDispatcher()
 
@@ -57,9 +56,9 @@
     }
   }
 
-  function handleEscape() {
-    if(open) {
-      open = false;
+  function handleEscape(e) {
+    if(open && e.key === "Escape") {
+      open = false
     }
   }
 
@@ -160,17 +159,18 @@
   $: border = v > 90 && s < 5 ? "1px dashed #dedada" : ""
   $: selectedColorStyle = buildStyle({ background: value, border })
   $: shrink = swatches.length > 0
-    
+  
 </script>
+
 
 <Portal>
   <div
     class="colorpicker-container"
-    use:keyevents={{"Escape": handleEscape}}
     transition:fade
     bind:this={colorPicker}
     {style}
     tabindex="0"
+    on:keydown={handleEscape}
     bind:clientHeight={pickerHeight}
     bind:clientWidth={pickerWidth}>
 
@@ -215,13 +215,11 @@
           {/if}
           {#if swatches.length !== 12}
             <div
-              tabindex="0"
-              use:keyevents={{"Enter": addSwatch}}
               bind:this={adder}
               transition:fade
               class="adder"
-              class:shrink
-              on:click={addSwatch}>
+              on:click={addSwatch}
+              class:shrink>
               <span>&plus;</span>
             </div>
           {/if}
@@ -248,7 +246,6 @@
     display: flex;
     font-size: 11px;
     font-weight: 400;
-    transition: top 0.1s, left 0.1s;
     flex-direction: column;
     margin: 5px 0px;
     height: auto;
@@ -300,7 +297,7 @@
     flex: 1;
     height: 20px;
     display: flex;
-    transition: flex 0.3s;
+    transition: flex 0.5s;
     justify-content: center;
     align-items: center;
     background: #f1f3f4;
@@ -310,8 +307,6 @@
     margin-left: 5px;
     margin-top: 3px;
     font-weight: 500;
-    outline-color:  #003cb0;
-    outline-width: thin;
   }
 
   .shrink {

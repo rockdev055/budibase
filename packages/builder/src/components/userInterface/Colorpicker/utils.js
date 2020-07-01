@@ -144,15 +144,13 @@ export const hslaToHSVA = ([h, s, l, a = 1]) => {
 
 export const hsvaToHexa = (hsva, asString = false) => {
   const [r, g, b, a] = hsvaToRgba(hsva)
-  const padSingle = hex => (hex.length === 1 ? `0${hex}` : hex)
 
-  let hexa = [r, g, b].map(v => {
-    let hex = Math.round(v).toString(16)
-    return padSingle(hex)
-  })
-
-  let alpha = padSingle(Math.round(a * 255).toString(16))
-  hexa = [...hexa, alpha]
+  const hexa = [r, g, b]
+    .map(v => {
+      let hex = Math.round(v).toString(16)
+      return hex.length === 1 ? `0${hex}` : hex
+    })
+    .concat(Math.round(a * 255).toString(16))
   return asString ? `#${hexa.join("")}` : hexa
 }
 

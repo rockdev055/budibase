@@ -1,2 +1,2 @@
-import Colorpreview from "./components/Colorpreview.svelte"
+import Colorpreview from "./Colorpreview.svelte"
 export default Colorpreview
