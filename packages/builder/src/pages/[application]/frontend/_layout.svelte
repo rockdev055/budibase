@@ -88,6 +88,7 @@
     padding: 0;
     display: flex;
     flex-direction: column;
+    z-index: 5;
   }
 
   .preview-pane {

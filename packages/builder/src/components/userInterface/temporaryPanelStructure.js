@@ -321,44 +321,17 @@ export default {
           name: "Form",
           description: "A component that generates a form from your data.",
           icon: "ri-file-edit-fill",
-          commonProps: {},
-          children: [
-            {
-              _component: "@budibase/standard-components/dataform",
-              name: "Form Basic",
-              icon: "ri-file-edit-fill",
-              properties: {
-                design: { ...all },
-                settings: [
-                  {
-                    label: "Model",
-                    key: "model",
-                    control: ModelSelect,
-                  },
-                ],
-              },
-              template: {
-                component: "@budibase/materialdesign-components/Form",
-                description: "Form for saving a record",
-                name: "@budibase/materialdesign-components/recordForm",
-              },
-            },
-            {
-              _component: "@budibase/standard-components/dataformwide",
-              name: "Form Wide",
-              icon: "ri-file-edit-fill",
-              properties: {
-                design: { ...all },
-                settings: [
-                  {
-                    label: "Model",
-                    key: "model",
-                    control: ModelSelect,
-                  },
-                ],
-              },
-            },
-          ],
+          properties: {
+            design: { ...all },
+            settings: [{ label: "Model", key: "model", control: ModelSelect }],
+          },
+          _component: "@budibase/standard-components/dataform",
+          template: {
+            component: "@budibase/materialdesign-components/Form",
+            description: "Form for saving a record",
+            name: "@budibase/materialdesign-components/recordForm",
+          },
+          children: [],
         },
         {
           name: "Chart",
@@ -406,20 +379,8 @@ export default {
         {
           name: "List",
           _component: "@budibase/standard-components/list",
-          description: "Renders all children once per record, of a given model",
+          description: "Shiny list",
           icon: "ri-file-list-fill",
-          properties: {
-            design: { ...all },
-            settings: [{ label: "Model", key: "model", control: ModelSelect }],
-          },
-          children: [],
-        },
-        {
-          name: "Record Detail",
-          _component: "@budibase/standard-components/recorddetail",
-          description:
-            "Loads a record, using an id from the URL, which can be used with {{ context }}, in children",
-          icon: "ri-profile-line",
           properties: {
             design: { ...all },
             settings: [{ label: "Model", key: "model", control: ModelSelect }],

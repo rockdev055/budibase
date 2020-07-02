@@ -2,7 +2,6 @@
   import { createEventDispatcher } from "svelte"
   import { fade } from "svelte/transition"
   import CheckedBackground from "./CheckedBackground.svelte"
-  import {keyevents} from "../actions"
 
   export let hovered = false
   export let color = "#fff"
@@ -13,8 +12,6 @@
 <div class="space">
   <CheckedBackground borderRadius="6px">
     <div
-      tabindex="0"
-      use:keyevents={{"Enter": () => dispatch("click")}}
       in:fade
       class="swatch"
       style={`background: ${color};`}
@@ -41,8 +38,6 @@
     border: 1px solid #dedada;
     height: 20px;
     width: 20px;
-    outline-color:  #003cb0;
-    outline-width: thin;
   }
 
   .space {

@@ -5,7 +5,7 @@
   import { get } from "builderStore/api"
 
   import { fade } from "svelte/transition"
-  import { isActive, goto, layout, url } from "@sveltech/routify"
+  import { isActive, goto, layout } from "@sveltech/routify"
 
   import { SettingsIcon, PreviewIcon } from "components/common/Icons/"
   import IconButton from "components/common/IconButton.svelte"
@@ -27,22 +27,6 @@
       throw new Error(pkg)
     }
   }
-
-  // handles navigation between frontend, backend, workflow.
-  // this remembers your last place on each of the sections
-  // e.g. if one of your screens is selected on front end, then
-  // you browse to backend, when you click fronend, you will be
-  // brought back to the same screen
-  const topItemNavigate = path => () => {
-    const activeTopNav = $layout.children.find(c => $isActive(c.path))
-    if (!activeTopNav) return
-    store.update(state => {
-      if (!state.previousTopNavPath) state.previousTopNavPath = {}
-      state.previousTopNavPath[activeTopNav.path] = window.location.pathname.replace("/_builder", "")
-      $goto(state.previousTopNavPath[path] || path)
-      return state
-    })
-  }
 </script>
 
 <Modal>
@@ -62,7 +46,7 @@
           <span
             class:active={$isActive(path)}
             class="topnavitem"
-            on:click={topItemNavigate(path)}>
+            on:click={() => $goto(path)}>
             {title}
           </span>
         {/each}
