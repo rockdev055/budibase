@@ -53,7 +53,7 @@
           bind:value={$backendUiStore.tabs.NAVIGATION_PANEL}>
           {#if selectedTab === 'NAVIGATE'}
             <Button purple wide on:click={setupForNewModel}>
-              Create New Table
+              Create New Model
             </Button>
             <div class="hierarchy-items-container">
               {#each $backendUiStore.models as model}
