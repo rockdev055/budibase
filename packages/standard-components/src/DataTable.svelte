@@ -8,16 +8,6 @@
   let headers = []
   let store = _bb.store
 
-  const shouldDisplayField = name => {
-    if (name.startsWith("_")) return false
-    // always 'record'
-    if (name === "type") return false
-    // tables are always tied to a single modelId, this is irrelevant
-    if (name === "modelId") return false
-
-    return true
-  }
-
   async function fetchData() {
     const FETCH_RECORDS_URL = `/api/views/all_${model}`
 
@@ -30,7 +20,7 @@
         return state
       })
 
-      headers = Object.keys(json[0]).filter(shouldDisplayField)
+      headers = Object.keys(json[0]).filter(key => !key.startsWith("_"))
     } else {
       throw new Error("Failed to fetch records.", response)
     }
