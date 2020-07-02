@@ -80,7 +80,6 @@
   function handleClick(val) {
     value = val
     onChange(value)
-    toggleSelect(false)
   }
 
   $: menuStyle = buildStyle({
@@ -109,7 +108,7 @@
   bind:this={select}
   class="bb-select-container"
   on:click={() => toggleSelect(!open)}>
-  <div bind:this={selectAnchor} title={value} class="bb-select-anchor selected">
+  <div bind:this={selectAnchor} class="bb-select-anchor selected">
     <span>{displayLabel}</span>
     <i bind:this={icon} class="ri-arrow-down-s-fill" />
   </div>
@@ -175,7 +174,6 @@
     background-color: var(--grey-2);
     border-radius: 5px;
     align-items: center;
-    white-space: nowrap;
   }
 
   .bb-select-anchor > span {
