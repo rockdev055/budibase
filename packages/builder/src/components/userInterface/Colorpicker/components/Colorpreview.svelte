@@ -3,7 +3,7 @@
   import CheckedBackground from "./CheckedBackground.svelte"
   import { createEventDispatcher, beforeUpdate, onMount } from "svelte"
 
-  import { buildStyle, debounce } from "../helpers.js"
+  import {buildStyle, debounce} from "../helpers.js"
   import { fade } from "svelte/transition"
   import { getColorFormat } from "../utils.js"
 
@@ -38,6 +38,7 @@
     }
   })
 
+
   function openColorpicker(event) {
     if (colorPreview) {
       open = true
@@ -50,7 +51,7 @@
   }
 
   function calculateDimensions() {
-    const {
+   const {
       top: spaceAbove,
       width,
       bottom,
@@ -61,22 +62,22 @@
     const spaceBelow = window.innerHeight - bottom
     const previewCenter = previewWidth / 2
 
-    let y, x
+    let y, x;
 
-    if (spaceAbove > spaceBelow) {
+    if(spaceAbove > spaceBelow) {
       positionSide = "bottom"
-      y = window.innerHeight - spaceAbove
-    } else {
+      y = (window.innerHeight - spaceAbove)
+    }else{
       positionSide = "top"
       y = bottom
     }
 
-    x = left + previewCenter - 220 / 2
+    x = (left + previewCenter) - (220 / 2)
 
-    dimensions = { [positionSide]: y.toFixed(1), left: x.toFixed(1) }
+    dimensions = { [positionSide]: y.toFixed(1), left: x.toFixed(1) } 
   }
 
-  $: if (open && colorPreview) {
+  $: if(open && colorPreview) {
     calculateDimensions()
   }
 
@@ -86,6 +87,7 @@
     [positionSide]: `${dimensions[positionSide]}px`,
     left: `${dimensions.left}px`,
   })
+  
 </script>
 
 <svelte:window on:resize={debounce(calculateDimensions, 200)} />
@@ -97,32 +99,29 @@
         bind:this={colorPreview}
         bind:clientHeight={previewHeight}
         bind:clientWidth={previewWidth}
-        title={value}
         class="color-preview"
         style={previewStyle}
         on:click={openColorpicker} />
     </CheckedBackground>
 
     {#if open}
-      <Colorpicker
-        style={pickerStyle}
-        on:change={onColorChange}
-        on:addswatch
-        on:removeswatch
-        bind:format
-        bind:value
-        bind:pickerHeight
-        bind:pickerWidth
-        bind:open
-        {swatches}
-        {disableSwatches} />
+    <Colorpicker
+      style={pickerStyle}
+      on:change={onColorChange}
+      on:addswatch
+      on:removeswatch
+      bind:format
+      bind:value
+      bind:pickerHeight
+      bind:pickerWidth
+      bind:open
+      {swatches}
+      {disableSwatches}
+       />
       <div on:click|self={() => (open = false)} class="overlay" />
     {/if}
   {:else}
-    <div
-      class="color-preview preview-error"
-      title="Invalid Color"
-      style={errorPreviewStyle}>
+    <div class="color-preview preview-error" style={errorPreviewStyle}>
       <span>&times;</span>
     </div>
   {/if}
