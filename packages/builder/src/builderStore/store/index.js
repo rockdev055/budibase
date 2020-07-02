@@ -29,8 +29,7 @@ import {
 export const getStore = () => {
   const initial = {
     apps: [],
-    name: "",
-    description: "",
+    appname: "",
     pages: DEFAULT_PAGES_OBJECT,
     mainUi: {},
     unauthenticatedUi: {},
@@ -102,8 +101,7 @@ const setPackage = (store, initial) => async pkg => {
 
   initial.libraries = pkg.application.componentLibraries
   initial.components = await fetchComponentLibDefinitions(pkg.application._id)
-  initial.name = pkg.application.name
-  initial.description = pkg.application.description
+  initial.appname = pkg.application.name
   initial.appId = pkg.application._id
   initial.pages = pkg.pages
   initial.hasAppPackage = true
@@ -111,8 +109,8 @@ const setPackage = (store, initial) => async pkg => {
   initial.builtins = [getBuiltin("##builtin/screenslot")]
   initial.appInstances = pkg.application.instances
   initial.appId = pkg.application._id
-
   store.set(initial)
+  await backendUiStore.actions.database.select(initial.appInstances[0])
   return initial
 }
 

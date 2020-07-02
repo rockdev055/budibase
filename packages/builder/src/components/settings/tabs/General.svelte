@@ -1,39 +1,15 @@
 <script>
   import { Input, TextArea, Button } from "@budibase/bbui"
-  import { store } from "builderStore"
-  import api from "builderStore/api"
   import Title from "../TabTitle.svelte"
-
-  async function updateApplication(data) {
-    const response = await api.put(`/api/${$store.appId}`, data)
-    const app = await response.json()
-    store.update(state => {
-      state = {
-        ...state,
-        ...data,
-      }
-      return state
-    })
-  }
 </script>
 
 <Title>General</Title>
 <div class="container">
   <div class="background">
-    <Input
-      on:save={e => updateApplication({ name: e.detail })}
-      thin
-      edit
-      value={$store.name}
-      label="Name" />
+    <Input thin edit placeholder="Enter your name" label="Name" />
   </div>
   <div class="background">
-    <TextArea
-      on:save={e => updateApplication({ description: e.detail })}
-      thin
-      edit
-      value={$store.description}
-      label="Name" />
+    <TextArea thin edit placeholder="Enter your name" label="Name" />
   </div>
 </div>
 

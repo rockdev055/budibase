@@ -11,7 +11,7 @@
   }
 
   $: currentAppInfo = {
-    name: $store.name,
+    appname: $store.appname,
   }
 
   async function fetchUsers() {
