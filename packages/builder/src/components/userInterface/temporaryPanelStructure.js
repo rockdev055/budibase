@@ -313,7 +313,7 @@ export default {
           icon: "ri-archive-drawer-fill",
           properties: {
             design: { ...all },
-            settings: [{ label: "Model", key: "model", control: ModelSelect }],
+            settings: [{ label: "Table", key: "model", control: ModelSelect }],
           },
           children: [],
         },
@@ -331,9 +331,14 @@ export default {
                 design: { ...all },
                 settings: [
                   {
-                    label: "Model",
+                    label: "Table",
                     key: "model",
                     control: ModelSelect,
+                  },
+                  {
+                    label: "Title",
+                    key: "title",
+                    control: Input,
                   },
                 ],
               },
@@ -351,9 +356,14 @@ export default {
                 design: { ...all },
                 settings: [
                   {
-                    label: "Model",
+                    label: "Table",
                     key: "model",
                     control: ModelSelect,
+                  },
+                  {
+                    label: "Title",
+                    key: "title",
+                    control: Input,
                   },
                 ],
               },
@@ -368,7 +378,7 @@ export default {
           properties: {
             design: { ...all },
             settings: [
-              { label: "Model", key: "model", control: ModelSelect },
+              { label: "Table", key: "model", control: ModelSelect },
               {
                 label: "Chart Type",
                 key: "type",
@@ -399,18 +409,18 @@ export default {
           icon: "ri-file-list-fill",
           properties: {
             design: { ...all },
-            settings: [{ label: "Model", key: "model", control: ModelSelect }],
+            settings: [{ label: "Table", key: "model", control: ModelSelect }],
           },
           children: [],
         },
         {
           name: "List",
           _component: "@budibase/standard-components/list",
-          description: "Renders all children once per record, of a given model",
+          description: "Renders all children once per record, of a given table",
           icon: "ri-file-list-fill",
           properties: {
             design: { ...all },
-            settings: [{ label: "Model", key: "model", control: ModelSelect }],
+            settings: [{ label: "Table", key: "model", control: ModelSelect }],
           },
           children: [],
         },
@@ -422,7 +432,7 @@ export default {
           icon: "ri-profile-line",
           properties: {
             design: { ...all },
-            settings: [{ label: "Model", key: "model", control: ModelSelect }],
+            settings: [{ label: "Table", key: "model", control: ModelSelect }],
           },
           children: [],
         },
