@@ -30,33 +30,34 @@ export const attachChildren = initialiseOpts => (htmlElement, options) => {
     }
   }
 
-  const contextArray = Array.isArray(context) ? context : [context]
-
   const childNodes = []
+  for (let childProps of treeNode.props._children) {
+    const { componentName, libName } = splitName(childProps._component)
 
-  for (let context of contextArray) {
-    for (let childProps of treeNode.props._children) {
-      const { componentName, libName } = splitName(childProps._component)
+    if (!componentName || !libName) return
 
-      if (!componentName || !libName) return
+    const ComponentConstructor = componentLibraries[libName][componentName]
 
-      const ComponentConstructor = componentLibraries[libName][componentName]
+    const prepareNodes = ctx => {
+      const childNodesThisIteration = prepareRenderComponent({
+        props: childProps,
+        parentNode: treeNode,
+        ComponentConstructor,
+        htmlElement,
+        anchor,
+        context: ctx,
+      })
 
-      const prepareNodes = ctx => {
-        const childNodesThisIteration = prepareRenderComponent({
-          props: childProps,
-          parentNode: treeNode,
-          ComponentConstructor,
-          htmlElement,
-          anchor,
-          context: ctx,
-        })
-
-        for (let childNode of childNodesThisIteration) {
-          childNodes.push(childNode)
-        }
+      for (let childNode of childNodesThisIteration) {
+        childNodes.push(childNode)
       }
+    }
 
+    if (Array.isArray(context)) {
+      for (let singleCtx of context) {
+        prepareNodes(singleCtx)
+      }
+    } else {
       prepareNodes(context)
     }
   }

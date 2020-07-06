@@ -7,6 +7,8 @@ const {
 const setBuilderToken = require("../../utilities/builder/setBuilderToken")
 const { ANON_LEVEL_ID } = require("../../utilities/accessLevels")
 const jwt = require("jsonwebtoken")
+const fetch = require("node-fetch")
+const { S3 } = require("aws-sdk")
 
 exports.serveBuilder = async function(ctx) {
   let builderPath = resolve(__dirname, "../../../builder")
@@ -17,12 +19,14 @@ exports.serveBuilder = async function(ctx) {
 }
 
 exports.serveApp = async function(ctx) {
+  const mainOrAuth = ctx.isAuthenticated ? "main" : "unauthenticated";
+
   // default to homedir
   const appPath = resolve(
     budibaseAppsDir(),
     ctx.params.appId,
     "public",
-    ctx.isAuthenticated ? "main" : "unauthenticated"
+    mainOrAuth
   )
   // only set the appId cookie for /appId .. we COULD check for valid appIds
   // but would like to avoid that DB hit
@@ -40,16 +44,26 @@ exports.serveApp = async function(ctx) {
     })
   }
 
+  if (process.env.CLOUD) {
+    const S3_URL = `https://${ctx.params.appId}.app.budi.live/assets/${ctx.params.appId}/${mainOrAuth}/${ctx.file || "index.production.html"}`
+    const response = await fetch(S3_URL)
+    const body = await response.text()
+    ctx.body = body 
+    return
+  }
+
   await send(ctx, ctx.file || "index.html", { root: ctx.devPath || appPath })
 }
 
 exports.serveAppAsset = async function(ctx) {
   // default to homedir
+  const mainOrAuth = ctx.isAuthenticated ? "main" : "unauthenticated";
+
   const appPath = resolve(
     budibaseAppsDir(),
     ctx.user.appId,
     "public",
-    ctx.isAuthenticated ? "main" : "unauthenticated"
+    mainOrAuth
   )
 
   await send(ctx, ctx.file, { root: ctx.devPath || appPath })
@@ -71,6 +85,16 @@ exports.serveComponentLibrary = async function(ctx) {
       decodeURI(ctx.query.library),
       "dist"
     )
+  }
+
+  if (process.env.CLOUD) {
+    const appId = ctx.user.appId
+    const S3_URL = encodeURI(`https://${appId}.app.budi.live/assets/componentlibrary/${ctx.query.library}/dist/index.js`)
+    const response = await fetch(S3_URL)
+    const body = await response.text()
+    ctx.type = 'application/javascript'
+    ctx.body = body;
+    return
   }
 
   await send(ctx, "/index.js", { root: componentLibraryPath })
