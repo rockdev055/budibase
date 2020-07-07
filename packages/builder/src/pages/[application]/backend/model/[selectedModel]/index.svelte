@@ -23,7 +23,9 @@
   }
 </script>
 
-{#if $backendUiStore.selectedDatabase._id && selectedModel.name}
+{#if selectedModel.schema && Object.keys(selectedModel.schema).length === 0}
+  <EmptyModel />
+{:else if $backendUiStore.selectedDatabase._id && selectedModel.name}
   <ModelDataTable />
 {:else}
   <i style="color: var(--grey-4)">create your first table to start building</i>

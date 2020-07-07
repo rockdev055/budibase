@@ -28,8 +28,7 @@
         "_instanceName": "Login",
         "inputClass": "",
         "_children": [],
-        "title": "Login to {{ name }}",
-        "buttonText": "Login",
+        "name": "{{ name }}",
         "logo": ""
       }
     ],
