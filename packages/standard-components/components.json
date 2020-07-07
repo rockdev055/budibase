@@ -66,7 +66,7 @@
 		"props": {
 			"logo": "asset",
 			"loginRedirect": "string",
-			"title": "string",
+			"name": "string",
 			"usernameLabel": {
 				"type": "string",
 				"default": "Username"
@@ -80,8 +80,7 @@
 				"default": "Login"
 			},
 			"buttonClass": "string",
-			"inputClass": "string",
-			"buttonText": "string"
+			"inputClass": "string"
 		},
 		"tags": [
 			"login",
@@ -207,18 +206,14 @@
 		"description": "an HTML table that fetches data from a table or view and displays it.",
 		"data": true,
 		"props": {
-			"model": "models",
-			"title": "string",
-			"buttonText": "string"
+			"model": "models"
 		}
 	},
 	"dataformwide": {
 		"description": "an HTML table that fetches data from a table or view and displays it.",
 		"data": true,
 		"props": {
-			"model": "models",
-			"title": "string",
-			"buttonText": "string"
+			"model": "models"
 		}
 	},
 	"datalist": {
