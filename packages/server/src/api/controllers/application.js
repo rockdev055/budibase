@@ -147,10 +147,7 @@ const createEmptyAppPackage = async (ctx, app) => {
     app
   )
 
-  await buildPage(ctx.config, app._id, "main", {
-    page: mainJson,
-    screens: await loadScreens(newAppFolder, "main"),
-  })
+  await buildPage(ctx.config, app._id, "main", { page: mainJson })
 
   const unauthenticatedJson = await updateJsonFile(
     join(appsFolder, app._id, "pages", "unauthenticated", "page.json"),
@@ -159,24 +156,9 @@ const createEmptyAppPackage = async (ctx, app) => {
 
   await buildPage(ctx.config, app._id, "unauthenticated", {
     page: unauthenticatedJson,
-    screens: await loadScreens(newAppFolder, "unauthenticated"),
   })
 
   return newAppFolder
-}
-
-const loadScreens = async (appFolder, page) => {
-  const screensFolder = join(appFolder, "pages", page, "screens")
-
-  const screenFiles = (await fs.readdir(screensFolder)).filter(s =>
-    s.endsWith(".json")
-  )
-
-  let screens = []
-  for (let file of screenFiles) {
-    screens.push(await fs.readJSON(join(screensFolder, file)))
-  }
-  return screens
 }
 
 const lookupClientId = async appId => {
