@@ -40,11 +40,11 @@
 <style>
   .container {
     display: grid;
-    grid-gap: 16px;
+    grid-gap: var(--space);
   }
   .background {
     border-radius: 5px;
-    background-color: var(--grey-1);
+    background-color: var(--light-grey);
     padding: 12px 12px 18px 12px;
   }
 </style>
