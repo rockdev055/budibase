@@ -1,6 +1,5 @@
 <script>
   import { onMount, createEventDispatcher } from "svelte"
-  import { drag } from "../actions"
   import CheckedBackground from "./CheckedBackground.svelte"
 
   const dispatch = createEventDispatcher()
@@ -11,18 +10,22 @@
   export let a = 1
 
   let palette
-  let cursor = "grab"
 
   let paletteHeight,
     paletteWidth = 0
 
-  function handePaletteChange({ mouseX, mouseY }) {
+  function handleClick(event) {
     const { left, top } = palette.getBoundingClientRect()
-    let x = mouseX - left
-    let y = mouseY - top
-    if (x > 0 && y > 0 && x < paletteWidth && y < paletteHeight) {
-      let s = (x / paletteWidth) * 100
-      let v = 100 - (y / paletteHeight) * 100
+    let clickX = event.clientX - left
+    let clickY = event.clientY - top
+    if (
+      clickX > 0 &&
+      clickY > 0 &&
+      clickX < paletteWidth &&
+      clickY < paletteHeight
+    ) {
+      let s = (clickX / paletteWidth) * 100
+      let v = 100 - (clickY / paletteHeight) * 100
       dispatch("change", { s, v })
     }
   }
@@ -35,8 +38,7 @@
   `
   $: style = `background: ${paletteGradient};`
 
-  $: pickerStyle = `transform: translate(${pickerX - 8}px, ${pickerY -
-    8}px); cursor: ${cursor};`
+  $: pickerStyle = `transform: translate(${pickerX - 8}px, ${pickerY - 8}px);`
 </script>
 
 <CheckedBackground width="100%">
@@ -44,19 +46,10 @@
     bind:this={palette}
     bind:clientHeight={paletteHeight}
     bind:clientWidth={paletteWidth}
-    on:click={event => handePaletteChange({
-        mouseX: event.clientX,
-        mouseY: event.clientY,
-      })}
+    on:click={handleClick}
     class="palette"
     {style}>
-    <div
-      use:drag
-      on:dragstart={() => (cursor = 'grabbing')}
-      on:drag={event => handePaletteChange(event.detail)}
-      on:dragend={() => (cursor = 'grab')}
-      class="picker"
-      style={pickerStyle} />
+    <div class="picker" style={pickerStyle} />
   </div>
 </CheckedBackground>
 
