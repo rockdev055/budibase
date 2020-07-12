@@ -1,10 +1,8 @@
 <script>
   import FlatButton from "./FlatButton.svelte"
-  import { createEventDispatcher } from "svelte"
-
-  const dispatch = createEventDispatcher()
 
   export let format = "hex"
+  export let onclick = format => {}
 
   let colorFormats = ["hex", "rgb", "hsl"]
 </script>
@@ -14,7 +12,7 @@
     <FlatButton
       selected={format === text}
       {text}
-      on:click={() => dispatch('click', text)} />
+      on:click={() => onclick(text)} />
   {/each}
 </div>
 
