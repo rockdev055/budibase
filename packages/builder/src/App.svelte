@@ -16,7 +16,6 @@
   onMount(async () => {
     window.addEventListener("error", showErrorBanner)
     window.addEventListener("unhandledrejection", showErrorBanner)
-    await initialise()
   })
 
   $basepath = "/_builder"
