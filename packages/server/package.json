@@ -1,6 +1,6 @@
 {
   "name": "@budibase/server",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Budibase Web Server",
   "main": "src/electron.js",
   "repository": {
@@ -93,5 +93,5 @@
       "./scripts/jestSetup.js"
     ]
   },
-  "gitHead": "a266952b782f47c80a4d9fca2c2acc88153c8ef1"
+  "gitHead": "4a7edd9ebe702c93e8b9da2b74e814d3bb1266e1"
 }
