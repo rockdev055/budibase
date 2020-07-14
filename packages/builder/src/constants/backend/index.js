@@ -65,8 +65,8 @@ export const FIELDS = {
   //     presence: false,
   //   },
   // },
-  LINKED_FIELDS: {
-    name: "Linked Fields",
+  DATA_LINK: {
+    name: "Data Links",
     icon: "ri-link",
     type: "link",
     modelId: null,
@@ -89,7 +89,7 @@ export const BLOCKS = {
   },
   COMPANY: {
     name: "Company",
-    icon: "ri-store-line",
+    icon: "ri-text",
     type: "string",
     constraints: {
       type: "string",
@@ -99,7 +99,7 @@ export const BLOCKS = {
   },
   EMAIL: {
     name: "Email",
-    icon: "ri-mail-line",
+    icon: "ri-text",
     type: "string",
     constraints: {
       type: "string",
@@ -109,7 +109,7 @@ export const BLOCKS = {
   },
   PHONE_NUMBER: {
     name: "Phone No.",
-    icon: "ri-phone-line",
+    icon: "ri-number-1",
     type: "number",
     constraints: {
       type: "number",
@@ -119,7 +119,7 @@ export const BLOCKS = {
   },
   VALUE: {
     name: "Value",
-    icon: "ri-number-5",
+    icon: "ri-number-1",
     type: "number",
     constraints: {
       type: "number",
@@ -133,26 +133,6 @@ export const BLOCKS = {
     type: "boolean",
     constraints: {
       type: "boolean",
-      presence: false,
-    },
-  },
-  URL: {
-    name: "URL",
-    icon: "ri-link",
-    type: "string",
-    constraints: {
-      type: "string",
-      length: {},
-      presence: false,
-    },
-  },
-  IMAGE: {
-    name: "Image URL",
-    icon: "ri-image-line",
-    type: "string",
-    constraints: {
-      type: "string",
-      length: {},
       presence: false,
     },
   },
