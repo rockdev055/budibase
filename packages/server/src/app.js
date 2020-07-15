@@ -46,8 +46,3 @@ module.exports = async port => {
   const server = http.createServer(app.callback())
   return server.listen(serverPort || 4001)
 }
-
-process.on("SIGINT", function() {
-  console.log("\nGracefully shutting down from SIGINT")
-  process.exit(1)
-})
