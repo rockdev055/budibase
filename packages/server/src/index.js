@@ -13,7 +13,10 @@ async function runServer() {
 
   require("dotenv").config({ path: resolve(budibaseDir, ".env") })
 
-  require("./app")
+  const server = await require("./app")()
+
+  server.on("close", () => console.log("Server Closed"))
+  console.log(`Budibase running on ${JSON.stringify(server.address())}`)
 }
 
 runServer()

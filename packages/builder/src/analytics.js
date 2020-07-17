@@ -13,7 +13,6 @@ function captureException(err) {
 }
 
 function captureEvent(event) {
-  if (process.env.NODE_ENV !== "production") return
   posthog.capture(event)
 }
 
