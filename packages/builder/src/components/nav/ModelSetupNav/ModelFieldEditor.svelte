@@ -21,7 +21,7 @@
   $: required =
     field.constraints &&
     field.constraints.presence &&
-    !field.constraints.presence.allowEmpty
+    !constraints.presence.allowEmpty
 </script>
 
 <div class="info">
@@ -41,10 +41,7 @@
 <div class="info">
   <div class="field">
     <label>Required</label>
-    <input
-      type="checkbox"
-      bind:checked={required}
-      on:change={() => (field.constraints.presence.allowEmpty = required)} />
+    <input type="checkbox" />
   </div>
 
   {#if field.type === 'string'}

@@ -12,10 +12,22 @@ export default {
       isCategory: true,
       children: [
         {
+          _component: "@budibase/standard-components/embed",
+          icon: "ri-code-line",
+          name: "Embed",
+          description: "Embed content from 3rd party sources",
+          properties: {
+            design: {
+              ...all,
+            },
+            settings: [{ label: "Embed", key: "embed", control: Input }],
+          },
+        },
+        {
           _component: "@budibase/standard-components/container",
           name: "Container",
           description: "This component contains things within itself",
-          icon: "ri-layout-row-line",
+          icon: "ri-layout-row-fill",
           commonProps: {},
           children: [],
           properties: {
@@ -45,21 +57,9 @@ export default {
           },
         },
         {
-          _component: "@budibase/standard-components/embed",
-          icon: "ri-code-line",
-          name: "Embed",
-          description: "Embed content from 3rd party sources",
-          properties: {
-            design: {
-              ...all,
-            },
-            settings: [{ label: "Embed", key: "embed", control: Input }],
-          },
-        },
-        {
           name: "Text",
           description: "This is a simple text component",
-          icon: "ri-t-box-line",
+          icon: "ri-t-box-fill",
           commonProps: {},
           children: [
             {
@@ -123,7 +123,7 @@ export default {
         {
           name: "Input",
           description: "These components handle user input.",
-          icon: "ri-edit-box-line",
+          icon: "ri-edit-box-fill",
           commonProps: {},
           children: [
             {
@@ -131,7 +131,7 @@ export default {
               name: "Textfield",
               description:
                 "A textfield component that allows the user to input text.",
-              icon: "ri-edit-box-line",
+              icon: "ri-edit-box-fill",
               properties: {
                 design: { ...all },
                 settings: [
@@ -149,7 +149,7 @@ export default {
               _component: "@budibase/standard-components/checkbox",
               name: "Checkbox",
               description: "A selectable checkbox component",
-              icon: "ri-checkbox-line",
+              icon: "ri-checkbox-fill",
               properties: {
                 design: { ...all },
                 settings: [{ label: "Label", key: "label", control: Input }],
@@ -170,7 +170,7 @@ export default {
               name: "Select",
               description:
                 "A select component for choosing from different options",
-              icon: "ri-file-list-line",
+              icon: "ri-file-list-fill",
               properties: {
                 design: { ...all },
                 settings: [],
@@ -182,7 +182,7 @@ export default {
           _component: "@budibase/standard-components/button",
           name: "Button",
           description: "A basic html button that is ready for styling",
-          icon: "ri-share-box-line",
+          icon: "ri-radio-button-fill",
           children: [],
           properties: {
             design: {
@@ -203,23 +203,23 @@ export default {
           _component: "@budibase/standard-components/image",
           name: "Image",
           description: "A basic component for displaying images",
-          icon: "ri-image-line",
+          icon: "ri-image-fill",
           children: [],
           properties: {
             design: { ...all },
             settings: [{ label: "URL", key: "url", control: Input }],
           },
         },
-        // {
-        // _component: "@budibase/standard-components/icon",
-        // name: "Icon",
-        // description: "A basic component for displaying icons",
-        // icon: "ri-sun-fill",
-        // children: [],
-        // properties: {
-        // design: { ...all },
-        // },
-        // },
+        {
+          _component: "@budibase/standard-components/icon",
+          name: "Icon",
+          description: "A basic component for displaying icons",
+          icon: "ri-sun-fill",
+          children: [],
+          properties: {
+            design: { ...all },
+          },
+        },
         {
           _component: "@budibase/standard-components/link",
           name: "Link",
@@ -251,7 +251,7 @@ export default {
           name: "Card",
           description:
             "A basic card component that can contain content and actions.",
-          icon: "ri-layout-bottom-line",
+          icon: "ri-layout-bottom-fill",
           children: [],
           properties: {
             design: { ...all },
@@ -284,10 +284,33 @@ export default {
           },
         },
         {
+          name: "Login",
+          _component: "@budibase/standard-components/login",
+          description:
+            "A component that automatically generates a login screen for your app.",
+          icon: "ri-login-box-fill",
+          children: [],
+          properties: {
+            design: { ...all },
+            settings: [
+              {
+                label: "Name",
+                key: "name",
+                control: Input,
+              },
+              {
+                label: "Logo",
+                key: "logo",
+                control: Input,
+              },
+            ],
+          },
+        },
+        {
           name: "Table",
           _component: "@budibase/standard-components/datatable",
           description: "A component that generates a table from your data.",
-          icon: "ri-archive-drawer-line",
+          icon: "ri-archive-drawer-fill",
           properties: {
             design: { ...all },
             settings: [{ label: "Table", key: "model", control: ModelSelect }],
@@ -297,13 +320,13 @@ export default {
         {
           name: "Form",
           description: "A component that generates a form from your data.",
-          icon: "ri-file-edit-line",
+          icon: "ri-file-edit-fill",
           commonProps: {},
           children: [
             {
               _component: "@budibase/standard-components/dataform",
               name: "Form Basic",
-              icon: "ri-file-edit-line",
+              icon: "ri-file-edit-fill",
               properties: {
                 design: { ...all },
                 settings: [
@@ -311,16 +334,6 @@ export default {
                     label: "Table",
                     key: "model",
                     control: ModelSelect,
-                  },
-                  {
-                    label: "Title",
-                    key: "title",
-                    control: Input,
-                  },
-                  {
-                    label: "Button Text",
-                    key: "buttonText",
-                    control: Input,
                   },
                 ],
               },
@@ -333,7 +346,7 @@ export default {
             {
               _component: "@budibase/standard-components/dataformwide",
               name: "Form Wide",
-              icon: "ri-file-edit-line",
+              icon: "ri-file-edit-fill",
               properties: {
                 design: { ...all },
                 settings: [
@@ -341,16 +354,6 @@ export default {
                     label: "Table",
                     key: "model",
                     control: ModelSelect,
-                  },
-                  {
-                    label: "Title",
-                    key: "title",
-                    control: Input,
-                  },
-                  {
-                    label: "Button Text",
-                    key: "buttonText",
-                    control: Input,
                   },
                 ],
               },
@@ -361,7 +364,7 @@ export default {
           name: "Chart",
           _component: "@budibase/standard-components/datachart",
           description: "Shiny chart",
-          icon: "ri-bar-chart-line",
+          icon: "ri-bar-chart-fill",
           properties: {
             design: { ...all },
             settings: [
@@ -389,22 +392,22 @@ export default {
           },
           children: [],
         },
-        // {
-        //  name: "Data List",
-        //  _component: "@budibase/standard-components/datalist",
-        //  description: "Shiny list",
-        //  icon: "ri-file-list-line",
-        //  properties: {
-        //   design: { ...all },
-        //   settings: [{ label: "Table", key: "model", control: ModelSelect }],
-        //  },
-        //  children: [],
-        // },
+        {
+          name: "Data List",
+          _component: "@budibase/standard-components/datalist",
+          description: "Shiny list",
+          icon: "ri-file-list-fill",
+          properties: {
+            design: { ...all },
+            settings: [{ label: "Table", key: "model", control: ModelSelect }],
+          },
+          children: [],
+        },
         {
           name: "List",
           _component: "@budibase/standard-components/list",
           description: "Renders all children once per record, of a given table",
-          icon: "ri-file-list-line",
+          icon: "ri-file-list-fill",
           properties: {
             design: { ...all },
             settings: [{ label: "Table", key: "model", control: ModelSelect }],
@@ -423,14 +426,14 @@ export default {
           },
           children: [],
         },
-        // {
-        // name: "Map",
-        // _component: "@budibase/standard-components/datamap",
-        // description: "Shiny map",
-        // icon: "ri-map-pin-line",
-        // properties: { design: { ...all } },
-        // children: [],
-        // },
+        {
+          name: "Map",
+          _component: "@budibase/standard-components/datamap",
+          description: "Shiny map",
+          icon: "ri-map-pin-fill",
+          properties: { design: { ...all } },
+          children: [],
+        },
       ],
     },
     {
@@ -439,10 +442,10 @@ export default {
       children: [
         {
           _component: "##builtin/screenslot",
-          name: "Screen Slot",
+          name: "Screenslot",
           description:
             "This component is a placeholder for the rendering of a screen within a page.",
-          icon: "ri-crop-2-line",
+          icon: "ri-crop-2-fill",
           properties: { design: { ...all } },
           commonProps: {},
           children: [],
@@ -452,7 +455,7 @@ export default {
           _component: "@budibase/standard-components/Navigation",
           description:
             "A component for handling the navigation within your app.",
-          icon: "ri-navigation-line",
+          icon: "ri-navigation-fill",
           children: [],
           properties: {
             design: { ...all },
@@ -461,39 +464,6 @@ export default {
               { label: "Title", key: "title", control: Input },
               { label: "Color", key: "color", control: Input },
               { label: "Background", key: "backgroundColor", control: Input },
-            ],
-          },
-        },
-        {
-          name: "Login",
-          _component: "@budibase/standard-components/login",
-          description:
-            "A component that automatically generates a login screen for your app.",
-          icon: "ri-login-box-line",
-          children: [],
-          properties: {
-            design: { ...all },
-            settings: [
-              {
-                label: "Name",
-                key: "name",
-                control: Input,
-              },
-              {
-                label: "Logo",
-                key: "logo",
-                control: Input,
-              },
-              {
-                label: "Title",
-                key: "title",
-                control: Input,
-              },
-              {
-                label: "Button Text",
-                key: "buttonText",
-                control: Input,
-              },
             ],
           },
         },

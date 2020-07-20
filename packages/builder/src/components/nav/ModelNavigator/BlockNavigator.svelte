@@ -52,28 +52,17 @@
   }
 
   span {
-    cursor: pointer;
-    display: grid;
-    justify-content: center;
-    align-content: center;
-    padding: 0px 16px;
-    height: 36px;
     text-align: center;
-    background: #ffffff;
-    color: var(--grey-7);
-    border-radius: 5px;
-    font-family: inter;
+    padding: 10px;
+    font-weight: 500;
+    border-radius: 3px;
+    color: var(--ink-lighter);
     font-size: 14px;
-    font-weight: 400;
-    transition: all 0.3s;
-    text-rendering: optimizeLegibility;
-    border: none !important;
-    transition: 0.2s;
-    outline: none;
+    background: var(--grey-1);
   }
 
   span:hover {
-    color: var(--ink);
+    background: var(--blue-light);
     cursor: pointer;
   }
 
