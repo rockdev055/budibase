@@ -1,5 +1,5 @@
 <script>
-  import { General, Users, DangerZone, APIKeys } from "./tabs"
+  import { General, Users, DangerZone } from "./tabs"
 
   import { Input, TextArea, Button, Switcher } from "@budibase/bbui"
   import { SettingsIcon, CloseIcon } from "components/common/Icons/"
@@ -19,11 +19,6 @@
       title: "Users",
       key: "USERS",
       component: Users,
-    },
-    {
-      title: "API Keys",
-      key: "API_KEYS",
-      component: APIKeys,
     },
     {
       title: "Danger Zone",
@@ -55,7 +50,6 @@
 <style>
   .container {
     position: relative;
-    height: 36rem;
   }
 
   .close-button {
@@ -89,10 +83,9 @@
     width: 20px;
     padding: 10px;
     background-color: var(--blue-light);
-    color: var(--grey-7);
   }
   .body {
-    padding: 40px 40px 40px 40px;
+    padding: 40px 40px 80px 40px;
     display: grid;
     grid-gap: 20px;
   }

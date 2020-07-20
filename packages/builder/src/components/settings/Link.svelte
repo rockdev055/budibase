@@ -34,7 +34,7 @@
   }
   .topnavitemright {
     cursor: pointer;
-    color: var(--grey-7);
+    color: var(--ink-light);
     margin: 0px 20px 0px 0px;
     padding-top: 4px;
     font-weight: 500;
