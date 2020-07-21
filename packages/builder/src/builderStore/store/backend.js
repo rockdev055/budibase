@@ -2,24 +2,23 @@ import { writable } from "svelte/store"
 import { cloneDeep } from "lodash/fp"
 import api from "../api"
 
-const INITIAL_BACKEND_UI_STATE = {
-  models: [],
-  views: [],
-  users: [],
-  selectedDatabase: {},
-  selectedModel: {},
-  draftModel: {},
-  tabs: {
-    SETUP_PANEL: "SETUP",
-    NAVIGATION_PANEL: "NAVIGATE",
-  },
-}
-
 export const getBackendUiStore = () => {
-  const store = writable({ ...INITIAL_BACKEND_UI_STATE })
+  const INITIAL_BACKEND_UI_STATE = {
+    models: [],
+    views: [],
+    users: [],
+    selectedDatabase: {},
+    selectedModel: {},
+    draftModel: {},
+    tabs: {
+      SETUP_PANEL: "SETUP",
+      NAVIGATION_PANEL: "NAVIGATE",
+    },
+  }
+
+  const store = writable(INITIAL_BACKEND_UI_STATE)
 
   store.actions = {
-    reset: () => store.set({ ...INITIAL_BACKEND_UI_STATE }),
     database: {
       select: async db => {
         const modelsResponse = await api.get(`/api/models`)
@@ -79,6 +78,7 @@ export const getBackendUiStore = () => {
         }
 
         const SAVE_MODEL_URL = `/api/models`
+        console.log(updatedModel)
         const response = await api.post(SAVE_MODEL_URL, updatedModel)
         const savedModel = await response.json()
         await store.actions.models.fetch()
