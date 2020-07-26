@@ -60,8 +60,7 @@
 
 <style>
   .fields.selected {
-    background: var(--grey-2);
-    border: var(--purple) 1px solid;
+    background: var(--grey-1);
   }
 
   h3 {

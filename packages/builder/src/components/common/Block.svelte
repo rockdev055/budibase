@@ -28,15 +28,12 @@
   }
 
   i {
-    font-size: 24px;
-    color: var(--grey-7);
+    font-size: 30px;
   }
 
   span {
     font-size: 14px;
     text-align: center;
-    margin-top: 8px;
-    line-height: 1.25;
   }
 
   div:hover {
