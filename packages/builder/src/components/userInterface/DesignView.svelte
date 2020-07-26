@@ -32,7 +32,7 @@
     { value: "active", text: "Active" },
   ]
 
-  $: propertyGroupNames = panelDefinition ? Object.keys(panelDefinition) : []
+  $: propertyGroupNames = Object.keys(panelDefinition)
 </script>
 
 <div class="design-view-container">

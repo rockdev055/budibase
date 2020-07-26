@@ -53,7 +53,6 @@ export const getStore = () => {
   store.createDatabaseForApp = backendStoreActions.createDatabaseForApp(store)
 
   store.saveScreen = saveScreen(store)
-  store.deleteScreen = deleteScreen(store)
   store.setCurrentScreen = setCurrentScreen(store)
   store.setCurrentPage = setCurrentPage(store)
   store.createScreen = createScreen(store)
@@ -162,6 +161,7 @@ const createScreen = store => (screenName, route, layoutComponentName) => {
       props: createProps(rootComponent).props,
     }
     newScreen.route = route
+    newScreen.name = newScreen.props._id
     newScreen.props._instanceName = screenName || ""
     state.currentPreviewItem = newScreen
     state.currentComponentInfo = newScreen.props
@@ -187,24 +187,6 @@ const setCurrentScreen = store => screenName => {
     screen.props = safeProps
     s.currentComponentInfo = safeProps
     setCurrentPageFunctions(s)
-    return s
-  })
-}
-
-const deleteScreen = store => name => {
-  store.update(s => {
-    const components = s.components.filter(c => c.name !== name)
-    const screens = s.screens.filter(c => c.name !== name)
-
-    s.components = components
-    s.screens = screens
-    if (s.currentPreviewItem.name === name) {
-      s.currentPreviewItem = null
-      s.currentFrontEndType = ""
-    }
-
-    api.delete(`/_builder/api/${s.appId}/screen/${name}`)
-
     return s
   })
 }
@@ -273,7 +255,7 @@ const setCurrentPage = store => pageName => {
  * @param  {string} componentToAdd - name of the component to add to the application
  * @param  {string} presetName - name of the component preset if defined
  */
-const addChildComponent = store => (componentToAdd, presetProps = {}) => {
+const addChildComponent = store => (componentToAdd, presetName) => {
   store.update(state => {
     function findSlot(component_array) {
       for (let i = 0; i < component_array.length; i += 1) {
@@ -295,6 +277,8 @@ const addChildComponent = store => (componentToAdd, presetProps = {}) => {
     }
 
     const component = getComponentDefinition(state, componentToAdd)
+
+    const presetProps = presetName ? component.presets[presetName] : {}
 
     const instanceId = get(backendUiStore).selectedDatabase._id
     const instanceName = get_capitalised_name(componentToAdd)

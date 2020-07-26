@@ -19,7 +19,11 @@
   const capitalise = s => s.substring(0, 1).toUpperCase() + s.substring(1)
   const get_name = s => (!s ? "" : last(s.split("/")))
 
-  const get_capitalised_name = name => pipe(name, [get_name, capitalise])
+  const get_capitalised_name = name =>
+    pipe(
+      name,
+      [get_name, capitalise]
+    )
   const isScreenslot = name => name === "##builtin/screenslot"
 
   const selectComponent = component => {
@@ -42,7 +46,7 @@
         class:selected={currentComponent === component}
         style="padding-left: {level * 20 + 40}px">
         <div class="nav-item">
-          <i class="icon ri-arrow-right-circle-fill" />
+          <i class="icon ri-arrow-right-circle-line" />
           {isScreenslot(component._component) ? 'Screenslot' : component._instanceName}
         </div>
         <div class="actions">
@@ -73,7 +77,7 @@
     grid-template-columns: 1fr auto auto auto;
     padding: 0px 5px 0px 15px;
     margin: auto 0px;
-    border-radius: 3px;
+    border-radius: 5px;
     height: 36px;
     align-items: center;
   }
