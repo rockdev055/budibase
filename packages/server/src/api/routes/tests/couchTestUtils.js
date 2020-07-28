@@ -1,6 +1,7 @@
 const CouchDB = require("../../../db")
 const { create, destroy } = require("../../../db/clientDb")
 const supertest = require("supertest")
+const app = require("../../../app")
 const {
   POWERUSER_LEVEL_ID,
   ANON_LEVEL_ID,
@@ -15,9 +16,9 @@ const TEST_CLIENT_ID = "test-client-id"
 exports.TEST_CLIENT_ID = TEST_CLIENT_ID
 exports.supertest = async () => {
   let request
+  let port = 4002
   let server
-  process.env.PORT = 4002
-  server = require("../../../app")
+  server = await app(port)
 
   request = supertest(server)
   return { request, server }

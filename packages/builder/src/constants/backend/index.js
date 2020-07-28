@@ -6,7 +6,7 @@ export const FIELDS = {
     constraints: {
       type: "string",
       length: {},
-      presence: { allowEmpty: true },
+      presence: false,
     },
   },
   NUMBER: {
@@ -15,7 +15,7 @@ export const FIELDS = {
     type: "number",
     constraints: {
       type: "number",
-      presence: { allowEmpty: true },
+      presence: false,
       numericality: {},
     },
   },
@@ -25,7 +25,7 @@ export const FIELDS = {
     type: "boolean",
     constraints: {
       type: "boolean",
-      presence: { allowEmpty: true },
+      presence: false,
     },
   },
   // OPTIONS: {
@@ -34,7 +34,7 @@ export const FIELDS = {
   //   type: "options",
   //   constraints: {
   //     type: "string",
-  //     presence: { allowEmpty: true },
+  //     presence: false,
   //   },
   // },
   DATETIME: {
@@ -44,7 +44,7 @@ export const FIELDS = {
     constraints: {
       type: "string",
       length: {},
-      presence: { allowEmpty: true },
+      presence: false,
     },
   },
   // IMAGE: {
@@ -53,7 +53,7 @@ export const FIELDS = {
   //   type: "file",
   //   constraints: {
   //     type: "string",
-  //     presence: { allowEmpty: true },
+  //     presence: false,
   //   },
   // },
   // FILE: {
@@ -62,11 +62,11 @@ export const FIELDS = {
   //   type: "file",
   //   constraints: {
   //     type: "string",
-  //     presence: { allowEmpty: true },
+  //     presence: false,
   //   },
   // },
-  LINKED_FIELDS: {
-    name: "Linked Fields",
+  DATA_LINK: {
+    name: "Data Links",
     icon: "ri-link",
     type: "link",
     modelId: null,
@@ -84,46 +84,16 @@ export const BLOCKS = {
     constraints: {
       type: "string",
       length: {},
-      presence: { allowEmpty: true },
-    },
-  },
-  COMPANY: {
-    name: "Company",
-    icon: "ri-store-line",
-    type: "string",
-    constraints: {
-      type: "string",
-      length: {},
-      presence: { allowEmpty: true },
-    },
-  },
-  EMAIL: {
-    name: "Email",
-    icon: "ri-mail-line",
-    type: "string",
-    constraints: {
-      type: "string",
-      length: {},
-      presence: { allowEmpty: true },
+      presence: false,
     },
   },
   PHONE_NUMBER: {
-    name: "Phone No.",
-    icon: "ri-phone-line",
+    name: "Phone Number",
+    icon: "ri-number-1",
     type: "number",
     constraints: {
       type: "number",
-      presence: { allowEmpty: true },
-      numericality: {},
-    },
-  },
-  VALUE: {
-    name: "Value",
-    icon: "ri-number-5",
-    type: "number",
-    constraints: {
-      type: "number",
-      presence: { allowEmpty: true },
+      presence: false,
       numericality: {},
     },
   },
@@ -133,27 +103,7 @@ export const BLOCKS = {
     type: "boolean",
     constraints: {
       type: "boolean",
-      presence: { allowEmpty: true },
-    },
-  },
-  URL: {
-    name: "URL",
-    icon: "ri-link",
-    type: "string",
-    constraints: {
-      type: "string",
-      length: {},
-      presence: { allowEmpty: true },
-    },
-  },
-  IMAGE: {
-    name: "Image URL",
-    icon: "ri-image-line",
-    type: "string",
-    constraints: {
-      type: "string",
-      length: {},
-      presence: { allowEmpty: true },
+      presence: false,
     },
   },
   // PRIORITY: {
@@ -162,7 +112,7 @@ export const BLOCKS = {
   //   type: "options",
   //   constraints: {
   //     type: "string",
-  //     presence: { allowEmpty: true },
+  //     presence: false,
   //     inclusion: ["low", "medium", "high"],
   //   },
   // },
@@ -173,7 +123,7 @@ export const BLOCKS = {
     constraints: {
       type: "string",
       length: {},
-      presence: { allowEmpty: true },
+      presence: false,
     },
   },
   // AVATAR: {
@@ -182,7 +132,7 @@ export const BLOCKS = {
   //   type: "image",
   //   constraints: {
   //     type: "string",
-  //     presence: { allowEmpty: true },
+  //     presence: false,
   //   },
   // },
   // PDF: {
@@ -191,7 +141,7 @@ export const BLOCKS = {
   //   type: "file",
   //   constraints: {
   //     type: "string",
-  //     presence: { allowEmpty: true },
+  //     presence: false,
   //   },
   // },
 }

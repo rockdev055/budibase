@@ -69,14 +69,19 @@ router.patch(
 )
 
 router.delete(
-  "/_builder/api/pages/:pagename/screens/:id",
+  "/_builder/api/:appname/pages/:pagename/screen/*",
   authorized(BUILDER),
   async ctx => {
+    const name = ctx.request.path.replace(
+      `/_builder/api/${ctx.params.appname}/pages/${ctx.params.pagename}/screen/`,
+      ""
+    )
+
     await deleteScreen(
       ctx.config,
-      ctx.user.appId,
+      ctx.params.appname,
       ctx.params.pagename,
-      ctx.params.id
+      decodeURI(name)
     )
 
     ctx.response.status = StatusCodes.OK

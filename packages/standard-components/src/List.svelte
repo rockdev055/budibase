@@ -32,4 +32,5 @@
   })
 </script>
 
-<section bind:this={target} />
+<section bind:this={target}>
+</section>
