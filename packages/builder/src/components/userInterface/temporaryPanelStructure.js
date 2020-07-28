@@ -4,11 +4,6 @@ import Checkbox from "../common/Checkbox.svelte"
 import ModelSelect from "components/userInterface/ModelSelect.svelte"
 
 import { all } from "./propertyCategories.js"
-/* 
-{ label: "N/A ", value: "N/A" },
-{ label: "Flex", value: "flex" },
-{ label: "Inline Flex", value: "inline-flex" }, 
-*/
 
 export default {
   categories: [
@@ -17,22 +12,10 @@ export default {
       isCategory: true,
       children: [
         {
-          _component: "@budibase/standard-components/embed",
-          icon: "ri-code-line",
-          name: "Embed",
-          description: "Embed content from 3rd party sources",
-          properties: {
-            design: {
-              ...all,
-            },
-            settings: [{ label: "Embed", key: "embed", control: Input }],
-          },
-        },
-        {
           _component: "@budibase/standard-components/container",
           name: "Container",
           description: "This component contains things within itself",
-          icon: "ri-layout-row-fill",
+          icon: "ri-layout-row-line",
           commonProps: {},
           children: [],
           properties: {
@@ -62,9 +45,21 @@ export default {
           },
         },
         {
+          _component: "@budibase/standard-components/embed",
+          icon: "ri-code-line",
+          name: "Embed",
+          description: "Embed content from 3rd party sources",
+          properties: {
+            design: {
+              ...all,
+            },
+            settings: [{ label: "Embed", key: "embed", control: Input }],
+          },
+        },
+        {
           name: "Text",
           description: "This is a simple text component",
-          icon: "ri-t-box-fill",
+          icon: "ri-t-box-line",
           commonProps: {},
           children: [
             {
@@ -128,7 +123,7 @@ export default {
         {
           name: "Input",
           description: "These components handle user input.",
-          icon: "ri-edit-box-fill",
+          icon: "ri-edit-box-line",
           commonProps: {},
           children: [
             {
@@ -136,7 +131,7 @@ export default {
               name: "Textfield",
               description:
                 "A textfield component that allows the user to input text.",
-              icon: "ri-edit-box-fill",
+              icon: "ri-edit-box-line",
               properties: {
                 design: { ...all },
                 settings: [
@@ -154,7 +149,7 @@ export default {
               _component: "@budibase/standard-components/checkbox",
               name: "Checkbox",
               description: "A selectable checkbox component",
-              icon: "ri-checkbox-fill",
+              icon: "ri-checkbox-line",
               properties: {
                 design: { ...all },
                 settings: [{ label: "Label", key: "label", control: Input }],
@@ -175,7 +170,7 @@ export default {
               name: "Select",
               description:
                 "A select component for choosing from different options",
-              icon: "ri-file-list-fill",
+              icon: "ri-file-list-line",
               properties: {
                 design: { ...all },
                 settings: [],
@@ -187,7 +182,7 @@ export default {
           _component: "@budibase/standard-components/button",
           name: "Button",
           description: "A basic html button that is ready for styling",
-          icon: "ri-radio-button-fill",
+          icon: "ri-share-box-line",
           children: [],
           properties: {
             design: {
@@ -208,23 +203,23 @@ export default {
           _component: "@budibase/standard-components/image",
           name: "Image",
           description: "A basic component for displaying images",
-          icon: "ri-image-fill",
+          icon: "ri-image-line",
           children: [],
           properties: {
             design: { ...all },
             settings: [{ label: "URL", key: "url", control: Input }],
           },
         },
-        {
-          _component: "@budibase/standard-components/icon",
-          name: "Icon",
-          description: "A basic component for displaying icons",
-          icon: "ri-sun-fill",
-          children: [],
-          properties: {
-            design: { ...all },
-          },
-        },
+        // {
+        // _component: "@budibase/standard-components/icon",
+        // name: "Icon",
+        // description: "A basic component for displaying icons",
+        // icon: "ri-sun-fill",
+        // children: [],
+        // properties: {
+        // design: { ...all },
+        // },
+        // },
         {
           _component: "@budibase/standard-components/link",
           name: "Link",
@@ -256,7 +251,7 @@ export default {
           name: "Card",
           description:
             "A basic card component that can contain content and actions.",
-          icon: "ri-layout-bottom-fill",
+          icon: "ri-layout-bottom-line",
           children: [],
           properties: {
             design: { ...all },
@@ -289,11 +284,199 @@ export default {
           },
         },
         {
+          name: "Table",
+          _component: "@budibase/standard-components/datatable",
+          description: "A component that generates a table from your data.",
+          icon: "ri-archive-drawer-line",
+          properties: {
+            design: { ...all },
+            settings: [
+              { label: "Model", key: "model", control: ModelSelect },
+              { label: "Stripe Color", key: "stripeColor", control: Input },
+              { label: "Border Color", key: "borderColor", control: Input },
+              { label: "TH Color", key: "backgroundColor", control: Input },
+              { label: "TH Font Color", key: "color", control: Input },
+              { label: "Table", key: "model", control: ModelSelect },
+            ],
+          },
+          children: [],
+        },
+        {
+          name: "Form",
+          description: "A component that generates a form from your data.",
+          icon: "ri-file-edit-line",
+          commonProps: {},
+          children: [
+            {
+              _component: "@budibase/standard-components/dataform",
+              name: "Form Basic",
+              icon: "ri-file-edit-line",
+              properties: {
+                design: { ...all },
+                settings: [
+                  {
+                    label: "Table",
+                    key: "model",
+                    control: ModelSelect,
+                  },
+                  {
+                    label: "Title",
+                    key: "title",
+                    control: Input,
+                  },
+                  {
+                    label: "Button Text",
+                    key: "buttonText",
+                    control: Input,
+                  },
+                ],
+              },
+              template: {
+                component: "@budibase/materialdesign-components/Form",
+                description: "Form for saving a record",
+                name: "@budibase/materialdesign-components/recordForm",
+              },
+            },
+            {
+              _component: "@budibase/standard-components/dataformwide",
+              name: "Form Wide",
+              icon: "ri-file-edit-line",
+              properties: {
+                design: { ...all },
+                settings: [
+                  {
+                    label: "Table",
+                    key: "model",
+                    control: ModelSelect,
+                  },
+                  {
+                    label: "Title",
+                    key: "title",
+                    control: Input,
+                  },
+                  {
+                    label: "Button Text",
+                    key: "buttonText",
+                    control: Input,
+                  },
+                ],
+              },
+            },
+          ],
+        },
+        {
+          name: "Chart",
+          _component: "@budibase/standard-components/datachart",
+          description: "Shiny chart",
+          icon: "ri-bar-chart-line",
+          properties: {
+            design: { ...all },
+            settings: [
+              { label: "Table", key: "model", control: ModelSelect },
+              {
+                label: "Chart Type",
+                key: "type",
+                control: OptionSelect,
+                options: [
+                  "column2d",
+                  "column3d",
+                  "line",
+                  "area2d",
+                  "bar2d",
+                  "bar3d",
+                  "pie2d",
+                  "pie3d",
+                  "doughnut2d",
+                  "doughnut3d",
+                  "pareto2d",
+                  "pareto3d",
+                ],
+              },
+            ],
+          },
+          children: [],
+        },
+        // {
+        //  name: "Data List",
+        //  _component: "@budibase/standard-components/datalist",
+        //  description: "Shiny list",
+        //  icon: "ri-file-list-line",
+        //  properties: {
+        //   design: { ...all },
+        //   settings: [{ label: "Table", key: "model", control: ModelSelect }],
+        //  },
+        //  children: [],
+        // },
+        {
+          name: "List",
+          _component: "@budibase/standard-components/list",
+          description: "Renders all children once per record, of a given table",
+          icon: "ri-file-list-line",
+          properties: {
+            design: { ...all },
+            settings: [{ label: "Table", key: "model", control: ModelSelect }],
+          },
+          children: [],
+        },
+        {
+          name: "Record Detail",
+          _component: "@budibase/standard-components/recorddetail",
+          description:
+            "Loads a record, using an id from the URL, which can be used with {{ context }}, in children",
+          icon: "ri-profile-line",
+          properties: {
+            design: { ...all },
+            settings: [{ label: "Table", key: "model", control: ModelSelect }],
+          },
+          children: [],
+        },
+        // {
+        // name: "Map",
+        // _component: "@budibase/standard-components/datamap",
+        // description: "Shiny map",
+        // icon: "ri-map-pin-line",
+        // properties: { design: { ...all } },
+        // children: [],
+        // },
+      ],
+    },
+    {
+      name: "Layouts",
+      isCategory: true,
+      children: [
+        {
+          _component: "##builtin/screenslot",
+          name: "Screen Slot",
+          description:
+            "This component is a placeholder for the rendering of a screen within a page.",
+          icon: "ri-crop-2-line",
+          properties: { design: { ...all } },
+          commonProps: {},
+          children: [],
+        },
+        {
+          name: "Nav Bar",
+          _component: "@budibase/standard-components/Navigation",
+          description:
+            "A component for handling the navigation within your app.",
+          icon: "ri-navigation-line",
+          children: [],
+          properties: {
+            design: { ...all },
+            settings: [
+              { label: "Logo URL", key: "logoUrl", control: Input },
+              { label: "Title", key: "title", control: Input },
+              { label: "Color", key: "color", control: Input },
+              { label: "Background", key: "backgroundColor", control: Input },
+            ],
+          },
+        },
+        {
           name: "Login",
           _component: "@budibase/standard-components/login",
           description:
             "A component that automatically generates a login screen for your app.",
-          icon: "ri-login-box-fill",
+          icon: "ri-login-box-line",
           children: [],
           properties: {
             design: { ...all },
@@ -308,564 +491,16 @@ export default {
                 key: "logo",
                 control: Input,
               },
-            ],
-          },
-        },
-        {
-          name: "Table",
-          _component: "@budibase/standard-components/datatable",
-          description: "A component that generates a table from your data.",
-          icon: "ri-archive-drawer-fill",
-          properties: {
-            design: { ...all },
-            settings: [{ label: "Table", key: "model", control: ModelSelect }],
-          },
-          children: [],
-        },
-        {
-          name: "Form",
-          description: "A component that generates a form from your data.",
-          icon: "ri-file-edit-fill",
-          commonProps: {},
-          children: [
-            {
-              _component: "@budibase/standard-components/dataform",
-              name: "Form Basic",
-              icon: "ri-file-edit-fill",
-              properties: {
-                design: { ...all },
-                settings: [
-                  {
-                    label: "Table",
-                    key: "model",
-                    control: ModelSelect,
-                  },
-                ],
+              {
+                label: "Title",
+                key: "title",
+                control: Input,
               },
-              template: {
-                component: "@budibase/materialdesign-components/Form",
-                description: "Form for saving a record",
-                name: "@budibase/materialdesign-components/recordForm",
+              {
+                label: "Button Text",
+                key: "buttonText",
+                control: Input,
               },
-            },
-            {
-              _component: "@budibase/standard-components/dataformwide",
-              name: "Form Wide",
-              icon: "ri-file-edit-fill",
-              properties: {
-                design: { ...all },
-                settings: [
-                  {
-                    label: "Table",
-                    key: "model",
-                    control: ModelSelect,
-                  },
-                ],
-              },
-            },
-          ],
-        },
-        {
-          name: "Chart",
-          description: "Shiny chart",
-          icon: "ri-bar-chart-fill",
-          children: [
-            {
-              name: "Donut",
-              _component: "@budibase/standard-components/donut",
-              description: "Donut chart",
-              icon: "ri-donut-chart-line",
-              presetProps: {
-                data: [
-                  {
-                    quantity: 1,
-                    percentage: 50,
-                    name: "glittering",
-                    id: 1,
-                  },
-                  {
-                    quantity: 1,
-                    percentage: 50,
-                    name: "luminous",
-                    id: 2,
-                  },
-                ],
-              },
-              properties: {
-                design: {
-                  ...all
-                },
-                settings: [
-                  {
-                    label: "Fix Highlight Slice",
-                    key: "hasFixedHighlightedSlice",
-                    valueKey: "checked",
-                    control: Checkbox,
-                  },
-                  {
-                    label: "Hover highlight",
-                    key: "hasLastHoverSliceHighlighted",
-                    valueKey: "checked",
-                    control: Checkbox,
-                  },
-                  {
-                    label: "Is Animated",
-                    key: "isAnimated",
-                    valueKey: "checked",
-                    control: Checkbox,
-                  },
-                  {
-                    label: "Colors",
-                    key: "color",
-                    control: OptionSelect,
-                    options: [
-                      "britecharts",
-                      "blueGreen",
-                      "green",
-                      "grey",
-                      "orange",
-                      "pink",
-                      "purple",
-                      "red",
-                      "teal",
-                      "yellow",
-                    ],
-                  },
-                  {
-                    label: "Height",
-                    key: "height",
-                    control: Input,
-                  },
-                  {
-                    label: "Width",
-                    key: "width",
-                    control: Input,
-                  },
-                  {
-                    label: "External Radius",
-                    key: "externalRadius",
-                    control: Input,
-                  },
-                  {
-                    label: "Internal Radius",
-                    key: "internalRadius",
-                    control: Input,
-                  },
-                  {
-                    label: "Radius Offset",
-                    key: "radiusHoverOffset ",
-                    control: Input,
-                  },
-                  {
-                    label: "Show Legend",
-                    key: "useLegend ",
-                    control: Checkbox,
-                  },
-                ],
-              },
-            },
-            {
-              name: "Bar",
-              _component: "@budibase/standard-components/bar",
-              description: "Bar chart",
-              icon: "ri-bar-chart-fill",
-              presetProps: {
-                data: [
-                  {
-                    value: 1,
-                    name: "glittering",
-                  },
-                  {
-                    value: 1,
-                    name: "luminous",
-                  },
-                ],
-              },
-              properties: {
-                settings: [
-                  {
-                    label: "Y Axis Label",
-                    key: "yAxisLabel",
-                    control: Input,
-                  },
-                  {
-                    label: "X Axis Label",
-                    key: "xAxisLabel",
-                    control: Input,
-                  },
-                  {
-                    label: "Bar Padding",
-                    key: "betweenBarsPadding",
-                    control: Input,
-                  },
-                  {
-                    label: "Colors",
-                    key: "color",
-                    control: OptionSelect,
-                    options: [
-                      { label: "Normal", value: "britecharts" },
-                      { label: "Blue Green", value: "blueGreen" },
-                      { label: "Green", value: "green" },
-                      { label: "Grey", value: "grey" },
-                      { label: "Orange", value: "orange" },
-                      { label: "Pink", value: "pink" },
-                      { label: "Purple", value: "purple" },
-                      { label: "Red", value: "red" },
-                      { label: "Teal", value: "teal" },
-                      { label: "Yellow", value: "yellow" },
-                    ],
-                  },
-                  {
-                    label: "Gradients",
-                    key: "gradient",
-                    control: OptionSelect,
-                    options: [
-                      { value: "", label: "None" },
-                      { value: "bluePurple", label: "Blue Purple" },
-                      { value: "greenBlue", label: "Green Blue" },
-                      { value: "orangePink", label: "Orange Pink" },
-                    ],
-                  },
-                  {
-                    label: "Enable Labels",
-                    key: "enableLabels",
-                    control: Checkbox,
-                    valueKey: "checked",
-                  },
-                  {
-                    label: "Highlight Single Bar",
-                    key: "hasSingleBarHighlight",
-                    control: Checkbox,
-                    valueKey: "checked",
-                  },
-                  {
-                    label: "Width",
-                    key: "width",
-                    control: Input,
-                  },
-                  {
-                    label: "Height",
-                    key: "height",
-                    control: Input,
-                  },
-                  {
-                    label: "Animate",
-                    key: "isAnimate",
-                    control: Checkbox,
-                    valueKey: "checked",
-                  },
-                  {
-                    label: "Horizontal",
-                    key: "isHorizontal",
-                    control: Checkbox,
-                    valueKey: "checked",
-                  },
-                  {
-                    label: "Label Offset",
-                    key: "labelOffset",
-                    control: Input,
-                  },
-                  {
-                    label: "Label Number Format",
-                    key: "labelsNumberFormat",
-                    control: Input,
-                  },
-                  {
-                    label: "Label Size",
-                    key: "labelSize",
-                    control: Input,
-                  },
-                  {
-                    label: "Locale",
-                    key: "locale",
-                    control: Input,
-                  },
-                  {
-                    label: "Name Label",
-                    key: "nameLabel",
-                    control: Input,
-                  },
-                  {
-                    label: "Number Format",
-                    key: "numberFormat",
-                    control: Input,
-                  },
-                  {
-                    label: "Use Legend",
-                    key: "useLegend",
-                    control: Checkbox,
-                  },
-                ],
-              },
-            },
-            {
-              name: "Line",
-              _component: "@budibase/standard-components/line",
-              description: "Line chart",
-              icon: "ri-bar-chart-fill",
-              presetProps: {
-                data: {
-                  data: [
-                    {
-                      topicName: "San Francisco",
-                      name: 1,
-                      date: "2020-01-16",
-                      value: 1,
-                    },
-                    {
-                      topicName: "San Fran",
-                      name: 2,
-                      date: "2020-01-17",
-                      value: 2,
-                    },
-                    {
-                      topicName: "LA",
-                      name: 3,
-                      date: "2020-01-18",
-                      value: 3,
-                    },
-                    {
-                      topicName: "Toronto",
-                      name: 4,
-                      date: "2020-01-19",
-                      value: 7,
-                    },
-                    {
-                      topicName: "Van",
-                      name: 4,
-                      date: "2020-01-20",
-                      value: 12,
-                    },
-                    {
-                      topicName: "Dundee",
-                      name: 4,
-                      date: "2020-01-21",
-                      value: 16,
-                    },
-                    {
-                      topicName: "Dublin",
-                      name: 4,
-                      date: "2020-01-22",
-                      value: 31,
-                    },
-                  ],
-                },
-                aspectRatio: 0.5,
-                grid: "horizontal",
-                dateLabel: "fullDate",
-                shouldShowAllDataPoints: true,
-              },
-              properties: {
-                settings: [
-                  {
-                    label: "X Axis Combo",
-                    key: "axisTimeCombinations",
-                    control: Input,
-                  },
-                  {
-                    label: "X Axis Combo",
-                    key: "axisTimeCombinations",
-                    control: Input,
-                  },
-                  {
-                    label: "Colors",
-                    key: "color",
-                    control: OptionSelect,
-                    options: [
-                      "britecharts",
-                      "blueGreen",
-                      "green",
-                      "grey",
-                      "orange",
-                      "pink",
-                      "purple",
-                      "red",
-                      "teal",
-                      "yellow",
-                    ],
-                  },
-                  {
-                    label: "Grid",
-                    key: "grid",
-                    control: OptionSelect,
-                    options: ["vertical", "horizontal", "full"],
-                  },
-                  {
-                    label: "Aspect Ratio",
-                    key: "aspectRatio",
-                    control: Input,
-                  },
-                  {
-                    label: "Date Label",
-                    key: "dateLabel",
-                    control: Input,
-                  },
-                  {
-                    label: "Width",
-                    key: "width",
-                    control: Input,
-                  },
-                  {
-                    label: "Height",
-                    key: "height",
-                    control: Input,
-                  },
-                  {
-                    label: "Is Animated",
-                    key: "isAnimated",
-                    control: Checkbox,
-                    valueKey: "checked",
-                  },
-                  {
-                    label: "Line Curve",
-                    key: "lineCurve",
-                    control: OptionSelect,
-                    options: [
-                      "linear",
-                      "basis",
-                      "natural",
-                      "monotoneX",
-                      "monotoneY",
-                      "step",
-                      "stepAfter",
-                      "stepBefore",
-                      "cardinal",
-                      "catmullRom",
-                    ],
-                  },
-                  {
-                    label: "Locale",
-                    key: "locale",
-                    control: Input,
-                  },
-                  {
-                    label: "Topic Label",
-                    key: "topicLabel",
-                    control: Input,
-                  },
-                  {
-                    label: "Value Label",
-                    key: "valueLabel",
-                    control: Input,
-                  },
-                  {
-                    label: "X Axis Label",
-                    key: "xAxisLabel",
-                    control: Input,
-                  },
-                  {
-                    label: "X Axis Value Type",
-                    key: "xAxisValueType",
-                    control: OptionSelect,
-                    options: ["date", "number"],
-                  },
-                  {
-                    label: "X Axis Scale",
-                    key: "xAxisScale",
-                    control: OptionSelect,
-                    options: ["linear", "logarithmic"],
-                  },
-                  {
-                    label: "X Axis Format",
-                    key: "xAxisFormat",
-                    control: OptionSelect,
-                    options: [
-                      "day-month",
-                      "minute-hour",
-                      "hour-daymonth",
-                      "month-year",
-                      "custom",
-                    ],
-                  },
-                  {
-                    label: "X Axis Custom Format",
-                    key: "xAxisCustomFormat",
-                    control: Input,
-                  },
-                ],
-              },
-            },
-          ],
-        },
-        {
-          name: "Data List",
-          _component: "@budibase/standard-components/datalist",
-          description: "Shiny list",
-          icon: "ri-file-list-fill",
-          properties: {
-            design: { ...all },
-            settings: [{ label: "Table", key: "model", control: ModelSelect }],
-          },
-          children: [],
-        },
-        {
-          name: "List",
-          _component: "@budibase/standard-components/list",
-          description: "Renders all children once per record, of a given table",
-          icon: "ri-file-list-fill",
-          properties: {
-            design: { ...all },
-            settings: [{ label: "Table", key: "model", control: ModelSelect }],
-          },
-          children: [
-            {
-              _component: "@budibase/standard-components/heading",
-              name: "Headline",
-              description: "A component for displaying heading text",
-              icon: "ri-heading",
-            },
-          ],
-        },
-        {
-          name: "Record Detail",
-          _component: "@budibase/standard-components/recorddetail",
-          description:
-            "Loads a record, using an id from the URL, which can be used with {{ context }}, in children",
-          icon: "ri-profile-line",
-          properties: {
-            design: { ...all },
-            settings: [{ label: "Table", key: "model", control: ModelSelect }],
-          },
-          children: [],
-        },
-        {
-          name: "Map",
-          _component: "@budibase/standard-components/datamap",
-          description: "Shiny map",
-          icon: "ri-map-pin-fill",
-          properties: { design: { ...all } },
-          children: [],
-        },
-      ],
-    },
-    {
-      name: "Layouts",
-      isCategory: true,
-      children: [
-        {
-          _component: "##builtin/screenslot",
-          name: "Screenslot",
-          description:
-            "This component is a placeholder for the rendering of a screen within a page.",
-          icon: "ri-crop-2-fill",
-          properties: { design: { ...all } },
-          commonProps: {},
-          children: [],
-        },
-        {
-          name: "Nav Bar",
-          _component: "@budibase/standard-components/Navigation",
-          description:
-            "A component for handling the navigation within your app.",
-          icon: "ri-navigation-fill",
-          children: [],
-          properties: {
-            design: { ...all },
-            settings: [
-              { label: "Logo URL", key: "logoUrl", control: Input },
-              { label: "Title", key: "title", control: Input },
-              { label: "Color", key: "color", control: Input },
-              { label: "Background", key: "backgroundColor", control: Input },
             ],
           },
         },
