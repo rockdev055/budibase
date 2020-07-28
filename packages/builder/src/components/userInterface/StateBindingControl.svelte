@@ -2,6 +2,7 @@
   import { backendUiStore } from "builderStore"
   import IconButton from "../common/IconButton.svelte"
   import Input from "../common/Input.svelte"
+  import Colorpicker from "../common/Colorpicker.svelte"
 
   export let value = ""
   export let onChanged = () => {}

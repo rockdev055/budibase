@@ -1,5 +1,6 @@
 <script>
   import { Input, Select, Button } from "@budibase/bbui"
+  import Title from "../TabTitle.svelte"
   import UserRow from "../UserRow.svelte"
 
   import { store, backendUiStore } from "builderStore"
@@ -51,8 +52,9 @@
   let fetchUsersPromise = fetchUsers()
 </script>
 
+<Title>Users</Title>
 <div class="container">
-  <div class="background">
+  <div class="background create">
     <div class="title">Create new user</div>
     <div class="inputs">
       <Input thin bind:value={username} name="Name" placeholder="Username" />
@@ -67,10 +69,10 @@
       </Select>
     </div>
     <div class="create-button">
-      <Button on:click={createUser} small primary>Create</Button>
+      <Button on:click={createUser} small blue>Create</Button>
     </div>
   </div>
-  <div class="background-users">
+  <div class="background">
     <div class="title">Current Users</div>
     {#await fetchUsersPromise}
       Loading state!
@@ -85,8 +87,7 @@
         {/each}
       </ul>
     {:catch error}
-      Something went wrong when trying to fetch users. Please refresh (CMD + R /
-      CTRL + R) the page and try again.
+      err0r
     {/await}
   </div>
 </div>
@@ -94,32 +95,27 @@
 <style>
   .container {
     display: grid;
-    grid-gap: 32px;
-    margin-top: 32px;
+    grid-gap: 14px;
   }
   .background {
     position: relative;
     display: grid;
     grid-gap: 12px;
     border-radius: 5px;
+    background-color: var(--grey-2);
+    padding: 12px 12px 18px 12px;
   }
-
-  .background-users {
-    position: relative;
-    display: grid;
-    grid-gap: 12px;
-    border-radius: 5px;
+  .background.create {
+    background-color: var(--blue-light);
   }
-
+  .inputs :global(select) {
+    padding: 12px 9px;
+    height: initial;
+  }
   .create-button {
     position: absolute;
-    top: 0px;
-    right: 0px;
-  }
-  .create-button :global(button) {
-    font-size: var(--font-size-sm);
-    min-width: 100px;
-    border-radius: var(--rounded-small);
+    top: 12px;
+    right: 12px;
   }
   .title {
     font-size: 14px;
@@ -127,24 +123,13 @@
   }
   .inputs {
     display: grid;
-    margin-top: 12px;
     grid-gap: 18px;
     grid-template-columns: 1fr 1fr 1fr;
-  }
-  .inputs :global(input) {
-    padding: 10px 12px;
-    border-radius: var(--rounded-small);
-  }
-  .inputs :global(select) {
-    padding: 10px 12px;
-    border-radius: var(--rounded-small);
-    background-color: var(--grey-2);
   }
   ul {
     list-style: none;
     padding: 0;
     display: grid;
     grid-gap: 8px;
-    margin-top: 0;
   }
 </style>

@@ -65,7 +65,6 @@
     margin-right: 20px;
     background: none;
     outline: none;
-    font-family: Inter;
   }
 
   .switcher > .selected {
