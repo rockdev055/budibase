@@ -2,6 +2,7 @@
   import PropertyControl from "./PropertyControl.svelte"
   import InputGroup from "../common/Inputs/InputGroup.svelte"
   import Input from "../common/Input.svelte"
+  import Colorpicker from "../common/Colorpicker.svelte"
   import { goto } from "@sveltech/routify"
   import { excludeProps } from "./propertyCategories.js"
 

@@ -23,26 +23,21 @@
 {#if !list.isCategory}
   <button class="back-button" on:click={() => (list = category)}>Back</button>
 {/if}
+
 {#each list.children as item}
   <Item {item} on:click={() => handleClick(item)} />
 {/each}
 
 <style>
   .back-button {
-    grid-column: 1 / span 2;
-    font-size: 14px;
+    font-size: 16px;
+    width: 100%;
     text-align: center;
-    height: 36px;
-    border-radius: 5px;
-    border: solid 1px var(--grey-3);
+    height: 40px;
+    border-radius: 3px;
+    border: solid 1px #e8e8ef;
     background: white;
+    margin-bottom: 20px;
     cursor: pointer;
-    font-weight: 500;
-    font-family: Inter;
-    transition: all 0.3ms;
-  }
-
-  .back-button:hover {
-    background: var(--grey-1);
   }
 </style>

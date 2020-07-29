@@ -6,7 +6,6 @@
   import { getContext } from "svelte"
   import { fade } from "svelte/transition"
   import { post } from "builderStore/api"
-  import analytics from "../../analytics"
 
   const { open, close } = getContext("simple-modal")
 
@@ -39,11 +38,6 @@
 
         const res = await response.json()
 
-        analytics.captureEvent("web_app_created", {
-          name,
-          description,
-          appId: res._id,
-        })
         $goto(`./${res._id}`)
       } catch (error) {
         console.error(error)

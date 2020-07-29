@@ -8,7 +8,6 @@ export const bbFactory = ({
   store,
   componentLibraries,
   onScreenSlotRendered,
-  getCurrentState,
 }) => {
   const apiCall = method => (url, body) => {
     return fetch(url, {
@@ -54,8 +53,6 @@ export const bbFactory = ({
       store: store,
       api,
       parent,
-      // these parameters are populated by screenRouter
-      routeParams: () => getCurrentState()["##routeParams"],
     }
   }
 }
