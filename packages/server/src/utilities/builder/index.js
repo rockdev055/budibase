@@ -75,8 +75,8 @@ module.exports.renameScreen = async (
   await rename(oldComponentPath, newComponentPath)
 }
 
-module.exports.deleteScreen = async (config, appId, pagename, name) => {
-  const appPath = appPackageFolder(config, appId)
+module.exports.deleteScreen = async (config, appname, pagename, name) => {
+  const appPath = appPackageFolder(config, appname)
   const componentFile = screenPath(appPath, pagename, name)
   await unlink(componentFile)
 
