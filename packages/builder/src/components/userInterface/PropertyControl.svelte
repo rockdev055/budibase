@@ -9,15 +9,14 @@
   export let onChange = () => {}
 
   function handleChange(key, v) {
-    let innerVal = v
-    if (typeof v === "object") {
-      if ("detail" in v) {
-        innerVal = v.detail
-      } else if ("target" in v) {
-        innerVal = props.valueKey ? v.target[props.valueKey] : v.target.value
-      }
+    if (v.target) {
+      let val = props.valueKey ? v.target[props.valueKey] : v.target.value
+      onChange(key, val)
+    } else if (v.detail) {
+      onChange(key, v.detail)
+    } else {
+      onChange(key, v)
     }
-    onChange(key, innerVal)
   }
 
   const safeValue = () => {
@@ -53,7 +52,6 @@
   }
 
   .label {
-    flex: 0 0 50px;
     display: flex;
     align-items: center;
     font-size: 12px;
