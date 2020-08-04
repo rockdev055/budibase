@@ -1,10 +1,14 @@
 <script>
   import Button from "components/common/Button.svelte"
-  export let name, _id
+  export let name,
+    description = `A minimalist CRM which removes the noise and allows you to focus
+              on your business.`,
+    _id
 </script>
 
 <div class="apps-card">
   <h3 class="app-title">{name}</h3>
+  <p class="app-desc">{description}</p>
   <div class="card-footer">
     <a href={`/_builder/${_id}`} class="app-button">Open {name}</a>
   </div>

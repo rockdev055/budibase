@@ -255,7 +255,7 @@ const setCurrentPage = store => pageName => {
  * @param  {string} componentToAdd - name of the component to add to the application
  * @param  {string} presetName - name of the component preset if defined
  */
-const addChildComponent = store => (componentToAdd, presetProps = {}) => {
+const addChildComponent = store => (componentToAdd, presetName) => {
   store.update(state => {
     function findSlot(component_array) {
       for (let i = 0; i < component_array.length; i += 1) {
@@ -277,6 +277,8 @@ const addChildComponent = store => (componentToAdd, presetProps = {}) => {
     }
 
     const component = getComponentDefinition(state, componentToAdd)
+
+    const presetProps = presetName ? component.presets[presetName] : {}
 
     const instanceId = get(backendUiStore).selectedDatabase._id
     const instanceName = get_capitalised_name(componentToAdd)

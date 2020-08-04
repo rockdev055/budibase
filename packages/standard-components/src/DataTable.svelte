@@ -1,9 +1,6 @@
 <script>
   import { onMount } from "svelte"
   import { cssVars, createClasses } from "./cssVars"
-  import ArrowUp from "./icons/ArrowUp.svelte"
-  import ArrowDown from "./icons/ArrowDown.svelte"
-  import fsort from "fast-sort"
 
   export let _bb
   export let onLoad
@@ -15,8 +12,6 @@
 
   let headers = []
   let store = _bb.store
-  let sort = {}
-  let sorted = []
 
   $: cssVariables = {
     backgroundColor,
@@ -24,10 +19,6 @@
     stripeColor,
     borderColor,
   }
-
-  $: data = $store[model] || []
-  $: sorted = sort.direction ? fsort(data)[sort.direction](sort.column) : data
-  $: if (model) fetchData()
 
   const shouldDisplayField = name => {
     if (name.startsWith("_")) return false
@@ -57,20 +48,8 @@
     }
   }
 
-  function sortColumn(column) {
-    if (column === sort.column) {
-      sort = {
-        direction: sort.direction === "asc" ? "desc" : null,
-        column: sort.direction === "asc" ? sort.column : null,
-      }
-      return
-    }
-
-    sort = {
-      column,
-      direction: "asc",
-    }
-  }
+  $: data = $store[model] || []
+  $: if (model) fetchData()
 
   onMount(async () => {
     await fetchData()
@@ -81,21 +60,12 @@
   <thead>
     <tr>
       {#each headers as header}
-        <th on:click={() => sortColumn(header)}>
-          <span>
-            {header}
-            {#if sort.column === header}
-              <svelte:component
-                this={sort.direction === 'asc' ? ArrowDown : ArrowUp}
-                style="height: 1em;" />
-            {/if}
-          </span>
-        </th>
+        <th>{header}</th>
       {/each}
     </tr>
   </thead>
   <tbody>
-    {#each sorted as row (row._id)}
+    {#each data as row}
       <tr>
         {#each headers as header}
           {#if row[header]}
@@ -125,12 +95,6 @@
     color: var(--color);
     font-weight: bold;
     text-transform: capitalize;
-    cursor: pointer;
-  }
-
-  th span {
-    display: flex;
-    align-items: center;
   }
 
   td,
