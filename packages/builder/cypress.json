@@ -1,5 +1,4 @@
 {
-  "baseUrl": "http://localhost:4001/_builder/",
-  "video": true,
-  "projectId": "bmbemn"
+    "baseUrl": "http://localhost:4001/_builder/",
+    "video": false
 }
