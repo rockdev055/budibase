@@ -14,14 +14,6 @@
 
   const getProperties = name => panelDefinition[name]
 
-  onMount(() => {
-    // if(propGroup) {
-    //   propGroup.addEventListener("scroll", function(e){
-    //     console.log("I SCROLLED", e.target.scrollTop)
-    //   })
-    // }
-  })
-
   function onChange(category) {
     selectedCategory = category
   }
@@ -32,7 +24,7 @@
     { value: "active", text: "Active" },
   ]
 
-  $: propertyGroupNames = panelDefinition ? Object.keys(panelDefinition) : []
+  $: propertyGroupNames = Object.keys(panelDefinition)
 </script>
 
 <div class="design-view-container">
