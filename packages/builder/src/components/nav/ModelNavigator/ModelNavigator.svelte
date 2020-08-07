@@ -12,11 +12,7 @@
 
   let HEADINGS = [
     {
-      title: "Tables",
-      key: "TABLES",
-    },
-    {
-      title: "Tables",
+      title: "Navigate",
       key: "NAVIGATE",
     },
     {
@@ -42,6 +38,7 @@
     backendUiStore.update(state => {
       state.selectedModel = {}
       state.draftModel = { schema: {} }
+      state.tabs.SETUP_PANEL = "SETUP"
       return state
     })
   }
@@ -65,6 +62,18 @@
                   title={model.name}
                   icon="ri-table-fill"
                   on:click={() => selectModel(model)} />
+                {#if model._id === $backendUiStore.selectedModel._id}
+                  <div in:slide>
+                    {#each Object.keys(model.schema) as fieldName}
+                      <ListItem
+                        selected={model._id === $backendUiStore.selectedModel._id && fieldName === $backendUiStore.selectedField}
+                        indented
+                        icon="ri-layout-column-line"
+                        title={model.schema[fieldName].name}
+                        on:click={() => selectModel(model, fieldName)} />
+                    {/each}
+                  </div>
+                {/if}
               {/each}
             </div>
           {:else if selectedTab === 'ADD'}

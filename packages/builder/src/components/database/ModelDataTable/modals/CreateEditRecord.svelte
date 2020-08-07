@@ -68,7 +68,10 @@
 </script>
 
 <div class="actions">
-  <h5>Add New Row</h5>
+  <header>
+    <i class="ri-file-user-fill" />
+    <h4>Create / Edit Record</h4>
+  </header>
   <ErrorsBox {errors} />
   <form on:submit|preventDefault class="uk-form-stacked">
     {#each modelSchema as [key, meta]}
@@ -94,11 +97,40 @@
     <Button secondary on:click={onClosed}>Cancel</Button>
   </div>
   <div class="button-margin-4">
-    <Button primary on:click={saveRecord}>Save</Button>
+    <Button blue on:click={saveRecord}>Save</Button>
   </div>
 </footer>
 
 <style>
+  header {
+    margin-bottom: 40px;
+    display: grid;
+    grid-gap: 20px;
+    grid-template-columns: 40px 1fr;
+    align-items: center;
+  }
+
+  i {
+    height: 40px;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--blue-light);
+    color: var(--grey-7);
+    font-size: 20px;
+    border-radius: 5px;
+  }
+
+  h4 {
+    display: inline-block;
+    font-size: 24px;
+    font-weight: 600;
+    font-family: sans-serif;
+    color: var(--ink);
+    margin: 0;
+  }
+
   .actions {
     padding: 30px;
   }
