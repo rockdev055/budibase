@@ -1,5 +1,3 @@
-import appStore from "../state/store"
-
 export const USER_STATE_PATH = "_bbuser"
 
 export const authenticate = api => async ({ username, password }) => {
@@ -19,10 +17,6 @@ export const authenticate = api => async ({ username, password }) => {
   })
 
   // set user even if error - so it is defined at least
-  appStore.update(s => {
-    s[USER_STATE_PATH] = user
-    return s
-  })
-
+  api.setState(USER_STATE_PATH, user)
   localStorage.setItem("budibase:user", JSON.stringify(user))
 }
