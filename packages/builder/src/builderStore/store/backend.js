@@ -61,7 +61,6 @@ export const getBackendUiStore = () => {
           state.draftModel = cloneDeep(model)
           state.selectedField = ""
           state.selectedView = `all_${model._id}`
-          state.tabs.SETUP_PANEL = "SETUP"
           return state
         }),
       save: async ({ model }) => {
@@ -84,22 +83,31 @@ export const getBackendUiStore = () => {
         await store.actions.models.fetch()
         store.actions.models.select(savedModel)
       },
-      addField: field => {
+      saveField: ({ originalName, field }) => {
         store.update(state => {
-          if (!state.draftModel.schema) {
-            state.draftModel.schema = {}
-          }
+          // TODO: is this necessary?
+          // if (!state.draftModel.schema) {
+          //   state.draftModel.schema = {}
+          // }
+
+          // delete the original if renaming
+          delete state.draftModel.schema[originalName]
 
           state.draftModel.schema = {
             ...state.draftModel.schema,
             [field.name]: cloneDeep(field),
           }
-          state.selectedField = field.name
-          state.tabs.NAVIGATION_PANEL = "NAVIGATE"
-
+          store.actions.models.save({ model: state.draftModel })
           return state
         })
       },
+      deleteField: field => {
+        store.update(state => {
+          delete state.draftModel.schema[field.name]
+          store.actions.models.save({ model: state.draftModel })
+          return state
+        })
+      } 
     },
     views: {
       select: view =>
