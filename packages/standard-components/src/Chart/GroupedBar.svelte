@@ -1,14 +1,15 @@
 <script>
   import { getColorSchema, getChartGradient, notNull } from "./utils"
-  import Tooltip from "./Tooltip.svelte"
   import britecharts from "britecharts"
   import { onMount } from "svelte"
-  import { select } from "d3-selection"
-  import shortid from "shortid"
+
   /* 
     ISSUES
     - Renders but seems to be a problem with tooltip hover
   */
+
+  import { select } from "d3-selection"
+  import shortid from "shortid"
 
   const _id = shortid.generate()
 
@@ -32,11 +33,11 @@
   export let customMouseOut = () => tooltip.hide()
   export let customClick = null
 
-  let data = []
+  export let data = []
   export let color = "britecharts"
   export let height = 200
   export let width = 200
-  export let margin = null
+  export let margin = { top: 0, right: 0, bottom: 0, left: 0 }
   export let aspectRatio = null
   export let grid = null
   export let groupLabel = null
@@ -50,22 +51,18 @@
   export let yAxisLabelOffset = null
   export let yTicks = null
   export let yTickTextOffset = null
-
-  $: console.log("DATA", data)
-
-  let chartDrawn = false
+  export let useLegend = true
 
   onMount(async () => {
     if (chart) {
       if (model) {
         await fetchData()
-        data = $store[model]
       }
       chartContainer = select(`.${chartClass}`)
       bindChartUIProps()
-      bindChartEvents()
+      //   bindChartEvents()
       chartContainer.datum(data).call(chart)
-      chartDrawn = true
+      //   bindChartTooltip()
     }
   })
 
@@ -92,9 +89,6 @@
     }
     if (notNull(width)) {
       chart.width(width)
-    }
-    if (notNull(margin)) {
-      chart.margin(margin)
     }
     if (notNull(aspectRatio)) {
       chart.aspectRatio(aspectRatio)
@@ -137,6 +131,12 @@
     }
   }
 
+  function bindChartTooltip() {
+    tooltip = britecharts.miniTooltip()
+    tooltipContainer = select(`.${chartClass} .metadata-group`)
+    tooltipContainer.datum([]).call(tooltip)
+  }
+
   function bindChartEvents() {
     if (customClick) {
       chart.on("customClick", customClick)
@@ -158,12 +158,6 @@
 </script>
 
 <div bind:this={chartElement} class={chartClass} />
-{#if chartDrawn}
-  <Tooltip
-    bind:tooltip
-    {chartDrawn}
-    {nameLabel}
-    {valueLabel}
-    {chartClass}
-    {data} />
+{#if useLegend}
+  <div class={legendClass} />
 {/if}

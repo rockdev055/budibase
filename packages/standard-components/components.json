@@ -287,13 +287,14 @@
 			"hasLastHoverSliceHighlighted": "bool",
 			"hasHoverAnimation": "bool",
 			"numberFormat": "string",
+			"nameKey": "string",
+			"valueKey": "string",
 			"isAnimated": "bool",
 			"externalRadius": "number",
 			"internalRadius": "number",
 			"radiusHoverOffset": "number",
 			"percentageFormat": "string",
 			"useLegend": "bool",
-			"horizontalLegend": "bool",
 			"legendWidth": "number",
 			"legendHeight": "number"
 		}
@@ -508,7 +509,8 @@
 			"color": "string",
 			"height": "string",
 			"width": "string",
-			"margin":"string",
+			"margin": "string",
+			"aspectRatio": "number",
 			"grid":"string",
 			"groupLabel": "string",
 			"isAnimated": "bool",
@@ -516,6 +518,7 @@
 			"nameLabel": "string",
 			"valueLabel":"string",
 			"yTicks": "string",
+			"yTickTextOffset": "string",
 			"useLegend": "bool"
 		}
 	},
