@@ -57,28 +57,22 @@ Cypress.Commands.add("createApp", name => {
     })
 })
 
-Cypress.Commands.add("createTable", tableName => {
+Cypress.Commands.add("createModel", modelName => {
   // Enter model name
   cy.contains("Create New Table").click()
-  cy.get("[placeholder='Table Name']").type(tableName)
+  cy.get("[data-cy=table-name-input]").type(modelName)
 
   // Add 'name' field
+  cy.contains("Add").click()
+  cy.contains("Plain Text").click()
+
+  // Add 'age' field
+  cy.contains("Add").click()
+  cy.contains("Number").click()
+
   cy.contains("Save").click()
-  cy.contains(tableName).should("be.visible")
-})
 
-Cypress.Commands.add("addColumn", (tableName, columnName, type) => {
-  // Select Table
-  cy.contains(tableName).click()
-
-  // Click "Create New Column"
-  // Fill in dropdown
-  //hit save 
-  // assertions
-
-  // Add 'name' field
-  cy.contains("Save").click()
-  cy.contains(modelName).should("be.visible").click()
+  cy.contains(modelName).click()
 })
 
 Cypress.Commands.add("addRecord", (firstField, secondField) => {

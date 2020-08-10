@@ -1,18 +1,37 @@
 <script>
-  import { onMount } from "svelte"
-  import fsort from "fast-sort"
+  import { onMount, getContext } from "svelte"
   import { store, backendUiStore } from "builderStore"
-  import { Button, Icon } from "@budibase/bbui"
+  import { Button } from "@budibase/bbui"
   import Select from "components/common/Select.svelte"
   import ActionButton from "components/common/ActionButton.svelte"
   import LinkedRecord from "./LinkedRecord.svelte"
   import TablePagination from "./TablePagination.svelte"
   import { DeleteRecordModal, CreateEditRecordModal } from "./modals"
-  import RowPopover from "./popovers/Row.svelte"
-  import ColumnPopover from "./popovers/Column.svelte"
-  import ColumnHeaderPopover from "./popovers/ColumnHeader.svelte"
-  import EditRowPopover from "./popovers/EditRow.svelte"
   import * as api from "./api"
+
+  const { open, close } = getContext("simple-modal")
+
+  const editRecord = async row => {
+    open(
+      CreateEditRecordModal,
+      {
+        onClosed: close,
+        record: row,
+      },
+      { styleContent: { padding: "0" } }
+    )
+  }
+
+  const deleteRecord = async row => {
+    open(
+      DeleteRecordModal,
+      {
+        onClosed: close,
+        record: row,
+      },
+      { styleContent: { padding: "0" } }
+    )
+  }
 
   const ITEMS_PER_PAGE = 10
   // Internal headers we want to hide from the user
@@ -24,7 +43,6 @@
   let views = []
   let currentPage = 0
   let search
-  let dropdownLeft
 
   $: {
     if ($backendUiStore.selectedView) {
@@ -40,8 +58,6 @@
         currentPage * ITEMS_PER_PAGE + ITEMS_PER_PAGE
       )
     : []
-  $: sort = $backendUiStore.sort
-  $: sorted = sort ? fsort(data)[sort.direction](sort.column) : data
 
   $: headers = Object.keys($backendUiStore.selectedModel.schema).filter(
     id => !INTERNAL_HEADERS.includes(id)
@@ -69,41 +85,53 @@
 <section>
   <div class="table-controls">
     <h2 class="title">{$backendUiStore.selectedModel.name}</h2>
-    <div class="popovers">
-      <ColumnPopover />
-      {#if Object.keys($backendUiStore.selectedModel.schema).length > 0}
-        <RowPopover />
-      {/if}
-    </div>
+    <Button primary on:click={createNewRecord}>
+      <span class="button-inner">Create New Record</span>
+    </Button>
   </div>
   <table class="uk-table">
     <thead>
       <tr>
-        <th class="edit-header">
-          <div>Edit</div>
-        </th>
+        <th>Edit</th>
         {#each headers as header}
-          <th>
-            <ColumnHeaderPopover
-              field={$backendUiStore.selectedModel.schema[header]} />
-          </th>
+          <th>{$backendUiStore.selectedModel.schema[header].name}</th>
         {/each}
       </tr>
     </thead>
     <tbody>
-      {#if sorted.length === 0}
+      {#if paginatedData.length === 0}
         <div class="no-data">No Data.</div>
       {/if}
-      {#each sorted as row}
-        <tr>
+      {#each paginatedData as row}
+        <tr class="hoverable">
           <td>
-            <EditRowPopover {row} />
+            <div class="uk-inline">
+              <i class="ri-more-line" />
+              <div uk-dropdown="mode: click">
+                <ul class="uk-nav uk-dropdown-nav">
+                  <li
+                    on:click={() => {
+                      editRecord(row)
+                    }}>
+                    <i class="ri-edit-line" />
+                    <div class="label">Edit</div>
+                  </li>
+                  <li
+                    on:click={() => {
+                      deleteRecord(row)
+                    }}>
+                    <i class="ri-delete-bin-2-line" />
+                    <div class="label">Delete</div>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </td>
           {#each headers as header}
-            <td class="hoverable">
+            <td>
               {#if schema[header].type === 'link'}
                 <LinkedRecord field={schema[header]} ids={row[header]} />
-              {:else}{row[header] || ''}{/if}
+              {:else}{row[header]}{/if}
             </td>
           {/each}
         </tr>
@@ -136,8 +164,7 @@
   }
 
   thead {
-    height: 40px;
-    background: var(--grey-3);
+    background: var(--blue-light);
     border: 1px solid var(--grey-4);
   }
 
@@ -147,28 +174,6 @@
     font-weight: 500;
     font-size: 14px;
     text-rendering: optimizeLegibility;
-    transition: 0.5s all;
-    vertical-align: middle;
-  }
-
-  .edit-header {
-    width: 100px;
-    cursor: default;
-  }
-
-  .edit-header:hover {
-    color: var(--ink);
-  }
-
-  th:hover {
-    color: var(--blue);
-    cursor: pointer;
-  }
-
-  td {
-    max-width: 200px;
-    text-overflow: ellipsis;
-    border: 1px solid var(--grey-4);
   }
 
   tbody tr {
@@ -183,14 +188,47 @@
   }
 
   .table-controls {
-    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 10px;
   }
 
-  .popovers {
-    display: flex;
+  .ri-more-line:hover,
+  .uk-dropdown-nav li:hover {
+    cursor: pointer;
   }
 
   .no-data {
-    padding: 14px;
+    padding: 20px;
+  }
+
+  .button-inner {
+    display: flex;
+    align-items: center;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+  }
+
+  i {
+    color: var(--grey-7);
+    margin-right: 8px;
+    font-size: 20px;
+  }
+
+  .label {
+    color: var(--grey-7);
+    font-size: 14px;
+    font-family: inter;
+    font-weight: 400;
+    margin: 12px 0px;
+  }
+  .label:hover {
+    color: var(--ink);
+    cursor: pointer;
   }
 </style>
