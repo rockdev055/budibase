@@ -99,7 +99,6 @@
         <div class="titled-input">
           <header>Name</header>
           <input
-            data-cy="table-name-input"
             type="text"
             class="budibase__input"
             bind:value={$backendUiStore.draftModel.name} />
@@ -131,7 +130,7 @@
   }
 
   footer {
-    width: 260px;
+    width: 100%;
     position: fixed;
     bottom: 20px;
   }

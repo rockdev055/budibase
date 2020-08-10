@@ -14,6 +14,14 @@
 
   const getProperties = name => panelDefinition[name]
 
+  onMount(() => {
+    // if(propGroup) {
+    //   propGroup.addEventListener("scroll", function(e){
+    //     console.log("I SCROLLED", e.target.scrollTop)
+    //   })
+    // }
+  })
+
   function onChange(category) {
     selectedCategory = category
   }

@@ -10,3 +10,4 @@ export { default as scatterplot } from "./ScatterPlot.svelte"
 export { default as step } from "./Step.svelte"
 export { default as stackedarea } from "./StackedArea.svelte"
 export { default as stackedbar } from "./StackedBar.svelte"
+
