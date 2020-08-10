@@ -24,81 +24,69 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
-Cypress.Commands.add("createApp", name => {
-  cy.contains("Create New Web App").click()
+Cypress.Commands.add("createApp", (name, description) => {
+  cy.get(".banner-button")
+    .click()
+    .get('input[name="name"]')
+    .type(name)
+    .should("have.value", name)
 
-  cy.get("body")
-    .then($body => {
-      if ($body.find("input[name=apiKey]").length) {
-        // input was found, do something else here
-        cy.get("input[name=apiKey]")
-          .type(name)
-          .should("have.value", name)
-        cy.contains("Next").click()
-      }
-    })
-    .then(() => {
-      cy.get("input[name=applicationName]")
-        .type(name)
-        .should("have.value", name)
+  cy.get('textarea[name="description"]')
+    .type(description)
+    .should("have.value", description)
 
-      cy.contains("Next").click()
-
-      cy.get("input[name=username]")
-        .click()
-        .type("test")
-      cy.get("input[name=password]")
-        .click()
-        .type("test")
-      cy.contains("Submit").click()
-      cy.contains("Create New Table", {
-        timeout: 10000,
-      }).should("be.visible")
-    })
+  cy.contains("Save").click()
 })
-
-Cypress.Commands.add("createModel", modelName => {
+Cypress.Commands.add("createModel", (modelName, firstField, secondField) => {
   // Enter model name
-  cy.contains("Create New Table").click()
-  cy.get("[data-cy=table-name-input]").type(modelName)
+  cy.get("[data-cy=Name]")
+    .click()
+    .type(modelName)
 
   // Add 'name' field
-  cy.contains("Add").click()
-  cy.contains("Plain Text").click()
+  cy.get("[data-cy=add-new-model-field]").click()
+  cy.get("[data-cy=Name]")
+    .click()
+    .type(firstField)
+  cy.contains("Save").click()
 
   // Add 'age' field
-  cy.contains("Add").click()
-  cy.contains("Number").click()
+  cy.get("[data-cy=add-new-model-field]").click()
 
+  cy.get("[data-cy=Name]")
+    .click()
+    .type(secondField)
+  cy.get("select").select("number")
   cy.contains("Save").click()
+  cy.contains(secondField).should("exist")
 
-  cy.contains(modelName).click()
+  // Save model
+  cy.contains("Save").click()
 })
-
 Cypress.Commands.add("addRecord", (firstField, secondField) => {
-  cy.contains("Create New Record").click()
+  cy.contains("Create new record").click()
 
-  cy.get("[data-cy='Plain Text-input']").type(firstField)
-  cy.get("[data-cy=Number-input]").type(secondField)
+  cy.get("[data-cy=name-input]")
+    .click()
+    .type(firstField)
+  cy.get("[data-cy=age-input]")
+    .click()
+    .type(secondField)
 
   // Save
   cy.contains("Save").click()
 })
 
-Cypress.Commands.add("createUser", (username, password) => {
+Cypress.Commands.add("createUser", (username, password, level) => {
   // Create User
-  cy.get(".toprightnav > .settings").click()
-  cy.contains("Users").click()
+  cy.get(".nav-group-header > .ri-add-line").click()
 
-  cy.get("[name=Name]")
-    .first()
-    .type(username)
-  cy.get("[name=Password]")
-    .first()
-    .type(password)
+  cy.get("[data-cy=username]").type(username)
+  cy.get("[data-cy=password]").type(password)
+  cy.get("[data-cy=accessLevel]").select(level)
 
   // Save
-  cy.get(".create-button").click()
+  cy.contains("Save").click()
 })
 
 Cypress.Commands.add("addHeadlineComponent", text => {
@@ -107,8 +95,7 @@ Cypress.Commands.add("addHeadlineComponent", text => {
   cy.get("[data-cy=Text]").click()
   cy.get("[data-cy=Headline]").click()
   cy.get(".tabs > :nth-child(2)").click()
-  cy.contains("Settings").click()
-  cy.get('input[name="text"]').type(text)
+  cy.get('input[type="text"]').type(text)
   cy.contains("Design").click()
 })
 Cypress.Commands.add("addButtonComponent", () => {
@@ -118,7 +105,9 @@ Cypress.Commands.add("addButtonComponent", () => {
 })
 
 Cypress.Commands.add("navigateToFrontend", () => {
+  cy.get(".close", { timeout: 10000 }).click()
   cy.contains("frontend").click()
+  cy.get(".close", { timeout: 10000 }).click()
 })
 
 Cypress.Commands.add("createScreen", (screenName, route) => {
