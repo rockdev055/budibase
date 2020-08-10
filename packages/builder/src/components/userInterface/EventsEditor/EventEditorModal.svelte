@@ -1,27 +1,37 @@
 <script>
   import { store } from "builderStore"
   import { Button } from "@budibase/bbui"
+  import Modal from "../../common/Modal.svelte"
   import HandlerSelector from "./HandlerSelector.svelte"
+  import IconButton from "../../common/IconButton.svelte"
+  import ActionButton from "../../common/ActionButton.svelte"
+  import PlusButton from "../../common/PlusButton.svelte"
+  import Select from "../../common/Select.svelte"
+  import Input from "../../common/Input.svelte"
+  import getIcon from "../../common/icon"
   import { CloseIcon } from "components/common/Icons/"
+
   import { EVENT_TYPE_MEMBER_NAME } from "../../common/eventHandlers"
 
-  export let event = []
-  export let eventType
+  export let event
+  export let eventOptions = []
   export let onClose
-  export let onChange
 
+  let eventType = ""
   let draftEventHandler = { parameters: [] }
 
-  $: handlers = event || []
+  $: eventData = event || { handlers: [] }
+  $: if (!eventOptions.includes(eventType) && eventOptions.length > 0)
+    eventType = eventOptions[0].name
 
   const closeModal = () => {
     onClose()
     draftEventHandler = { parameters: [] }
-    handlers = []
+    eventData = { handlers: [] }
   }
 
   const updateEventHandler = (updatedHandler, index) => {
-    handlers[index] = updatedHandler
+    eventData.handlers[index] = updatedHandler
   }
 
   const updateDraftEventHandler = updatedHandler => {
@@ -29,7 +39,8 @@
   }
 
   const deleteEventHandler = index => {
-    handlers.splice(index, 1)
+    eventData.handlers.splice(index, 1)
+    eventData = eventData
   }
 
   const createNewEventHandler = handler => {
@@ -37,18 +48,17 @@
       parameters: {},
       [EVENT_TYPE_MEMBER_NAME]: "",
     }
-    handlers.push(newHandler)
-    handlers = handlers
+    eventData.handlers.push(newHandler)
+    eventData = eventData
   }
 
   const deleteEvent = () => {
-    handlers = []
-    onChange([])
+    store.setComponentProp(eventType, [])
     closeModal()
   }
 
   const saveEventData = () => {
-    onChange(handlers)
+    store.setComponentProp(eventType, eventData.handlers)
     closeModal()
   }
 </script>
@@ -56,7 +66,19 @@
 <div class="container">
   <div class="body">
     <div class="heading">
-      <h3>{eventType} Event</h3>
+      <h3>
+        {eventData.name ? `${eventData.name} Event` : 'Create a New Component Event'}
+      </h3>
+    </div>
+    <div class="event-options">
+      <div class="section">
+        <h4>Event Type</h4>
+        <Select bind:value={eventType}>
+          {#each eventOptions as option}
+            <option value={option.name}>{option.name}</option>
+          {/each}
+        </Select>
+      </div>
     </div>
 
     <div class="section">
@@ -70,23 +92,31 @@
         }}
         handler={draftEventHandler} />
     </div>
-    {#each handlers as handler, index}
-      <HandlerSelector
-        {index}
-        onChanged={updateEventHandler}
-        onRemoved={() => deleteEventHandler(index)}
-        {handler} />
-    {/each}
+    {#if eventData}
+      {#each eventData.handlers as handler, index}
+        <HandlerSelector
+          {index}
+          onChanged={updateEventHandler}
+          onRemoved={() => deleteEventHandler(index)}
+          {handler} />
+      {/each}
+    {/if}
 
   </div>
   <div class="footer">
-
-    <Button outline on:click={deleteEvent} disabled={handlers.length === 0}>
-      Delete
-    </Button>
-
+    {#if eventData.name}
+      <Button
+        outline
+        on:click={deleteEvent}
+        disabled={eventData.handlers.length === 0}>
+        Delete
+      </Button>
+    {/if}
     <div class="save">
-      <Button primary on:click={saveEventData} disabled={handlers.length === 0}>
+      <Button
+        primary
+        on:click={saveEventData}
+        disabled={eventData.handlers.length === 0}>
         Save
       </Button>
     </div>

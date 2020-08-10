@@ -13,6 +13,7 @@
   } from "components/common/Icons/"
   import CodeEditor from "./CodeEditor.svelte"
   import LayoutEditor from "./LayoutEditor.svelte"
+  import EventsEditor from "./EventsEditor"
   import panelStructure from "./temporaryPanelStructure.js"
   import CategoryTab from "./CategoryTab.svelte"
   import DesignView from "./DesignView.svelte"
@@ -24,6 +25,7 @@
   let categories = [
     { value: "settings", name: "Settings" },
     { value: "design", name: "Design" },
+    { value: "events", name: "Events" },
   ]
   let selectedCategory = categories[0]
 
@@ -111,6 +113,8 @@
         displayNameField={displayName}
         onChange={onPropChanged}
         screenOrPageInstance={$store.currentView !== 'component' && $store.currentPreviewItem} />
+    {:else if selectedCategory.value === 'events'}
+      <EventsEditor component={componentInstance} />
     {/if}
 
   </div>
@@ -139,6 +143,7 @@
     margin-top: 16px;
     flex: 1 1 auto;
     min-height: 0;
+    overflow-y: auto;
   }
 
   .instance-name {
