@@ -30,7 +30,6 @@
 </script>
 
 <div class="root">
-
   {#each screens as screen}
     <div
       class="budibase__nav-item screen-header-row"
