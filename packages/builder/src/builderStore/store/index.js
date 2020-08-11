@@ -1,5 +1,5 @@
 import { values } from "lodash/fp"
-import getNewComponentName from "../getNewComponentName"
+import { get_capitalised_name } from "../../helpers"
 import { backendUiStore } from "builderStore"
 import * as backendStoreActions from "./backend"
 import { writable, get } from "svelte/store"
@@ -279,7 +279,7 @@ const addChildComponent = store => (componentToAdd, presetProps = {}) => {
     const component = getComponentDefinition(state, componentToAdd)
 
     const instanceId = get(backendUiStore).selectedDatabase._id
-    const instanceName = getNewComponentName(componentToAdd, state)
+    const instanceName = get_capitalised_name(componentToAdd)
 
     const newComponent = createProps(
       component,
