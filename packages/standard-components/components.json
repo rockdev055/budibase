@@ -92,7 +92,6 @@
 	},
 	"input": {
 		"name": "Input",
-		"bindable": "value",
 		"description": "An HTML input",
 		"props": {
 			"value": "string",
@@ -152,10 +151,7 @@
 		"children": false,
 		"props": {
 			"text": "string",
-			"type": {
-				"type": "string",
-				"default": "none"
-			}
+			"type": {"type": "string", "default": "none"}
 		},
 		"tags": [
 			"div",
@@ -248,6 +244,7 @@
 	},
 	"list": {
 		"description": "A configurable data list that attaches to your backend models.",
+		"children": true,
 		"data": true,
 		"props": {
 			"model": "models"
@@ -267,6 +264,7 @@
 	},
 	"recorddetail": {
 		"description": "Loads a record, using an ID in the url",
+		"children": true,
 		"data": true,
 		"props": {
 			"model": "models"
@@ -317,7 +315,7 @@
 			"lineGradient": "string",
 			"titleText": "string",
 			"valueLabel": "string"
-		}
+		}	
 	},
 	"stackedbar": {
 		"description": "Stacked Bar Chart",
@@ -346,7 +344,7 @@
 			"yAxisLabel": "string",
 			"yAxisLabelOffset": "number",
 			"useLegend": "bool"
-		}
+		}		
 	},
 	"stackarea": {
 		"description": "Step Chart",
@@ -375,7 +373,7 @@
 			"xAxisCustomFormat": "string",
 			"xAxisFormat": "string",
 			"xAxisScale": "string",
-			"xAxisValueType": "string",
+			"xAxisValueType":"string",
 			"yTicks": "number",
 			"xTicks": "number",
 			"yAxisBaseline": "string",
@@ -393,14 +391,14 @@
 			"xAxisLabel": "string",
 			"xAxisLabelOffset": "string",
 			"yAxisLabel": "string",
-			"yAxisLabelOffset": "string",
+			"yAxisLabelOffset": "string",	
 			"yTicks": "string"
 		}
 	},
 	"scatterplot": {
 		"description": "Scatterplot Chart",
 		"data": true,
-		"props": {
+		"props": { 
 			"model": "string",
 			"color": "string",
 			"height": "number",
@@ -416,7 +414,7 @@
 			"xTicks": "string",
 			"yAxisFormat": "string",
 			"yAxisLabel": "string",
-			"yAxisLabelOffset": "string",
+			"yAxisLabelOffset": "string",	
 			"yTicks": "string"
 		}
 	},
@@ -475,7 +473,7 @@
 			"xAxisLabel": "string"
 		}
 	},
-	"brush": {
+	"brush":{
 		"description": "brush chart",
 		"data": true,
 		"props": {
@@ -503,7 +501,7 @@
 			"useLegend": "bool",
 			"yAxisLabel": "string",
 			"boxSize": "number"
-		}
+		}		
 	},
 	"groupedbar": {
 		"description": "Groupedbar chart",
@@ -515,12 +513,12 @@
 			"width": "string",
 			"margin": "string",
 			"aspectRatio": "number",
-			"grid": "string",
+			"grid":"string",
 			"groupLabel": "string",
 			"isAnimated": "bool",
 			"isHorizontal": "bool",
 			"nameLabel": "string",
-			"valueLabel": "string",
+			"valueLabel":"string",
 			"yTicks": "string",
 			"yTickTextOffset": "string",
 			"useLegend": "bool"
@@ -580,12 +578,12 @@
 				"styleBindingProperty": "font-family",
 				"options": [
 					"initial",
-					"Times New Roman",
+					"Times New Roman",	
 					"Georgia",
 					"Arial",
-					"Arial Black",
+					"Arial Black",	
 					"Comic Sans MS",
-					"Impact",
+					"Impact",	
 					"Lucida Sans Unicode"
 				]
 			}
@@ -603,6 +601,7 @@
 	},
 	"container": {
 		"name": "Container",
+		"children": true,
 		"description": "An element that contains and lays out other elements. e.g. <div>, <header> etc",
 		"props": {
 			"className": "string",
@@ -626,7 +625,7 @@
 				],
 				"default": "div"
 			}
-		},
+		},		
 		"container": true,
 		"tags": [
 			"div",
@@ -640,7 +639,7 @@
 		"props": {
 			"className": "string",
 			"text": "string",
-			"type": {
+		"type": {
 				"type": "options",
 				"default": "h1",
 				"options": [
