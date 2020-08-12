@@ -1,7 +1,6 @@
-xcontext('Create a workflow', () => {
+context('Create a workflow', () => {
 
     before(() => {
-        cy.server()
         cy.visit('localhost:4001/_builder')
 
         cy.createApp('Workflow Test App', 'This app is used to test that workflows do in fact work!')
@@ -9,10 +8,12 @@ xcontext('Create a workflow', () => {
 
     // https://on.cypress.io/interacting-with-elements
     it('should create a workflow', () => {
-        cy.createTable('dog', 'name', 'age')
+        cy.createModel('dog', 'name', 'age')
+        cy.createUser('bbuser', 'test', 'ADMIN')
+
 
         cy.contains('workflow').click()
-        cy.contains('Create New Workflow').click()
+        cy.get('.new-workflow-button').click()
         cy.get('input').type('Add Record')
         cy.contains('Save').click()
 
@@ -27,13 +28,14 @@ xcontext('Create a workflow', () => {
         cy.get(':nth-child(3) > .budibase__input').type('11')
 
         // Save
-        cy.contains('Save Workflow').click()
+        cy.get('[data-cy=save-workflow-setup]').click()
+        cy.get('.workflow-button').click()
 
         // Activate Workflow
         cy.get('[data-cy=activate-workflow]').click()
 
     })
-    xit('should add record when a new record is added', () => {
+    it('should add record when a new record is added', () => {
         cy.contains('backend').click()
 
         cy.addRecord('bob', '15')

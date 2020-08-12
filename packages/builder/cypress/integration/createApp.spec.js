@@ -1,7 +1,6 @@
 context('Create an Application', () => {
 
     beforeEach(() => {
-        cy.server()
         cy.visit('localhost:4001/_builder')
     })
 
