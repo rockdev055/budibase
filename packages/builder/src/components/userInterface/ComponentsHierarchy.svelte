@@ -7,7 +7,6 @@
   import { store } from "builderStore"
   import { ArrowDownIcon, ShapeIcon } from "components/common/Icons/"
   import ScreenDropdownMenu from "./ScreenDropdownMenu.svelte"
-  import { writable } from "svelte/store"
 
   export let screens = []
 
@@ -17,15 +16,12 @@
   const joinPath = join("/")
 
   const normalizedName = name =>
-    pipe(
-      name,
-      [
-        trimCharsStart("./"),
-        trimCharsStart("~/"),
-        trimCharsStart("../"),
-        trimChars(" "),
-      ]
-    )
+    pipe(name, [
+      trimCharsStart("./"),
+      trimCharsStart("~/"),
+      trimCharsStart("../"),
+      trimChars(" "),
+    ])
 
   const changeScreen = screen => {
     store.setCurrentScreen(screen.props._instanceName)
@@ -61,8 +57,7 @@
     {#if $store.currentPreviewItem.props._instanceName && $store.currentPreviewItem.props._instanceName === screen.props._instanceName && screen.props._children}
       <ComponentsHierarchyChildren
         components={screen.props._children}
-        currentComponent={$store.currentComponentInfo}
-        dragDropStore={writable({})} />
+        currentComponent={$store.currentComponentInfo} />
     {/if}
   {/each}
 

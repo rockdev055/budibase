@@ -28,7 +28,8 @@
   })
   $: dropdown && UIkit.util.on(dropdown, "shown", () => (hidden = false))
   $: noChildrenAllowed =
-    !component || !getComponentDefinition($store, component._component).children
+    !component ||
+    getComponentDefinition($store, component._component).children === false
   $: noPaste = !$store.componentToPaste
 
   const lastPartOfName = c => (c ? last(c._component.split("/")) : "")
@@ -104,14 +105,49 @@
     })
   }
 
+  const generateNewIdsForComponent = c =>
+    walkProps(c, p => {
+      p._id = uuid()
+    })
+
   const storeComponentForCopy = (cut = false) => {
-    // lives in store - also used by drag drop
-    store.storeComponentForCopy(component, cut)
+    store.update(s => {
+      const copiedComponent = cloneDeep(component)
+      s.componentToPaste = copiedComponent
+      if (cut) {
+        const parent = getParent(s.currentPreviewItem.props, component._id)
+        parent._children = parent._children.filter(c => c._id !== component._id)
+        selectComponent(s, parent)
+      }
+
+      return s
+    })
   }
 
   const pasteComponent = mode => {
-    // lives in store - also used by drag drop
-    store.pasteComponent(component, mode)
+    store.update(s => {
+      if (!s.componentToPaste) return s
+
+      const componentToPaste = cloneDeep(s.componentToPaste)
+      generateNewIdsForComponent(componentToPaste)
+      delete componentToPaste._cutId
+
+      if (mode === "inside") {
+        component._children.push(componentToPaste)
+        return s
+      }
+
+      const parent = getParent(s.currentPreviewItem.props, component)
+
+      const targetIndex = parent._children.indexOf(component)
+      const index = mode === "above" ? targetIndex : targetIndex + 1
+      parent._children.splice(index, 0, cloneDeep(componentToPaste))
+      regenerateCssForCurrentScreen(s)
+      saveCurrentPreviewItem(s)
+      selectComponent(s, componentToPaste)
+
+      return s
+    })
   }
 </script>
 
