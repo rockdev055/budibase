@@ -1,5 +1,5 @@
-import { values, cloneDeep } from "lodash/fp"
-import { get_capitalised_name } from "../../helpers"
+import { values } from "lodash/fp"
+import getNewComponentName from "../getNewComponentName"
 import { backendUiStore } from "builderStore"
 import * as backendStoreActions from "./backend"
 import { writable, get } from "svelte/store"
@@ -24,8 +24,8 @@ import {
   saveCurrentPreviewItem as _saveCurrentPreviewItem,
   saveScreenApi as _saveScreenApi,
   regenerateCssForCurrentScreen,
-  generateNewIdsForComponent,
 } from "../storeUtils"
+
 export const getStore = () => {
   const initial = {
     apps: [],
@@ -70,8 +70,6 @@ export const getStore = () => {
   store.addTemplatedComponent = addTemplatedComponent(store)
   store.setMetadataProp = setMetadataProp(store)
   store.editPageOrScreen = editPageOrScreen(store)
-  store.pasteComponent = pasteComponent(store)
-  store.storeComponentForCopy = storeComponentForCopy(store)
   return store
 }
 
@@ -281,7 +279,7 @@ const addChildComponent = store => (componentToAdd, presetProps = {}) => {
     const component = getComponentDefinition(state, componentToAdd)
 
     const instanceId = get(backendUiStore).selectedDatabase._id
-    const instanceName = get_capitalised_name(componentToAdd)
+    const instanceName = getNewComponentName(componentToAdd, state)
 
     const newComponent = createProps(
       component,
@@ -453,53 +451,6 @@ const getPathToComponent = store => component => {
 const setMetadataProp = store => (name, prop) => {
   store.update(s => {
     s.currentPreviewItem[name] = prop
-    return s
-  })
-}
-
-const storeComponentForCopy = store => (component, cut = false) => {
-  store.update(s => {
-    const copiedComponent = cloneDeep(component)
-    s.componentToPaste = copiedComponent
-    s.componentToPaste.isCut = cut
-    if (cut) {
-      const parent = getParent(s.currentPreviewItem.props, component._id)
-      parent._children = parent._children.filter(c => c._id !== component._id)
-      selectComponent(s, parent)
-    }
-
-    return s
-  })
-}
-
-const pasteComponent = store => (targetComponent, mode) => {
-  store.update(s => {
-    if (!s.componentToPaste) return s
-
-    const componentToPaste = cloneDeep(s.componentToPaste)
-    // retain the same ids as things may be referencing this component
-    if (componentToPaste.isCut) {
-      // in case we paste a second time
-      s.componentToPaste.isCut = false
-    } else {
-      generateNewIdsForComponent(componentToPaste)
-    }
-    delete componentToPaste.isCut
-
-    if (mode === "inside") {
-      targetComponent._children.push(componentToPaste)
-      return s
-    }
-
-    const parent = getParent(s.currentPreviewItem.props, targetComponent)
-
-    const targetIndex = parent._children.indexOf(targetComponent)
-    const index = mode === "above" ? targetIndex : targetIndex + 1
-    parent._children.splice(index, 0, cloneDeep(componentToPaste))
-    regenerateCssForCurrentScreen(s)
-    _saveCurrentPreviewItem(s)
-    selectComponent(s, componentToPaste)
-
     return s
   })
 }
