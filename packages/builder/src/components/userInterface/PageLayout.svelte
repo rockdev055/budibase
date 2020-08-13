@@ -16,14 +16,12 @@
   import { pipe } from "components/common/core"
   import { store } from "builderStore"
   import { ArrowDownIcon, GridIcon } from "components/common/Icons/"
-  import { writable } from "svelte/store"
 
   export let layout
 
   let confirmDeleteDialog
   let componentToDelete = ""
 
-  const dragDropStore = writable({})
   const joinPath = join("/")
 
   const lastPartOfName = c =>
@@ -59,8 +57,7 @@
   <ComponentsHierarchyChildren
     thisComponent={_layout.component.props}
     components={_layout.component.props._children}
-    currentComponent={$store.currentComponentInfo}
-    {dragDropStore} />
+    currentComponent={$store.currentComponentInfo} />
 {/if}
 
 <style>
@@ -82,10 +79,6 @@
   .icon-big {
     font-size: 20px;
     color: var(--grey-7);
-  }
-
-  :global(svg) {
-    transition: 0.2s;
   }
 
   .rotate :global(svg) {
