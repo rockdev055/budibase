@@ -99,7 +99,7 @@
             <EditRowPopover {row} />
           </td>
           {#each headers as header}
-            <td>
+            <td class="hoverable">
               {#if schema[header].type === 'link'}
                 <LinkedRecord field={schema[header]} ids={row[header]} />
               {:else}{row[header] || ''}{/if}
@@ -168,9 +168,6 @@
     max-width: 200px;
     text-overflow: ellipsis;
     border: 1px solid var(--grey-4);
-    overflow: hidden;
-    white-space: pre;
-    box-sizing: border-box;
   }
 
   tbody tr {
@@ -190,7 +187,6 @@
 
   .popovers {
     display: flex;
-    gap: var(--spacing-m);
   }
 
   .no-data {

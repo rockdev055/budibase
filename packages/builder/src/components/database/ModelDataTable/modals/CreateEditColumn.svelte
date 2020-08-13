@@ -124,14 +124,8 @@
   }
 
   .field {
-    display: grid;
-    grid-template-columns: auto 20px 1fr;
-    align-items: center;
-    grid-gap: 5px;
-    font-size: 14px;
-    font-weight: 500;
-    margin-bottom: var(--spacing-l);
-    font-family: var(--font-normal);
+    margin-top: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
   }
 
   .button-margin-3 {
