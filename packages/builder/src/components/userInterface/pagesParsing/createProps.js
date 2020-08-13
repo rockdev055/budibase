@@ -48,7 +48,7 @@ export const createProps = (componentDefinition, derivedFromProps) => {
     assign(props, derivedFromProps)
   }
 
-  if (isUndefined(props._children)) {
+  if (componentDefinition.children !== false && isUndefined(props._children)) {
     props._children = []
   }
 
