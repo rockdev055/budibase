@@ -84,10 +84,6 @@
     color: var(--grey-7);
   }
 
-  :global(svg) {
-    transition: 0.2s;
-  }
-
   .rotate :global(svg) {
     transform: rotate(-90deg);
   }
