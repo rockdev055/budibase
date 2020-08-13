@@ -268,6 +268,81 @@
 			"model": "models"
 		}
 	},
+	"card": {
+		"name": "Card",
+		"props": {
+			"imageUrl": "string",
+			"heading": "string",
+			"description": "string",
+			"linkText": "string",
+			"linkUrl": "string",
+			"color": "string",
+			"linkHoverColor": "string",
+			"imageHeight": {
+				"type": "options",
+				"default": "20rem",
+				"options": [
+					"12rem",
+					"16rem",
+					"20rem",
+					"24rem"				
+				]
+			},
+			"cardWidth": {
+				"type": "options",
+				"default": "20rem",
+				"options": [
+					"16rem",
+					"20rem",
+					"24rem"				
+				]
+			}
+		}
+	},
+	"cardhorizontal": {
+		"name": "Horizontal Card",
+		"props": {
+			"imageUrl": "string",
+			"heading": "string",
+			"description": "string",
+			"subtext": "string",
+			"linkText": "string",
+			"linkUrl": "string",
+			"color": "string",
+			"linkHoverColor": "string",
+			"imageWidth": {
+				"type": "options",
+				"default": "8rem",
+				"options": [
+					"8rem",
+					"12rem",
+					"16rem"			
+				]
+			},
+			"cardWidth": {
+				"type": "options",
+				"default": "32rem",
+				"options": [
+					"24rem",
+					"28rem",
+					"32rem",
+					"40rem",
+					"48rem",
+					"60rem",
+					"100%"		
+				]
+			},
+			"imageHeight": {
+				"type": "options",
+				"default": "8rem",
+				"options": [
+					"8rem",
+					"12rem",
+					"16rem"			
+				]
+			}
+		}
+	},
 	"datamap": {
 		"description": "shiny chart",
 		"data": true,
@@ -509,7 +584,8 @@
 			"color": "string",
 			"height": "string",
 			"width": "string",
-			"margin":"string",
+			"margin": "string",
+			"aspectRatio": "number",
 			"grid":"string",
 			"groupLabel": "string",
 			"isAnimated": "bool",
@@ -517,13 +593,14 @@
 			"nameLabel": "string",
 			"valueLabel":"string",
 			"yTicks": "string",
+			"yTickTextOffset": "string",
 			"useLegend": "bool"
 		}
 	},
 	"bullet": {
 		"description": "Bullet chart",
 		"data": true,
-		"props": {
+		"props": { 
 			"model": "string",
 			"color": "string",
 			"customSubtitle": "string",

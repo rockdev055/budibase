@@ -70,7 +70,6 @@
       if (notNull(unit)) {
         legend.unit(unit)
       }
-
       legendContainer.datum(data).call(legend)
     }
   }
@@ -79,8 +78,5 @@
 </script>
 
 {#if useLegend}
-  <div
-    bind:this={legendElement}
-    style={`width: ${width}px`}
-    class={legendClass} />
+  <div bind:this={legendElement} class={legendClass} />
 {/if}
