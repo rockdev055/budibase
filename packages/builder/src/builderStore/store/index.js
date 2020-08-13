@@ -1,5 +1,5 @@
 import { values, cloneDeep } from "lodash/fp"
-import getNewComponentName from "../getNewComponentName"
+import { get_capitalised_name } from "../../helpers"
 import { backendUiStore } from "builderStore"
 import * as backendStoreActions from "./backend"
 import { writable, get } from "svelte/store"
@@ -25,6 +25,7 @@ import {
   saveScreenApi as _saveScreenApi,
   regenerateCssForCurrentScreen,
   generateNewIdsForComponent,
+  getComponentDefinition,
 } from "../storeUtils"
 export const getStore = () => {
   const initial = {
@@ -76,9 +77,6 @@ export const getStore = () => {
 }
 
 export default getStore
-
-export const getComponentDefinition = (state, name) =>
-  name.startsWith("##") ? getBuiltin(name) : state.components[name]
 
 const setPackage = (store, initial) => async pkg => {
   const [main_screens, unauth_screens] = await Promise.all([
@@ -281,7 +279,7 @@ const addChildComponent = store => (componentToAdd, presetProps = {}) => {
     const component = getComponentDefinition(state, componentToAdd)
 
     const instanceId = get(backendUiStore).selectedDatabase._id
-    const instanceName = getNewComponentName(componentToAdd, state)
+    const instanceName = get_capitalised_name(componentToAdd)
 
     const newComponent = createProps(
       component,
@@ -487,7 +485,7 @@ const pasteComponent = store => (targetComponent, mode) => {
       // in case we paste a second time
       s.componentToPaste.isCut = false
     } else {
-      generateNewIdsForComponent(componentToPaste, s)
+      generateNewIdsForComponent(componentToPaste)
     }
     delete componentToPaste.isCut
 
