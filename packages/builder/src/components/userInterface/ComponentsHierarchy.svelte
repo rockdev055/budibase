@@ -11,11 +11,6 @@
 
   export let screens = []
 
-  /* 
-  Using a store here seems odd.... 
-  have a look in the <ComponentsHierarchyChildren /> code file to find out why. 
-  I have commented the dragDropStore parameter
-  */
   const dragDropStore = writable({})
 
   let confirmDeleteDialog
@@ -24,15 +19,12 @@
   const joinPath = join("/")
 
   const normalizedName = name =>
-    pipe(
-      name,
-      [
-        trimCharsStart("./"),
-        trimCharsStart("~/"),
-        trimCharsStart("../"),
-        trimChars(" "),
-      ]
-    )
+    pipe(name, [
+      trimCharsStart("./"),
+      trimCharsStart("~/"),
+      trimCharsStart("../"),
+      trimChars(" "),
+    ])
 
   const changeScreen = screen => {
     store.setCurrentScreen(screen.props._instanceName)
