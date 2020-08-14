@@ -36,10 +36,7 @@ async function startApp() {
 
   async function createWindow() {
     app.server = require("./app")
-    win = new BrowserWindow({ 
-      width: 1920, 
-      height: 1080,
-    })
+    win = new BrowserWindow({ width: 1920, height: 1080 })
     win.setTitle(APP_TITLE)
     win.loadURL(APP_URL)
     if (isDev) {

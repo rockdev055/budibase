@@ -1,7 +1,6 @@
 <script>
   import { onMount } from "svelte"
   import fsort from "fast-sort"
-  import getOr from "lodash/fp/getOr"
   import { store, backendUiStore } from "builderStore"
   import { Button, Icon } from "@budibase/bbui"
   import Select from "components/common/Select.svelte"
@@ -11,7 +10,6 @@
   import { DeleteRecordModal, CreateEditRecordModal } from "./modals"
   import RowPopover from "./popovers/Row.svelte"
   import ColumnPopover from "./popovers/Column.svelte"
-  import ViewPopover from "./popovers/View.svelte"
   import ColumnHeaderPopover from "./popovers/ColumnHeader.svelte"
   import EditRowPopover from "./popovers/EditRow.svelte"
   import * as api from "./api"
@@ -74,7 +72,6 @@
       <ColumnPopover />
       {#if Object.keys($backendUiStore.selectedModel.schema).length > 0}
         <RowPopover />
-        <ViewPopover />
       {/if}
     </div>
   </div>
@@ -105,7 +102,7 @@
             <td>
               {#if schema[header].type === 'link'}
                 <LinkedRecord field={schema[header]} ids={row[header]} />
-              {:else}{getOr("", header, row)}{/if}
+              {:else}{row[header] || ''}{/if}
             </td>
           {/each}
         </tr>
@@ -171,6 +168,9 @@
     max-width: 200px;
     text-overflow: ellipsis;
     border: 1px solid var(--grey-4);
+    overflow: hidden;
+    white-space: pre;
+    box-sizing: border-box;
   }
 
   tbody tr {
@@ -190,6 +190,7 @@
 
   .popovers {
     display: flex;
+    gap: var(--spacing-m);
   }
 
   .no-data {
