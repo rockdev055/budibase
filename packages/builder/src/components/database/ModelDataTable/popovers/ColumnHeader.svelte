@@ -27,7 +27,6 @@
 
   function deleteField() {
     backendUiStore.actions.models.deleteField(field)
-    hideEditor()
   }
 
   function sort(direction, column) {

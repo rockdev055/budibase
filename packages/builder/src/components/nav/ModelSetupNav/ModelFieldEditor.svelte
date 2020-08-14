@@ -1,6 +1,8 @@
 <script>
   import { backendUiStore } from "builderStore"
   import { Button } from "@budibase/bbui"
+  import Dropdown from "components/common/Dropdown.svelte"
+  import Textbox from "components/common/Textbox.svelte"
   import ButtonGroup from "components/common/ButtonGroup.svelte"
   import NumberBox from "components/common/NumberBox.svelte"
   import ValuesList from "components/common/ValuesList.svelte"
