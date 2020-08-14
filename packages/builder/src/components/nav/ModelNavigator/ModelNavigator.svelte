@@ -8,35 +8,20 @@
   import { Button } from "@budibase/bbui"
   import CreateTablePopover from "./CreateTable.svelte"
   import EditTablePopover from "./EditTable.svelte"
+  import EditViewPopover from "./EditView.svelte"
 
   const { open, close } = getContext("simple-modal")
 
-  let HEADINGS = [
-    {
-      title: "Tables",
-      key: "TABLES",
-    },
-    {
-      title: "Tables",
-      key: "NAVIGATE",
-    },
-    {
-      title: "Add",
-      key: "ADD",
-    },
-  ]
-
   $: selectedTab = $backendUiStore.tabs.NAVIGATION_PANEL
 
-  function selectModel(model, fieldId) {
+  function selectModel(model) {
     backendUiStore.actions.models.select(model)
     $goto(`./model/${model._id}`)
-    if (fieldId) {
-      backendUiStore.update(state => {
-        state.selectedField = fieldId
-        return state
-      })
-    }
+  }
+
+  function selectView(view) {
+    backendUiStore.actions.views.select(view)
+    $goto(`./view/${view}`)
   }
 </script>
 
@@ -44,17 +29,27 @@
   {#if $backendUiStore.selectedDatabase && $backendUiStore.selectedDatabase._id}
     <div class="hierarchy">
       <div class="components-list-container">
-        <h3>Tables</h3>
+        <h4>Tables</h4>
         <CreateTablePopover />
         <div class="hierarchy-items-container">
           {#each $backendUiStore.models as model}
             <ListItem
-              selected={!$backendUiStore.selectedField && model._id === $backendUiStore.selectedModel._id}
+              selected={$backendUiStore.selectedView === `all_${model._id}`}
               title={model.name}
               icon="ri-table-fill"
               on:click={() => selectModel(model)}>
               <EditTablePopover table={model} />
             </ListItem>
+            {#each Object.keys(model.views || {}) as view}
+              <ListItem
+                indented
+                selected={$backendUiStore.selectedView === view}
+                title={view}
+                icon="ri-eye-line"
+                on:click={() => selectView(view)}>
+                <EditViewPopover {view} />
+              </ListItem>
+            {/each}
           {/each}
         </div>
       </div>
@@ -63,6 +58,10 @@
 </div>
 
 <style>
+  h4 {
+    font-weight: 500;
+  }
+
   .items-root {
     display: flex;
     flex-direction: column;

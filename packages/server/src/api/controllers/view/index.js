@@ -1,7 +1,23 @@
-const CouchDB = require("../../db")
+const CouchDB = require("../../../db")
+const statsViewTemplate = require("./viewBuilder");
 
 const controller = {
-  query: async () => {},
+  query: async ctx => {
+    const db = new CouchDB(ctx.user.instanceId)
+    const { meta } = ctx.request.body
+    const response = await db.query(`database/${ctx.params.viewName}`, {
+      group: !!meta.groupBy
+    })
+
+    for (row of response.rows) {
+      row.value = {
+        ...row.value,
+        avg: row.value.sum / row.value.count
+      }
+    }
+
+    ctx.body = response.rows
+  },
   fetch: async ctx => {
     const db = new CouchDB(ctx.user.instanceId)
     const designDoc = await db.get("_design/database")
@@ -23,19 +39,32 @@ const controller = {
 
     ctx.body = response
   },
-  create: async ctx => {
+  save: async ctx => {
     const db = new CouchDB(ctx.user.instanceId)
     const newView = ctx.request.body
 
     const designDoc = await db.get("_design/database")
+
+    const view = statsViewTemplate(newView) 
+
     designDoc.views = {
       ...designDoc.views,
-      [newView.name]: newView,
+      [newView.name]: view,
     }
+
     await db.put(designDoc)
 
-    ctx.body = newView
-    ctx.message = `View ${newView.name} created successfully.`
+
+    // add views to model document
+    const model = await db.get(ctx.request.body.modelId)
+    model.views = {
+      ...(model.views ? model.views : {}),
+      [newView.name]: view.meta
+    }
+    await db.put(model)
+
+    ctx.body = view
+    ctx.message = `View ${newView.name} saved successfully.`
   },
   destroy: async ctx => {
     const db = new CouchDB(ctx.user.instanceId)
