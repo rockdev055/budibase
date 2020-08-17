@@ -5,6 +5,7 @@
   import ComponentsHierarchyChildren from "components/userInterface/ComponentsHierarchyChildren.svelte"
   import IconButton from "components/common/IconButton.svelte"
   import CurrentItemPreview from "components/userInterface/AppPreview"
+  import PageView from "components/userInterface/PageView.svelte"
   import ComponentPropertiesPanel from "components/userInterface/ComponentPropertiesPanel.svelte"
   import ComponentSelectionList from "components/userInterface/ComponentSelectionList.svelte"
   import Switcher from "components/common/Switcher.svelte"

@@ -4,6 +4,7 @@
   import * as api from "components/database/ModelDataTable/api"
 
   import ModelNavigator from "components/nav/ModelNavigator/ModelNavigator.svelte"
+  import { ModelSetupNav } from "components/nav/ModelSetupNav"
 </script>
 
 <div class="root">

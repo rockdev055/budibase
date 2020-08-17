@@ -11,6 +11,7 @@
     CircleIndicator,
     EventsIcon,
   } from "components/common/Icons/"
+  import CodeEditor from "./CodeEditor.svelte"
   import LayoutEditor from "./LayoutEditor.svelte"
   import EventsEditor from "./EventsEditor"
   import panelStructure from "./temporaryPanelStructure.js"
