@@ -1,4 +1,6 @@
 <script>
+  import PlusButton from "../common/PlusButton.svelte"
+
   export let meta = []
   export let size = ""
   export let values = []

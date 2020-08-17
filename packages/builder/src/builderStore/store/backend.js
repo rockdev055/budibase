@@ -23,13 +23,10 @@ export const getBackendUiStore = () => {
     database: {
       select: async db => {
         const modelsResponse = await api.get(`/api/models`)
-        const viewsResponse = await api.get(`/api/views`)
         const models = await modelsResponse.json()
-        const views = await viewsResponse.json()
         store.update(state => {
           state.selectedDatabase = db
           state.models = models
-          state.views = views
           return state
         })
       },
@@ -59,8 +56,7 @@ export const getBackendUiStore = () => {
         store.update(state => {
           state.selectedModel = model
           state.draftModel = cloneDeep(model)
-          state.selectedField = ""
-          state.selectedView = `all_${model._id}`
+          state.selectedView = { name: `all_${model._id}` }
           return state
         }),
       save: async model => {
@@ -87,10 +83,8 @@ export const getBackendUiStore = () => {
       delete: async model => {
         await api.delete(`/api/models/${model._id}/${model._rev}`)
         store.update(state => {
-          state.models = state.models.filter(
-            existing => existing._id !== model._id
-          )
-          state.selectedModel = state.models[0] || {}
+          state.models = state.models.filter(existing => existing._id !== model._id)
+          state.selectedModel = state.models[0] || {} 
           return state
         })
       },
@@ -113,14 +107,31 @@ export const getBackendUiStore = () => {
           store.actions.models.save(state.draftModel)
           return state
         })
-      },
+      } 
     },
     views: {
       select: view =>
         store.update(state => {
           state.selectedView = view
+          state.selectedModel = {}
           return state
         }),
+      delete: async view => {
+        await api.delete(`/api/views/${view}`)
+        store.update(state => {
+          store.actions.models.select(state.models[0])
+          return state
+        })
+        await store.actions.models.fetch()
+      },
+      save: async view => {
+        await api.post(`/api/views`, view)
+        store.update(state => {
+          state.selectedModel.views[view.name] = view 
+          state.selectedView = view
+          return state
+        })
+      }
     },
     users: {
       create: user =>
