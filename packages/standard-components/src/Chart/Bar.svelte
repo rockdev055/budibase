@@ -8,8 +8,9 @@
   /*
     ISSUES:
     - x and y axis label set and appear in the dom but do not display next to the axis
+    - x and y axis label offset - does effect position of labels but does not render text (see above)
     - x tick label overlaps bar, seems to be no apu method to change this? Could do it by querying for it in the dom
-      for this element: <tspan x="-10" dy="0.32em">4.0</tspan>
+      specifically and doing this: <tspan x="-10" dy="0.32em">4.0</tspan>
   */
 
   let tooltip
@@ -199,7 +200,19 @@
   $: chartGradient = getChartGradient(gradient)
 </script>
 
+<!-- SVG Test 
+  <svg viewBox="6 -8 200 22">
+    <text x="5" y="10" class="text-svg">Hello World</text>
+  </svg>-->
+
 <div bind:this={chartElement} class={chartClass} />
 {#if useLegend}
   <div class={legendClass} />
 {/if}
+
+<style>
+  .text-svg {
+    font: italic 15px serif;
+    fill: red;
+  }
+</style>
