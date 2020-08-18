@@ -1,7 +1,8 @@
 <script>
   import { getContext } from "svelte"
   import { store, backendUiStore } from "builderStore"
-  import * as api from "components/database/DataTable/api"
+  import * as api from "components/database/ModelDataTable/api"
+
   import ModelNavigator from "components/nav/ModelNavigator/ModelNavigator.svelte"
 </script>
 
@@ -22,10 +23,12 @@
     background: var(--grey-1);
     line-height: 1;
   }
+
   .content {
     flex: 1 1 auto;
     margin: 20px 40px;
   }
+
   .nav {
     flex: 0 1 auto;
     width: 300px;
