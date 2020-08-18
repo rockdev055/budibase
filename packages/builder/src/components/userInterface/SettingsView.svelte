@@ -1,6 +1,7 @@
 <script>
   import PropertyControl from "./PropertyControl.svelte"
-  import Input from "./PropertyPanelControls/Input.svelte"
+  import InputGroup from "../common/Inputs/InputGroup.svelte"
+  import Input from "../common/Input.svelte"
   import { goto } from "@sveltech/routify"
   import { excludeProps } from "./propertyCategories.js"
 

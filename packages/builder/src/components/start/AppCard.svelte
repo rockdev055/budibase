@@ -13,24 +13,33 @@
 <style>
   .apps-card {
     background-color: var(--white);
-    padding: var(--spacing-xl);
-    max-width: 300px;
+    padding: 20px 20px 20px 20px;
+    max-width: 400px;
     max-height: 150px;
-    border-radius: var(--border-radius-m);
-    border: var(--border-dark);
+    border-radius: 5px;
+    border: 1px solid var(--grey-4);
+    font-family: Inter;
   }
 
   .app-button:hover {
-    background-color: var(--white);
-    color: var(--black);
+    background-color: var(--grey-1);
     text-decoration: none;
   }
 
   .app-title {
-    font-size: var(--font-size-l);
+    font-size: 18px;
     font-weight: 600;
     color: var(--ink);
     text-transform: capitalize;
+  }
+
+  .app-desc {
+    color: var(--grey-7);
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .card-footer {
@@ -43,18 +52,17 @@
   .app-button {
     align-items: center;
     display: flex;
-    background-color: var(--ink);
-    color: var(--white);
-    border: 1.5px var(--ink) solid;
+    background-color: var(--white);
+    color: var(--ink);
     width: 100%;
     justify-content: center;
-    padding: 8px 16px;
-    border-radius: var(--border-radius-s);
-    font-size: var(--font-size-xs);
-    font-weight: 500;
+    padding: 12px 20px;
+    border-radius: 5px;
+    border: 1px var(--grey-2) solid;
+    font-size: 14px;
+    font-weight: 400;
     cursor: pointer;
     transition: all 0.2s;
     box-sizing: border-box;
-    font-family: var(--font-sans);
   }
 </style>

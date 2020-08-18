@@ -3,6 +3,7 @@
   import fsort from "fast-sort"
   import { store, backendUiStore } from "builderStore"
   import { Button, Icon } from "@budibase/bbui"
+  import Select from "components/common/Select.svelte"
   import ActionButton from "components/common/ActionButton.svelte"
   import LinkedRecord from "./LinkedRecord.svelte"
   import TablePagination from "./TablePagination.svelte"
@@ -167,9 +168,6 @@
     max-width: 200px;
     text-overflow: ellipsis;
     border: 1px solid var(--grey-4);
-    overflow: hidden;
-    white-space: pre;
-    box-sizing: border-box;
   }
 
   tbody tr {
@@ -189,7 +187,6 @@
 
   .popovers {
     display: flex;
-    gap: var(--spacing-m);
   }
 
   .no-data {
