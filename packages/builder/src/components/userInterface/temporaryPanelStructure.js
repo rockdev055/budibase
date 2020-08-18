@@ -1,4 +1,4 @@
-import Input from "../common/Input.svelte"
+import Input from "./PropertyPanelControls/Input.svelte"
 import OptionSelect from "./OptionSelect.svelte"
 import Checkbox from "../common/Checkbox.svelte"
 import ModelSelect from "components/userInterface/ModelSelect.svelte"
@@ -312,41 +312,171 @@ export default {
           },
         },
         {
-          _component: "@budibase/materialdesign-components/BasicCard",
           name: "Card",
-          description:
-            "A basic card component that can contain content and actions.",
+          description: "Card components",
           icon: "ri-layout-bottom-line",
-          children: [],
-          properties: {
-            design: { ...all },
-            settings: [
-              {
-                label: "Heading",
-                key: "heading",
-                control: Input,
-                placeholder: "text",
+          commonProps: {},
+          children: [
+            {
+              _component: "@budibase/standard-components/card",
+              name: "Vertical",
+              description:
+                "A basic card component that can contain content and actions.",
+              icon: "ri-layout-column-line",
+              children: [],
+              properties: {
+                design: { ...all },
+                settings: [
+                  {
+                    label: "Image",
+                    key: "imageUrl",
+                    control: Input,
+                    placeholder: "Image",
+                  },
+                  {
+                    label: "Heading",
+                    key: "heading",
+                    control: Input,
+                    placeholder: "Heading",
+                  },
+                  {
+                    label: "Description",
+                    key: "description",
+                    control: Input,
+                    placeholder: "Description",
+                  },
+                  {
+                    label: "Link Text",
+                    key: "linkText",
+                    control: Input,
+                    placeholder: "Link Text",
+                  },
+                  {
+                    label: "Link Url",
+                    key: "linkUrl",
+                    control: Input,
+                    placeholder: "Link URL",
+                  },
+                  {
+                    label: "Link Color",
+                    key: "color",
+                    control: Input,
+                    placeholder: "Link Color",
+                  },
+                  {
+                    label: "Hover Color",
+                    key: "linkHoverColor",
+                    control: Input,
+                    placeholder: "Hover Color",
+                  },
+                  {
+                    label: "Image Height",
+                    key: "imageHeight",
+                    control: OptionSelect,
+                    options: ["12rem", "16rem", "20rem", "24rem"],
+                    placeholder: "Image Height",
+                  },
+                  {
+                    label: "Card Width",
+                    key: "cardWidth",
+                    control: OptionSelect,
+                    options: ["16rem", "20rem", "24rem"],
+                    placeholder: "Card Width",
+                  },
+                ],
               },
-              {
-                label: "Subheading",
-                key: "subheading",
-                control: Input,
-                placeholder: "text",
+            },
+            {
+              _component: "@budibase/standard-components/cardhorizontal",
+              name: "Horizontal",
+              description:
+                "A basic card component that can contain content and actions.",
+              icon: "ri-layout-row-line",
+              children: [],
+              properties: {
+                design: { ...all },
+                settings: [
+                  {
+                    label: "Image",
+                    key: "imageUrl",
+                    control: Input,
+                    placeholder: "Image",
+                  },
+                  {
+                    label: "Heading",
+                    key: "heading",
+                    control: Input,
+                    placeholder: "Heading",
+                  },
+                  {
+                    label: "Description",
+                    key: "description",
+                    control: Input,
+                    placeholder: "Description",
+                  },
+                  {
+                    label: "Subtext",
+                    key: "subtext",
+                    control: Input,
+                    placeholder: "Subtext",
+                  },
+                  {
+                    label: "Link Text",
+                    key: "linkText",
+                    control: Input,
+                    placeholder: "Link Text",
+                  },
+                  {
+                    label: "Link Url",
+                    key: "linkUrl",
+                    control: Input,
+                    placeholder: "Link URL",
+                  },
+                  {
+                    label: "Link Color",
+                    key: "color",
+                    control: Input,
+                    placeholder: "Link Color",
+                  },
+                  {
+                    label: "Hover Color",
+                    key: "linkHoverColor",
+                    control: Input,
+                    placeholder: "Hover Color",
+                  },
+                  {
+                    label: "Card Width",
+                    key: "cardWidth",
+                    control: OptionSelect,
+                    options: [
+                      "24rem",
+                      "28rem",
+                      "32rem",
+                      "40rem",
+                      "48rem",
+                      "60rem",
+                      "100%",
+                    ],
+                    placeholder: "Card Height",
+                  },
+                  {
+                    label: "Image Width",
+                    key: "imageWidth",
+                    control: OptionSelect,
+                    options: ["8rem", "12rem", "16rem"],
+                    placeholder: "Image Width",
+                  },
+                  {
+                    label: "Image Height",
+                    key: "imageHeight",
+                    control: OptionSelect,
+                    options: ["8rem", "12rem", "16rem", "auto"],
+                    placeholder: "Image Height",
+                  },
+                ],
               },
-              {
-                label: "Content",
-                key: "content",
-                control: Input,
-                placeholder: "text",
-              },
-              {
-                label: "Image",
-                key: "imageUrl",
-                control: Input,
-                placeholder: "src",
-              },
-            ],
-          },
+            },
+          ],
         },
         {
           name: "Table",
@@ -396,11 +526,6 @@ export default {
                   },
                 ],
               },
-              template: {
-                component: "@budibase/materialdesign-components/Form",
-                description: "Form for saving a record",
-                name: "@budibase/materialdesign-components/recordForm",
-              },
             },
             {
               _component: "@budibase/standard-components/dataformwide",
@@ -433,7 +558,7 @@ export default {
           name: "Donut Chart",
           _component: "@budibase/standard-components/donut",
           description: "Donut chart",
-          icon: "ri-pie-chart-fill",
+          icon: "ri-pie-chart-line",
           properties: {
             settings: [
               {
@@ -526,35 +651,6 @@ export default {
             ],
           },
           children: [],
-        },
-        {
-          name: "Data List",
-          _component: "@budibase/standard-components/datalist",
-          description: "Shiny list",
-          icon: "ri-file-list-fill",
-          properties: {
-            design: { ...all },
-            settings: [{ label: "Table", key: "model", control: ModelSelect }],
-          },
-          children: [],
-        },
-        {
-          name: "List",
-          _component: "@budibase/standard-components/list",
-          description: "Renders all children once per record, of a given table",
-          icon: "ri-file-list-fill",
-          properties: {
-            design: { ...all },
-            settings: [{ label: "Table", key: "model", control: ModelSelect }],
-          },
-          children: [
-            {
-              _component: "@budibase/standard-components/heading",
-              name: "Headline",
-              description: "A component for displaying heading text",
-              icon: "ri-heading",
-            },
-          ],
         },
         // {
         //  name: "Data List",
