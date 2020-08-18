@@ -1,0 +1,78 @@
+<script>
+  import { onMount } from "svelte"
+  import fsort from "fast-sort"
+  import getOr from "lodash/fp/getOr"
+  import { store, backendUiStore } from "builderStore"
+  import api from "builderStore/api"
+  import { Button, Icon } from "@budibase/bbui"
+  import Table from "./Table.svelte"
+  import Select from "components/common/Select.svelte"
+  import ActionButton from "components/common/ActionButton.svelte"
+  import LinkedRecord from "./LinkedRecord.svelte"
+  import TablePagination from "./TablePagination.svelte"
+  import { DeleteRecordModal, CreateEditRecordModal } from "./modals"
+  import RowPopover from "./popovers/Row.svelte"
+  import ColumnPopover from "./popovers/Column.svelte"
+  import ViewPopover from "./popovers/View.svelte"
+  import ColumnHeaderPopover from "./popovers/ColumnHeader.svelte"
+  import EditRowPopover from "./popovers/EditRow.svelte"
+  import CalculationPopover from "./popovers/Calculate.svelte"
+  import GroupByPopover from "./popovers/GroupBy.svelte"
+
+  let COLUMNS = [
+    {
+      name: "Group",
+      key: "key",
+    },
+    {
+      name: "sum",
+      key: "value.sum",
+    },
+    {
+      name: "min",
+      key: "value.min"
+    },
+    {
+      name: "max",
+      key: "value.max"
+    },
+    {
+      name: "sumsqr",
+      key: "value.sumsqr"
+    },
+    {
+      name: "count",
+      key: "value.count"
+    },
+    {
+      name: "avg",
+      key: "value.avg"
+    }
+  ]
+
+  export let view = {}
+
+  let data = []
+
+  $: viewName = view.name
+  $: !viewName.startsWith("all_") && fetchViewData(viewName)
+
+  async function fetchViewData(viewName) {
+    let QUERY_VIEW_URL = `/api/views/${viewName}?stats=true`
+    if (view.groupBy) {
+      QUERY_VIEW_URL += `&group=${view.groupBy}`
+    }
+
+    const response = await api.get(QUERY_VIEW_URL)
+    data = await response.json()
+  }
+</script>
+
+<Table 
+  title={decodeURI(view.name)}
+  columns={COLUMNS}
+  {data}
+>
+    <CalculationPopover {view} />
+    <GroupByPopover {view} />
+</Table>
