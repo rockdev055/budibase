@@ -5,6 +5,7 @@
   import HandlerSelector from "./HandlerSelector.svelte"
   import IconButton from "../../common/IconButton.svelte"
   import ActionButton from "../../common/ActionButton.svelte"
+  import PlusButton from "../../common/PlusButton.svelte"
   import Select from "../../common/Select.svelte"
   import Input from "../../common/Input.svelte"
   import getIcon from "../../common/icon"
