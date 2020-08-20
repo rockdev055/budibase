@@ -10,10 +10,10 @@
 
 <section>
   <div class="content">
-    <header>
+    <heading>
       <i class="ri-information-line alert" />
       <h4 class="budibase__title--4">Delete Record</h4>
-    </header>
+    </heading>
     <p>
       Are you sure you want to delete this record? All of your data will be
       permanently removed. This action cannot be undone.
@@ -47,7 +47,7 @@
     border-top: 1px solid #ccc;
   }
 
-  header {
+  heading {
     display: flex;
     align-items: center;
   }

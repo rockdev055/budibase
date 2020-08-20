@@ -2,9 +2,11 @@
   import { Input, Select } from "@budibase/bbui"
 
   export let type = "text"
-  export let value = type === "checkbox" ? false : ""
+  export let value = ""
   export let label
   export let options = []
+
+  let checked = type === "checkbox" ? value : false
 
   const handleInput = event => {
     if (event.target.type === "checkbox") {
@@ -36,7 +38,7 @@
     thin
     placeholder={label}
     data-cy="{label}-input"
-    checked={value}
+    {checked}
     {type}
     {value}
     on:input={handleInput}

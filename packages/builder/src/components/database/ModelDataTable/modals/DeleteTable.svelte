@@ -1,22 +1,25 @@
 <script>
-  import { goto } from "@sveltech/routify"
   import ActionButton from "components/common/ActionButton.svelte"
   import { notifier } from "builderStore/store/notifications"
   import { store, backendUiStore } from "builderStore"
   import * as api from "../api"
 
-  export let viewName
+  export let table
   export let onClosed
+
+  function deleteTable() {
+    backendUiStore.actions.models.delete(table)
+  }
 </script>
 
 <section>
   <div class="content">
-    <header>
+    <heading>
       <i class="ri-information-line alert" />
-      <h4 class="budibase__title--4">Delete View</h4>
-    </header>
+      <h4 class="budibase__title--4">Delete Table</h4>
+    </heading>
     <p>
-      Are you sure you want to delete this view? All of your data will be
+      Are you sure you want to delete this table? All of your data will be
       permanently removed. This action cannot be undone.
     </p>
   </div>
@@ -25,9 +28,8 @@
     <ActionButton
       alert
       on:click={async () => {
-        await backendUiStore.actions.views.delete(viewName)
-        notifier.danger(`View ${viewName} deleted.`)
-        $goto(`./backend`)
+        await backendUiStore.actions.models.delete(table)
+        notifier.danger('Table deleted')
         onClosed()
       }}>
       Delete
@@ -48,7 +50,7 @@
     border-top: 1px solid #ccc;
   }
 
-  header {
+  heading {
     display: flex;
     align-items: center;
   }

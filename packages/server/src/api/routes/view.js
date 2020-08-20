@@ -13,7 +13,8 @@ router
     recordController.fetchView
   )
   .get("/api/views", authorized(BUILDER), viewController.fetch)
-  .delete("/api/views/:viewName", authorized(BUILDER), viewController.destroy)
-  .post("/api/views", authorized(BUILDER), viewController.save)
+  // .patch("/api/:databaseId/views", controller.update);
+  // .delete("/api/:instanceId/views/:viewId/:revId", controller.destroy);
+  .post("/api/views", authorized(BUILDER), viewController.create)
 
 module.exports = router
