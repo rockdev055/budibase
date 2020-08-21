@@ -132,10 +132,7 @@
 
   .popovers {
     display: flex;
-  }
-
-  :global(.popovers > div) {
-    margin-right: var(--spacing-m);
+    gap: var(--spacing-l);
   }
 
   .no-data {
