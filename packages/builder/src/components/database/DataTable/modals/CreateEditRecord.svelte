@@ -19,6 +19,25 @@
     ? Object.entries($backendUiStore.selectedModel.schema)
     : []
 
+  const isSelect = meta =>
+    meta.type === "string" &&
+    meta.constraints &&
+    meta.constraints.inclusion &&
+    meta.constraints.inclusion.length > 0
+
+  function determineInputType(meta) {
+    if (meta.type === "datetime") return "date"
+    if (meta.type === "number") return "number"
+    if (meta.type === "boolean") return "checkbox"
+    if (isSelect(meta)) return "select"
+
+    return "text"
+  }
+
+  function determineOptions(meta) {
+    return isSelect(meta) ? meta.constraints.inclusion : []
+  }
+
   async function saveRecord() {
     const recordResponse = await api.saveRecord(
       {
@@ -47,14 +66,18 @@
   <ErrorsBox {errors} />
   <form on:submit|preventDefault class="uk-form-stacked">
     {#each modelSchema as [key, meta]}
-      <div class="uk-margin">
+      <div class="bb-margin-xl">
         {#if meta.type === 'link'}
           <LinkedRecordSelector
             bind:linked={record[key]}
             linkName={meta.name}
             modelId={meta.modelId} />
         {:else}
-          <RecordFieldControl {meta} bind:value={record[key]} />
+          <RecordFieldControl
+            type={determineInputType(meta)}
+            options={determineOptions(meta)}
+            label={meta.name}
+            bind:value={record[key]} />
         {/if}
       </div>
     {/each}
