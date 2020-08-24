@@ -24,7 +24,7 @@
   })
 </script>
 
-<div class="bb-margin-m">
+<div class="uk-margin">
   <label class="uk-form-label">{label}</label>
   <div class="uk-form-controls">
     <input

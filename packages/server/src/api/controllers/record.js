@@ -87,11 +87,12 @@ exports.fetchView = async function(ctx) {
   })
 
   if (stats) {
-    response.rows = response.rows.map(row => ({
-      group: row.key,
-      ...row.value,
-      avg: row.value.sum / row.value.count,
-    }))
+    for (let row of response.rows) {
+      row.value = {
+        ...row.value,
+        avg: row.value.sum / row.value.count,
+      }
+    }
   } else {
     response.rows = response.rows.map(row => row.doc)
   }

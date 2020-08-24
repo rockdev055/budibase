@@ -1,5 +1,5 @@
 const CouchDB = require("../../../db")
-const viewTemplate = require("./viewBuilder")
+const statsViewTemplate = require("./viewBuilder")
 
 const controller = {
   fetch: async ctx => {
@@ -25,15 +25,15 @@ const controller = {
   },
   save: async ctx => {
     const db = new CouchDB(ctx.user.instanceId)
-    const { originalName, ...viewToSave } = ctx.request.body
+    const { originalName, ...newView } = ctx.request.body
 
     const designDoc = await db.get("_design/database")
 
-    const view = viewTemplate(viewToSave)
+    const view = statsViewTemplate(newView)
 
     designDoc.views = {
       ...designDoc.views,
-      [viewToSave.name]: view,
+      [newView.name]: view,
     }
 
     // view has been renamed
@@ -45,11 +45,10 @@ const controller = {
 
     // add views to model document
     const model = await db.get(ctx.request.body.modelId)
-    if (!model.views) model.views = {}
-    if (!view.meta.schema) {
-      view.meta.schema = model.schema
+    model.views = {
+      ...(model.views ? model.views : {}),
+      [newView.name]: view.meta,
     }
-    model.views[viewToSave.name] = view.meta
 
     if (originalName) {
       delete model.views[originalName]
@@ -57,8 +56,8 @@ const controller = {
 
     await db.put(model)
 
-    ctx.body = model.views[viewToSave.name]
-    ctx.message = `View ${viewToSave.name} saved successfully.`
+    ctx.body = view
+    ctx.message = `View ${newView.name} saved successfully.`
   },
   destroy: async ctx => {
     const db = new CouchDB(ctx.user.instanceId)

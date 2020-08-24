@@ -66,14 +66,13 @@ describe("/views", () => {
         TestView: {
           field: "Price",
           modelId: model._id,
-          filters: [],
           schema: {
-            name: {
-              type: "text",
-              constraints: {
-                type: "string" 
-              }
-            }
+            sum: "number",
+            min: "number",
+            max: "number",
+            count: "number",
+            sumsqr: "number",
+            avg: "number"
           }
         }
       });

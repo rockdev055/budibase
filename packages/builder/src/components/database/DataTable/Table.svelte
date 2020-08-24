@@ -16,7 +16,7 @@
   import EditRowPopover from "./popovers/EditRow.svelte"
   import CalculationPopover from "./popovers/Calculate.svelte"
 
-  export let schema = []
+  export let columns = []
   export let data = []
   export let title
 
@@ -24,7 +24,6 @@
 
   let currentPage = 0
 
-  $: columns = schema ? Object.keys(schema) : []
   $: paginatedData =
     data && data.length
       ? data.slice(
@@ -47,7 +46,7 @@
     <thead>
       <tr>
         {#each columns as header}
-          <th>{header}</th>
+          <th>{header.name}</th>
         {/each}
       </tr>
     </thead>
@@ -58,7 +57,7 @@
       {#each paginatedData as row}
         <tr>
           {#each columns as header}
-            <td>{getOr('', header, row)}</td>
+            <td>{getOr(row.default || '', header.key, row)}</td>
           {/each}
         </tr>
       {/each}
@@ -133,10 +132,7 @@
 
   .popovers {
     display: flex;
-  }
-
-  :global(.popovers > div) {
-    margin-right: var(--spacing-m);
+    gap: var(--spacing-l);
   }
 
   .no-data {

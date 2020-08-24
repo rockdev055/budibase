@@ -9,6 +9,10 @@ const INITIAL_BACKEND_UI_STATE = {
   selectedDatabase: {},
   selectedModel: {},
   draftModel: {},
+  tabs: {
+    SETUP_PANEL: "SETUP",
+    NAVIGATION_PANEL: "NAVIGATE",
+  },
 }
 
 export const getBackendUiStore = () => {
@@ -89,13 +93,7 @@ export const getBackendUiStore = () => {
       saveField: ({ originalName, field }) => {
         store.update(state => {
           // delete the original if renaming
-          if (originalName) {
-            delete state.draftModel.schema[originalName]
-            state.draftModel._rename = {
-              old: originalName,
-              updated: field.name,
-            }
-          }
+          delete state.draftModel.schema[originalName]
 
           state.draftModel.schema[field.name] = cloneDeep(field)
 
@@ -123,24 +121,19 @@ export const getBackendUiStore = () => {
         await store.actions.models.fetch()
       },
       save: async view => {
-        const response = await api.post(`/api/views`, view)
-        const json = await response.json()
-
-        const viewMeta = {
-          name: view.name,
-          ...json,
-        }
+        await api.post(`/api/views`, view)
 
         store.update(state => {
           const viewModel = state.models.find(
             model => model._id === view.modelId
           )
-
+          // TODO: Cleaner?
+          if (!viewModel.views) viewModel.views = {}
           if (view.originalName) delete viewModel.views[view.originalName]
-          viewModel.views[view.name] = viewMeta
+          viewModel.views[view.name] = view
 
           state.models = state.models
-          state.selectedView = viewMeta
+          state.selectedView = view
           return state
         })
       },
@@ -156,4 +149,12 @@ export const getBackendUiStore = () => {
   }
 
   return store
+}
+
+// Store Actions
+export const createDatabaseForApp = store => appInstance => {
+  store.update(state => {
+    state.appInstances.push(appInstance)
+    return state
+  })
 }

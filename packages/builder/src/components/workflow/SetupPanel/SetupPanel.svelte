@@ -81,7 +81,7 @@
     {/if}
   </header>
   {#if selectedTab === 'TEST'}
-    <div class="bb-margin-m">
+    <div class="uk-margin config-item">
       {#if testResult}
         <button
           transition:fade
@@ -112,9 +112,11 @@
         <div class="panel-body">
           <div class="block-label">Workflow: {workflow.name}</div>
           <div class="config-item">
+            <Input label="Name" bind:value={workflow.name} thin />
+          </div>
+          <div class="config-item">
             <label class="uk-form-label">User Access</label>
             <div class="access-levels">
-
               {#each ACCESS_LEVELS as level}
                 <span class="access-level">
                   <label>{level.name}</label>
