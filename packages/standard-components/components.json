@@ -93,7 +93,6 @@
 	},
 	"input": {
 		"name": "Input",
-		"bindable": "value",
 		"description": "An HTML input",
 		"props": {
 			"value": "string",
@@ -132,7 +131,6 @@
 	},
 	"select": {
 		"name": "Select",
-		"bindable": "value",
 		"description": "An HTML <select> (dropdown)",
 		"props": {
 			"value": "string",
@@ -154,10 +152,7 @@
 		"children": false,
 		"props": {
 			"text": "string",
-			"type": {
-				"type": "string",
-				"default": "none"
-			}
+			"type": {"type": "string", "default": "none"}
 		},
 		"tags": [
 			"div",
@@ -176,7 +171,6 @@
 	},
 	"checkbox": {
 		"name": "Checkbox",
-		"bindable": "value",
 		"description": "A selectable checkbox component",
 		"props": {
 			"label": "string",
@@ -187,7 +181,6 @@
 	},
 	"radiobutton": {
 		"name": "Radiobutton",
-		"bindable": "value",
 		"description": "A selectable radiobutton component",
 		"props": {
 			"label": "string",
@@ -210,7 +203,7 @@
 		"description": "an HTML table that fetches data from a table or view and displays it.",
 		"data": true,
 		"props": {
-			"model": "models",
+			"datasource": "models",
 			"stripeColor": "string",
 			"borderColor": "string",
 			"backgroundColor": "string",
@@ -251,12 +244,11 @@
 		}
 	},
 	"list": {
-		"description": "configurable data list that attaches to your backend models.",
+		"description": "A configurable data list that attaches to your backend models.",
 		"children": true,
-		"context": "model",
 		"data": true,
 		"props": {
-			"model": "models"
+			"datasource": "models"
 		}
 	},
 	"stackedlist": {
@@ -274,7 +266,6 @@
 	"recorddetail": {
 		"description": "Loads a record, using an ID in the url",
 		"children": true,
-		"context": "model",
 		"data": true,
 		"props": {
 			"model": "models"
@@ -366,7 +357,7 @@
 		"description": "Donut Chart",
 		"data": true,
 		"props": {
-			"model": "string",
+			"datasource": "string",
 			"color": "string",
 			"height": "number",
 			"width": "number",
@@ -400,13 +391,13 @@
 			"lineGradient": "string",
 			"titleText": "string",
 			"valueLabel": "string"
-		}
+		}	
 	},
 	"stackedbar": {
 		"description": "Stacked Bar Chart",
 		"data": true,
 		"props": {
-			"model": "string",
+			"datasource": "models",
 			"color": "string",
 			"height": "number",
 			"width": "number",
@@ -429,7 +420,7 @@
 			"yAxisLabel": "string",
 			"yAxisLabelOffset": "number",
 			"useLegend": "bool"
-		}
+		}		
 	},
 	"stackarea": {
 		"description": "Step Chart",
@@ -458,7 +449,7 @@
 			"xAxisCustomFormat": "string",
 			"xAxisFormat": "string",
 			"xAxisScale": "string",
-			"xAxisValueType": "string",
+			"xAxisValueType":"string",
 			"yTicks": "number",
 			"xTicks": "number",
 			"yAxisBaseline": "string",
@@ -476,14 +467,14 @@
 			"xAxisLabel": "string",
 			"xAxisLabelOffset": "string",
 			"yAxisLabel": "string",
-			"yAxisLabelOffset": "string",
+			"yAxisLabelOffset": "string",	
 			"yTicks": "string"
 		}
 	},
 	"scatterplot": {
 		"description": "Scatterplot Chart",
 		"data": true,
-		"props": {
+		"props": { 
 			"model": "string",
 			"color": "string",
 			"height": "number",
@@ -499,7 +490,7 @@
 			"xTicks": "string",
 			"yAxisFormat": "string",
 			"yAxisLabel": "string",
-			"yAxisLabelOffset": "string",
+			"yAxisLabelOffset": "string",	
 			"yTicks": "string"
 		}
 	},
@@ -507,20 +498,16 @@
 		"description": "Bar Chart",
 		"data": true,
 		"props": {
-			"model": "string",
+			"datasource": "models",
 			"betweenBarsPadding": "number",
 			"gradient": "string",
 			"color": "string",
-			"enableLabels": "bool",
 			"hasSingleBarHighlight": "bool",
 			"height": "number",
 			"width": "number",
 			"isAnimated": "bool",
 			"isHorizontal": "bool",
-			"xAxisLabelOffset": "number",
-			"yAxisLabelOffset": "number",
 			"labelNumberFormat": "number",
-			"labelSize": "number",
 			"locale": "string",
 			"nameLabel": "string",
 			"valueLabel": "string",
@@ -536,7 +523,7 @@
 		"description": "Line Chart",
 		"data": true,
 		"props": {
-			"model": "string",
+			"datasource": "models",
 			"width": "number",
 			"height": "number",
 			"axisTimeCombinations": "string",
@@ -555,10 +542,12 @@
 			"xAxisScale": "string",
 			"xAxisFormat": "string",
 			"xAxisCustomFormat": "string",
-			"xAxisLabel": "string"
+			"xAxisLabel": "string",
+			"yAxisLabel": "string",
+			"tooltipTitle": "string"
 		}
 	},
-	"brush": {
+	"brush":{
 		"description": "brush chart",
 		"data": true,
 		"props": {
@@ -576,7 +565,7 @@
 		}
 	},
 	"heatmap": {
-		"description": "Groupedbar chart",
+		"description": "Heatmap chart",
 		"data": true,
 		"props": {
 			"model": "string",
@@ -586,27 +575,26 @@
 			"useLegend": "bool",
 			"yAxisLabel": "string",
 			"boxSize": "number"
-		}
+		}		
 	},
 	"groupedbar": {
 		"description": "Groupedbar chart",
 		"data": true,
 		"props": {
-			"model": "string",
+			"datasource": "models",
 			"color": "string",
 			"height": "string",
 			"width": "string",
-			"margin": "string",
-			"aspectRatio": "number",
-			"grid": "string",
+			"margin":"string",
+			"grid":"string",
 			"groupLabel": "string",
 			"isAnimated": "bool",
 			"isHorizontal": "bool",
 			"nameLabel": "string",
-			"valueLabel": "string",
+			"valueLabel":"string",
 			"yTicks": "string",
-			"yTickTextOffset": "string",
-			"useLegend": "bool"
+			"useLegend": "bool",
+			"tooltipTitle": "string"
 		}
 	},
 	"bullet": {
@@ -663,12 +651,12 @@
 				"styleBindingProperty": "font-family",
 				"options": [
 					"initial",
-					"Times New Roman",
+					"Times New Roman",	
 					"Georgia",
 					"Arial",
-					"Arial Black",
+					"Arial Black",	
 					"Comic Sans MS",
-					"Impact",
+					"Impact",	
 					"Lucida Sans Unicode"
 				]
 			}
@@ -710,7 +698,7 @@
 				],
 				"default": "div"
 			}
-		},
+		},		
 		"container": true,
 		"tags": [
 			"div",
@@ -724,7 +712,7 @@
 		"props": {
 			"className": "string",
 			"text": "string",
-			"type": {
+		"type": {
 				"type": "options",
 				"default": "h1",
 				"options": [

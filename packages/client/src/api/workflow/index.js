@@ -1,5 +1,6 @@
-import renderTemplateString from "../../state/renderTemplateString"
-import appStore from "../../state/store"
+import { get } from "svelte/store"
+import mustache from "mustache"
+import { appStore } from "../../state/store"
 import Orchestrator from "./orchestrator"
 import clientActions from "./actions"
 
@@ -17,9 +18,9 @@ export const clientStrategy = ({ api }) => ({
       if (typeof argValue !== "string") continue
 
       // Render the string with values from the workflow context and state
-      mappedArgs[arg] = renderTemplateString(argValue, {
+      mappedArgs[arg] = mustache.render(argValue, {
         context: this.context,
-        state: appStore.get(),
+        state: get(appStore),
       })
     }
 
