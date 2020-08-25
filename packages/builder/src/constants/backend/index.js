@@ -3,7 +3,6 @@ export const FIELDS = {
     name: "Plain Text",
     icon: "ri-text",
     type: "string",
-    value: "string",
     constraints: {
       type: "string",
       length: {},
@@ -14,18 +13,16 @@ export const FIELDS = {
     name: "Number",
     icon: "ri-number-1",
     type: "number",
-    value: "number",
     constraints: {
       type: "number",
       presence: { allowEmpty: true },
-      numericality: { greaterThanOrEqualTo: "", lessThanOrEqualTo: "" },
+      numericality: {},
     },
   },
   BOOLEAN: {
     name: "True/False",
     icon: "ri-toggle-line",
     type: "boolean",
-    value: "boolean",
     constraints: {
       type: "boolean",
       presence: { allowEmpty: true },
@@ -44,15 +41,10 @@ export const FIELDS = {
     name: "Date/Time",
     icon: "ri-calendar-event-fill",
     type: "string",
-    value: "datetime",
     constraints: {
       type: "string",
       length: {},
       presence: { allowEmpty: true },
-      datetime: {
-        latest: "",
-        earliest: "",
-      },
     },
   },
   // IMAGE: {

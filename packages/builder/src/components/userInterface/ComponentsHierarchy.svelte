@@ -7,11 +7,8 @@
   import { store } from "builderStore"
   import { ArrowDownIcon, ShapeIcon } from "components/common/Icons/"
   import ScreenDropdownMenu from "./ScreenDropdownMenu.svelte"
-  import { writable } from "svelte/store"
 
   export let screens = []
-
-  const dragDropStore = writable({})
 
   let confirmDeleteDialog
   let componentToDelete = ""
@@ -60,8 +57,7 @@
     {#if $store.currentPreviewItem.props._instanceName && $store.currentPreviewItem.props._instanceName === screen.props._instanceName && screen.props._children}
       <ComponentsHierarchyChildren
         components={screen.props._children}
-        currentComponent={$store.currentComponentInfo}
-        {dragDropStore} />
+        currentComponent={$store.currentComponentInfo} />
     {/if}
   {/each}
 
@@ -96,6 +92,10 @@
   .icon:nth-of-type(2) {
     width: 14px;
     margin: 0 0 0 5px;
+  }
+
+  :global(svg) {
+    transition: 0.2s;
   }
 
   .rotate :global(svg) {

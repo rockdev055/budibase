@@ -16,7 +16,6 @@
 	"Navigation": {
 		"name": "Navigation",
 		"description": "A basic header navigation component",
-		"children": true,
 		"props": {
 			"logoUrl": "string",
 			"title": "string",
@@ -93,6 +92,7 @@
 	},
 	"input": {
 		"name": "Input",
+		"bindable": "value",
 		"description": "An HTML input",
 		"props": {
 			"value": "string",
@@ -131,6 +131,7 @@
 	},
 	"select": {
 		"name": "Select",
+		"bindable": "value",
 		"description": "An HTML <select> (dropdown)",
 		"props": {
 			"value": "string",
@@ -152,7 +153,10 @@
 		"children": false,
 		"props": {
 			"text": "string",
-			"type": {"type": "string", "default": "none"}
+			"type": {
+				"type": "string",
+				"default": "none"
+			}
 		},
 		"tags": [
 			"div",
@@ -171,6 +175,7 @@
 	},
 	"checkbox": {
 		"name": "Checkbox",
+		"bindable": "value",
 		"description": "A selectable checkbox component",
 		"props": {
 			"label": "string",
@@ -181,6 +186,7 @@
 	},
 	"radiobutton": {
 		"name": "Radiobutton",
+		"bindable": "value",
 		"description": "A selectable radiobutton component",
 		"props": {
 			"label": "string",
@@ -203,7 +209,7 @@
 		"description": "an HTML table that fetches data from a table or view and displays it.",
 		"data": true,
 		"props": {
-			"datasource": "models",
+			"model": "models",
 			"stripeColor": "string",
 			"borderColor": "string",
 			"backgroundColor": "string",
@@ -245,10 +251,10 @@
 	},
 	"list": {
 		"description": "A configurable data list that attaches to your backend models.",
-		"children": true,
+		"context": "model",
 		"data": true,
 		"props": {
-			"datasource": "models"
+			"model": "models"
 		}
 	},
 	"stackedlist": {
@@ -265,85 +271,10 @@
 	},
 	"recorddetail": {
 		"description": "Loads a record, using an ID in the url",
-		"children": true,
+		"context": "model",
 		"data": true,
 		"props": {
 			"model": "models"
-		}
-	},
-	"card": {
-		"name": "Card",
-		"props": {
-			"imageUrl": "string",
-			"heading": "string",
-			"description": "string",
-			"linkText": "string",
-			"linkUrl": "string",
-			"color": "string",
-			"linkHoverColor": "string",
-			"imageHeight": {
-				"type": "options",
-				"default": "20rem",
-				"options": [
-					"12rem",
-					"16rem",
-					"20rem",
-					"24rem"				
-				]
-			},
-			"cardWidth": {
-				"type": "options",
-				"default": "20rem",
-				"options": [
-					"16rem",
-					"20rem",
-					"24rem"				
-				]
-			}
-		}
-	},
-	"cardhorizontal": {
-		"name": "Horizontal Card",
-		"props": {
-			"imageUrl": "string",
-			"heading": "string",
-			"description": "string",
-			"subtext": "string",
-			"linkText": "string",
-			"linkUrl": "string",
-			"color": "string",
-			"linkHoverColor": "string",
-			"imageWidth": {
-				"type": "options",
-				"default": "8rem",
-				"options": [
-					"8rem",
-					"12rem",
-					"16rem"			
-				]
-			},
-			"cardWidth": {
-				"type": "options",
-				"default": "32rem",
-				"options": [
-					"24rem",
-					"28rem",
-					"32rem",
-					"40rem",
-					"48rem",
-					"60rem",
-					"100%"		
-				]
-			},
-			"imageHeight": {
-				"type": "options",
-				"default": "8rem",
-				"options": [
-					"8rem",
-					"12rem",
-					"16rem"			
-				]
-			}
 		}
 	},
 	"datamap": {
@@ -357,7 +288,7 @@
 		"description": "Donut Chart",
 		"data": true,
 		"props": {
-			"datasource": "string",
+			"model": "string",
 			"color": "string",
 			"height": "number",
 			"width": "number",
@@ -391,13 +322,13 @@
 			"lineGradient": "string",
 			"titleText": "string",
 			"valueLabel": "string"
-		}	
+		}
 	},
 	"stackedbar": {
 		"description": "Stacked Bar Chart",
 		"data": true,
 		"props": {
-			"datasource": "models",
+			"model": "string",
 			"color": "string",
 			"height": "number",
 			"width": "number",
@@ -420,7 +351,7 @@
 			"yAxisLabel": "string",
 			"yAxisLabelOffset": "number",
 			"useLegend": "bool"
-		}		
+		}
 	},
 	"stackarea": {
 		"description": "Step Chart",
@@ -449,7 +380,7 @@
 			"xAxisCustomFormat": "string",
 			"xAxisFormat": "string",
 			"xAxisScale": "string",
-			"xAxisValueType":"string",
+			"xAxisValueType": "string",
 			"yTicks": "number",
 			"xTicks": "number",
 			"yAxisBaseline": "string",
@@ -467,14 +398,14 @@
 			"xAxisLabel": "string",
 			"xAxisLabelOffset": "string",
 			"yAxisLabel": "string",
-			"yAxisLabelOffset": "string",	
+			"yAxisLabelOffset": "string",
 			"yTicks": "string"
 		}
 	},
 	"scatterplot": {
 		"description": "Scatterplot Chart",
 		"data": true,
-		"props": { 
+		"props": {
 			"model": "string",
 			"color": "string",
 			"height": "number",
@@ -490,7 +421,7 @@
 			"xTicks": "string",
 			"yAxisFormat": "string",
 			"yAxisLabel": "string",
-			"yAxisLabelOffset": "string",	
+			"yAxisLabelOffset": "string",
 			"yTicks": "string"
 		}
 	},
@@ -498,16 +429,20 @@
 		"description": "Bar Chart",
 		"data": true,
 		"props": {
-			"datasource": "models",
+			"model": "string",
 			"betweenBarsPadding": "number",
 			"gradient": "string",
 			"color": "string",
+			"enableLabels": "bool",
 			"hasSingleBarHighlight": "bool",
 			"height": "number",
 			"width": "number",
 			"isAnimated": "bool",
 			"isHorizontal": "bool",
+			"xAxisLabelOffset": "number",
+			"yAxisLabelOffset": "number",
 			"labelNumberFormat": "number",
+			"labelSize": "number",
 			"locale": "string",
 			"nameLabel": "string",
 			"valueLabel": "string",
@@ -523,7 +458,7 @@
 		"description": "Line Chart",
 		"data": true,
 		"props": {
-			"datasource": "models",
+			"model": "string",
 			"width": "number",
 			"height": "number",
 			"axisTimeCombinations": "string",
@@ -542,12 +477,10 @@
 			"xAxisScale": "string",
 			"xAxisFormat": "string",
 			"xAxisCustomFormat": "string",
-			"xAxisLabel": "string",
-			"yAxisLabel": "string",
-			"tooltipTitle": "string"
+			"xAxisLabel": "string"
 		}
 	},
-	"brush":{
+	"brush": {
 		"description": "brush chart",
 		"data": true,
 		"props": {
@@ -565,7 +498,7 @@
 		}
 	},
 	"heatmap": {
-		"description": "Heatmap chart",
+		"description": "Groupedbar chart",
 		"data": true,
 		"props": {
 			"model": "string",
@@ -575,32 +508,33 @@
 			"useLegend": "bool",
 			"yAxisLabel": "string",
 			"boxSize": "number"
-		}		
+		}
 	},
 	"groupedbar": {
 		"description": "Groupedbar chart",
 		"data": true,
 		"props": {
-			"datasource": "models",
+			"model": "string",
 			"color": "string",
 			"height": "string",
 			"width": "string",
-			"margin":"string",
-			"grid":"string",
+			"margin": "string",
+			"aspectRatio": "number",
+			"grid": "string",
 			"groupLabel": "string",
 			"isAnimated": "bool",
 			"isHorizontal": "bool",
 			"nameLabel": "string",
-			"valueLabel":"string",
+			"valueLabel": "string",
 			"yTicks": "string",
-			"useLegend": "bool",
-			"tooltipTitle": "string"
+			"yTickTextOffset": "string",
+			"useLegend": "bool"
 		}
 	},
 	"bullet": {
 		"description": "Bullet chart",
 		"data": true,
-		"props": { 
+		"props": {
 			"model": "string",
 			"color": "string",
 			"customSubtitle": "string",
@@ -651,12 +585,12 @@
 				"styleBindingProperty": "font-family",
 				"options": [
 					"initial",
-					"Times New Roman",	
+					"Times New Roman",
 					"Georgia",
 					"Arial",
-					"Arial Black",	
+					"Arial Black",
 					"Comic Sans MS",
-					"Impact",	
+					"Impact",
 					"Lucida Sans Unicode"
 				]
 			}
@@ -674,7 +608,6 @@
 	},
 	"container": {
 		"name": "Container",
-		"children": true,
 		"description": "An element that contains and lays out other elements. e.g. <div>, <header> etc",
 		"props": {
 			"className": "string",
@@ -698,7 +631,7 @@
 				],
 				"default": "div"
 			}
-		},		
+		},
 		"container": true,
 		"tags": [
 			"div",
@@ -712,7 +645,7 @@
 		"props": {
 			"className": "string",
 			"text": "string",
-		"type": {
+			"type": {
 				"type": "options",
 				"default": "h1",
 				"options": [

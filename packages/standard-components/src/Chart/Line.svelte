@@ -1,6 +1,5 @@
 <script>
-  import { getColorSchema, getChartGradient, notNull, hasProp } from "./utils"
-  import fetchData from "../fetchData.js"
+  import { getColorSchema, getChartGradient, notNull } from "./utils"
   import britecharts from "britecharts"
   import { onMount } from "svelte"
 
@@ -10,49 +9,39 @@
   const _id = shortid.generate()
 
   export let _bb
-  export let datasource = {}
+  export let model
 
   let store = _bb.store
 
   const chart = britecharts.line()
   const chartClass = `line-container-${_id}`
-
-  let data = { dataByTopic: [] }
+  const legendClass = `legend-container-${_id}`
 
   let chartElement
   let chartContainer
+  let tooltip
   let tooltipContainer
 
-  let tooltip = britecharts.tooltip()
-
-  export let customMouseOver = () => tooltip.show()
-  export let customMouseMove = (
-    dataPoint,
-    topicColorMap,
-    dataPointXPosition,
-    yPosition
-  ) => {
-    tooltip.update(dataPoint, topicColorMap, dataPointXPosition, yPosition)
-  }
-  export let customMouseOut = () => tooltip.hide()
-
+  export let customMouseHover = null
+  export let customMouseMove = null
+  export let customMouseOut = null
   export let customDataEntryClick = null
   export let customTouchMove = null
 
+  export let data = []
   export let color = "britecharts"
   export let axisTimeCombinations = ""
   export let grid = "horizontal"
   export let aspectRatio = 0.5
+  export let dateLabel = "date"
   export let width = null
   export let height = null
   export let isAnimated = true
   export let lineCurve = "linear" //see api for possible opts
-  export let lineGradient = null
   export let locale = "en-GB"
   export let numberFormat = ""
   export let shouldShowAllDataPoints = true
   export let topicLabel = null
-  export let dateLabel = "date"
   export let valueLabel = null
   export let xAxisLabel = ""
   export let xAxisValueType = "date"
@@ -60,94 +49,41 @@
   export let xAxisFormat = "day-month"
   export let xAxisCustomFormat = "%H"
   export let yAxisLabel = null
+  export let useLegend = true
   export let yAxisLabelPadding = null
   export let lines = null //not handled by setting prop
   export let tooltipThreshold = null
-  export let tooltipTitle = ""
 
   onMount(async () => {
-    if (datasource) {
-      data = await getAndPrepareData()
-      if (data.dataByTopic.length > 0) {
-        chartContainer = select(`.${chartClass}`)
-        bindChartUIProps()
-        bindChartEvents()
-        chartContainer.datum(data).call(chart)
-        bindTooltip()
-      } else {
-        console.error(
-          "Line Chart - Please provide valid name, value and topic labels"
-        )
+    if (chart) {
+      if (model) {
+        await fetchData()
       }
+      chartContainer = select(`.${chartClass}`)
+      bindChartUIProps()
+      bindChartEvents()
+      chartContainer.datum(_data).call(chart)
+      bindChartTooltip()
     }
   })
 
-  function bindTooltip() {
-    tooltipContainer = select(
-      `.${chartClass} .metadata-group .vertical-marker-container`
-    )
-    tooltip.topicLabel("topics")
-    tooltipContainer.datum([]).call(tooltip)
-  }
-
-  const schemaIsValid = data =>
-    hasProp(data, valueLabel) &&
-    hasProp(data, dateLabel) &&
-    hasProp(data, topicLabel)
-
-  async function getAndPrepareData() {
-    let dataByTopic = []
-    let _data = []
-
-    if (!topicLabel) {
-      topicLabel = "topicName"
-    }
-
-    if (!valueLabel) {
-      valueLabel = "value"
-    }
-
-    if (!dateLabel) {
-      dateLabel = "date"
-    }
-
-    _data = await fetchData(datasource)
-
-    if (schemaIsValid(_data)) {
-      _data.forEach((data, idx, arr) => {
-        let topicName = data[topicLabel]
-        if (!dataByTopic.some(dt => dt.topicName === topicName)) {
-          let d = {
-            topicName,
-            topic: dataByTopic.length + 1,
-            dates: arr
-              .filter(d => d[topicLabel] === topicName)
-              .map(d => ({
-                date: new Date(d[dateLabel]),
-                value: d[valueLabel],
-              }))
-              .sort((a, b) => a.date - b.date),
-          }
-          dataByTopic.push(d)
-        }
+  async function fetchData() {
+    const FETCH_RECORDS_URL = `/api/views/all_${model}`
+    const response = await _bb.api.get(FETCH_RECORDS_URL)
+    if (response.status === 200) {
+      const json = await response.json()
+      store.update(state => {
+        state[model] = json
+        return state
       })
+    } else {
+      throw new Error("Failed to fetch records.", response)
     }
-
-    return { dataByTopic }
   }
 
   function bindChartUIProps() {
-    chart.grid("horizontal")
-    chart.isAnimated(true)
-    chart.tooltipThreshold(800)
-    chart.aspectRatio(0.5)
-    chart.xAxisCustomFormat("custom")
-
     if (notNull(color)) {
       chart.colorSchema(colorSchema)
-    }
-    if (notNull(lineGradient)) {
-      chart.lineGradient(chartGradient)
     }
     if (notNull(axisTimeCombinations)) {
       chart.axisTimeCombinations(axisTimeCombinations)
@@ -157,6 +93,9 @@
     }
     if (notNull(aspectRatio)) {
       chart.aspectRatio(aspectRatio)
+    }
+    if (notNull(dateLabel)) {
+      chart.dateLabel(dateLabel)
     }
     if (notNull(width)) {
       chart.width(width)
@@ -179,6 +118,12 @@
     if (notNull(shouldShowAllDataPoints)) {
       chart.shouldShowAllDataPoints(shouldShowAllDataPoints)
     }
+    if (notNull(topicLabel)) {
+      chart.topicLabel(topicLabel)
+    }
+    if (notNull(valueLabel)) {
+      chart.valueLabel(valueLabel)
+    }
     if (notNull(xAxisLabel)) {
       chart.xAxisLabel(xAxisLabel)
     }
@@ -200,25 +145,17 @@
     if (notNull(yAxisLabelPadding)) {
       chart.yAxisLabelPadding(yAxisLabelPadding)
     }
-    if (notNull(tooltipThreshold)) {
-      chart.tooltipThreshold(tooltipThreshold)
-    }
-    if (notNull(lines)) {
-      chart.lines(lines)
-    }
-
-    tooltip.title(tooltipTitle || "Line Tooltip")
   }
 
   function bindChartEvents() {
-    if (customMouseOver) {
-      chart.on("customMouseOver", tooltip.show)
+    if (customMouseHover) {
+      chart.on("customMouseHover", customMouseHover)
     }
     if (customMouseMove) {
-      chart.on("customMouseMove", tooltip.update)
+      chart.on("customMouseMove", customMouseMove)
     }
     if (customMouseOut) {
-      chart.on("customMouseOut", tooltip.hide)
+      chart.on("customMouseOut", customMouseOut)
     }
     if (customDataEntryClick) {
       chart.on("customDataEntryClick", customDataEntryClick)
@@ -228,8 +165,45 @@
     }
   }
 
+  function bindChartTooltip() {
+    tooltip = britecharts.miniTooltip()
+
+    tooltipContainer = select(`.${chartClass} .metadata-group`)
+    tooltipContainer.datum([]).call(tooltip)
+  }
+
+  $: _data = model ? $store[model] : data
+
   $: colorSchema = getColorSchema(color)
-  $: chartGradient = getChartGradient(lineGradient)
 </script>
 
 <div bind:this={chartElement} class={chartClass} />
+{#if useLegend}
+  <div class={legendClass} />
+{/if}
+
+<!-- 
+
+isAnimated={true}
+aspectRatio={0.5}
+grid='horizontal'
+tooltipThreshold={600}
+width={600}
+dateLabel='fullDate'
+
+ {type}
+  {data}
+  {colorSchema}
+  {axisTimeCombinations}
+  {lineCurve}
+  {numberFormat}
+  {height}
+  {topicLabel}
+  {shouldShowAllDataPoints}
+  {xAxisLabel}
+  {valueLabel}
+  {xAxisValueType}
+  {xAxisScale}
+  {xAxisCustomFormat}
+
+ -->

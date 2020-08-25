@@ -13,7 +13,7 @@ exports.appPackageFolder = (config, appname) =>
   resolve(cwd(), config.latestPackagesFolder, appname)
 
 exports.downloadExtractComponentLibraries = async appFolder => {
-  const LIBRARIES = ["standard-components"]
+  const LIBRARIES = ["materialdesign-components", "standard-components"]
 
   // Need to download tarballs directly from NPM as our users may not have node on their machine
   for (let lib of LIBRARIES) {

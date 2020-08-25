@@ -21,7 +21,6 @@ exports.save = async function(ctx) {
   const modelToSave = {
     type: "model",
     _id: newid(),
-    views: {},
     ...ctx.request.body,
   }
 

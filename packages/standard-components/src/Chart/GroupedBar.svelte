@@ -1,16 +1,20 @@
 <script>
-  import { getColorSchema, getChartGradient, notNull, hasProp } from "./utils"
-  import Tooltip from "./Tooltip.svelte"
-  import fetchData from "../fetchData.js"
+  import { getColorSchema, getChartGradient, notNull } from "./utils"
   import britecharts from "britecharts"
   import { onMount } from "svelte"
+
+  /* 
+    ISSUES
+    - Renders but seems to be a problem with tooltip hover
+  */
+
   import { select } from "d3-selection"
   import shortid from "shortid"
 
   const _id = shortid.generate()
 
   export let _bb
-  export let datasource = {}
+  export let model
 
   let store = _bb.store
 
@@ -18,18 +22,22 @@
   const chartClass = `groupedbar-container-${_id}`
   const legendClass = `legend-container-${_id}`
 
-  let tooltip = britecharts.tooltip()
+  let tooltip
   let tooltipContainer
   let chartElement = null
   let chartContainer = null
 
+  export let customMouseOver = () => tooltip.show()
+  export let customMouseMove = (dataPoint, topicColorMap, dataPointXPosition) =>
+    tooltip.update(dataPoint, topicColorMap, dataPointXPosition)
+  export let customMouseOut = () => tooltip.hide()
   export let customClick = null
 
-  let data = []
+  export let data = []
   export let color = "britecharts"
   export let height = 200
   export let width = 200
-  export let margin = null
+  export let margin = { top: 0, right: 0, bottom: 0, left: 0 }
   export let aspectRatio = null
   export let grid = null
   export let groupLabel = null
@@ -43,35 +51,33 @@
   export let yAxisLabelOffset = null
   export let yTicks = null
   export let yTickTextOffset = null
-  export let tooltipTitle = ""
-
-  const schemaIsValid = () =>
-    (hasProp(data, "name") || hasProp(data, nameLabel)) &&
-    (hasProp(data, "group") || hasProp(data, groupLabel)) &&
-    (hasProp(data, "value") || hasProp(data, valueLabel))
+  export let useLegend = true
 
   onMount(async () => {
-    if (model) {
-      data = await fetchData(datasource)
-      if (schemaIsValid()) {
-        chartContainer = select(`.${chartClass}`)
-        bindChartUIProps()
-        bindChartEvents()
-        chartContainer.datum(data).call(chart)
-        bindTooltip()
-      } else {
-        console.error(
-          "Grouped bar - Please provide valid name, value and group labels"
-        )
+    if (chart) {
+      if (model) {
+        await fetchData()
       }
+      chartContainer = select(`.${chartClass}`)
+      bindChartUIProps()
+      //   bindChartEvents()
+      chartContainer.datum(data).call(chart)
+      //   bindChartTooltip()
     }
   })
 
-  function bindTooltip() {
-    tooltipContainer = select(`.${chartClass} .metadata-group`)
-    tooltip.topicLabel("values")
-    tooltip.shouldShowDateInTitle(false)
-    tooltipContainer.datum([]).call(tooltip)
+  async function fetchData() {
+    const FETCH_RECORDS_URL = `/api/views/all_${model}`
+    const response = await _bb.api.get(FETCH_RECORDS_URL)
+    if (response.status === 200) {
+      const json = await response.json()
+      store.update(state => {
+        state[model] = json
+        return state
+      })
+    } else {
+      throw new Error("Failed to fetch records.", response)
+    }
   }
 
   function bindChartUIProps() {
@@ -83,9 +89,6 @@
     }
     if (notNull(width)) {
       chart.width(width)
-    }
-    if (notNull(margin)) {
-      chart.margin(margin)
     }
     if (notNull(aspectRatio)) {
       chart.aspectRatio(aspectRatio)
@@ -126,19 +129,35 @@
     if (notNull(yTickTextOffset)) {
       chart.yTickTextOffset(yTickTextOffset)
     }
-    tooltip.title(tooltipTitle || "Groupedbar Title")
+  }
+
+  function bindChartTooltip() {
+    tooltip = britecharts.miniTooltip()
+    tooltipContainer = select(`.${chartClass} .metadata-group`)
+    tooltipContainer.datum([]).call(tooltip)
   }
 
   function bindChartEvents() {
     if (customClick) {
       chart.on("customClick", customClick)
     }
-    chart.on("customMouseMove", tooltip.update)
-    chart.on("customMouseOut", tooltip.hide)
-    chart.on("customMouseOver", tooltip.show)
+    if (customMouseMove) {
+      chart.on("customMouseMove", customMouseMove)
+    }
+    if (customMouseOut) {
+      chart.on("customMouseOut", customMouseOut)
+    }
+    if (customMouseOver) {
+      chart.on("customMouseOver", customMouseOver)
+    }
   }
+
+  $: _data = model ? $store[model] : data
 
   $: colorSchema = getColorSchema(color)
 </script>
 
 <div bind:this={chartElement} class={chartClass} />
+{#if useLegend}
+  <div class={legendClass} />
+{/if}

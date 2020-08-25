@@ -2,6 +2,7 @@
   import { MoreIcon } from "components/common/Icons"
   import { store } from "builderStore"
   import { getComponentDefinition } from "builderStore/store"
+  import getNewComponentName from "builderStore/getNewComponentName"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
   import { last, cloneDeep } from "lodash/fp"
   import UIkit from "uikit"
@@ -28,7 +29,8 @@
   })
   $: dropdown && UIkit.util.on(dropdown, "shown", () => (hidden = false))
   $: noChildrenAllowed =
-    !component || !getComponentDefinition($store, component._component).children
+    !component ||
+    getComponentDefinition($store, component._component).children === false
   $: noPaste = !$store.componentToPaste
 
   const lastPartOfName = c => (c ? last(c._component.split("/")) : "")
@@ -79,9 +81,7 @@
     store.update(s => {
       const parent = getParent(s.currentPreviewItem.props, component)
       const copiedComponent = cloneDeep(component)
-      walkProps(copiedComponent, p => {
-        p._id = uuid()
-      })
+      generateNewIdsForComponent(copiedComponent, s)
       parent._children = [...parent._children, copiedComponent]
       saveCurrentPreviewItem(s)
       s.currentComponentInfo = copiedComponent
@@ -104,14 +104,50 @@
     })
   }
 
+  const generateNewIdsForComponent = (c, state) =>
+    walkProps(c, p => {
+      p._id = uuid()
+      p._instanceName = getNewComponentName(p._component, state)
+    })
+
   const storeComponentForCopy = (cut = false) => {
-    // lives in store - also used by drag drop
-    store.storeComponentForCopy(component, cut)
+    store.update(s => {
+      const copiedComponent = cloneDeep(component)
+      s.componentToPaste = copiedComponent
+      if (cut) {
+        const parent = getParent(s.currentPreviewItem.props, component._id)
+        parent._children = parent._children.filter(c => c._id !== component._id)
+        selectComponent(s, parent)
+      }
+
+      return s
+    })
   }
 
   const pasteComponent = mode => {
-    // lives in store - also used by drag drop
-    store.pasteComponent(component, mode)
+    store.update(s => {
+      if (!s.componentToPaste) return s
+
+      const componentToPaste = cloneDeep(s.componentToPaste)
+      generateNewIdsForComponent(componentToPaste, s)
+      delete componentToPaste._cutId
+
+      if (mode === "inside") {
+        component._children.push(componentToPaste)
+        return s
+      }
+
+      const parent = getParent(s.currentPreviewItem.props, component)
+
+      const targetIndex = parent._children.indexOf(component)
+      const index = mode === "above" ? targetIndex : targetIndex + 1
+      parent._children.splice(index, 0, cloneDeep(componentToPaste))
+      regenerateCssForCurrentScreen(s)
+      saveCurrentPreviewItem(s)
+      selectComponent(s, componentToPaste)
+
+      return s
+    })
   }
 </script>
 
