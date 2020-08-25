@@ -6,7 +6,6 @@
     hasProp,
   } from "./utils.js"
   import britecharts from "britecharts"
-  import fetchData from "../fetchData.js"
   import { onMount } from "svelte"
 
   import { select } from "d3-selection"
@@ -54,11 +53,17 @@
   export let yTicks = null
   export let percentageAxisToMaxRatio = null
 
+  export let useLegend = true
+
   export let _bb
+  export let model
+
+  let store = _bb.store
 
   onMount(async () => {
-    if (datasource) {
-      data = await fetchData(datasource)
+    if (model) {
+      await fetchData()
+      data = $store[model]
       if (schemaIsValid()) {
         chartContainer = select(`.${chartClass}`)
         bindChartUIProps()
@@ -74,6 +79,20 @@
   const schemaIsValid = () =>
     (hasProp(data, "name") || hasProp(data, nameLabel)) &&
     (hasProp(data, "value") || hasProp(data, valueLabel))
+
+  async function fetchData() {
+    const FETCH_RECORDS_URL = `/api/views/all_${model}`
+    const response = await _bb.api.get(FETCH_RECORDS_URL)
+    if (response.status === 200) {
+      const json = await response.json()
+      store.update(state => {
+        state[model] = json
+        return state
+      })
+    } else {
+      throw new Error("Failed to fetch records.", response)
+    }
+  }
 
   function bindChartUIProps() {
     chart.numberFormat(".0f")

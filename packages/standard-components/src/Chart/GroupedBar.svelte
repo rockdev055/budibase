@@ -1,7 +1,6 @@
 <script>
   import { getColorSchema, getChartGradient, notNull, hasProp } from "./utils"
   import Tooltip from "./Tooltip.svelte"
-  import fetchData from "../fetchData.js"
   import britecharts from "britecharts"
   import { onMount } from "svelte"
   import { select } from "d3-selection"
@@ -10,7 +9,7 @@
   const _id = shortid.generate()
 
   export let _bb
-  export let datasource = {}
+  export let model
 
   let store = _bb.store
 
@@ -52,7 +51,8 @@
 
   onMount(async () => {
     if (model) {
-      data = await fetchData(datasource)
+      await fetchData()
+      data = $store[model]
       if (schemaIsValid()) {
         chartContainer = select(`.${chartClass}`)
         bindChartUIProps()
@@ -66,6 +66,20 @@
       }
     }
   })
+
+  async function fetchData() {
+    const FETCH_RECORDS_URL = `/api/views/all_${model}`
+    const response = await _bb.api.get(FETCH_RECORDS_URL)
+    if (response.status === 200) {
+      const json = await response.json()
+      store.update(state => {
+        state[model] = json
+        return state
+      })
+    } else {
+      throw new Error("Failed to fetch records.", response)
+    }
+  }
 
   function bindTooltip() {
     tooltipContainer = select(`.${chartClass} .metadata-group`)

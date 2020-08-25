@@ -2,7 +2,6 @@ import Input from "./PropertyPanelControls/Input.svelte"
 import OptionSelect from "./OptionSelect.svelte"
 import Checkbox from "../common/Checkbox.svelte"
 import ModelSelect from "components/userInterface/ModelSelect.svelte"
-import ModelViewSelect from "components/userInterface/ModelViewSelect.svelte"
 
 import { all } from "./propertyCategories.js"
 /* 
@@ -259,13 +258,7 @@ export default {
           icon: "ri-file-list-line",
           properties: {
             design: { ...all },
-            settings: [
-              {
-                label: "Table",
-                key: "datasource",
-                control: ModelViewSelect,
-              },
-            ],
+            settings: [{ label: "Table", key: "model", control: ModelSelect }],
           },
           children: [],
         },
@@ -493,11 +486,7 @@ export default {
           properties: {
             design: { ...all },
             settings: [
-              {
-                label: "Table",
-                key: "datasource",
-                control: ModelViewSelect,
-              },
+              { label: "Model", key: "model", control: ModelSelect },
               { label: "Stripe Color", key: "stripeColor", control: Input },
               { label: "Border Color", key: "borderColor", control: Input },
               { label: "TH Color", key: "backgroundColor", control: Input },
@@ -579,8 +568,8 @@ export default {
                 settings: [
                   {
                     label: "Table",
-                    key: "datasource",
-                    control: ModelViewSelect,
+                    key: "model",
+                    control: ModelSelect,
                   },
                   {
                     label: "Animate Chart",
@@ -671,8 +660,8 @@ export default {
                 settings: [
                   {
                     label: "Table",
-                    key: "datasource",
-                    control: ModelViewSelect,
+                    key: "model",
+                    control: ModelSelect,
                   },
                   {
                     label: "Name Label",
@@ -783,8 +772,8 @@ export default {
                 settings: [
                   {
                     label: "Table",
-                    key: "datasource",
-                    control: ModelViewSelect,
+                    key: "model",
+                    control: ModelSelect,
                   },
                   {
                     label: "Color",
@@ -878,8 +867,8 @@ export default {
                 settings: [
                   {
                     label: "Table",
-                    key: "datasource",
-                    control: ModelViewSelect,
+                    key: "model",
+                    control: ModelSelect,
                   },
                   {
                     label: "Colors",

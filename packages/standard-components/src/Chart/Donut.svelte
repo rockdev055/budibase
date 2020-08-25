@@ -1,6 +1,5 @@
 <script>
   import { getColorSchema, notNull } from "./utils.js"
-  import fetchData from "../fetchData.js"
   import Legend from "./Legend.svelte"
   import britecharts from "britecharts"
   import { onMount } from "svelte"
@@ -32,8 +31,6 @@
   export let orderingFunction = null
 
   let data = []
-  export let datasource = {}
-
   export let color = "britecharts"
   export let height = 200
   export let width = 200
@@ -57,11 +54,25 @@
   export let legendWidth = null
   export let legendHeight = null
 
+  async function fetchData() {
+    const FETCH_RECORDS_URL = `/api/views/all_${model}`
+    const response = await _bb.api.get(FETCH_RECORDS_URL)
+    if (response.status === 200) {
+      const json = await response.json()
+      store.update(state => {
+        state[model] = json
+        return state
+      })
+    } else {
+      throw new Error("Failed to fetch records.", response)
+    }
+  }
+
   onMount(async () => {
     if (chart) {
       if (model) {
-        let _data = await fetchData(datasource)
-        data = checkAndReformatData(_data)
+        await fetchData()
+        data = checkAndReformatData($store[model])
         if (data.length === 0) {
           console.error(
             "Donut - please provide a valid name and value field for the chart"

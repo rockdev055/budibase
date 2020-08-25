@@ -21,7 +21,9 @@
   $: fields = Object.keys($backendUiStore.selectedModel.schema).filter(key => {
     return $backendUiStore.selectedModel.schema[key].type === "number"
   })
-  $: views = $backendUiStore.models.flatMap(model => Object.keys(model.views))
+  $: views = $backendUiStore.models.flatMap(model =>
+    Object.keys(model.views || {})
+  )
 
   function saveView() {
     if (views.includes(name)) {
@@ -41,7 +43,7 @@
 
 <div bind:this={anchor}>
   <TextButton text small on:click={dropdown.show}>
-    <Icon name="addrow" />
+    <Icon name="view" />
     Create New View
   </TextButton>
 </div>
@@ -49,11 +51,6 @@
   <h5>Create View</h5>
   <div class="input-group-column">
     <Input placeholder="View Name" thin bind:value={name} />
-    <Select thin secondary bind:value={field}>
-      {#each fields as field}
-        <option value={field}>{field}</option>
-      {/each}
-    </Select>
   </div>
   <div class="button-group">
     <Button secondary on:click={dropdown.hide}>Cancel</Button>
