@@ -2,6 +2,8 @@ import Input from "./PropertyPanelControls/Input.svelte"
 import OptionSelect from "./OptionSelect.svelte"
 import Checkbox from "../common/Checkbox.svelte"
 import ModelSelect from "components/userInterface/ModelSelect.svelte"
+import ModelViewSelect from "components/userInterface/ModelViewSelect.svelte"
+import ModelViewFieldSelect from "components/userInterface/ModelViewFieldSelect.svelte"
 
 import { all } from "./propertyCategories.js"
 /* 
@@ -258,7 +260,13 @@ export default {
           icon: "ri-file-list-line",
           properties: {
             design: { ...all },
-            settings: [{ label: "Table", key: "model", control: ModelSelect }],
+            settings: [
+              {
+                label: "Table",
+                key: "datasource",
+                control: ModelViewSelect,
+              },
+            ],
           },
           children: [],
         },
@@ -486,7 +494,11 @@ export default {
           properties: {
             design: { ...all },
             settings: [
-              { label: "Model", key: "model", control: ModelSelect },
+              {
+                label: "Table",
+                key: "datasource",
+                control: ModelViewSelect,
+              },
               { label: "Stripe Color", key: "stripeColor", control: Input },
               { label: "Border Color", key: "borderColor", control: Input },
               { label: "TH Color", key: "backgroundColor", control: Input },
@@ -568,8 +580,20 @@ export default {
                 settings: [
                   {
                     label: "Table",
-                    key: "model",
-                    control: ModelSelect,
+                    key: "datasource",
+                    control: ModelViewSelect,
+                  },
+                  {
+                    label: "Name Field",
+                    key: "nameKey",
+                    dependsOn: "datasource",
+                    control: ModelViewFieldSelect,
+                  },
+                  {
+                    label: "Value Field",
+                    key: "valueKey",
+                    dependsOn: "datasource",
+                    control: ModelViewFieldSelect,
                   },
                   {
                     label: "Animate Chart",
@@ -605,16 +629,6 @@ export default {
                       "teal",
                       "yellow",
                     ],
-                  },
-                  {
-                    label: "Name Field",
-                    key: "nameKey",
-                    control: Input,
-                  },
-                  {
-                    label: "Value Field",
-                    key: "valueKey",
-                    control: Input,
                   },
                   {
                     label: "External Radius",
@@ -660,8 +674,8 @@ export default {
                 settings: [
                   {
                     label: "Table",
-                    key: "model",
-                    control: ModelSelect,
+                    key: "datasource",
+                    control: ModelViewSelect,
                   },
                   {
                     label: "Name Label",
@@ -772,8 +786,8 @@ export default {
                 settings: [
                   {
                     label: "Table",
-                    key: "model",
-                    control: ModelSelect,
+                    key: "datasource",
+                    control: ModelViewSelect,
                   },
                   {
                     label: "Color",
@@ -867,8 +881,8 @@ export default {
                 settings: [
                   {
                     label: "Table",
-                    key: "model",
-                    control: ModelSelect,
+                    key: "datasource",
+                    control: ModelViewSelect,
                   },
                   {
                     label: "Colors",
