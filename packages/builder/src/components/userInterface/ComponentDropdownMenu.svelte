@@ -1,7 +1,7 @@
 <script>
   import { MoreIcon } from "components/common/Icons"
   import { store } from "builderStore"
-  import { getComponentDefinition } from "builderStore/storeUtils"
+  import { getComponentDefinition } from "builderStore/store"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
   import { last, cloneDeep } from "lodash/fp"
   import UIkit from "uikit"
