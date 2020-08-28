@@ -1,7 +1,4 @@
-import {
-  makePropsSafe,
-  getBuiltin,
-} from "components/userInterface/pagesParsing/createProps"
+import { makePropsSafe } from "components/userInterface/pagesParsing/createProps"
 import api from "./api"
 import { generate_screen_css } from "./generate_css"
 import { uuid } from "./uuid"
@@ -90,6 +87,3 @@ export const generateNewIdsForComponent = (c, state) =>
     p._id = uuid()
     p._instanceName = getNewComponentName(p._component, state)
   })
-
-export const getComponentDefinition = (state, name) =>
-  name.startsWith("##") ? getBuiltin(name) : state.components[name]

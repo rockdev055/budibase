@@ -35,26 +35,22 @@
     })
   }
 
-  async function replaceBindings(textWithBindings) {
+  async function replaceBindings(val) {
     getBindableProperties()
     // Find all instances of mustasche
-    const CAPTURE_VAR_INSIDE_MUSTACHE = /{{([^}]+)}}/g
-    const boundValues = textWithBindings.match(CAPTURE_VAR_INSIDE_MUSTACHE)
+    const boundValues = val.match(/{{([^}]+)}}/g)
 
     // Replace with names:
     boundValues &&
-      boundValues.forEach(boundValue => {
+      boundValues.forEach(v => {
         const binding = bindableProperties.find(({ readableBinding }) => {
-          return boundValue === `{{ ${readableBinding} }}`
+          return v === `{{ ${readableBinding} }}`
         })
         if (binding) {
-          textWithBindings = textWithBindings.replace(
-            boundValue,
-            `{{ ${binding.runtimeBinding} }}`
-          )
+          val = val.replace(v, `{{ ${binding.runtimeBinding} }}`)
         }
       })
-    onChange(key, textWithBindings)
+    onChange(key, val)
   }
 
   function handleChange(key, v) {
@@ -106,7 +102,7 @@
       name={key} />
   </div>
   {#if control == Input}
-    <button on:click={dropdown.show}>
+    <button data-cy={`${key}-binding-button`} on:click={dropdown.show}>
       <Icon name="edit" />
     </button>
   {/if}

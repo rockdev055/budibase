@@ -1,5 +1,4 @@
 import fetchBindableProperties from "../src/builderStore/fetchBindableProperties"
-
 describe("fetch bindable properties", () => {
 
   it("should return bindable properties from screen components", () => {
