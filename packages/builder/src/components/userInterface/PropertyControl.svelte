@@ -35,22 +35,26 @@
     })
   }
 
-  async function replaceBindings(val) {
+  const CAPTURE_VAR_INSIDE_MUSTACHE = /{{([^}]+)}}/g
+  async function replaceBindings(textWithBindings) {
     getBindableProperties()
     // Find all instances of mustasche
-    const boundValues = val.match(/{{([^}]+)}}/g)
+    const boundValues = textWithBindings.match(CAPTURE_VAR_INSIDE_MUSTACHE)
 
     // Replace with names:
     boundValues &&
-      boundValues.forEach(v => {
+      boundValues.forEach(boundValue => {
         const binding = bindableProperties.find(({ readableBinding }) => {
-          return v === `{{ ${readableBinding} }}`
+          return boundValue === `{{ ${readableBinding} }}`
         })
         if (binding) {
-          val = val.replace(v, `{{ ${binding.runtimeBinding} }}`)
+          textWithBindings = textWithBindings.replace(
+            boundValue,
+            `{{ ${binding.runtimeBinding} }}`
+          )
         }
       })
-    onChange(key, val)
+    onChange(key, textWithBindings)
   }
 
   function handleChange(key, v) {
@@ -68,7 +72,9 @@
   const safeValue = () => {
     getBindableProperties()
     let temp = value
-    const boundValues = (value && value.match(/{{([^}]+)}}/g)) || []
+    const boundValues =
+      (typeof value === "string" && value.match(CAPTURE_VAR_INSIDE_MUSTACHE)) ||
+      []
 
     // Replace with names:
     boundValues.forEach(v => {
