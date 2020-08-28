@@ -42,10 +42,8 @@
   }
 </script>
 
-<Table title={decodeURI(name)} schema={view.schema} {data}>
+<Table title={decodeURI(view.name)} schema={view.schema} {data}>
   <FilterPopover {view} />
   <CalculationPopover {view} />
-  {#if view.calculation}
-    <GroupByPopover {view} />
-  {/if}
+  <GroupByPopover {view} />
 </Table>
