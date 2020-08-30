@@ -17,9 +17,9 @@
 
 <div class="margin">
   <label class="label">{label}</label>
-
-  <textarea value={valuesText} on:change={inputChanged} />
-
+  <div class="uk-form-controls">
+    <textarea value={valuesText} on:change={inputChanged} />
+  </div>
 </div>
 
 <style>
