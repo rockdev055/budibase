@@ -2,7 +2,6 @@
   import flatpickr from "flatpickr"
   import "flatpickr/dist/flatpickr.css"
   import { onMount } from "svelte"
-  import { Label } from "@budibase/bbui"
 
   export let value
   export let label
@@ -26,7 +25,7 @@
 </script>
 
 <div class="bb-margin-m">
-  <Label size="s" forAttr={'datepicker-label'}>{label}</Label>
+  <label class="uk-form-label">{label}</label>
   <div class="uk-form-controls">
     <input
       class="uk-input uk-form-width-{width} uk-form-{size}"

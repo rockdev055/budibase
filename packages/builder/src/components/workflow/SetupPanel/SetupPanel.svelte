@@ -5,7 +5,7 @@
   import { notifier } from "builderStore/store/notifications"
   import WorkflowBlockSetup from "./WorkflowBlockSetup.svelte"
   import DeleteWorkflowModal from "./DeleteWorkflowModal.svelte"
-  import { Button, Input, Label } from "@budibase/bbui"
+  import { Button, Input } from "@budibase/bbui"
 
   const { open, close } = getContext("simple-modal")
 
@@ -112,7 +112,7 @@
         <div class="panel-body">
           <div class="block-label">Workflow: {workflow.name}</div>
           <div class="config-item">
-            <Label size="s" forAttr={'useraccess'}>User Access</Label>
+            <label class="uk-form-label">User Access</label>
             <div class="access-levels">
 
               {#each ACCESS_LEVELS as level}
