@@ -14,7 +14,6 @@
   export let props = {}
   export let onChange = () => {}
 
-  const CAPTURE_VAR_INSIDE_MUSTACHE = /{{([^}]+)}}/g
   let temporaryBindableValue = value
 
   function handleClose() {
@@ -36,6 +35,7 @@
     })
   }
 
+  const CAPTURE_VAR_INSIDE_MUSTACHE = /{{([^}]+)}}/g
   async function replaceBindings(textWithBindings) {
     getBindableProperties()
     // Find all instances of mustasche
@@ -73,7 +73,8 @@
     getBindableProperties()
     let temp = value
     const boundValues =
-      (value && value.match && value.match(CAPTURE_VAR_INSIDE_MUSTACHE)) || []
+      (typeof value === "string" && value.match(CAPTURE_VAR_INSIDE_MUSTACHE)) ||
+      []
 
     // Replace with names:
     boundValues.forEach(v => {
@@ -107,7 +108,7 @@
       name={key} />
   </div>
   {#if control == Input}
-    <button on:click={dropdown.show}>
+    <button data-cy={`${key}-binding-button`} on:click={dropdown.show}>
       <Icon name="edit" />
     </button>
   {/if}
@@ -120,6 +121,7 @@
     align="right">
     <BindingDropdown
       {...handlevalueKey(value)}
+      close={dropdown.hide}
       on:update={e => (temporaryBindableValue = e.detail)}
       {bindableProperties} />
   </DropdownMenu>
