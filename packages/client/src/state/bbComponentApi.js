@@ -1,9 +1,11 @@
-import setBindableComponentProp from "./setBindableComponentProp"
+import { setState } from "./setState"
 import { attachChildren } from "../render/attachChildren"
+import { getContext, setContext } from "./getSetContext"
 
 export const trimSlash = str => str.replace(/^\/+|\/+$/g, "")
 
 export const bbFactory = ({
+  store,
   componentLibraries,
   onScreenSlotRendered,
   getCurrentState,
@@ -43,9 +45,13 @@ export const bbFactory = ({
 
     return {
       attachChildren: attachChildren(attachParams),
+      context: treeNode.context,
       props: treeNode.props,
       call: safeCallEvent,
-      setBinding: setBindableComponentProp(treeNode),
+      setState,
+      getContext: getContext(treeNode),
+      setContext: setContext(treeNode),
+      store: store,
       api,
       parent,
       // these parameters are populated by screenRouter
