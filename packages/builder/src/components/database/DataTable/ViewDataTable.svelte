@@ -32,7 +32,10 @@
   async function fetchViewData(name, field, groupBy) {
     const params = new URLSearchParams()
 
-    if (field) params.set("stats", true)
+    if (field) {
+      params.set("field", field)
+      params.set("stats", true)
+    }
     if (groupBy) params.set("group", groupBy)
 
     let QUERY_VIEW_URL = `/api/views/${name}?${params}`
@@ -42,10 +45,8 @@
   }
 </script>
 
-<Table title={decodeURI(name)} schema={view.schema} {data}>
+<Table title={decodeURI(view.name)} schema={view.schema} {data}>
   <FilterPopover {view} />
   <CalculationPopover {view} />
-  {#if view.calculation}
-    <GroupByPopover {view} />
-  {/if}
+  <GroupByPopover {view} />
 </Table>

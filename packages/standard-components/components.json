@@ -203,7 +203,7 @@
 		"description": "an HTML table that fetches data from a table or view and displays it.",
 		"data": true,
 		"props": {
-			"model": "models",
+			"datasource": "models",
 			"stripeColor": "string",
 			"borderColor": "string",
 			"backgroundColor": "string",
@@ -248,7 +248,7 @@
 		"children": true,
 		"data": true,
 		"props": {
-			"model": "models"
+			"datasource": "models"
 		}
 	},
 	"stackedlist": {
@@ -357,7 +357,8 @@
 		"description": "Donut Chart",
 		"data": true,
 		"props": {
-			"model": "string",
+			"datasource": "string",
+			"data": "string",
 			"color": "string",
 			"height": "number",
 			"width": "number",
@@ -397,7 +398,7 @@
 		"description": "Stacked Bar Chart",
 		"data": true,
 		"props": {
-			"model": "string",
+			"datasource": "models",
 			"color": "string",
 			"height": "number",
 			"width": "number",
@@ -498,7 +499,9 @@
 		"description": "Bar Chart",
 		"data": true,
 		"props": {
-			"model": "string",
+			"datasource": "models",
+			"nameLabel": "string",
+			"valueLabel": "string",
 			"betweenBarsPadding": "number",
 			"gradient": "string",
 			"color": "string",
@@ -509,9 +512,6 @@
 			"isHorizontal": "bool",
 			"labelNumberFormat": "number",
 			"locale": "string",
-			"nameLabel": "string",
-			"valueLabel": "string",
-			"numberLabel": "string",
 			"xAxisLabel": "string",
 			"yAxisLabel": "string",
 			"useLegend": "bool",
@@ -523,7 +523,7 @@
 		"description": "Line Chart",
 		"data": true,
 		"props": {
-			"model": "string",
+			"datasource": "models",
 			"width": "number",
 			"height": "number",
 			"axisTimeCombinations": "string",
@@ -581,7 +581,9 @@
 		"description": "Groupedbar chart",
 		"data": true,
 		"props": {
-			"model": "string",
+			"datasource": "models",
+			"nameLabel": "string",
+			"valueLabel": "string",
 			"color": "string",
 			"height": "string",
 			"width": "string",
@@ -590,8 +592,6 @@
 			"groupLabel": "string",
 			"isAnimated": "bool",
 			"isHorizontal": "bool",
-			"nameLabel": "string",
-			"valueLabel":"string",
 			"yTicks": "string",
 			"useLegend": "bool",
 			"tooltipTitle": "string"
