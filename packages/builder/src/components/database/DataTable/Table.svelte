@@ -25,7 +25,6 @@
   let currentPage = 0
 
   $: columns = schema ? Object.keys(schema) : []
-
   $: paginatedData =
     data && data.length
       ? data.slice(
@@ -44,7 +43,7 @@
       <slot />
     </div>
   </div>
-  <table class="uk-table">
+  <table class="bb-table">
     <thead>
       <tr>
         {#each columns as header}
