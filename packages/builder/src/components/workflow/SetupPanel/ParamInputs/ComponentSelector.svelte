@@ -25,19 +25,21 @@
 
 <div class="bb-margin-xl block-field">
   <label class="uk-form-label">Page</label>
-
-  <select class="budibase__input" bind:value={pageName}>
-    {#each Object.keys(pages) as page}
-      <option value={page}>{page}</option>
-    {/each}
-  </select>
-
-  {#if components.length > 0}
-    <label class="uk-form-label">Component</label>
-    <select class="budibase__input" bind:value>
-      {#each components as component}
-        <option value={component._id}>{component._id}</option>
+  <div class="uk-form-controls">
+    <select class="budibase__input" bind:value={pageName}>
+      {#each Object.keys(pages) as page}
+        <option value={page}>{page}</option>
       {/each}
     </select>
+  </div>
+  {#if components.length > 0}
+    <label class="uk-form-label">Component</label>
+    <div class="uk-form-controls">
+      <select class="budibase__input" bind:value>
+        {#each components as component}
+          <option value={component._id}>{component._id}</option>
+        {/each}
+      </select>
+    </div>
   {/if}
 </div>

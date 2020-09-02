@@ -26,7 +26,9 @@
 
 <div class="bb-margin-m">
   <label class="uk-form-label">{label}</label>
-  <input
-    class="uk-input uk-form-width-{width} uk-form-{size}"
-    bind:this={input} />
+  <div class="uk-form-controls">
+    <input
+      class="uk-input uk-form-width-{width} uk-form-{size}"
+      bind:this={input} />
+  </div>
 </div>
