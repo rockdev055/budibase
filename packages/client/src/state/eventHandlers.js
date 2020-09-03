@@ -1,4 +1,8 @@
-import api from "../api"
+import { setState } from "./setState"
+import { getState } from "./getState"
+import { isArray, isUndefined } from "lodash/fp"
+
+import { createApi } from "../api"
 
 export const EVENT_TYPE_MEMBER_NAME = "##eventHandlerType"
 
@@ -8,15 +12,21 @@ export const eventHandlers = routeTo => {
     parameters,
   })
 
+  const api = createApi({
+    setState,
+    getState: (path, fallback) => getState(path, fallback),
+  })
+
+  const setStateHandler = ({ path, value }) => setState(path, value)
+
   return {
+    "Set State": handler(["path", "value"], setStateHandler),
     "Navigate To": handler(["url"], param => routeTo(param && param.url)),
-    "Create Record": handler(["url"], param => param),
-    "Update Record": handler(["url"], param => param),
     "Trigger Workflow": handler(["workflow"], api.triggerWorkflow),
   }
 }
 
 export const isEventType = prop =>
-  Array.isArray(prop) &&
+  isArray(prop) &&
   prop.length > 0 &&
-  !prop[0][EVENT_TYPE_MEMBER_NAME] === undefined
+  !isUndefined(prop[0][EVENT_TYPE_MEMBER_NAME])

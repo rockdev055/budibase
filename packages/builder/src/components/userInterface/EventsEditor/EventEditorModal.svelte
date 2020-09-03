@@ -1,194 +1,169 @@
 <script>
   import { store } from "builderStore"
-  import {
-    TextButton,
-    Button,
-    Body,
-    Heading,
-    DropdownMenu,
-  } from "@budibase/bbui"
-  import { AddIcon } from "components/common/Icons/"
-  import { EVENT_TYPE_MEMBER_NAME } from "../../common/eventHandlers"
-  import actionTypes from "./actions"
-  import { createEventDispatcher } from "svelte"
+  import { Button, Select } from "@budibase/bbui"
+  import HandlerSelector from "./HandlerSelector.svelte"
+  import IconButton from "../../common/IconButton.svelte"
+  import ActionButton from "../../common/ActionButton.svelte"
+  import getIcon from "../../common/icon"
+  import { CloseIcon } from "components/common/Icons/"
 
-  const dispatch = createEventDispatcher()
+  import { EVENT_TYPE_MEMBER_NAME } from "../../common/eventHandlers"
 
   export let event
+  export let eventOptions = []
+  export let onClose
 
-  let addActionButton
-  let addActionDropdown
-  let selectedAction
-
+  let eventType = ""
   let draftEventHandler = { parameters: [] }
 
-  $: actions = event || []
-  $: selectedActionComponent =
-    selectedAction &&
-    actionTypes.find(t => t.name === selectedAction[EVENT_TYPE_MEMBER_NAME])
-      .component
+  $: eventData = event || { handlers: [] }
+  $: if (!eventOptions.includes(eventType) && eventOptions.length > 0)
+    eventType = eventOptions[0].name
 
   const closeModal = () => {
-    dispatch("close")
+    onClose()
     draftEventHandler = { parameters: [] }
-    actions = []
+    eventData = { handlers: [] }
   }
 
   const updateEventHandler = (updatedHandler, index) => {
-    actions[index] = updatedHandler
+    eventData.handlers[index] = updatedHandler
+  }
+
+  const updateDraftEventHandler = updatedHandler => {
+    draftEventHandler = updatedHandler
   }
 
   const deleteEventHandler = index => {
-    actions.splice(index, 1)
-    actions = actions
+    eventData.handlers.splice(index, 1)
+    eventData = eventData
   }
 
-  const addAction = actionType => () => {
-    const newAction = {
+  const createNewEventHandler = handler => {
+    const newHandler = handler || {
       parameters: {},
-      [EVENT_TYPE_MEMBER_NAME]: actionType.name,
+      [EVENT_TYPE_MEMBER_NAME]: "",
     }
-    actions.push(newAction)
-    selectedAction = newAction
-    actions = actions
-    addActionDropdown.hide()
+    eventData.handlers.push(newHandler)
+    eventData = eventData
   }
 
-  const selectAction = action => () => {
-    selectedAction = action
+  const deleteEvent = () => {
+    store.setComponentProp(eventType, [])
+    closeModal()
   }
 
   const saveEventData = () => {
-    dispatch("change", actions)
+    store.setComponentProp(eventType, eventData.handlers)
     closeModal()
   }
 </script>
 
-<div class="root">
-
-  <div class="header">
-    <Heading size="s" color="dark">Actions</Heading>
-    <div bind:this={addActionButton}>
-      <TextButton text small blue on:click={addActionDropdown.show}>
-        Add Action
-        <div style="height: 20px; width: 20px;">
-          <AddIcon />
-        </div>
-      </TextButton>
+<div class="container">
+  <div class="body">
+    <div class="heading">
+      <h3>
+        {eventData.name ? `${eventData.name} Event` : 'Create a New Component Event'}
+      </h3>
     </div>
-    <DropdownMenu
-      bind:this={addActionDropdown}
-      anchor={addActionButton}
-      align="right">
-      <div class="available-actions-container">
-        {#each actionTypes as actionType}
-          <div class="available-action" on:click={addAction(actionType)}>
-            <span>{actionType.name}</span>
-          </div>
-        {/each}
+    <div class="event-options">
+      <div class="section">
+        <h4>Event Type</h4>
+        <Select bind:value={eventType}>
+          {#each eventOptions as option}
+            <option value={option.name}>{option.name}</option>
+          {/each}
+        </Select>
       </div>
-    </DropdownMenu>
-  </div>
+    </div>
 
-  <div class="actions-container">
-    {#if actions && actions.length > 0}
-      {#each actions as action, index}
-        <div class="action-container">
-          <div on:click={selectAction(action)}>
-            <Body size="medium">
-              {index + 1}. {action[EVENT_TYPE_MEMBER_NAME]}
-            </Body>
-          </div>
-          {#if action === selectedAction}
-            <div class="selected-action-container">
-              <svelte:component
-                this={selectedActionComponent}
-                parameters={selectedAction.parameters} />
-              <div class="delete-action-button">
-                <TextButton text medium>Delete</TextButton>
-              </div>
-            </div>
-          {/if}
-        </div>
+    <div class="section">
+      <h4>Event Action(s)</h4>
+      <HandlerSelector
+        newHandler
+        onChanged={updateDraftEventHandler}
+        onCreate={() => {
+          createNewEventHandler(draftEventHandler)
+          draftEventHandler = { parameters: [] }
+        }}
+        handler={draftEventHandler} />
+    </div>
+    {#if eventData}
+      {#each eventData.handlers as handler, index}
+        <HandlerSelector
+          {index}
+          onChanged={updateEventHandler}
+          onRemoved={() => deleteEventHandler(index)}
+          {handler} />
       {/each}
     {/if}
-  </div>
 
+  </div>
   <div class="footer">
-    <a href="https://docs.budibase.com">Learn more about Actions</a>
-    <Button secondary on:click={closeModal}>Cancel</Button>
-    <Button primary on:click={saveEventData}>Save</Button>
+    {#if eventData.name}
+      <Button
+        outline
+        on:click={deleteEvent}
+        disabled={eventData.handlers.length === 0}>
+        Delete
+      </Button>
+    {/if}
+    <div class="save">
+      <Button
+        primary
+        on:click={saveEventData}
+        disabled={eventData.handlers.length === 0}>
+        Save
+      </Button>
+    </div>
+  </div>
+  <div class="close-button" on:click={closeModal}>
+    <CloseIcon />
   </div>
 </div>
 
 <style>
-  .root {
-    max-height: 50vh;
-    width: 700px;
-    display: flex;
-    flex-direction: column;
+  .container {
+    position: relative;
+  }
+  .heading {
+    margin-bottom: 20px;
   }
 
-  .header {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-    padding: var(--spacing-xl);
-    padding-bottom: 0;
-  }
-
-  .available-actions-container {
-  }
-
-  .available-action {
-    padding: var(--spacing-s);
-    font-size: var(--font-size-m);
+  .close-button {
     cursor: pointer;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+  }
+  .close-button :global(svg) {
+    width: 24px;
+    height: 24px;
   }
 
-  .available-action:hover {
-    background: var(--grey-2);
+  h4 {
+    margin-bottom: 10px;
   }
 
-  .actions-container {
-    flex: 1;
-    min-height: 0px;
-    padding: var(--spacing-xl);
-    padding-bottom: var(--spacing-m);
-    padding-top: var(--spacing-m);
-    border: var(--border-light);
-    border-width: 0 0 1px 0;
+  h3 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: bold;
   }
-
-  .action-container {
-    border: var(--border-light);
-    border-width: 1px 0 0 0;
+  .body {
+    padding: 40px;
+    display: grid;
+    grid-gap: 20px;
   }
-
-  .delete-action-button {
-    padding-top: var(--spacing-l);
-    display: flex;
-    justify-content: flex-end;
-    flex-direction: row;
-  }
-
   .footer {
     display: flex;
-    flex-direction: row;
-    gap: var(--spacing-s);
-    padding: var(--spacing-xl);
-    padding-top: var(--spacing-m);
+    justify-content: flex-end;
+    padding: 30px 40px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 50px;
+    background-color: var(--grey-1);
   }
-
-  .footer > a {
-    flex: 1;
-    color: var(--grey-5);
-    font-size: var(--font-size-s);
-    text-decoration: none;
-  }
-
-  .footer > a:hover {
-    color: var(--blue);
+  .save {
+    margin-left: 20px;
   }
 </style>

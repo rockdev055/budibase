@@ -12,8 +12,7 @@
 
   const onchange = ev => {
     if (_bb) {
-      const val = type === "checkbox" ? ev.target.checked : ev.target.value
-      _bb.setBinding("value", val)
+      _bb.setStateFromBinding(_bb.props.value, ev.target.value)
     }
   }
 </script>
