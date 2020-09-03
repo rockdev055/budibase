@@ -45,7 +45,7 @@
 
 <div class="actions">
   <ErrorsBox {errors} />
-  <form on:submit|preventDefault>
+  <form on:submit|preventDefault class="uk-form-stacked">
     {#each modelSchema as [key, meta]}
       <div class="bb-margin-xl">
         {#if meta.type === 'link'}

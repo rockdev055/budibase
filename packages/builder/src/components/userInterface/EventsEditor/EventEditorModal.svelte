@@ -1,6 +1,7 @@
 <script>
   import { store } from "builderStore"
   import { Button, Select } from "@budibase/bbui"
+  import Modal from "../../common/Modal.svelte"
   import HandlerSelector from "./HandlerSelector.svelte"
   import IconButton from "../../common/IconButton.svelte"
   import ActionButton from "../../common/ActionButton.svelte"
