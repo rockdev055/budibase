@@ -1,3 +1,3 @@
 Cypress.Cookies.defaults({
-  preserve: "builder:token",
+  whitelist: "builder:token",
 })

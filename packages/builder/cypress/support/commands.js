@@ -57,17 +57,12 @@ Cypress.Commands.add("createApp", name => {
     })
 })
 
-Cypress.Commands.add("createTestTableWithData", () => {
-  cy.createTable("dog")
-  cy.addColumn("dog", "name", "Plain Text")
-  cy.addColumn("dog", "age", "Number")
-})
-
 Cypress.Commands.add("createTable", tableName => {
   // Enter model name
   cy.contains("Create New Table").click()
   cy.get("[placeholder='Table Name']").type(tableName)
 
+  // Add 'name' field
   cy.contains("Save").click()
   cy.contains(tableName).should("be.visible")
 })
@@ -89,7 +84,7 @@ Cypress.Commands.add("addRecord", values => {
   cy.contains("Create New Row").click()
 
   for (let i = 0; i < values.length; i++) {
-    cy.get(".actions input")
+    cy.get("input")
       .eq(i)
       .type(values[i])
   }
@@ -98,7 +93,7 @@ Cypress.Commands.add("addRecord", values => {
   cy.contains("Save").click()
 })
 
-Cypress.Commands.add("createUser", (username, password, accessLevel) => {
+Cypress.Commands.add("createUser", (username, password) => {
   // Create User
   cy.get(".toprightnav > .settings").click()
   cy.contains("Users").click()
@@ -109,12 +104,9 @@ Cypress.Commands.add("createUser", (username, password, accessLevel) => {
   cy.get("[name=Password]")
     .first()
     .type(password)
-  cy.get("select")
-    .first()
-    .select(accessLevel)
 
   // Save
-  cy.get(".create-button > button").click()
+  cy.get(".create-button").click()
 })
 
 Cypress.Commands.add("addHeadlineComponent", text => {

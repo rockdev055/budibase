@@ -63,7 +63,7 @@
       {/if}
     </div>
   </div>
-  <table class="bb-table">
+  <table class="uk-table">
     <thead>
       <tr>
         <th class="edit-header">
