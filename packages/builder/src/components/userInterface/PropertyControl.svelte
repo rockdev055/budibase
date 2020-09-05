@@ -8,25 +8,25 @@
   import { onMount, getContext } from "svelte"
 
   export let label = ""
-  export let componentInstance = {}
   export let control = null
   export let key = ""
   export let value
   export let props = {}
   export let onChange = () => {}
 
+  const CAPTURE_VAR_INSIDE_MUSTACHE = /{{([^}]+)}}/g
   let temporaryBindableValue = value
 
   function handleClose() {
     handleChange(key, temporaryBindableValue)
   }
 
-  let bindableProperties = []
+  let bindableProperties
 
   let anchor
   let dropdown
 
-  function getBindableProperties() {
+  async function getBindableProperties() {
     // Get all bindableProperties
     bindableProperties = fetchBindableProperties({
       componentInstanceId: $store.currentComponentInfo._id,
@@ -36,8 +36,7 @@
     })
   }
 
-  const CAPTURE_VAR_INSIDE_MUSTACHE = /{{([^}]+)}}/g
-  function replaceBindings(textWithBindings) {
+  async function replaceBindings(textWithBindings) {
     getBindableProperties()
     // Find all instances of mustasche
     const boundValues = textWithBindings.match(CAPTURE_VAR_INSIDE_MUSTACHE)
@@ -67,19 +66,14 @@
         innerVal = props.valueKey ? v.target[props.valueKey] : v.target.value
       }
     }
-    if (typeof innerVal !== "object") {
-      replaceBindings(innerVal)
-    } else {
-      onChange(key, innerVal)
-    }
+    replaceBindings(innerVal)
   }
 
   const safeValue = () => {
     getBindableProperties()
     let temp = value
     const boundValues =
-      (typeof value === "string" && value.match(CAPTURE_VAR_INSIDE_MUSTACHE)) ||
-      []
+      (value && value.match && value.match(CAPTURE_VAR_INSIDE_MUSTACHE)) || []
 
     // Replace with names:
     boundValues.forEach(v => {
@@ -106,7 +100,6 @@
   <div data-cy={`${key}-prop-control`} class="control">
     <svelte:component
       this={control}
-      {componentInstance}
       {...handlevalueKey(value)}
       on:change={val => handleChange(key, val)}
       onChange={val => handleChange(key, val)}
@@ -114,7 +107,7 @@
       name={key} />
   </div>
   {#if control == Input}
-    <button data-cy={`${key}-binding-button`} on:click={dropdown.show}>
+    <button on:click={dropdown.show}>
       <Icon name="edit" />
     </button>
   {/if}
@@ -127,7 +120,6 @@
     align="right">
     <BindingDropdown
       {...handlevalueKey(value)}
-      close={dropdown.hide}
       on:update={e => (temporaryBindableValue = e.detail)}
       {bindableProperties} />
   </DropdownMenu>

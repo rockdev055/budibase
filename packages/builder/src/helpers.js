@@ -1,5 +1,6 @@
 import { last } from "lodash/fp"
 import { pipe } from "components/common/core"
+
 export const buildStyle = styles => {
   let str = ""
   for (let s in styles) {

@@ -52,15 +52,9 @@ Cypress.Commands.add("createApp", name => {
         .type("test")
       cy.contains("Submit").click()
       cy.contains("Create New Table", {
-        timeout: 20000,
+        timeout: 10000,
       }).should("be.visible")
     })
-})
-
-Cypress.Commands.add("createTestTableWithData", () => {
-  cy.createTable("dog")
-  cy.addColumn("dog", "name", "Plain Text")
-  cy.addColumn("dog", "age", "Number")
 })
 
 Cypress.Commands.add("createTable", tableName => {
@@ -68,6 +62,7 @@ Cypress.Commands.add("createTable", tableName => {
   cy.contains("Create New Table").click()
   cy.get("[placeholder='Table Name']").type(tableName)
 
+  // Add 'name' field
   cy.contains("Save").click()
   cy.contains(tableName).should("be.visible")
 })
@@ -89,7 +84,7 @@ Cypress.Commands.add("addRecord", values => {
   cy.contains("Create New Row").click()
 
   for (let i = 0; i < values.length; i++) {
-    cy.get(".actions input")
+    cy.get("input")
       .eq(i)
       .type(values[i])
   }
@@ -98,7 +93,7 @@ Cypress.Commands.add("addRecord", values => {
   cy.contains("Save").click()
 })
 
-Cypress.Commands.add("createUser", (username, password, accessLevel) => {
+Cypress.Commands.add("createUser", (username, password) => {
   // Create User
   cy.get(".toprightnav > .settings").click()
   cy.contains("Users").click()
@@ -109,12 +104,9 @@ Cypress.Commands.add("createUser", (username, password, accessLevel) => {
   cy.get("[name=Password]")
     .first()
     .type(password)
-  cy.get("select")
-    .first()
-    .select(accessLevel)
 
   // Save
-  cy.get(".create-button > button").click()
+  cy.get(".create-button").click()
 })
 
 Cypress.Commands.add("addHeadlineComponent", text => {
@@ -143,7 +135,7 @@ Cypress.Commands.add("createScreen", (screenName, route) => {
   if (route) {
     cy.get("[data-cy=new-screen-dialog] input:last").type(route)
   }
-  cy.get("[data-cy=create-screen-footer]").within(() => {
+  cy.get(".uk-modal-footer").within(() => {
     cy.contains("Create Screen").click()
   })
   cy.get(".nav-items-container").within(() => {
