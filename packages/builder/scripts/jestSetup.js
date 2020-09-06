@@ -1,4 +1,3 @@
-// Array.flat needs polyfilled in < Node 11
 if (!Array.prototype.flat) {
   Object.defineProperty(Array.prototype, "flat", {
     configurable: true,
