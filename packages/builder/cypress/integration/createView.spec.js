@@ -54,7 +54,7 @@ context('Create a View', () => {
         expect($headers).to.have.length(7)
         const headers = $headers.map((i, header) => Cypress.$(header).text())
         expect(headers.get()).to.deep.eq([
-          "field",
+          "group",
           "sum",
           "min",
           "max",
@@ -66,7 +66,7 @@ context('Create a View', () => {
       cy.get("tbody td").should(($values) => {
         const values = $values.map((i, value) => Cypress.$(value).text())
         expect(values.get()).to.deep.eq([
-          "age",
+          "null",
           "155",
           "20",
           "49",

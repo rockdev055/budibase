@@ -4,6 +4,7 @@
   import { getComponentDefinition } from "builderStore/storeUtils"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
   import { last, cloneDeep } from "lodash/fp"
+  import UIkit from "uikit"
   import {
     selectComponent,
     getParent,
@@ -12,14 +13,20 @@
     regenerateCssForCurrentScreen,
   } from "builderStore/storeUtils"
   import { uuid } from "builderStore/uuid"
-  import { DropdownMenu } from "@budibase/bbui"
 
   export let component
 
   let confirmDeleteDialog
-  let dropdown
-  let anchor
+  let dropdownEl
 
+  $: dropdown = UIkit.dropdown(dropdownEl, {
+    mode: "click",
+    offset: 0,
+    pos: "bottom-right",
+    "delay-hide": 0,
+    animation: false,
+  })
+  $: dropdown && UIkit.util.on(dropdown, "shown", () => (hidden = false))
   $: noChildrenAllowed =
     !component || !getComponentDefinition($store, component._component).children
   $: noPaste = !$store.componentToPaste
@@ -108,19 +115,11 @@
   }
 </script>
 
-<div bind:this={anchor} on:click|stopPropagation={() => {}}>
-  <button on:click={dropdown.show}>
+<div class="root boundary" on:click|stopPropagation={() => {}}>
+  <button>
     <MoreIcon />
   </button>
-</div>
-<DropdownMenu
-  class="menu"
-  bind:this={dropdown}
-  on:click={hideDropdown}
-  width="170px"
-  {anchor}
-  align="left">
-  <ul>
+  <ul class="menu" bind:this={dropdownEl} on:click={hideDropdown}>
     <li class="item" on:click={() => confirmDeleteDialog.show()}>
       <i class="icon ri-delete-bin-2-line" />
       Delete
@@ -168,7 +167,7 @@
       Paste inside
     </li>
   </ul>
-</DropdownMenu>
+</div>
 
 <ConfirmDialog
   bind:this={confirmDeleteDialog}
@@ -178,29 +177,36 @@
   onOk={deleteComponent} />
 
 <style>
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  .root {
+    overflow: hidden;
+    z-index: 9;
   }
 
-  li {
-    display: flex;
-    font-family: var(--font-sans);
-    font-size: var(--font-size-xs);
-    color: var(--ink);
-    padding: var(--spacing-s) var(--spacing-m);
-    margin: auto 0px;
-    align-items: center;
+  .root button {
+    border-style: none;
+    border-radius: 2px;
+    padding: 5px;
+    background: transparent;
     cursor: pointer;
+    color: var(--ink);
+    outline: none;
   }
 
-  li:hover {
-    background-color: var(--grey-2);
+  .menu {
+    z-index: 100000;
+    overflow: visible;
+    padding: 12px 0px;
+    border-radius: 5px;
   }
 
-  li:active {
-    color: var(--blue);
+  .menu li {
+    border-style: none;
+    background-color: transparent;
+    list-style-type: none;
+    padding: 4px 16px;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .item {
@@ -211,6 +217,16 @@
 
   .icon {
     margin-right: 8px;
+  }
+
+  .menu li:not(.disabled) {
+    cursor: pointer;
+    color: var(--grey-7);
+  }
+
+  .menu li:not(.disabled):hover {
+    color: var(--ink);
+    background-color: var(--grey-1);
   }
 
   .disabled {

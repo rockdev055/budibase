@@ -13,6 +13,7 @@
   } from "lodash/fp"
   import { pipe } from "components/common/core"
   import Checkbox from "components/common/Checkbox.svelte"
+  import IconButton from "components/common/IconButton.svelte"
   import EventEditorModal from "./EventEditorModal.svelte"
 
   import { PencilIcon } from "components/common/Icons"
@@ -66,7 +67,7 @@
 </button>
 
 <div class="root">
-  <form on:submit|preventDefault class="form-root">
+  <form on:submit|preventDefault class="uk-form-stacked form-root">
     {#each events as event, index}
       {#if event.handlers.length > 0}
         <div

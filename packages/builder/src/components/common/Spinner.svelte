@@ -1,5 +1,5 @@
 <script>
-  import { Circle } from "svelte-loading-spinners"
+  export let ratio = "4.5"
 </script>
 
-<Circle size="60" color="#000000" unit="px" />
+<span uk-spinner={`ratio: ${ratio}`} />
