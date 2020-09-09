@@ -2,6 +2,16 @@ const CouchDB = require("../../db")
 const validateJs = require("validate.js")
 const newid = require("../../db/newid")
 
+validateJs.extend(validateJs.validators.datetime, {
+  parse: function(value) {
+    return new Date(value).getTime()
+  },
+  // Input is a unix timestamp
+  format: function(value) {
+    return new Date(value).toISOString()
+  },
+})
+
 exports.save = async function(ctx) {
   const db = new CouchDB(ctx.user.instanceId)
   const record = ctx.request.body
@@ -80,7 +90,7 @@ exports.save = async function(ctx) {
 
 exports.fetchView = async function(ctx) {
   const db = new CouchDB(ctx.user.instanceId)
-  const { stats, group } = ctx.query
+  const { stats, group, field } = ctx.query
   const response = await db.query(`database/${ctx.params.viewName}`, {
     include_docs: !stats,
     group,
@@ -89,6 +99,7 @@ exports.fetchView = async function(ctx) {
   if (stats) {
     response.rows = response.rows.map(row => ({
       group: row.key,
+      field,
       ...row.value,
       avg: row.value.sum / row.value.count,
     }))

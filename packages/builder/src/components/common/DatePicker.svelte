@@ -1,34 +1,12 @@
 <script>
-  import flatpickr from "flatpickr"
-  import "flatpickr/dist/flatpickr.css"
-  import { onMount } from "svelte"
+  import Flatpickr from "svelte-flatpickr"
+  import { Label, DatePicker } from "@budibase/bbui"
 
-  export let value
   export let label
-  export let width = "medium"
-  export let size = "small"
-
-  let input
-  let fpInstance
-
-  $: if (fpInstance) fpInstance.setDate(value)
-
-  onMount(() => {
-    fpInstance = flatpickr(input, {})
-
-    fpInstance.config.onChange.push(selectedDates => {
-      if (selectedDates.length > 0) value = new Date(selectedDates[0])
-    })
-
-    return fpInstance
-  })
+  export let value
 </script>
 
 <div class="bb-margin-m">
-  <label class="uk-form-label">{label}</label>
-  <div class="uk-form-controls">
-    <input
-      class="uk-input uk-form-width-{width} uk-form-{size}"
-      bind:this={input} />
-  </div>
+  <Label small forAttr={'datepicker-label'}>{label}</Label>
+  <DatePicker placeholder={label} bind:value />
 </div>

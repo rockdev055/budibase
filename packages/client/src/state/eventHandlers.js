@@ -10,8 +10,6 @@ export const eventHandlers = routeTo => {
 
   return {
     "Navigate To": handler(["url"], param => routeTo(param && param.url)),
-    "Create Record": handler(["url"], param => param),
-    "Update Record": handler(["url"], param => param),
     "Trigger Workflow": handler(["workflow"], api.triggerWorkflow),
   }
 }
