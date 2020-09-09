@@ -250,19 +250,6 @@ export default {
             ],
           },
         },
-        {
-          _component: "@budibase/standard-components/datepicker",
-          name: "Date Picker",
-          description: "A basic date picker component",
-          icon: "ri-calendar-line",
-          children: [],
-          properties: {
-            design: { ...all },
-            settings: [
-              { label: "Placeholder", key: "placeholder", control: Input },
-            ],
-          },
-        },
       ],
     },
     {
