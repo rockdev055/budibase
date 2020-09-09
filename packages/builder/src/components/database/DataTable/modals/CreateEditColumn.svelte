@@ -83,10 +83,10 @@
         bind:values={field.constraints.inclusion} />
     {:else if field.type === 'datetime' && field.constraints}
       <DatePicker
-        label="Earliest"
+        label="Min Value"
         bind:value={field.constraints.datetime.earliest} />
       <DatePicker
-        label="Latest"
+        label="Max Value"
         bind:value={field.constraints.datetime.latest} />
     {:else if field.type === 'number' && field.constraints}
       <NumberBox
