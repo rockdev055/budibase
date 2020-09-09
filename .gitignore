@@ -2,7 +2,6 @@ builder/*
 .data/
 .temp/
 packages/server/runtime_apps/
-.idea/
 
 # Logs
 logs

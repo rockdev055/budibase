@@ -1,32 +1,21 @@
 <script>
-  import flatpickr from "flatpickr"
-  import "flatpickr/dist/flatpickr.css"
-  import { onMount } from "svelte"
+  import Flatpickr from "svelte-flatpickr"
   import { Label, Input } from "@budibase/bbui"
+  import 'flatpickr/dist/flatpickr.css'
 
-  export let value
+  const PICKER_OPTIONS = {
+    enableTime: true
+  }
+
   export let label
-
-  let input
-  let fpInstance
-
-  $: if (fpInstance) fpInstance.setDate(value)
-
-  onMount(() => {
-    fpInstance = flatpickr(input, {})
-
-    fpInstance.config.onChange.push(selectedDates => {
-      if (selectedDates.length > 0) value = new Date(selectedDates[0])
-    })
-
-    return fpInstance
-  })
+  export let value
 </script>
 
 <div class="bb-margin-m">
   <Label small forAttr={'datepicker-label'}>{label}</Label>
-  <Input thin bind:this={input} />
+  <Flatpickr 
+    options={PICKER_OPTIONS}
+    placeholder={label}
+    bind:value
+  />
 </div>
-
-<!-- TODO: Verify DatePicker Input works as expected when datetime property used again
-in CreateEditColumn -->
