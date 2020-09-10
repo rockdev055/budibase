@@ -72,21 +72,14 @@ const componentInstanceToBindable = walkResult => i => {
 const contextToBindables = walkResult => context => {
   const contextParentPath = getParentPath(walkResult, context)
 
-  const newBindable = key => ({
+  return Object.keys(context.model.schema).map(k => ({
     type: "context",
     instance: context.instance,
     // how the binding expression persists, and is used in the app at runtime
-    runtimeBinding: `${contextParentPath}data.${key}`,
+    runtimeBinding: `${contextParentPath}data.${k}`,
     // how the binding exressions looks to the user of the builder
-    readableBinding: `${context.instance._instanceName}.${context.model.name}.${key}`,
-  })
-
-  return (
-    Object.keys(context.model.schema)
-      .map(newBindable)
-      // add _id and _rev fields - not part of schema, but always valid
-      .concat([newBindable("_id"), newBindable("_rev")])
-  )
+    readableBinding: `${context.instance._instanceName}.${context.model.name}.${k}`,
+  }))
 }
 
 const getParentPath = (walkResult, context) => {
