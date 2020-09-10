@@ -1,6 +1,9 @@
 <script>
-  import { workflowStore } from "builderStore"
+  import { onMount } from "svelte"
+  import { backendUiStore, workflowStore } from "builderStore"
+  import WorkflowList from "../WorkflowList/WorkflowList.svelte"
   import WorkflowBlock from "./WorkflowBlock.svelte"
+  import blockDefinitions from "../blockDefinitions"
   import FlatButtonGroup from "components/userInterface/FlatButtonGroup.svelte"
 
   let selectedTab = "TRIGGER"
@@ -14,7 +17,7 @@
     { value: "LOGIC", text: "Logic" },
   ]
 
-  $: definitions = Object.entries($workflowStore.blockDefinitions[selectedTab])
+  $: definitions = Object.entries(blockDefinitions[selectedTab])
   $: {
     if (
       $workflowStore.currentWorkflow.hasTrigger() &&
