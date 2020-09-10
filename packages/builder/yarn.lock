@@ -688,9 +688,10 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@budibase/bbui@^1.31.0":
-  version "1.31.0"
-  resolved "https://registry.yarnpkg.com/@budibase/bbui/-/bbui-1.31.0.tgz#5645875abb4a722c0fae7bd980bc71f40d234f2f"
+"@budibase/bbui@^1.29.3":
+  version "1.29.3"
+  resolved "https://registry.yarnpkg.com/@budibase/bbui/-/bbui-1.29.3.tgz#02d84d5e0f9ca936d62b1e0e9bc943711d124f7a"
+  integrity sha512-X5QBZX2CNccRiW6fbj6/fnUYhlilc6I6ae0QT8oIuv9DozDnUUbdd6j4RMxW1DQBZuvWH54OGq4nwkq9f37hKg==
   dependencies:
     sirv-cli "^0.4.6"
 
@@ -2857,6 +2858,7 @@ for-in@^1.0.2:
 foreach@~2.0.1:
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/foreach/-/foreach-2.0.5.tgz#0bee005018aeb260d0a3af3ae658dd0136ec1b99"
+  integrity sha1-C+4AUBiusmDQo6865ljdATbsG5k=
 
 forever-agent@~0.6.1:
   version "0.6.1"
@@ -5439,6 +5441,7 @@ shellwords@^0.1.1:
 shortid@^2.2.15:
   version "2.2.15"
   resolved "https://registry.yarnpkg.com/shortid/-/shortid-2.2.15.tgz#2b902eaa93a69b11120373cd42a1f1fe4437c122"
+  integrity sha512-5EaCy2mx2Jgc/Fdn9uuDuNIIfWBpzY4XIlhoqtXF6qsf+/+SGZ+FxDdX/ZsMZiWupIWNqAEmiNY4RC+LSmCeOw==
   dependencies:
     nanoid "^2.1.0"
 
@@ -5787,6 +5790,7 @@ svelte-jester@^1.0.6:
 svelte-loading-spinners@^0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/svelte-loading-spinners/-/svelte-loading-spinners-0.1.1.tgz#a35a811b7db0389ec2a5de6904c718c58c36e1f9"
+  integrity sha512-or4zs10VOdczOJo3u25IINXQOkZbLNAxMrXK0PRbzVoJtPQq/QZPNxI32383bpe+soYcEKmESbmW+JlW3MbUKQ==
 
 svelte-portal@^0.1.0:
   version "0.1.0"
