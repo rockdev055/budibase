@@ -5,7 +5,6 @@ import ModelSelect from "components/userInterface/ModelSelect.svelte"
 import ModelViewSelect from "components/userInterface/ModelViewSelect.svelte"
 import ModelViewFieldSelect from "components/userInterface/ModelViewFieldSelect.svelte"
 import Event from "components/userInterface/EventsEditor/EventPropertyControl.svelte"
-import ScreenSelect from "components/userInterface/ScreenSelect.svelte"
 
 import { all } from "./propertyCategories.js"
 /* 
@@ -240,26 +239,13 @@ export default {
             design: { ...all },
             settings: [
               { label: "Text", key: "text", control: Input },
-              { label: "Url", key: "url", control: ScreenSelect },
+              { label: "Url", key: "url", control: Input },
               {
                 label: "Open New Tab",
                 key: "openInNewTab",
                 valueKey: "checked",
                 control: Checkbox,
               },
-            ],
-          },
-        },
-        {
-          _component: "@budibase/standard-components/datepicker",
-          name: "Date Picker",
-          description: "A basic date picker component",
-          icon: "ri-calendar-line",
-          children: [],
-          properties: {
-            design: { ...all },
-            settings: [
-              { label: "Placeholder", key: "placeholder", control: Input },
             ],
           },
         },

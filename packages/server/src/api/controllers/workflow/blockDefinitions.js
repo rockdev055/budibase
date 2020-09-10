@@ -1,25 +1,4 @@
 const ACTION = {
-  SET_STATE: {
-    name: "Update UI State",
-    tagline: "Update <b>{{path}}</b> to <b>{{value}}</b>",
-    icon: "ri-refresh-line",
-    description: "Update your User Interface with some data.",
-    environment: "CLIENT",
-    params: {
-      path: "string",
-      value: "longText",
-    },
-  },
-  NAVIGATE: {
-    name: "Navigate",
-    tagline: "Navigate to <b>{{url}}</b>",
-    icon: "ri-navigation-line",
-    description: "Navigate to another page.",
-    environment: "CLIENT",
-    params: {
-      url: "string",
-    },
-  },
   SAVE_RECORD: {
     name: "Save Record",
     tagline: "<b>Save</b> a <b>{{record.model.name}}</b> record",
@@ -106,36 +85,6 @@ const TRIGGER = {
       model: "model",
     },
   },
-  // CLICK: {
-  //   name: "Click",
-  //   icon: "ri-cursor-line",
-  //   tagline: "{{component}} is clicked",
-  //   description: "Trigger when you click on an element in the UI.",
-  //   environment: "CLIENT",
-  //   params: {
-  //     component: "component"
-  //   }
-  // },
-  // LOAD: {
-  //   name: "Load",
-  //   icon: "ri-loader-line",
-  //   tagline: "{{component}} is loaded",
-  //   description: "Trigger an element has finished loading.",
-  //   environment: "CLIENT",
-  //   params: {
-  //     component: "component"
-  //   }
-  // },
-  // INPUT: {
-  //   name: "Input",
-  //   icon: "ri-text",
-  //   tagline: "Text entered into {{component}",
-  //   description: "Trigger when you type into an input box.",
-  //   environment: "CLIENT",
-  //   params: {
-  //     component: "component"
-  //   }
-  // },
 }
 
 const LOGIC = {
@@ -163,7 +112,7 @@ const LOGIC = {
   },
 }
 
-export default {
+module.exports = {
   ACTION,
   TRIGGER,
   LOGIC,
