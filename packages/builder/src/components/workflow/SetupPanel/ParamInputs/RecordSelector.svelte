@@ -15,7 +15,7 @@
   }
 </script>
 
-<div class="block-field">
+<div class="bb-margin-xl block-field">
   <select class="budibase__input" bind:value={value.model}>
     {#each $backendUiStore.models as model}
       <option value={model}>{model.name}</option>
