@@ -37,41 +37,31 @@
 
 <section>
   <Flowchart blocks={uiTree} {onSelect} />
+  <footer>
+    {#if selectedWorkflow}
+      <button
+        class:highlighted={workflowLive}
+        class:hoverable={workflowLive}
+        class="stop-button hoverable">
+        <i class="ri-stop-fill" on:click={() => setWorkflowLive(false)} />
+      </button>
+      <button
+        class:highlighted={!workflowLive}
+        class:hoverable={!workflowLive}
+        class="play-button hoverable"
+        data-cy="activate-workflow"
+        on:click={() => setWorkflowLive(true)}>
+        <i class="ri-play-fill" />
+      </button>
+    {/if}
+  </footer>
 </section>
-<footer>
-  {#if selectedWorkflow}
-    <button
-      class:highlighted={workflowLive}
-      class:hoverable={workflowLive}
-      class="stop-button hoverable">
-      <i class="ri-stop-fill" on:click={() => setWorkflowLive(false)} />
-    </button>
-    <button
-      class:highlighted={!workflowLive}
-      class:hoverable={!workflowLive}
-      class="play-button hoverable"
-      data-cy="activate-workflow"
-      on:click={() => setWorkflowLive(true)}>
-      <i class="ri-play-fill" />
-    </button>
-  {/if}
-</footer>
 
 <style>
-  section {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-start;
-    overflow: auto;
-    height: 100%;
-    position: relative;
-  }
-
   footer {
     position: absolute;
-    bottom: 20px;
-    right: 30px;
+    bottom: 0;
+    right: 0;
     display: flex;
     align-items: flex-end;
   }
@@ -87,9 +77,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-  footer > button:first-child {
-    margin-right: 20px;
+    margin-right: 24px;
   }
 
   .play-button.highlighted {
