@@ -1,4 +1,5 @@
 import { authenticate } from "./authenticate"
+import { triggerWorkflow } from "./workflow"
 import appStore from "../state/store"
 
 const apiCall = method => async ({ url, body }) => {
@@ -52,6 +53,21 @@ const apiOpts = {
   delete: del,
 }
 
+const createRecord = async params =>
+  await post({ url: `/api/${params.modelId}/records`, body: params.fields })
+
+const updateRecord = async params => {
+  const record = params.fields
+  record._id = params._id
+  await patch({
+    url: `/api/${params.modelId}/records/${params._id}`,
+    body: record,
+  })
+}
+
 export default {
   authenticate: authenticate(apiOpts),
+  triggerWorkflow: triggerWorkflow(apiOpts),
+  createRecord,
+  updateRecord,
 }

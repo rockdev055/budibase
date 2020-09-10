@@ -1,6 +1,5 @@
 <script>
   import { Input, Select } from "@budibase/bbui"
-  import DatePicker from "components/common/DatePicker.svelte"
 
   export let meta
   export let value = meta.type === "boolean" ? false : ""
@@ -10,7 +9,6 @@
     meta.constraints &&
     meta.constraints.inclusion &&
     meta.constraints.inclusion.length > 0
-
   let type = determineInputType(meta)
 
   function determineInputType(meta) {
@@ -44,8 +42,6 @@
       <option value={opt}>{opt}</option>
     {/each}
   </Select>
-{:else if type === 'date'}
-  <DatePicker label={meta.name} bind:value />
 {:else}
   {#if type === 'checkbox'}
     <label>{meta.name}</label>
@@ -57,6 +53,7 @@
     checked={value}
     {type}
     {value}
+    on:input={handleInput}
     on:change={handleInput} />
 {/if}
 
