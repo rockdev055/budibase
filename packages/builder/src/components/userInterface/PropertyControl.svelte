@@ -67,7 +67,7 @@
         innerVal = props.valueKey ? v.target[props.valueKey] : v.target.value
       }
     }
-    if (typeof innerVal === "string") {
+    if (typeof innerVal !== "object") {
       replaceBindings(innerVal)
     } else {
       onChange(key, innerVal)
