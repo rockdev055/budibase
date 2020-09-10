@@ -4,20 +4,11 @@ import Workflow from "./Workflow"
 
 const workflowActions = store => ({
   fetch: async () => {
-    const responses = await Promise.all([
-      api.get(`/api/workflows`),
-      api.get(`/api/workflows/trigger/list`),
-      api.get(`/api/workflows/action/list`),
-      api.get(`/api/workflows/logic/list`),
-    ])
-    const jsonResponses = await Promise.all(responses.map(x => x.json()))
+    const WORKFLOWS_URL = `/api/workflows`
+    const workflowResponse = await api.get(WORKFLOWS_URL)
+    const json = await workflowResponse.json()
     store.update(state => {
-      state.workflows = jsonResponses[0]
-      state.blockDefinitions = {
-        TRIGGER: jsonResponses[1],
-        ACTION: jsonResponses[2],
-        LOGIC: jsonResponses[3],
-      }
+      state.workflows = json
       return state
     })
   },
@@ -33,10 +24,7 @@ const workflowActions = store => ({
     const json = await response.json()
     store.update(state => {
       state.workflows = state.workflows.concat(json.workflow)
-      state.currentWorkflow = new Workflow(
-        json.workflow,
-        state.blockDefinitions
-      )
+      state.currentWorkflow = new Workflow(json.workflow)
       return state
     })
   },
@@ -50,10 +38,7 @@ const workflowActions = store => ({
       )
       state.workflows.splice(existingIdx, 1, json.workflow)
       state.workflows = state.workflows
-      state.currentWorkflow = new Workflow(
-        json.workflow,
-        state.blockDefinitions
-      )
+      state.currentWorkflow = new Workflow(json.workflow)
       return state
     })
   },
@@ -87,7 +72,7 @@ const workflowActions = store => ({
   },
   select: workflow => {
     store.update(state => {
-      state.currentWorkflow = new Workflow(workflow, state.blockDefinitions)
+      state.currentWorkflow = new Workflow(workflow)
       state.selectedWorkflowBlock = null
       return state
     })
@@ -95,33 +80,14 @@ const workflowActions = store => ({
   addBlockToWorkflow: block => {
     store.update(state => {
       state.currentWorkflow.addBlock(block)
-      const steps = state.currentWorkflow.workflow.definition.steps
-      state.selectedWorkflowBlock = steps.length
-        ? steps[steps.length - 1]
-        : state.currentWorkflow.workflow.definition.trigger
+      state.selectedWorkflowBlock = block
       return state
     })
   },
   deleteWorkflowBlock: block => {
     store.update(state => {
-      console.log(state.currentWorkflow.workflow)
-      const idx = state.currentWorkflow.workflow.definition.steps.findIndex(
-        x => x.id === block.id
-      )
       state.currentWorkflow.deleteBlock(block.id)
-
-      // Select next closest step
-      const steps = state.currentWorkflow.workflow.definition.steps
-      let nextSelectedBlock
-      if (steps[idx] != null) {
-        nextSelectedBlock = steps[idx]
-      } else if (steps[idx - 1] != null) {
-        nextSelectedBlock = steps[idx - 1]
-      } else {
-        nextSelectedBlock =
-          state.currentWorkflow.workflow.definition.trigger || null
-      }
-      state.selectedWorkflowBlock = nextSelectedBlock
+      state.selectedWorkflowBlock = null
       return state
     })
   },
@@ -130,14 +96,11 @@ const workflowActions = store => ({
 export const getWorkflowStore = () => {
   const INITIAL_WORKFLOW_STATE = {
     workflows: [],
-    blockDefinitions: {
-      TRIGGER: [],
-      ACTION: [],
-      LOGIC: [],
-    },
   }
 
   const store = writable(INITIAL_WORKFLOW_STATE)
+
   store.actions = workflowActions(store)
+
   return store
 }

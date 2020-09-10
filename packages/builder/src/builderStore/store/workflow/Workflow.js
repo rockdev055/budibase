@@ -1,4 +1,5 @@
 import mustache from "mustache"
+import blockDefinitions from "components/workflow/WorkflowPanel/blockDefinitions"
 import { generate } from "shortid"
 
 /**
@@ -6,9 +7,8 @@ import { generate } from "shortid"
  * Workflow definitions are stored in linked lists.
  */
 export default class Workflow {
-  constructor(workflow, blockDefinitions) {
+  constructor(workflow) {
     this.workflow = workflow
-    this.blockDefinitions = blockDefinitions
   }
 
   hasTrigger() {
@@ -56,27 +56,25 @@ export default class Workflow {
 
   createUiTree() {
     if (!this.workflow.definition) return []
-    return Workflow.buildUiTree(this.workflow.definition, this.blockDefinitions)
+    return Workflow.buildUiTree(this.workflow.definition)
   }
 
-  static buildUiTree(definition, blockDefinitions) {
+  static buildUiTree(definition) {
     const steps = []
-    if (definition.trigger) {
-      steps.push(definition.trigger)
-    }
+    if (definition.trigger) steps.push(definition.trigger)
 
     return [...steps, ...definition.steps].map(step => {
       // The client side display definition for the block
-      const definition = blockDefinitions[step.type][step.stepId]
+      const definition = blockDefinitions[step.type][step.actionId]
       if (!definition) {
         throw new Error(
-          `No block definition exists for the chosen block. Check there's an entry in the block definitions for ${step.stepId}`
+          `No block definition exists for the chosen block. Check there's an entry in the block definitions for ${step.actionId}`
         )
       }
 
       if (!definition.params) {
         throw new Error(
-          `Blocks should always have parameters. Ensure that the block definition is correct for ${step.stepId}`
+          `Blocks should always have parameters. Ensure that the block definition is correct for ${step.actionId}`
         )
       }
 
@@ -88,7 +86,7 @@ export default class Workflow {
         type: step.type,
         params: step.params,
         args,
-        heading: step.stepId,
+        heading: step.actionId,
         body: mustache.render(tagline, args),
         name: definition.name,
       }
