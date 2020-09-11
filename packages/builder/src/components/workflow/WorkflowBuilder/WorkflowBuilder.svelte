@@ -1,24 +1,30 @@
 <script>
-  import { afterUpdate } from "svelte"
+  import { onMount } from "svelte"
   import { workflowStore, backendUiStore } from "builderStore"
   import { notifier } from "builderStore/store/notifications"
   import Flowchart from "./flowchart/FlowChart.svelte"
 
-  let section
+  let selectedWorkflow
+  let uiTree
+  let instanceId = $backendUiStore.selectedDatabase._id
 
-  $: workflow =
-    $workflowStore.selectedWorkflow && $workflowStore.selectedWorkflow.workflow
-  $: workflowLive = workflow && workflow.live
+  $: selectedWorkflow = $workflowStore.currentWorkflow
+
+  $: workflowLive = selectedWorkflow && selectedWorkflow.workflow.live
+
+  $: uiTree = selectedWorkflow ? selectedWorkflow.createUiTree() : []
+
   $: instanceId = $backendUiStore.selectedDatabase._id
 
   function onSelect(block) {
     workflowStore.update(state => {
-      state.selectedBlock = block
+      state.selectedWorkflowBlock = block
       return state
     })
   }
 
   function setWorkflowLive(live) {
+    const { workflow } = selectedWorkflow
     workflow.live = live
     workflowStore.actions.save({ instanceId, workflow })
     if (live) {
@@ -27,49 +33,35 @@
       notifier.danger(`Workflow ${workflow.name} disabled.`)
     }
   }
-
-  afterUpdate(() => {
-    section.scrollTo(0, section.scrollHeight)
-  })
 </script>
 
-<section bind:this={section}>
-  <Flowchart {workflow} {onSelect} />
+<section>
+  <Flowchart blocks={uiTree} {onSelect} />
+  <footer>
+    {#if selectedWorkflow}
+      <button
+        class:highlighted={workflowLive}
+        class:hoverable={workflowLive}
+        class="stop-button hoverable">
+        <i class="ri-stop-fill" on:click={() => setWorkflowLive(false)} />
+      </button>
+      <button
+        class:highlighted={!workflowLive}
+        class:hoverable={!workflowLive}
+        class="play-button hoverable"
+        data-cy="activate-workflow"
+        on:click={() => setWorkflowLive(true)}>
+        <i class="ri-play-fill" />
+      </button>
+    {/if}
+  </footer>
 </section>
-<footer>
-  {#if workflow}
-    <button
-      class:highlighted={workflowLive}
-      class:hoverable={workflowLive}
-      class="stop-button hoverable">
-      <i class="ri-stop-fill" on:click={() => setWorkflowLive(false)} />
-    </button>
-    <button
-      class:highlighted={!workflowLive}
-      class:hoverable={!workflowLive}
-      class="play-button hoverable"
-      data-cy="activate-workflow"
-      on:click={() => setWorkflowLive(true)}>
-      <i class="ri-play-fill" />
-    </button>
-  {/if}
-</footer>
 
 <style>
-  section {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-start;
-    overflow: auto;
-    height: 100%;
-    position: relative;
-  }
-
   footer {
     position: absolute;
-    bottom: 20px;
-    right: 30px;
+    bottom: 0;
+    right: 0;
     display: flex;
     align-items: flex-end;
   }
@@ -85,9 +77,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-  footer > button:first-child {
-    margin-right: 20px;
+    margin-right: 24px;
   }
 
   .play-button.highlighted {
