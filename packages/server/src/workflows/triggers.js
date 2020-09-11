@@ -13,9 +13,6 @@ async function queueRelevantWorkflows(event, eventType) {
 
   const workflows = workflowsToTrigger.rows.map(wf => wf.doc)
   for (let workflow of workflows) {
-    if (!workflow.live) {
-      continue
-    }
     workflowQueue.add({ workflow, event })
   }
 }
