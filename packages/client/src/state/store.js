@@ -94,9 +94,6 @@ const set = (value, dataProviderId, childIndex) =>
 const getState = contextStoreKey =>
   contextStoreKey ? contextStores[contextStoreKey].state : rootState
 
-const getStore = contextStoreKey =>
-  contextStoreKey ? contextStores[contextStoreKey] : rootStore
-
 export default {
   subscribe,
   update,
@@ -104,5 +101,4 @@ export default {
   getState,
   create,
   contextStoreKey,
-  getStore,
 }
