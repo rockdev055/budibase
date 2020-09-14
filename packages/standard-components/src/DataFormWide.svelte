@@ -41,6 +41,7 @@
     ([field, message]) => `${field} ${message}`
   )
 
+
   async function fetchModel() {
     const FETCH_MODEL_URL = `/api/models/${model}`
     const response = await _bb.api.get(FETCH_MODEL_URL)
