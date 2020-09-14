@@ -1,21 +1,15 @@
 <script>
-  import mustache from "mustache"
-  import { workflowStore } from "builderStore"
+  import { fade } from "svelte/transition"
 
   export let onSelect
   export let block
-  let selected
-
-  $: selected =
-    $workflowStore.selectedBlock != null &&
-    $workflowStore.selectedBlock.id === block.id
 
   function selectBlock() {
     onSelect(block)
   }
 </script>
 
-<div class={`${block.type} hoverable`} class:selected on:click={selectBlock}>
+<div transition:fade class={`${block.type} hoverable`} on:click={selectBlock}>
   <header>
     {#if block.type === 'TRIGGER'}
       <i class="ri-lightbulb-fill" />
@@ -30,7 +24,7 @@
   </header>
   <hr />
   <p>
-    {@html mustache.render(block.tagline, block.args)}
+    {@html block.body}
   </p>
 </div>
 
@@ -38,8 +32,8 @@
   div {
     width: 320px;
     padding: 20px;
-    border-radius: var(--border-radius-m);
-    transition: 0.3s all ease;
+    border-radius: 5px;
+    transition: 0.3s all;
     box-shadow: 0 4px 30px 0 rgba(57, 60, 68, 0.08);
     background-color: var(--ink);
     font-size: 16px;
@@ -75,12 +69,9 @@
 
   p {
     color: inherit;
-    margin-bottom: 0;
   }
 
-  div.selected,
   div:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 30px 0 rgba(57, 60, 68, 0.15);
+    transform: scale(1.05);
   }
 </style>
