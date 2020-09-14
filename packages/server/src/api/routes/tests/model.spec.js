@@ -120,10 +120,6 @@ describe("/models", () => {
       testModel = await createModel(request, app._id, instance._id, testModel)
     });
 
-    afterEach(() => {
-      delete testModel._rev
-    });
-
     it("returns all the models for that instance in the response body", done => {
       request
         .get(`/api/models`)

@@ -2,22 +2,13 @@
   import { backendUiStore } from "builderStore"
 
   export let value
-  $: modelId = value ? value._id : ""
-
-  function onChange(e) {
-    value = $backendUiStore.models.find(x => x._id === e.target.value)
-  }
 </script>
 
-<div class="block-field">
-  <select
-    class="budibase__input"
-    value={modelId}
-    on:blur={onChange}
-    on:change={onChange}>
-    <option value="">Choose an option</option>
+<div class="bb-margin-xl block-field">
+  <select class="budibase__input" bind:value>
+    <option value="" />
     {#each $backendUiStore.models as model}
-      <option value={model._id}>{model.name}</option>
+      <option value={model}>{model.name}</option>
     {/each}
   </select>
 </div>

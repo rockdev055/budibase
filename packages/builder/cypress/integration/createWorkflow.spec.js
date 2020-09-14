@@ -1,52 +1,46 @@
-context("Create a workflow", () => {
-  before(() => {
-    cy.server()
-    cy.visit("localhost:4001/_builder")
+context('Create a workflow', () => {
 
-    cy.createApp(
-      "Workflow Test App",
-      "This app is used to test that workflows do in fact work!"
-    )
-  })
+    before(() => {
+        cy.server()
+        cy.visit('localhost:4001/_builder')
 
-  // https://on.cypress.io/interacting-with-elements
-  it("should create a workflow", () => {
-    cy.createTestTableWithData()
+        cy.createApp('Workflow Test App', 'This app is used to test that workflows do in fact work!')
+    })
 
-    cy.contains("workflow").click()
-    cy.contains("Create New Workflow").click()
-    cy.get("input").type("Add Record")
-    cy.contains("Save").click()
+    // https://on.cypress.io/interacting-with-elements
+    it('should create a workflow', () => {
+        cy.createTestTableWithData()
 
-    // Add trigger
-    cy.get("[data-cy=add-workflow-component]").click()
-    cy.get("[data-cy=RECORD_SAVED]").click()
-    cy.get(".budibase__input").select("dog")
+        cy.contains('workflow').click()
+        cy.contains('Create New Workflow').click()
+        cy.get('input').type('Add Record')
+        cy.contains('Save').click()
 
-    // Create action
-    cy.get("[data-cy=SAVE_RECORD]").click()
-    cy.get(".budibase__input").select("dog")
-    cy.get(".container input")
-      .first()
-      .type("goodboy")
-    cy.get(".container input")
-      .eq(1)
-      .type("11")
+        // Add trigger
+        cy.get('[data-cy=add-workflow-component]').click()
+        cy.get('[data-cy=RECORD_SAVED]').click()
+        cy.get('.budibase__input').select('dog')
 
-    // Save
-    cy.contains("Save Workflow").click()
+        // Create action
+        cy.get('[data-cy=SAVE_RECORD]').click()
+        cy.get('.container input').first().type('goodboy')
+        cy.get('.container input').eq(1).type('11')
 
-    // Activate Workflow
-    cy.get("[data-cy=activate-workflow]").click()
-    cy.contains("Add Record").should("be.visible")
-    cy.get(".stop-button.highlighted").should("be.visible")
-  })
+        // Save
+        cy.contains('Save Workflow').click()
 
-  it("should add record when a new record is added", () => {
-    cy.contains("backend").click()
+        // Activate Workflow
+        cy.get('[data-cy=activate-workflow]').click()
+        cy.contains("Add Record").should("be.visible")
+        cy.get(".stop-button.highlighted").should("be.visible")
+    })
 
-    cy.addRecord(["Rover", 15])
-    cy.reload()
-    cy.contains("goodboy").should("have.text", "goodboy")
-  })
+    it('should add record when a new record is added', () => {
+        cy.contains('backend').click()
+
+        cy.addRecord(["Rover", 15])
+        cy.reload()
+        cy.contains('goodboy').should('have.text', 'goodboy')
+
+    })
 })

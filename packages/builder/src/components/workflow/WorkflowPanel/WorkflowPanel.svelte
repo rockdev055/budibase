@@ -1,9 +1,11 @@
 <script>
-  import { workflowStore } from "builderStore"
-  import WorkflowList from "./WorkflowList/WorkflowList.svelte"
-  import BlockList from "./BlockList/BlockList.svelte"
+  import { onMount } from "svelte"
+  import { backendUiStore, workflowStore } from "builderStore"
+  import { WorkflowList, BlockList } from "./"
+  import blockDefinitions from "./blockDefinitions"
 
   let selectedTab = "WORKFLOWS"
+  let definitions = []
 </script>
 
 <header>
@@ -14,7 +16,7 @@
     on:click={() => (selectedTab = 'WORKFLOWS')}>
     Workflows
   </span>
-  {#if $workflowStore.selectedWorkflow}
+  {#if $workflowStore.currentWorkflow}
     <span
       data-cy="add-workflow-component"
       class="hoverable"
