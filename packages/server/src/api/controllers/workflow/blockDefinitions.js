@@ -17,8 +17,12 @@ const ACTION = {
     icon: "ri-delete-bin-line",
     name: "Delete Record",
     tagline: "<b>Delete</b> a <b>{{record.model.name}}</b> record",
-    params: {},
-    args: {},
+    params: {
+      record: "record",
+    },
+    args: {
+      record: {},
+    },
     type: "ACTION",
   },
   CREATE_USER: {
