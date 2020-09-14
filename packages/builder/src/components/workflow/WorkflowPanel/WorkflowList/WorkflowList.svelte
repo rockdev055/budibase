@@ -8,9 +8,9 @@
 
   const { open, close } = getContext("simple-modal")
 
-  $: selectedWorkflowId =
-    $workflowStore.selectedWorkflow &&
-    $workflowStore.selectedWorkflow.workflow._id
+  $: currentWorkflowId =
+    $workflowStore.currentWorkflow &&
+    $workflowStore.currentWorkflow.workflow._id
 
   function newWorkflow() {
     open(
@@ -33,7 +33,7 @@
     {#each $workflowStore.workflows as workflow}
       <li
         class="workflow-item"
-        class:selected={workflow._id === selectedWorkflowId}
+        class:selected={workflow._id === currentWorkflowId}
         on:click={() => workflowStore.actions.select(workflow)}>
         <i class="ri-stackshare-line" class:live={workflow.live} />
         {workflow.name}
