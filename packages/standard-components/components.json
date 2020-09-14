@@ -206,12 +206,6 @@
 			"width": "string"
 		}
 	},
-	"iconnew": {
-		"description": "A HTML icon tag",
-		"props": {
-			"icon": "string"	
-		}
-	},
 	"datatable": {
 		"description": "an HTML table that fetches data from a table or view and displays it.",
 		"data": true,
