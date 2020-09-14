@@ -1,6 +1,6 @@
 <script>
   // accepts an array of field names, and outputs an object of { FieldName: value }
-  import { DataList, Label, TextButton, Spacer } from "@budibase/bbui"
+  import { Select, Label, TextButton, Spacer } from "@budibase/bbui"
   import { store, backendUiStore } from "builderStore"
   import fetchBindableProperties from "builderStore/fetchBindableProperties"
   import { CloseCircleIcon, AddIcon } from "components/common/Icons"
