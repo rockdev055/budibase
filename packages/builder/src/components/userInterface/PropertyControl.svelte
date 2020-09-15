@@ -71,7 +71,7 @@
 
     let temp = runtimeToReadableBinding(bindableProperties, value)
 
-    return !value && props.defaultValue !== undefined
+    return value === undefined && props.defaultValue !== undefined
       ? props.defaultValue
       : temp
   }
@@ -93,7 +93,7 @@
       {...props}
       name={key} />
   </div>
-  {#if control == Input}
+  {#if control === Input && !key.startsWith('_')}
     <button data-cy={`${key}-binding-button`} on:click={dropdown.show}>
       <Icon name="edit" />
     </button>

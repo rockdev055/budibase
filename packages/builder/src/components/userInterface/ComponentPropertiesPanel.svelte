@@ -35,6 +35,8 @@
       c => c._component === componentInstance._component
     ) || {}
 
+  let panelDefinition = {}
+
   $: panelDefinition =
     componentPropDefinition.properties &&
     componentPropDefinition.properties[selectedCategory.value]
