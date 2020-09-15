@@ -9,6 +9,7 @@
     CircleIndicator,
     EventsIcon,
   } from "components/common/Icons/"
+  import EventsEditor from "./EventsEditor"
   import panelStructure from "./temporaryPanelStructure.js"
   import CategoryTab from "./CategoryTab.svelte"
   import DesignView from "./DesignView.svelte"
@@ -20,6 +21,7 @@
   let categories = [
     { value: "settings", name: "Settings" },
     { value: "design", name: "Design" },
+    { value: "events", name: "Events" },
   ]
   let selectedCategory = categories[0]
 
@@ -107,6 +109,8 @@
         displayNameField={displayName}
         onChange={onPropChanged}
         screenOrPageInstance={$store.currentView !== 'component' && $store.currentPreviewItem} />
+    {:else if selectedCategory.value === 'events'}
+      <EventsEditor component={componentInstance} />
     {/if}
 
   </div>

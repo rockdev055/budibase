@@ -26,15 +26,15 @@
 
   $: columns = schema ? Object.keys(schema) : []
 
-  $: sort = $backendUiStore.sort
-  $: sorted = sort ? fsort(data)[sort.direction](sort.column) : data
   $: paginatedData =
-    sorted && sorted.length
-      ? sorted.slice(
+    data && data.length
+      ? data.slice(
           currentPage * ITEMS_PER_PAGE,
           currentPage * ITEMS_PER_PAGE + ITEMS_PER_PAGE
         )
       : []
+  $: sort = $backendUiStore.sort
+  $: sorted = sort ? fsort(data)[sort.direction](sort.column) : data
 </script>
 
 <section>
@@ -68,7 +68,7 @@
   <TablePagination
     {data}
     bind:currentPage
-    pageItemCount={paginatedData.length}
+    pageItemCount={data.length}
     {ITEMS_PER_PAGE} />
 </section>
 
