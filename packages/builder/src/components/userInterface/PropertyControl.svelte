@@ -93,7 +93,7 @@
       {...props}
       name={key} />
   </div>
-  {#if control === Input && !key.startsWith('_')}
+  {#if control == Input}
     <button data-cy={`${key}-binding-button`} on:click={dropdown.show}>
       <Icon name="edit" />
     </button>
