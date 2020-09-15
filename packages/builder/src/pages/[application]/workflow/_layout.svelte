@@ -12,13 +12,11 @@
   <div class="content">
     <slot />
   </div>
-  {#if $workflowStore.selectedWorkflow}
-    <div class="nav">
-      <div class="inner">
-        <SetupPanel />
-      </div>
+  <div class="nav">
+    <div class="inner">
+      <SetupPanel />
     </div>
-  {/if}
+  </div>
 </div>
 
 <style>
@@ -37,11 +35,13 @@
 
   .content {
     flex: 1 1 auto;
+    margin: 20px 40px;
   }
 
   .nav {
     overflow: auto;
     width: 300px;
+    border-right: 1px solid var(--grey-2);
     background: var(--white);
   }
 
