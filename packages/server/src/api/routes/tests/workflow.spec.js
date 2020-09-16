@@ -23,7 +23,7 @@ const TEST_WORKFLOW = {
 
     ],
     next: {
-      stepId: "abc123",
+      actionId: "abc123",
       type: "SERVER",
       conditions: {
       }

@@ -51,12 +51,6 @@ exports.createModel = async (request, appId, instanceId, model) => {
           type: "string",
         },
       },
-      description: {
-        type: "text",
-        constraints: {
-          type: "string",
-        },
-      },
     },
   }
 
@@ -67,10 +61,9 @@ exports.createModel = async (request, appId, instanceId, model) => {
   return res.body
 }
 
-exports.createView = async (request, appId, instanceId, modelId, view) => {
+exports.createView = async (request, appId, instanceId, view) => {
   view = view || {
     map: "function(doc) { emit(doc[doc.key], doc._id); } ",
-    modelId: modelId,
   }
 
   const res = await request

@@ -36,14 +36,14 @@
     }
   }
 
-  $: sort = $backendUiStore.sort
-  $: sorted = sort ? fsort(data)[sort.direction](sort.column) : data
-  $: paginatedData = sorted
-    ? sorted.slice(
+  $: paginatedData = data
+    ? data.slice(
         currentPage * ITEMS_PER_PAGE,
         currentPage * ITEMS_PER_PAGE + ITEMS_PER_PAGE
       )
     : []
+  $: sort = $backendUiStore.sort
+  $: sorted = sort ? fsort(data)[sort.direction](sort.column) : data
 
   $: headers = Object.keys($backendUiStore.selectedModel.schema)
     .sort()
@@ -78,10 +78,10 @@
       </tr>
     </thead>
     <tbody>
-      {#if paginatedData.length === 0}
+      {#if sorted.length === 0}
         <div class="no-data">No Data.</div>
       {/if}
-      {#each paginatedData as row}
+      {#each sorted as row}
         <tr>
           <td>
             <EditRowPopover {row} />
@@ -90,6 +90,10 @@
             <td>
               {#if schema[header].type === 'link'}
                 <LinkedRecord field={schema[header]} ids={row[header]} />
+              {:else if schema[header].type === 'attachment'}
+                {#each row[header] || [] as img}
+                  <img width="100" height="100" src={img.clientUrl} />
+                {/each}
               {:else}{getOr('', header, row)}{/if}
             </td>
           {/each}
@@ -100,7 +104,7 @@
   <TablePagination
     {data}
     bind:currentPage
-    pageItemCount={paginatedData.length}
+    pageItemCount={data.length}
     {ITEMS_PER_PAGE} />
 </section>
 
@@ -108,6 +112,11 @@
   section {
     margin-bottom: 20px;
   }
+
+  img {
+    object-fit: contain;
+  }
+
   .title {
     font-size: 24px;
     font-weight: 600;
