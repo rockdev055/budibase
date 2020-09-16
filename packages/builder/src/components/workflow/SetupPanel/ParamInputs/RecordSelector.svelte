@@ -1,11 +1,11 @@
 <script>
   import { backendUiStore } from "builderStore"
-  import { Input, Select, Label } from "@budibase/bbui"
+  import { Input, Label } from "@budibase/bbui"
 
   export let value
   $: value = value || {}
   $: model = $backendUiStore.models.find(model => model._id === value?.modelId)
-  $: schemaFields = Object.entries(model?.schema ?? {})
+  $: schemaFields = Object.keys(model?.schema ?? {})
 
   function setParsedValue(evt, field) {
     const fieldSchema = model?.schema[field]
@@ -20,52 +20,30 @@
 </script>
 
 <div class="block-field">
-  <Select bind:value={value.modelId} thin secondary>
+  <select class="budibase__input" bind:value={value.modelId}>
     <option value="">Choose an option</option>
     {#each $backendUiStore.models as model}
       <option value={model._id}>{model.name}</option>
     {/each}
-  </Select>
+  </select>
 </div>
 
 {#if schemaFields.length}
   <div class="bb-margin-xl block-field">
-    {#each schemaFields as [field, schema]}
+    {#each schemaFields as field}
       <div class="bb-margin-xl capitalise">
-        {#if schema.constraints?.inclusion?.length}
-          <div class="field-label">{field}</div>
-          <Select
-            thin
-            secondary
-            bind:value={value[field]}>
-            <option value="">Choose an option</option>
-            {#each schema.constraints.inclusion as option}
-              <option value={option}>{option}</option>
-            {/each}
-          </Select>
-        {:else}
-          <Input
-            thin
-            value={value[field]}
-            label={field}
-            on:change={e => setParsedValue(e, field)} />
-        {/if}
+        <Input
+          thin
+          value={value[field]}
+          label={field}
+          on:change={e => setParsedValue(e, field)} />
       </div>
     {/each}
   </div>
 {/if}
 
 <style>
-  .field-label {
-    color: var(--ink);
-    margin-bottom: 12px;
-    display: flex;
-    font-size: 14px;
-    font-weight: 500;
-    font-family: sans-serif;
-  }
-
-  .capitalise :global(label), .field-label {
-    text-transform: capitalize;
+  .capitalise :global(label) {
+    text-transform: capitalize !important;
   }
 </style>
