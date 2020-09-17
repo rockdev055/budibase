@@ -2,6 +2,16 @@ const CouchDB = require("../../db")
 const validateJs = require("validate.js")
 const newid = require("../../db/newid")
 
+function emitEvent(eventType, ctx, record) {
+  ctx.eventEmitter &&
+    ctx.eventEmitter.emit(eventType, {
+      args: {
+        record,
+      },
+      instanceId: ctx.user.instanceId,
+    })
+}
+
 validateJs.extend(validateJs.validators.datetime, {
   parse: function(value) {
     return new Date(value).getTime()
@@ -11,6 +21,39 @@ validateJs.extend(validateJs.validators.datetime, {
     return new Date(value).toISOString()
   },
 })
+
+exports.patch = async function(ctx) {
+  const db = new CouchDB(ctx.user.instanceId)
+  const record = await db.get(ctx.params.id)
+  const model = await db.get(record.modelId)
+  const patchfields = ctx.request.body
+
+  for (let key in patchfields) {
+    if (!model.schema[key]) continue
+    record[key] = patchfields[key]
+  }
+
+  const validateResult = await validate({
+    record,
+    model,
+  })
+
+  if (!validateResult.valid) {
+    ctx.status = 400
+    ctx.body = {
+      status: 400,
+      errors: validateResult.errors,
+    }
+    return
+  }
+
+  const response = await db.put(record)
+  record._rev = response.rev
+  record.type = "record"
+  ctx.body = record
+  ctx.status = 200
+  ctx.message = `${model.name} updated successfully.`
+}
 
 exports.save = async function(ctx) {
   const db = new CouchDB(ctx.user.instanceId)
@@ -76,13 +119,7 @@ exports.save = async function(ctx) {
     }
   }
 
-  ctx.eventEmitter &&
-    ctx.eventEmitter.emit(`record:save`, {
-      args: {
-        record,
-      },
-      instanceId: ctx.user.instanceId,
-    })
+  emitEvent(`record:save`, ctx, record)
   ctx.body = record
   ctx.status = 200
   ctx.message = `${model.name} created successfully`
@@ -145,7 +182,8 @@ exports.destroy = async function(ctx) {
     return
   }
   ctx.body = await db.remove(ctx.params.recordId, ctx.params.revId)
-  ctx.eventEmitter && ctx.eventEmitter.emit(`record:delete`, record)
+  ctx.status = 200
+  emitEvent(`record:delete`, ctx, record)
 }
 
 exports.validate = async function(ctx) {
