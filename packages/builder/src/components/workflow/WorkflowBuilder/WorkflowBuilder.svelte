@@ -4,8 +4,9 @@
   import { notifier } from "builderStore/store/notifications"
   import Flowchart from "./flowchart/FlowChart.svelte"
 
-  $: workflow = $workflowStore.selectedWorkflow?.workflow
-  $: workflowLive = workflow?.live
+  $: workflow =
+    $workflowStore.selectedWorkflow && $workflowStore.selectedWorkflow.workflow
+  $: workflowLive = workflow && workflow.live
   $: instanceId = $backendUiStore.selectedDatabase._id
 
   function onSelect(block) {

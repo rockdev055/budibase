@@ -1,17 +1,11 @@
 <script>
   import { backendUiStore } from "builderStore"
   import { Input, Select, Label } from "@budibase/bbui"
-  import BindableInput from "../../../userInterface/BindableInput.svelte"
 
   export let value
-  export let bindings
-
+  $: value = value || {}
   $: model = $backendUiStore.models.find(model => model._id === value?.modelId)
   $: schemaFields = Object.entries(model?.schema ?? {})
-
-  // Ensure any nullish modelId values get set to empty string so
-  // that the select works
-  $: if (value?.modelId == null) value = { modelId: "" }
 
   function setParsedValue(evt, field) {
     const fieldSchema = model?.schema[field]
@@ -50,12 +44,11 @@
             {/each}
           </Select>
         {:else}
-          <BindableInput
+          <Input
             thin
-            bind:value={value[field]}
-            on:change={e => setParsedValue(e, field)}
+            value={value[field]}
             label={field}
-            {bindings} />
+            on:change={e => setParsedValue(e, field)} />
         {/if}
       </div>
     {/each}
