@@ -13,7 +13,7 @@
   async function deleteWorkflow() {
     await workflowStore.actions.delete({
       instanceId,
-      workflow: $workflowStore.selectedWorkflow.workflow,
+      workflow: $workflowStore.currentWorkflow.workflow,
     })
     onClosed()
     notifier.danger("Workflow deleted.")

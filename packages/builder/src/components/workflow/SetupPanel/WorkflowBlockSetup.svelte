@@ -1,59 +1,72 @@
 <script>
+  import { backendUiStore, store } from "builderStore"
+  import ComponentSelector from "./ParamInputs/ComponentSelector.svelte"
   import ModelSelector from "./ParamInputs/ModelSelector.svelte"
   import RecordSelector from "./ParamInputs/RecordSelector.svelte"
-  import { Input, TextArea, Select, Label } from "@budibase/bbui"
+  import { Input, TextArea, Select } from "@budibase/bbui"
 
-  export let block
-  $: inputs = Object.entries(block.schema?.inputs?.properties || {})
+  export let workflowBlock
+
+  let params
+
+  $: workflowParams = workflowBlock.params
+    ? Object.entries(workflowBlock.params)
+    : []
 </script>
 
-<div class="container">
-  <div class="block-label">{block.name}</div>
-  {#each inputs as [key, value]}
-    <div class="bb-margin-xl block-field">
-      <div class="field-label">{value.title}</div>
-      {#if value.type === 'string' && value.enum?.length}
-        <Select bind:value={block.inputs[key]} thin secondary>
-          <option value="">Choose an option</option>
-          {#each value.enum as option}
-            <option value={option}>{option}</option>
-          {/each}
-        </Select>
-      {:else if value.customType === 'password'}
-        <Input type="password" thin bind:value={block.inputs[key]} />
-      {:else if value.type === 'number'}
-        <Input type="number" thin bind:value={block.inputs[key]} />
-      {:else if value.customType === 'longText'}
-        <TextArea type="text" thin bind:value={block.inputs[key]} />
-      {:else if value.customType === 'model'}
-        <ModelSelector bind:value={block.inputs[key]} />
-      {:else if value.customType === 'record'}
-        <RecordSelector bind:value={block.inputs[key]} />
-      {:else if value.type === 'string'}
-        <Input type="text" thin bind:value={block.inputs[key]} />
-      {/if}
-    </div>
-  {/each}
-</div>
+<label class="selected-label">{workflowBlock.type}: {workflowBlock.name}</label>
+{#each workflowParams as [parameter, type]}
+  <div class="block-field">
+    <label class="label">{parameter}</label>
+    {#if Array.isArray(type)}
+      <Select bind:value={workflowBlock.args[parameter]} thin>
+        {#each type as option}
+          <option value={option}>{option}</option>
+        {/each}
+      </Select>
+    {:else if type === 'component'}
+      <ComponentSelector bind:value={workflowBlock.args[parameter]} />
+    {:else if type === 'accessLevel'}
+      <Select bind:value={workflowBlock.args[parameter]} thin>
+        <option value="ADMIN">Admin</option>
+        <option value="POWER_USER">Power User</option>
+      </Select>
+    {:else if type === 'password'}
+      <Input type="password" thin bind:value={workflowBlock.args[parameter]} />
+    {:else if type === 'number'}
+      <Input type="number" thin bind:value={workflowBlock.args[parameter]} />
+    {:else if type === 'longText'}
+      <TextArea
+        type="text"
+        thin
+        bind:value={workflowBlock.args[parameter]}
+        label="" />
+    {:else if type === 'model'}
+      <ModelSelector bind:value={workflowBlock.args[parameter]} />
+    {:else if type === 'record'}
+      <RecordSelector value={workflowBlock.args[parameter]} />
+    {:else if type === 'string'}
+      <Input type="text" thin bind:value={workflowBlock.args[parameter]} />
+    {/if}
+  </div>
+{/each}
 
 <style>
   .block-field {
     display: grid;
   }
 
-  .field-label {
-    color: var(--ink);
-    margin-bottom: 12px;
-    display: flex;
+  label {
+    text-transform: capitalize;
     font-size: 14px;
     font-weight: 500;
-    font-family: sans-serif;
+    margin-top: 20px;
   }
 
-  .block-label {
-    font-weight: 500;
+  .selected-label {
+    text-transform: capitalize;
     font-size: 14px;
-    color: var(--grey-7);
+    font-weight: 500;
   }
 
   textarea {

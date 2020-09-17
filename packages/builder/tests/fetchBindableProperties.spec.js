@@ -28,8 +28,7 @@ describe("fetch bindable properties", () => {
       ...testData()
     })
     const contextBindings = result.filter(r => r.instance._id === "list-id" && r.type==="context")
-    // 2 fields + _id + _rev 
-    expect(contextBindings.length).toBe(4)
+    expect(contextBindings.length).toBe(2)
     
     const namebinding = contextBindings.find(b => b.runtimeBinding === "data.name")
     expect(namebinding).toBeDefined()
@@ -38,10 +37,6 @@ describe("fetch bindable properties", () => {
     const descriptionbinding = contextBindings.find(b => b.runtimeBinding === "data.description")
     expect(descriptionbinding).toBeDefined()
     expect(descriptionbinding.readableBinding).toBe("list-name.Test Model.description")
-    
-    const idbinding = contextBindings.find(b => b.runtimeBinding === "data._id")
-    expect(idbinding).toBeDefined()
-    expect(idbinding.readableBinding).toBe("list-name.Test Model._id")
   })
 
   it("should return model schema, for grantparent context", () => {
@@ -50,8 +45,7 @@ describe("fetch bindable properties", () => {
       ...testData()
     })
     const contextBindings = result.filter(r => r.type==="context")
-    // 2 fields + _id + _rev ... x 2 models
-    expect(contextBindings.length).toBe(8)
+    expect(contextBindings.length).toBe(4)
     
     const namebinding_parent = contextBindings.find(b => b.runtimeBinding === "parent.data.name")
     expect(namebinding_parent).toBeDefined()
@@ -126,7 +120,7 @@ const testData = () => {
           _id: "list-id",
           _component: "@budibase/standard-components/list",
           _instanceName: "list-name",
-          model: { isModel: true, modelId: "test-model-id", label: "Test Model", name: "all_test-model-id" },
+          model: "test-model-id",
           _children: [
             {
               _id: "list-item-heading-id",
@@ -144,7 +138,7 @@ const testData = () => {
               _id: "child-list-id",
               _component: "@budibase/standard-components/list",
               _instanceName: "child-list-name",
-              model: { isModel: true, modelId: "test-model-id", label: "Test Model", name: "all_test-model-id"},
+              model: "test-model-id",
               _children: [
                 {
                   _id: "child-list-item-heading-id",
