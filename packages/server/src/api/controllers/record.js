@@ -2,21 +2,6 @@ const CouchDB = require("../../db")
 const validateJs = require("validate.js")
 const newid = require("../../db/newid")
 
-function emitEvent(eventType, ctx, record) {
-  // add syntactic sugar for mustache later
-  if (record._id) {
-    record.id = record._id
-  }
-  if (record._rev) {
-    record.revision = record._rev
-  }
-  ctx.eventEmitter &&
-    ctx.eventEmitter.emit(eventType, {
-      record,
-      instanceId: ctx.user.instanceId,
-    })
-}
-
 validateJs.extend(validateJs.validators.datetime, {
   parse: function(value) {
     return new Date(value).getTime()
@@ -26,39 +11,6 @@ validateJs.extend(validateJs.validators.datetime, {
     return new Date(value).toISOString()
   },
 })
-
-exports.patch = async function(ctx) {
-  const db = new CouchDB(ctx.user.instanceId)
-  const record = await db.get(ctx.params.id)
-  const model = await db.get(record.modelId)
-  const patchfields = ctx.request.body
-
-  for (let key in patchfields) {
-    if (!model.schema[key]) continue
-    record[key] = patchfields[key]
-  }
-
-  const validateResult = await validate({
-    record,
-    model,
-  })
-
-  if (!validateResult.valid) {
-    ctx.status = 400
-    ctx.body = {
-      status: 400,
-      errors: validateResult.errors,
-    }
-    return
-  }
-
-  const response = await db.put(record)
-  record._rev = response.rev
-  record.type = "record"
-  ctx.body = record
-  ctx.status = 200
-  ctx.message = `${model.name} updated successfully.`
-}
 
 exports.save = async function(ctx) {
   const db = new CouchDB(ctx.user.instanceId)
@@ -124,7 +76,13 @@ exports.save = async function(ctx) {
     }
   }
 
-  emitEvent(`record:save`, ctx, record)
+  ctx.eventEmitter &&
+    ctx.eventEmitter.emit(`record:save`, {
+      args: {
+        record,
+      },
+      instanceId: ctx.user.instanceId,
+    })
   ctx.body = record
   ctx.status = 200
   ctx.message = `${model.name} created successfully`
@@ -183,14 +141,11 @@ exports.destroy = async function(ctx) {
   const db = new CouchDB(ctx.user.instanceId)
   const record = await db.get(ctx.params.recordId)
   if (record.modelId !== ctx.params.modelId) {
-    ctx.throw(400, "Supplied modelId doesn't match the record's modelId")
+    ctx.throw(400, "Supplied modelId doe not match the record's modelId")
     return
   }
   ctx.body = await db.remove(ctx.params.recordId, ctx.params.revId)
-  ctx.status = 200
-  // for workflows
-  ctx.record = record
-  emitEvent(`record:delete`, ctx, record)
+  ctx.eventEmitter && ctx.eventEmitter.emit(`record:delete`, record)
 }
 
 exports.validate = async function(ctx) {

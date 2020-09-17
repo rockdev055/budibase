@@ -1,15 +1,15 @@
 <script>
   import { workflowStore } from "builderStore"
 
-  export let blockDefinition
-  export let stepId
   export let blockType
+  export let blockDefinition
+  export let actionId
 
   function addBlockToWorkflow() {
     workflowStore.actions.addBlockToWorkflow({
       ...blockDefinition,
       args: blockDefinition.args || {},
-      stepId,
+      actionId,
       type: blockType,
     })
   }
@@ -18,7 +18,7 @@
 <div
   class="workflow-block hoverable"
   on:click={addBlockToWorkflow}
-  data-cy={stepId}>
+  data-cy={actionId}>
   <div>
     <i class={blockDefinition.icon} />
   </div>
@@ -31,11 +31,11 @@
 <style>
   .workflow-block {
     display: grid;
-    grid-template-columns: 20px auto;
+    grid-template-columns: 40px auto;
     align-items: center;
     margin-top: 16px;
-    padding: 12px;
-    border-radius: var(--border-radius-m);
+    padding: 16px 0px;
+    border-radius: var(--border);
   }
 
   .workflow-block:hover {
@@ -43,7 +43,7 @@
   }
 
   .workflow-text {
-    margin-left: 16px;
+    margin-left: 12px;
   }
 
   .icon {
@@ -64,7 +64,6 @@
     font-size: 14px;
     font-weight: 500;
     margin-bottom: 5px;
-    margin-top: 0;
   }
 
   p {
