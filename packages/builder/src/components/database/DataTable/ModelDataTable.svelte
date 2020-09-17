@@ -6,7 +6,6 @@
   import { Button, Icon } from "@budibase/bbui"
   import ActionButton from "components/common/ActionButton.svelte"
   import LinkedRecord from "./LinkedRecord.svelte"
-  import AttachmentList from "./AttachmentList.svelte"
   import TablePagination from "./TablePagination.svelte"
   import { DeleteRecordModal, CreateEditRecordModal } from "./modals"
   import RowPopover from "./popovers/Row.svelte"
@@ -37,14 +36,14 @@
     }
   }
 
-  $: paginatedData = data
-    ? data.slice(
+  $: sort = $backendUiStore.sort
+  $: sorted = sort ? fsort(data)[sort.direction](sort.column) : data
+  $: paginatedData = sorted
+    ? sorted.slice(
         currentPage * ITEMS_PER_PAGE,
         currentPage * ITEMS_PER_PAGE + ITEMS_PER_PAGE
       )
     : []
-  $: sort = $backendUiStore.sort
-  $: sorted = sort ? fsort(data)[sort.direction](sort.column) : data
 
   $: headers = Object.keys($backendUiStore.selectedModel.schema)
     .sort()
@@ -79,10 +78,10 @@
       </tr>
     </thead>
     <tbody>
-      {#if sorted.length === 0}
+      {#if paginatedData.length === 0}
         <div class="no-data">No Data.</div>
       {/if}
-      {#each sorted as row}
+      {#each paginatedData as row}
         <tr>
           <td>
             <EditRowPopover {row} />
@@ -91,8 +90,6 @@
             <td>
               {#if schema[header].type === 'link'}
                 <LinkedRecord field={schema[header]} ids={row[header]} />
-              {:else if schema[header].type === 'attachment'}
-                <AttachmentList files={row[header] || []} />
               {:else}{getOr('', header, row)}{/if}
             </td>
           {/each}
@@ -103,7 +100,7 @@
   <TablePagination
     {data}
     bind:currentPage
-    pageItemCount={data.length}
+    pageItemCount={paginatedData.length}
     {ITEMS_PER_PAGE} />
 </section>
 
@@ -111,7 +108,6 @@
   section {
     margin-bottom: 20px;
   }
-
   .title {
     font-size: 24px;
     font-weight: 600;
