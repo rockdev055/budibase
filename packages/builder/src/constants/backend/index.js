@@ -51,15 +51,24 @@ export const FIELDS = {
       },
     },
   },
-  ATTACHMENT: {
-    name: "Attachment",
-    icon: "ri-file-line",
-    type: "attachment",
-    constraints: {
-      type: "array",
-      presence: { allowEmpty: true },
-    },
-  },
+  // IMAGE: {
+  //   name: "File",
+  //   icon: "ri-image-line",
+  //   type: "file",
+  //   constraints: {
+  //     type: "string",
+  //     presence: { allowEmpty: true },
+  //   },
+  // },
+  // FILE: {
+  //   name: "Image",
+  //   icon: "ri-file-line",
+  //   type: "file",
+  //   constraints: {
+  //     type: "string",
+  //     presence: { allowEmpty: true },
+  //   },
+  // },
   // LINKED_FIELDS: {
   //   name: "Linked Fields",
   //   icon: "ri-link",
@@ -69,10 +78,4 @@ export const FIELDS = {
   //     type: "array",
   //   },
   // },
-}
-
-export const FILE_TYPES = {
-  IMAGE: ["png", "tiff", "gif", "raw", "jpg", "jpeg"],
-  CODE: ["js", "rs", "py", "java", "rb", "hs", "yml"],
-  DOCUMENT: ["odf", "docx", "doc", "pdf", "csv"]
 }
