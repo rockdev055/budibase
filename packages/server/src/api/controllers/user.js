@@ -58,7 +58,6 @@ exports.create = async function(ctx) {
   ctx.message = "User created successfully."
   ctx.body = {
     _rev: response.rev,
-    _id: user._id,
     username,
     name,
   }

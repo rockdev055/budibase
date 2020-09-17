@@ -23,20 +23,18 @@ function generateStepSchema(allowStepTypes) {
   }).unknown(true)
 }
 
-function generateValidator(existing = false) {
-  // prettier-ignore
-  return joiValidator.body(Joi.object({
-    live: Joi.bool(),
-    _id: existing ? Joi.string().required() : Joi.string(),
-    _rev: existing ? Joi.string().required() : Joi.string(),
-    name: Joi.string().required(),
-    type: Joi.string().valid("workflow").required(),
-    definition: Joi.object({
-      steps: Joi.array().required().items(generateStepSchema(["ACTION", "LOGIC"])),
-      trigger: generateStepSchema(["TRIGGER"]),
-    }).required().unknown(true),
-  }).unknown(true))
-}
+// prettier-ignore
+const workflowValidator = joiValidator.body(Joi.object({
+  live: Joi.bool(),
+  id: Joi.string().required(),
+  rev: Joi.string().required(),
+  name: Joi.string().required(),
+  type: Joi.string().valid("workflow").required(),
+  definition: Joi.object({
+    steps: Joi.array().required().items(generateStepSchema(["ACTION", "LOGIC"])),
+    trigger: generateStepSchema(["TRIGGER"]).required(),
+  }).required().unknown(true),
+}).unknown(true))
 
 router
   .get(
@@ -64,13 +62,13 @@ router
   .put(
     "/api/workflows",
     authorized(BUILDER),
-    generateValidator(true),
+    workflowValidator,
     controller.update
   )
   .post(
     "/api/workflows",
     authorized(BUILDER),
-    generateValidator(false),
+    workflowValidator,
     controller.create
   )
   .post("/api/workflows/:id/trigger", controller.trigger)
