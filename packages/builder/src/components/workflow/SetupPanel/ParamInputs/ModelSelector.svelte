@@ -1,15 +1,14 @@
 <script>
   import { backendUiStore } from "builderStore"
-  import { Select } from "@budibase/bbui"
 
   export let value
 </script>
 
-<div class="block-field">
-  <Select bind:value secondary thin>
-    <option value="">Choose an option</option>
+<div class="bb-margin-xl block-field">
+  <select class="budibase__input" bind:value>
+    <option value="" />
     {#each $backendUiStore.models as model}
-      <option value={model._id}>{model.name}</option>
+      <option value={model}>{model.name}</option>
     {/each}
-  </Select>
+  </select>
 </div>

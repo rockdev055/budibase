@@ -50,6 +50,7 @@ export const createApp = ({
       treeNode,
       onScreenSlotRendered,
       setupState: stateManager.setup,
+      getCurrentState: stateManager.getCurrentState,
     })
 
     return getInitialiseParams
