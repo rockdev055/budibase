@@ -6,7 +6,6 @@
   import { Button, Icon } from "@budibase/bbui"
   import ActionButton from "components/common/ActionButton.svelte"
   import LinkedRecord from "./LinkedRecord.svelte"
-  import AttachmentList from "./AttachmentList.svelte"
   import TablePagination from "./TablePagination.svelte"
   import { DeleteRecordModal, CreateEditRecordModal } from "./modals"
   import RowPopover from "./popovers/Row.svelte"
@@ -91,8 +90,6 @@
             <td>
               {#if schema[header].type === 'link'}
                 <LinkedRecord field={schema[header]} ids={row[header]} />
-              {:else if schema[header].type === 'attachment'}
-                <AttachmentList files={row[header] || []} />
               {:else}{getOr('', header, row)}{/if}
             </td>
           {/each}
@@ -111,7 +108,6 @@
   section {
     margin-bottom: 20px;
   }
-
   .title {
     font-size: 24px;
     font-weight: 600;

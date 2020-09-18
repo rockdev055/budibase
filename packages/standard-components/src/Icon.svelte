@@ -1,9 +1,9 @@
 <script>
-  import "@fortawesome/fontawesome-free/js/all.js"
-
   export let icon = ""
-  export let size = "fa-lg"
-  export let color = "#000"
+  export let fontSize = "1em"
+  export let _bb
+
+  $: style = { fontSize }
 </script>
 
-<i style={`color: ${color};`} class={`${icon} ${size}`} />
+<i class={icon} {style} />
