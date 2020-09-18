@@ -2,16 +2,9 @@ function validate(schema, property) {
   // Return a Koa middleware function
   return (ctx, next) => {
     if (schema) {
-      let params =
-        ctx[property] != null
-          ? ctx[property]
-          : ctx.request[property] != null
-          ? ctx.request[property]
-          : null
-      const { error } = schema.validate(params)
+      const { error } = schema.validate(ctx[property])
       if (error) {
         ctx.throw(400, `Invalid ${property} - ${error.message}`)
-        return
       }
     }
     return next()

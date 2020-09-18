@@ -1,5 +1,4 @@
 const triggers = require("./triggers")
-const actions = require("./actions")
 const environment = require("../environment")
 const workerFarm = require("worker-farm")
 const singleThread = require("./thread")
@@ -22,13 +21,11 @@ function runWorker(job) {
  * This module is built purely to kick off the worker farm and manage the inputs/outputs
  */
 module.exports.init = function() {
-  actions.init().then(() => {
-    triggers.workflowQueue.process(async job => {
-      if (environment.BUDIBASE_ENVIRONMENT === "PRODUCTION") {
-        await runWorker(job)
-      } else {
-        await singleThread(job)
-      }
-    })
+  triggers.workflowQueue.process(async job => {
+    if (environment.BUDIBASE_ENVIRONMENT === "PRODUCTION") {
+      await runWorker(job)
+    } else {
+      await singleThread(job)
+    }
   })
 }

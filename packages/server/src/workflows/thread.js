@@ -2,61 +2,18 @@ const mustache = require("mustache")
 const actions = require("./actions")
 const logic = require("./logic")
 
-const FILTER_STEP_ID = logic.BUILTIN_DEFINITIONS.FILTER.stepId
-
-function cleanMustache(string) {
-  let charToReplace = {
-    "[": ".",
-    "]": "",
-  }
-  let regex = new RegExp(/{{[^}}]*}}/g)
-  let match
-  while ((match = regex.exec(string)) !== null) {
-    let baseIdx = string.indexOf(match)
-    for (let key of Object.keys(charToReplace)) {
-      let idxChar = match[0].indexOf(key)
-      if (idxChar !== -1) {
-        string =
-          string.slice(baseIdx, baseIdx + idxChar) +
-          charToReplace[key] +
-          string.slice(baseIdx + idxChar + 1)
-      }
-    }
-  }
-  return string
-}
-
-function recurseMustache(inputs, context) {
-  for (let key of Object.keys(inputs)) {
-    let val = inputs[key]
-    if (typeof val === "string") {
-      val = cleanMustache(inputs[key])
-      inputs[key] = mustache.render(val, context)
-    }
-    // this covers objects and arrays
-    else if (typeof val === "object") {
-      inputs[key] = recurseMustache(inputs[key], context)
-    }
-  }
-  return inputs
-}
-
 /**
  * The workflow orchestrator is a class responsible for executing workflows.
  * It handles the context of the workflow and makes sure each step gets the correct
  * inputs and handles any outputs.
  */
 class Orchestrator {
-  constructor(workflow, triggerOutput) {
-    this._instanceId = triggerOutput.instanceId
-    // remove from context
-    delete triggerOutput.instanceId
-    // step zero is never used as the mustache is zero indexed for customer facing
-    this._context = { steps: [{}], trigger: triggerOutput }
+  constructor(workflow) {
+    this._context = {}
     this._workflow = workflow
   }
 
-  async getStepFunctionality(type, stepId) {
+  async getStep(type, stepId) {
     let step = null
     if (type === "ACTION") {
       step = await actions.getAction(stepId)
@@ -69,20 +26,28 @@ class Orchestrator {
     return step
   }
 
-  async execute() {
+  async execute(context) {
     let workflow = this._workflow
-    for (let step of workflow.definition.steps) {
-      let stepFn = await this.getStepFunctionality(step.type, step.stepId)
-      step.inputs = recurseMustache(step.inputs, this._context)
-      // instanceId is always passed
-      const outputs = await stepFn({
-        inputs: step.inputs,
-        instanceId: this._instanceId,
-      })
-      if (step.stepId === FILTER_STEP_ID && !outputs.success) {
-        break
+    for (let block of workflow.definition.steps) {
+      let step = await this.getStep(block.type, block.stepId)
+      let args = { ...block.args }
+      // bind the workflow action args to the workflow context, if required
+      for (let arg of Object.keys(args)) {
+        const argValue = args[arg]
+        // We don't want to render mustache templates on non-strings
+        if (typeof argValue !== "string") continue
+
+        args[arg] = mustache.render(argValue, { context: this._context })
       }
-      this._context.steps.push(outputs)
+      const response = await step({
+        args,
+        context,
+      })
+
+      this._context = {
+        ...this._context,
+        [block.id]: response,
+      }
     }
   }
 }
@@ -90,11 +55,8 @@ class Orchestrator {
 // callback is required for worker-farm to state that the worker thread has completed
 module.exports = async (job, cb = null) => {
   try {
-    const workflowOrchestrator = new Orchestrator(
-      job.data.workflow,
-      job.data.event
-    )
-    await workflowOrchestrator.execute()
+    const workflowOrchestrator = new Orchestrator(job.data.workflow)
+    await workflowOrchestrator.execute(job.data.event)
     if (cb) {
       cb()
     }

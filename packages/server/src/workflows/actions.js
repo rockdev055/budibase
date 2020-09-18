@@ -1,76 +1,112 @@
-const sendEmail = require("./steps/sendEmail")
-const saveRecord = require("./steps/saveRecord")
-const deleteRecord = require("./steps/deleteRecord")
-const createUser = require("./steps/createUser")
-const environment = require("../environment")
-const download = require("download")
-const fetch = require("node-fetch")
-const path = require("path")
-const Sentry = require("@sentry/node")
+const userController = require("../api/controllers/user")
+const recordController = require("../api/controllers/record")
+const sgMail = require("@sendgrid/mail")
 
-const AUTOMATION_MANIFEST = "manifest.json"
-const AUTOMATION_BUNDLE = "bundle.js"
-const BUILTIN_ACTIONS = {
-  SEND_EMAIL: sendEmail.run,
-  SAVE_RECORD: saveRecord.run,
-  DELETE_RECORD: deleteRecord.run,
-  CREATE_USER: createUser.run,
-}
-const BUILTIN_DEFINITIONS = {
-  SEND_EMAIL: sendEmail.definition,
-  SAVE_RECORD: saveRecord.definition,
-  DELETE_RECORD: deleteRecord.definition,
-  CREATE_USER: createUser.definition,
-}
+sgMail.setApiKey(process.env.SENDGRID_API_KEY)
 
-let MANIFEST = null
+let BUILTIN_ACTIONS = {
+  CREATE_USER: async function({ args, context }) {
+    const { username, password, accessLevelId } = args
+    const ctx = {
+      user: {
+        instanceId: context.instanceId,
+      },
+      request: {
+        body: { username, password, accessLevelId },
+      },
+    }
 
-async function downloadPackage(name, version, pathToInstall) {
-  await download(
-    `${environment.AUTOMATION_BUCKET}/${name}/${version}/${AUTOMATION_BUNDLE}`,
-    pathToInstall
-  )
-  return require(path.join(pathToInstall, AUTOMATION_BUNDLE))
+    try {
+      const response = await userController.create(ctx)
+      return {
+        user: response,
+      }
+    } catch (err) {
+      console.error(err)
+      return {
+        user: null,
+      }
+    }
+  },
+  SAVE_RECORD: async function({ args, context }) {
+    const { model, ...record } = args.record
+
+    const ctx = {
+      params: {
+        instanceId: context.instanceId,
+        modelId: model._id,
+      },
+      request: {
+        body: record,
+      },
+      user: { instanceId: context.instanceId },
+    }
+
+    try {
+      await recordController.save(ctx)
+      return {
+        record: ctx.body,
+      }
+    } catch (err) {
+      console.error(err)
+      return {
+        record: null,
+        error: err.message,
+      }
+    }
+  },
+  SEND_EMAIL: async function({ args }) {
+    const msg = {
+      to: args.to,
+      from: args.from,
+      subject: args.subject,
+      text: args.text,
+    }
+
+    try {
+      await sgMail.send(msg)
+      return {
+        success: true,
+        ...args,
+      }
+    } catch (err) {
+      console.error(err)
+      return {
+        success: false,
+        error: err.message,
+      }
+    }
+  },
+  DELETE_RECORD: async function({ args, context }) {
+    const { model, ...record } = args.record
+    // TODO: better logging of when actions are missed due to missing parameters
+    if (record.recordId == null || record.revId == null) {
+      return
+    }
+    let ctx = {
+      params: {
+        modelId: model._id,
+        recordId: record.recordId,
+        revId: record.revId,
+      },
+      user: { instanceId: context.instanceId },
+    }
+
+    try {
+      await recordController.destroy(ctx)
+    } catch (err) {
+      console.error(err)
+      return {
+        record: null,
+        error: err.message,
+      }
+    }
+  },
 }
 
 module.exports.getAction = async function(actionName) {
   if (BUILTIN_ACTIONS[actionName] != null) {
     return BUILTIN_ACTIONS[actionName]
   }
-  // env setup to get async packages
-  if (!MANIFEST || !MANIFEST.packages || !MANIFEST.packages[actionName]) {
-    return null
-  }
-  let pkg = MANIFEST.packages[actionName]
-  let toInstall = path.join(
-    environment.AUTOMATION_DIRECTORY,
-    pkg.stepId,
-    pkg.version
-  )
-  try {
-    return require(path.join(toInstall, AUTOMATION_BUNDLE))
-  } catch (err) {
-    return downloadPackage(pkg.stepId, pkg.version, toInstall)
-  }
+  // TODO: load async actions here
 }
-
-module.exports.init = async function() {
-  // env setup to get async packages
-  try {
-    if (environment.AUTOMATION_DIRECTORY && environment.AUTOMATION_BUCKET) {
-      let response = await fetch(
-        `${environment.AUTOMATION_BUCKET}/${AUTOMATION_MANIFEST}`
-      )
-      MANIFEST = await response.json()
-    }
-  } catch (err) {
-    Sentry.captureException(err)
-  }
-  module.exports.DEFINITIONS =
-    MANIFEST && MANIFEST.packages
-      ? Object.assign(MANIFEST.packages, BUILTIN_DEFINITIONS)
-      : BUILTIN_DEFINITIONS
-}
-
-module.exports.DEFINITIONS = BUILTIN_DEFINITIONS
-module.exports.BUILTIN_DEFINITIONS = BUILTIN_DEFINITIONS

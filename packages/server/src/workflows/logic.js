@@ -1,20 +1,24 @@
-let filter = require("./steps/filter")
-let delay = require("./steps/delay")
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
 
-let BUILTIN_LOGIC = {
-  DELAY: delay.run,
-  FILTER: filter.run,
-}
+let LOGIC = {
+  DELAY: async function delay({ args }) {
+    await wait(args.time)
+  },
 
-let BUILTIN_DEFINITIONS = {
-  DELAY: delay.definition,
-  FILTER: filter.definition,
+  FILTER: async function filter({ args }) {
+    const { field, condition, value } = args
+    switch (condition) {
+      case "equals":
+        if (field !== value) return
+        break
+      default:
+        return
+    }
+  },
 }
 
 module.exports.getLogic = function(logicName) {
-  if (BUILTIN_LOGIC[logicName] != null) {
-    return BUILTIN_LOGIC[logicName]
+  if (LOGIC[logicName] != null) {
+    return LOGIC[logicName]
   }
 }
-
-module.exports.BUILTIN_DEFINITIONS = BUILTIN_DEFINITIONS
