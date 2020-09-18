@@ -28,11 +28,6 @@ module.exports.definition = {
     },
     outputs: {
       properties: {
-        record: {
-          type: "object",
-          customType: "record",
-          description: "The new record",
-        },
         response: {
           type: "object",
           description: "The response from the table",
@@ -74,7 +69,6 @@ module.exports.run = async function({ inputs, instanceId }) {
   try {
     await recordController.save(ctx)
     return {
-      record: inputs.record,
       response: ctx.body,
       id: ctx.body._id,
       revision: ctx.body._rev,
