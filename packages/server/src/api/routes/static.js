@@ -2,8 +2,6 @@ const Router = require("@koa/router")
 const controller = require("../controllers/static")
 const { budibaseTempDir } = require("../../utilities/budibaseDir")
 const env = require("../../environment")
-const authorized = require("../../middleware/authorized")
-const { BUILDER } = require("../../utilities/accessLevels")
 
 const router = Router()
 
@@ -23,19 +21,8 @@ if (env.NODE_ENV !== "production") {
 }
 
 router
-  .post(
-    "/api/attachments/process",
-    authorized(BUILDER),
-    controller.processLocalFileUpload
-  )
-  .delete(
-    "/api/attachments/:fileName",
-    authorized(BUILDER),
-    controller.deleteLocalFileUpload
-  )
   .get("/componentlibrary", controller.serveComponentLibrary)
   .get("/assets/:file*", controller.serveAppAsset)
-  .get("/attachments/:file*", controller.serveAttachment)
   .get("/:appId/:path*", controller.serveApp)
 
 module.exports = router

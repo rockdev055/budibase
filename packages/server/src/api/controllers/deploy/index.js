@@ -42,7 +42,6 @@ exports.deployApp = async function(ctx) {
     await uploadAppAssets({
       clientId,
       appId: ctx.user.appId,
-      instanceId: ctx.user.instanceId,
       ...credentials,
     })
 
