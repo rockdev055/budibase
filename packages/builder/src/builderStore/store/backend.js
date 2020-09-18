@@ -28,11 +28,6 @@ export const getBackendUiStore = () => {
       },
     },
     records: {
-      save: () =>
-        store.update(state => {
-          state.selectedView = state.selectedView
-          return state
-        }),
       delete: () =>
         store.update(state => {
           state.selectedView = state.selectedView
@@ -87,7 +82,7 @@ export const getBackendUiStore = () => {
           state.models = state.models.filter(
             existing => existing._id !== model._id
           )
-          state.selectedModel = state.models[0] || {}
+          state.selectedModel = {}
           return state
         })
       },
