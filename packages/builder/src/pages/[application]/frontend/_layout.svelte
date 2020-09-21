@@ -1,4 +1,3 @@
-<!-- routify:options index=1 -->
 <script>
   import { store, backendUiStore } from "builderStore"
   import { goto } from "@sveltech/routify"

@@ -1,6 +1,6 @@
 const viewController = require("../api/controllers/view")
 const modelController = require("../api/controllers/model")
-const automationController = require("../api/controllers/automation")
+const workflowController = require("../api/controllers/workflow")
 const accessLevels = require("./accessLevels")
 
 // this has been broken out to reduce risk of circular dependency from utilities, no enums defined here
@@ -26,13 +26,13 @@ const generatePowerUserPermissions = async instanceId => {
   await viewController.fetch(fetchViewsCtx)
   const views = fetchViewsCtx.body
 
-  const fetchAutomationsCtx = {
+  const fetchWorkflowsCtx = {
     user: {
       instanceId,
     },
   }
-  await automationController.fetch(fetchAutomationsCtx)
-  const automations = fetchAutomationsCtx.body
+  await workflowController.fetch(fetchWorkflowsCtx)
+  const workflows = fetchWorkflowsCtx.body
 
   const readModelPermissions = models.map(m => ({
     itemId: m._id,
@@ -49,16 +49,16 @@ const generatePowerUserPermissions = async instanceId => {
     name: accessLevels.READ_VIEW,
   }))
 
-  const executeAutomationPermissions = automations.map(w => ({
+  const executeWorkflowPermissions = workflows.map(w => ({
     itemId: w._id,
-    name: accessLevels.EXECUTE_AUTOMATION,
+    name: accessLevels.EXECUTE_WORKFLOW,
   }))
 
   return [
     ...readModelPermissions,
     ...writeModelPermissions,
     ...viewPermissions,
-    ...executeAutomationPermissions,
+    ...executeWorkflowPermissions,
     { name: accessLevels.LIST_USERS },
   ]
 }

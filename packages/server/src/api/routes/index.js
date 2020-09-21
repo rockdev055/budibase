@@ -9,7 +9,7 @@ const recordRoutes = require("./record")
 const viewRoutes = require("./view")
 const staticRoutes = require("./static")
 const componentRoutes = require("./component")
-const automationRoutes = require("./automation")
+const workflowRoutes = require("./workflow")
 const accesslevelRoutes = require("./accesslevel")
 const deployRoutes = require("./deploy")
 const apiKeysRoutes = require("./apikeys")
@@ -27,7 +27,7 @@ module.exports = {
   viewRoutes,
   staticRoutes,
   componentRoutes,
-  automationRoutes,
+  workflowRoutes,
   accesslevelRoutes,
   apiKeysRoutes,
 }
