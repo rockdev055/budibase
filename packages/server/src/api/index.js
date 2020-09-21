@@ -16,7 +16,7 @@ const {
   viewRoutes,
   staticRoutes,
   componentRoutes,
-  automationRoutes,
+  workflowRoutes,
   accesslevelRoutes,
   apiKeysRoutes,
 } = require("./routes")
@@ -84,8 +84,8 @@ router.use(userRoutes.allowedMethods())
 router.use(instanceRoutes.routes())
 router.use(instanceRoutes.allowedMethods())
 
-router.use(automationRoutes.routes())
-router.use(automationRoutes.allowedMethods())
+router.use(workflowRoutes.routes())
+router.use(workflowRoutes.allowedMethods())
 
 router.use(deployRoutes.routes())
 router.use(deployRoutes.allowedMethods())
