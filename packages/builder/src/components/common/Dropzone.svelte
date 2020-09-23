@@ -35,11 +35,10 @@
       return
     }
 
-    const filesToProcess = fileArray.map(({ name, path, size, type }) => ({
+    const filesToProcess = fileArray.map(({ name, path, size }) => ({
       name,
       path,
       size,
-      type,
     }))
 
     const response = await api.post(`/api/attachments/process`, {
