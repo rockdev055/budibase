@@ -44,7 +44,7 @@
             thin
             bind:value={value[field]}
             label={field}
-            type="string"
+            type={schema.type}
             {bindings} />
         {/if}
       </div>

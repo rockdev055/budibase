@@ -20,7 +20,7 @@
       class="hoverable"
       class:selected={selectedTab === 'ADD'}
       on:click={() => (selectedTab = 'ADD')}>
-      Steps
+      Add step
     </span>
   {/if}
 </header>
@@ -37,11 +37,11 @@
     background: none;
     display: flex;
     align-items: center;
-    margin-bottom: var(--spacing-xl);
+    margin-bottom: 20px;
   }
 
   .automation-header {
-    margin-right: var(--spacing-xl);
+    margin-right: 20px;
   }
 
   span:not(.selected) {
