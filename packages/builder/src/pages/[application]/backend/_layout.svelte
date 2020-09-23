@@ -1,4 +1,3 @@
-<!-- routify:options index=1 -->
 <script>
   import { getContext } from "svelte"
   import { store, backendUiStore } from "builderStore"
