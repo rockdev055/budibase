@@ -46,18 +46,22 @@
     flex-direction: column;
   }
 
+  i {
+    color: #adaec4;
+  }
+
+  i:hover {
+    cursor: pointer;
+  }
+
   ul {
     list-style-type: none;
     padding: 0;
-    margin: var(--spacing-xl) 0 0 0;
     flex: 1;
   }
 
-  i {
-    color: var(--grey-6);
-  }
-  i.live {
-    color: var(--purple);
+  .live {
+    color: var(--primary);
   }
 
   li {
@@ -66,23 +70,51 @@
 
   .automation-item {
     display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
+    border-radius: 5px;
+    padding-left: 12px;
     align-items: center;
-    border-radius: var(--border-radius-m);
-    padding: var(--spacing-s) var(--spacing-m);
-    margin-bottom: var(--spacing-xs);
+    height: 36px;
+    margin-bottom: 4px;
     color: var(--ink);
   }
+
   .automation-item i {
     font-size: 24px;
-    margin-right: var(--spacing-m);
+    margin-right: 10px;
   }
+
   .automation-item:hover {
     cursor: pointer;
     background: var(--grey-1);
   }
+
   .automation-item.selected {
     background: var(--grey-2);
+  }
+
+  .new-automation-button {
+    cursor: pointer;
+    border: 1px solid var(--grey-4);
+    border-radius: 3px;
+    width: 100%;
+    padding: 8px 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 2ms;
+  }
+
+  .new-automation-button:hover {
+    background: var(--grey-1);
+  }
+
+  .icon {
+    color: var(--ink);
+    font-size: 16px;
+    margin-right: 4px;
   }
 </style>

@@ -10,6 +10,6 @@
 
 <style>
   svg {
-    margin: var(--spacing-m) 0;
+    margin: 8px 0;
   }
 </style>

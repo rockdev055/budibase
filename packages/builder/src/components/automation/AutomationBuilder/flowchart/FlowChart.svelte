@@ -37,7 +37,7 @@
 <style>
   section {
     position: absolute;
-    padding: 40px;
+    padding: 20px 40px;
     display: flex;
     align-items: center;
     flex-direction: column;

@@ -1,14 +1,11 @@
 <script>
-  import { sortBy } from "lodash/fp"
   import { automationStore } from "builderStore"
   import AutomationBlock from "./AutomationBlock.svelte"
   import FlatButtonGroup from "components/userInterface/FlatButtonGroup.svelte"
 
   let selectedTab = "TRIGGER"
   let buttonProps = []
-  $: blocks = sortBy(entry => entry[1].name)(
-    Object.entries($automationStore.blockDefinitions[selectedTab])
-  )
+  $: blocks = Object.entries($automationStore.blockDefinitions[selectedTab])
 
   $: {
     if ($automationStore.selectedAutomation.hasTrigger()) {
@@ -40,9 +37,3 @@
     {/each}
   </div>
 </section>
-
-<style>
-  #blocklist {
-    margin-top: var(--spacing-xl);
-  }
-</style>
