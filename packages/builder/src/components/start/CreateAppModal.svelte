@@ -1,7 +1,7 @@
 <script>
   import { writable } from "svelte/store"
 
-  import { store, automationStore, backendUiStore } from "builderStore"
+  import { store, workflowStore, backendUiStore } from "builderStore"
   import { string, object } from "yup"
   import api, { get } from "builderStore/api"
   import Form from "@svelteschool/svelte-forms"
@@ -133,7 +133,7 @@
       if (applicationPkg.ok) {
         backendUiStore.actions.reset()
         await store.setPackage(pkg)
-        automationStore.actions.fetch()
+        workflowStore.actions.fetch()
       } else {
         throw new Error(pkg)
       }
