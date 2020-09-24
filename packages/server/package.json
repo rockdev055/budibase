@@ -92,6 +92,9 @@
     "server-destroy": "^1.0.1",
     "supertest": "^4.0.2"
   },
+  "nodemonConfig": {
+    "delay": "1000"
+  },
   "jest": {
     "testEnvironment": "node",
     "setupFiles": [

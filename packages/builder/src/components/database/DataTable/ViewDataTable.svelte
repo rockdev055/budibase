@@ -18,7 +18,6 @@
   import CalculationPopover from "./popovers/Calculate.svelte"
   import GroupByPopover from "./popovers/GroupBy.svelte"
   import FilterPopover from "./popovers/Filter.svelte"
-  import ExportPopover from "./popovers/Export.svelte"
 
   export let view = {}
 
@@ -52,5 +51,4 @@
   {#if view.calculation}
     <GroupByPopover {view} />
   {/if}
-  <ExportPopover {view} />
 </Table>
