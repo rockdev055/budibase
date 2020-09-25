@@ -19,24 +19,26 @@
 
 <style>
   .indented {
-    grid-template-columns: 46px 1fr 20px;
+    grid-template-columns: 50px 1fr 20px;
   }
+
   .indented i {
     justify-self: end;
   }
 
   div {
-    padding: var(--spacing-s) var(--spacing-m);
-    border-radius: var(--border-radius-m);
+    padding: 0 10px 0 10px;
+    height: 36px;
+    border-radius: 5px;
     display: grid;
-    grid-template-columns: 20px 1fr 20px;
+    grid-template-columns: 30px 1fr 20px;
     align-items: center;
     transition: 0.3s background-color;
     color: var(--ink);
     font-weight: 400;
     font-size: 14px;
-    margin-bottom: var(--spacing-xs);
-    grid-gap: var(--spacing-s);
+    margin-top: 4px;
+    margin-bottom: 4px;
   }
 
   .selected {
@@ -51,5 +53,6 @@
   i {
     color: var(--grey-7);
     font-size: 20px;
+    margin-right: 8px;
   }
 </style>
