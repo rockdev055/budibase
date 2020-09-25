@@ -9,6 +9,8 @@
   import CreateTablePopover from "./CreateTable.svelte"
   import EditTablePopover from "./EditTable.svelte"
   import EditViewPopover from "./EditView.svelte"
+  import { Heading } from "@budibase/bbui"
+  import { Spacer } from "@budibase/bbui"
 
   const { open, close } = getContext("simple-modal")
 
@@ -30,7 +32,8 @@
   {#if $backendUiStore.selectedDatabase && $backendUiStore.selectedDatabase._id}
     <div class="hierarchy">
       <div class="components-list-container">
-        <h4>Tables</h4>
+        <Heading small>Tables</Heading>
+        <Spacer medium />
         <CreateTablePopover />
         <div class="hierarchy-items-container">
           {#each $backendUiStore.models as model}
@@ -63,17 +66,18 @@
 </div>
 
 <style>
-  h4 {
-    font-weight: 500;
+  h5 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: var(--spacing-xl);
   }
 
   .items-root {
     display: flex;
     flex-direction: column;
-    max-height: 100%;
-    height: 100%;
-    background: var(--white);
-    padding: 20px;
+    justify-content: flex-start;
+    align-items: stretch;
   }
 
   .hierarchy {
@@ -82,7 +86,7 @@
   }
 
   .hierarchy-items-container {
-    margin-top: 20px;
+    margin-top: var(--spacing-xl);
     flex: 1 1 auto;
   }
 </style>
