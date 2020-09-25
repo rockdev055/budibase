@@ -1,10 +1,7 @@
-const apiCall = method => async (
-  url,
-  body,
-  headers = {
+const apiCall = method => async (url, body) => {
+  const headers = {
     "Content-Type": "application/json",
   }
-) => {
   const response = await fetch(url, {
     method: method,
     body: body && JSON.stringify(body),
