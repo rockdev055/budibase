@@ -9,7 +9,7 @@
   import ActionButton from "components/common/ActionButton.svelte"
   import LinkedRecord from "./LinkedRecord.svelte"
   import TablePagination from "./TablePagination.svelte"
-  import { DeleteRecordModal, CreateEditRecordModal } from "./modals"
+  import { CreateEditRecordModal } from "./modals"
   import RowPopover from "./popovers/Row.svelte"
   import ColumnPopover from "./popovers/Column.svelte"
   import ViewPopover from "./popovers/View.svelte"
@@ -18,7 +18,6 @@
   import CalculationPopover from "./popovers/Calculate.svelte"
   import GroupByPopover from "./popovers/GroupBy.svelte"
   import FilterPopover from "./popovers/Filter.svelte"
-  import ExportPopover from "./popovers/Export.svelte"
 
   export let view = {}
 
@@ -52,5 +51,4 @@
   {#if view.calculation}
     <GroupByPopover {view} />
   {/if}
-  <ExportPopover {view} />
 </Table>

@@ -17,7 +17,7 @@
 
 <style>
   .root {
-    height: 100%;
+    height: calc(100vh - 60px);
     display: grid;
     grid-template-columns: 300px minmax(0, 1fr);
     background: var(--grey-1);
@@ -25,11 +25,12 @@
   }
   .content {
     flex: 1 1 auto;
-    margin: 20px 40px;
+    padding: var(--spacing-xl) 40px;
+    overflow-y: auto;
   }
   .nav {
-    flex: 0 1 auto;
-    width: 300px;
-    height: 100%;
+    overflow-y: auto;
+    background: var(--white);
+    padding: var(--spacing-xl);
   }
 </style>
