@@ -8,7 +8,7 @@
   import ActionButton from "components/common/ActionButton.svelte"
   import AttachmentList from "./AttachmentList.svelte"
   import TablePagination from "./TablePagination.svelte"
-  import { CreateEditRecordModal } from "./modals"
+  import { DeleteRecordModal, CreateEditRecordModal } from "./modals"
   import RowPopover from "./popovers/Row.svelte"
   import ColumnPopover from "./popovers/Column.svelte"
   import ViewPopover from "./popovers/View.svelte"
@@ -54,11 +54,7 @@
     </thead>
     <tbody>
       {#if paginatedData.length === 0}
-        {#each columns as header, idx}
-          <td class="no-border">
-            {#if idx === 0}No data.{/if}
-          </td>
-        {/each}
+        <div class="no-data">No Data.</div>
       {/if}
       {#each paginatedData as row}
         <tr>
@@ -81,24 +77,29 @@
 </section>
 
 <style>
+  section {
+    margin-bottom: 20px;
+  }
   .title {
     font-size: 24px;
     font-weight: 600;
     text-rendering: optimizeLegibility;
     text-transform: capitalize;
-    margin-top: 0;
   }
 
   table {
     border: 1px solid var(--grey-4);
     background: #fff;
+    border-radius: 3px;
     border-collapse: collapse;
   }
 
   thead {
+    height: 40px;
     background: var(--grey-3);
     border: 1px solid var(--grey-4);
   }
+
   thead th {
     color: var(--ink);
     text-transform: capitalize;
@@ -107,11 +108,9 @@
     text-rendering: optimizeLegibility;
     transition: 0.5s all;
     vertical-align: middle;
-    height: 48px;
-    padding-top: 0;
-    padding-bottom: 0;
   }
-  thead th:hover {
+
+  th:hover {
     color: var(--blue);
     cursor: pointer;
   }
@@ -120,20 +119,15 @@
     max-width: 200px;
     text-overflow: ellipsis;
     border: 1px solid var(--grey-4);
-    white-space: nowrap;
-    box-sizing: border-box;
-    padding: var(--spacing-l) var(--spacing-m);
-    font-size: var(--font-size-xs);
-  }
-  td.no-border {
-    border: none;
   }
 
   tbody tr {
     border-bottom: 1px solid var(--grey-4);
     transition: 0.3s background-color;
     color: var(--ink);
+    font-size: 12px;
   }
+
   tbody tr:hover {
     background: var(--grey-1);
   }
@@ -148,5 +142,9 @@
 
   :global(.popovers > div) {
     margin-right: var(--spacing-m);
+  }
+
+  .no-data {
+    padding: 14px;
   }
 </style>
