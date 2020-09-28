@@ -17,11 +17,14 @@
 
 <div class="margin">
   <label class="label">{label}</label>
+
   <textarea value={valuesText} on:change={inputChanged} />
+
 </div>
 
 <style>
   .margin {
+    margin-bottom: 16px;
     display: grid;
   }
   .label {
