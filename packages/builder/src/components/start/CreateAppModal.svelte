@@ -22,31 +22,12 @@
 
   export let hasKey
 
-  let isApiKeyValid
-  let lastApiKey
-  let fetchApiKeyPromise
-  const validateApiKey = async apiKey => {
-    if (!apiKey) return false
-
-    // make sure we only fetch once
-    if (isApiKeyValid === undefined || apiKey !== lastApiKey) {
-      if (!fetchApiKeyPromise) {
-        fetchApiKeyPromise = analytics.identifyByApiKey(apiKey)
-      }
-      isApiKeyValid = await fetchApiKeyPromise
-      fetchApiKeyPromise = undefined
-    }
-    return isApiKeyValid
-  }
-
   let submitting = false
   let errors = {}
   let validationErrors = {}
   let validationSchemas = [
     {
-      apiKey: string()
-        .required("Please enter your API key.")
-        .test("valid-apikey", "This API key is invalid", validateApiKey),
+      apiKey: string().required("Please enter your API key."),
     },
     {
       applicationName: string().required("Your application must have a name."),
@@ -179,7 +160,6 @@
   }
 
   function extractErrors({ inner }) {
-    if (!inner) return {}
     return inner.reduce((acc, err) => {
       return { ...acc, [err.path]: err.message }
     }, {})
