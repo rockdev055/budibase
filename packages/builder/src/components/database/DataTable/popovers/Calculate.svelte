@@ -46,52 +46,47 @@
   </TextButton>
 </div>
 <Popover bind:this={dropdown} {anchor} align="left">
-  <div class="actions">
-    <h5>Calculate</h5>
-    <div class="input-group-row">
-      <p>The</p>
-      <Select secondary thin bind:value={view.calculation}>
-        <option value="">Choose an option</option>
-        {#each CALCULATIONS as calculation}
-          <option value={calculation.key}>{calculation.name}</option>
-        {/each}
-      </Select>
-      <p>of</p>
-      <Select secondary thin bind:value={view.field}>
-        <option value="">Choose an option</option>
-        {#each fields as field}
-          <option value={field}>{field}</option>
-        {/each}
-      </Select>
-    </div>
-    <div class="footer">
-      <Button secondary on:click={dropdown.hide}>Cancel</Button>
-      <Button primary on:click={saveView}>Save</Button>
-    </div>
+  <h5>Calculate</h5>
+  <div class="input-group-row">
+    <p>The</p>
+    <Select secondary thin bind:value={view.calculation}>
+      <option value={null} />
+      {#each CALCULATIONS as calculation}
+        <option value={calculation.key}>{calculation.name}</option>
+      {/each}
+    </Select>
+    <p>of</p>
+    <Select secondary thin bind:value={view.field}>
+      <option value={null} />
+      {#each fields as field}
+        <option value={field}>{field}</option>
+      {/each}
+    </Select>
+  </div>
+  <div class="button-group">
+    <Button secondary on:click={dropdown.hide}>Cancel</Button>
+    <Button primary on:click={saveView}>Save</Button>
   </div>
 </Popover>
 
 <style>
-  .actions {
-    display: grid;
-    grid-gap: var(--spacing-xl);
-  }
-
   h5 {
-    margin: 0;
+    margin-bottom: var(--spacing-l);
     font-weight: 500;
   }
 
-  .footer {
+  .button-group {
+    margin-top: var(--spacing-l);
     display: flex;
     justify-content: flex-end;
-    gap: var(--spacing-m);
+    gap: var(--spacing-s);
   }
 
   .input-group-row {
     display: grid;
     grid-template-columns: 50px 1fr 20px 1fr;
     gap: var(--spacing-s);
+    margin-bottom: var(--spacing-l);
     align-items: center;
   }
 

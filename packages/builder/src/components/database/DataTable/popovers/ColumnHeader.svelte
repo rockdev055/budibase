@@ -2,7 +2,7 @@
   import { backendUiStore } from "builderStore"
   import { DropdownMenu, Button, Icon, Input, Select } from "@budibase/bbui"
   import { FIELDS } from "constants/backend"
-  import { CreateEditColumnModal } from "../modals"
+  import CreateEditColumn from "../modals/CreateEditColumn.svelte"
 
   export let field
 
@@ -37,14 +37,14 @@
   }
 </script>
 
-<div class="container" bind:this={anchor} on:click={dropdown.show}>
+<div bind:this={anchor} on:click={dropdown.show}>
   {field.name}
   <Icon name="arrowdown" />
 </div>
 <DropdownMenu bind:this={dropdown} {anchor} align="left">
   {#if editing}
     <h5>Edit Column</h5>
-    <CreateEditColumnModal onClosed={hideEditor} {field} />
+    <CreateEditColumn onClosed={hideEditor} {field} />
   {:else}
     <ul>
       <li data-cy="edit-column-header" on:click={showEditor}>
@@ -72,14 +72,6 @@
 </DropdownMenu>
 
 <style>
-  .container {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    gap: var(--spacing-xs);
-  }
-
   h5 {
     padding: var(--spacing-xl) 0 0 var(--spacing-xl);
     margin: 0;

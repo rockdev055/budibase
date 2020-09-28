@@ -31,36 +31,52 @@
   <Button primary wide on:click={dropdown.show}>Create New Table</Button>
 </div>
 <DropdownMenu bind:this={dropdown} {anchor} align="left">
-  <div class="actions">
+  <div class="container">
     <h5>Create Table</h5>
     <Input
       data-cy="table-name-input"
       placeholder="Table Name"
       thin
       bind:value={name} />
-    <footer>
-      <Button secondary on:click={onClosed}>Cancel</Button>
-      <Button primary on:click={saveTable}>Save</Button>
-    </footer>
   </div>
+  <footer>
+    <div class="button-margin-3">
+      <Button secondary on:click={onClosed}>Cancel</Button>
+    </div>
+    <div class="button-margin-4">
+      <Button primary on:click={saveTable}>Save</Button>
+    </div>
+  </footer>
 </DropdownMenu>
 
 <style>
-  .actions {
-    padding: var(--spacing-xl);
-    display: grid;
-    grid-gap: var(--spacing-xl);
-    min-width: 400px;
-  }
-
   h5 {
-    margin: 0;
+    margin-bottom: var(--spacing-l);
     font-weight: 500;
   }
 
+  .container {
+    padding: var(--spacing-l);
+    margin: 0;
+  }
+
   footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--spacing-m);
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 20px;
+    background: var(--grey-1);
+    border-bottom-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem;
+  }
+
+  .button-margin-3 {
+    grid-column-start: 3;
+    display: grid;
+  }
+
+  .button-margin-4 {
+    grid-column-start: 4;
+    display: grid;
   }
 </style>

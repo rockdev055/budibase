@@ -95,80 +95,67 @@
   </TextButton>
 </div>
 <Popover bind:this={dropdown} {anchor} align="left">
-  <div class="actions">
-    <h5>Filter</h5>
-    {#if view.filters.length}
-      <div class="input-group-row">
-        {#each view.filters as filter, idx}
-          {#if idx === 0}
-            <p>Where</p>
-          {:else}
-            <Select secondary thin bind:value={filter.conjunction}>
-              <option value="">Choose an option</option>
-              {#each CONJUNCTIONS as conjunction}
-                <option value={conjunction.key}>{conjunction.name}</option>
-              {/each}
-            </Select>
-          {/if}
-          <Select secondary thin bind:value={filter.key}>
-            <option value="">Choose an option</option>
-            {#each fields as field}
-              <option value={field}>{field}</option>
-            {/each}
-          </Select>
-          <Select secondary thin bind:value={filter.condition}>
-            <option value="">Choose an option</option>
-            {#each CONDITIONS as condition}
-              <option value={condition.key}>{condition.name}</option>
-            {/each}
-          </Select>
-          {#if filter.key && isMultipleChoice(filter.key)}
-            <Select secondary thin bind:value={filter.value}>
-              <option value="">Choose an option</option>
-              {#each viewModel.schema[filter.key].constraints.inclusion as option}
-                <option value={option}>{option}</option>
-              {/each}
-            </Select>
-          {:else}
-            <Input
-              thin
-              placeholder={filter.key || fields[0]}
-              bind:value={filter.value} />
-          {/if}
-          <i class="ri-close-circle-fill" on:click={() => removeFilter(idx)} />
+  <h5>Filter</h5>
+  <div class="input-group-row">
+    {#each view.filters as filter, idx}
+      {#if idx === 0}
+        <p>Where</p>
+      {:else}
+        <Select secondary thin bind:value={filter.conjunction}>
+          {#each CONJUNCTIONS as conjunction}
+            <option value={conjunction.key}>{conjunction.name}</option>
+          {/each}
+        </Select>
+      {/if}
+      <Select secondary thin bind:value={filter.key}>
+        {#each fields as field}
+          <option value={field}>{field}</option>
         {/each}
-      </div>
-    {/if}
-    <div class="footer">
-      <Button text on:click={addFilter}>Add Filter</Button>
-      <div class="buttons">
-        <Button secondary on:click={dropdown.hide}>Cancel</Button>
-        <Button primary on:click={saveView}>Save</Button>
-      </div>
+      </Select>
+      <Select secondary thin bind:value={filter.condition}>
+        {#each CONDITIONS as condition}
+          <option value={condition.key}>{condition.name}</option>
+        {/each}
+      </Select>
+      {#if filter.key && isMultipleChoice(filter.key)}
+        <Select secondary thin bind:value={filter.value}>
+          {#each viewModel.schema[filter.key].constraints.inclusion as option}
+            <option value={option}>{option}</option>
+          {/each}
+        </Select>
+      {:else}
+        <Input
+          thin
+          placeholder={filter.key || fields[0]}
+          bind:value={filter.value} />
+      {/if}
+      <i class="ri-close-circle-fill" on:click={() => removeFilter(idx)} />
+    {/each}
+  </div>
+  <div class="button-group">
+    <Button text on:click={addFilter}>Add Filter</Button>
+    <div>
+      <Button secondary on:click={dropdown.hide}>Cancel</Button>
+      <Button primary on:click={saveView}>Save</Button>
     </div>
   </div>
 </Popover>
 
 <style>
-  .actions {
-    display: grid;
-    grid-gap: var(--spacing-xl);
-  }
-
   h5 {
-    margin: 0;
+    margin-bottom: var(--spacing-l);
     font-weight: 500;
   }
 
-  .footer {
+  .button-group {
+    margin-top: var(--spacing-l);
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
-  .buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--spacing-m);
+
+  :global(.button-group > div > button) {
+    margin-left: var(--spacing-m);
   }
 
   .ri-close-circle-fill {
@@ -179,6 +166,7 @@
     display: grid;
     grid-template-columns: minmax(50px, auto) 1fr 1fr 1fr 15px;
     gap: var(--spacing-s);
+    margin-bottom: var(--spacing-l);
     align-items: center;
   }
 

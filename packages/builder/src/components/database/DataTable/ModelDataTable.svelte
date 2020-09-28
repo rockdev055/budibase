@@ -8,10 +8,11 @@
   import LinkedRecord from "./LinkedRecord.svelte"
   import AttachmentList from "./AttachmentList.svelte"
   import TablePagination from "./TablePagination.svelte"
-  import { CreateEditRecordModal } from "./modals"
+  import { DeleteRecordModal, CreateEditRecordModal } from "./modals"
   import RowPopover from "./popovers/Row.svelte"
   import ColumnPopover from "./popovers/Column.svelte"
   import ViewPopover from "./popovers/View.svelte"
+  import ExportPopover from "./popovers/Export.svelte"
   import ColumnHeaderPopover from "./popovers/ColumnHeader.svelte"
   import EditRowPopover from "./popovers/EditRow.svelte"
   import * as api from "./api"
@@ -51,16 +52,23 @@
     .filter(id => !INTERNAL_HEADERS.includes(id))
 
   $: schema = $backendUiStore.selectedModel.schema
+  $: modelView = {
+    schema: $backendUiStore.selectedModel.schema,
+    name: $backendUiStore.selectedView.name,
+  }
 </script>
 
 <section>
-  <h2 class="title">{$backendUiStore.selectedModel.name}</h2>
-  <div class="popovers">
-    <ColumnPopover />
-    {#if Object.keys($backendUiStore.selectedModel.schema).length > 0}
-      <RowPopover />
-      <ViewPopover />
-    {/if}
+  <div class="table-controls">
+    <h2 class="title">{$backendUiStore.selectedModel.name}</h2>
+    <div class="popovers">
+      <ColumnPopover />
+      {#if Object.keys($backendUiStore.selectedModel.schema).length > 0}
+        <RowPopover />
+        <ViewPopover />
+        <ExportPopover view={modelView} />
+      {/if}
+    </div>
   </div>
   <table class="bb-table">
     <thead>
@@ -78,10 +86,7 @@
     </thead>
     <tbody>
       {#if paginatedData.length === 0}
-        <td class="no-border">No data.</td>
-        {#each headers as header}
-          <td class="no-border" />
-        {/each}
+        <div class="no-data">No Data.</div>
       {/if}
       {#each paginatedData as row}
         <tr>
@@ -109,31 +114,30 @@
 </section>
 
 <style>
+  section {
+    margin-bottom: 20px;
+  }
+
   .title {
     font-size: 24px;
     font-weight: 600;
     text-rendering: optimizeLegibility;
     text-transform: capitalize;
-    margin-top: 0;
-  }
-
-  .popovers {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
   }
 
   table {
     border: 1px solid var(--grey-4);
     background: #fff;
+    border-radius: 3px;
     border-collapse: collapse;
   }
 
   thead {
+    height: 40px;
     background: var(--grey-3);
-    border-bottom: 1px solid var(--grey-4);
+    border: 1px solid var(--grey-4);
   }
+
   thead th {
     color: var(--ink);
     text-transform: capitalize;
@@ -142,15 +146,13 @@
     text-rendering: optimizeLegibility;
     transition: 0.5s all;
     vertical-align: middle;
-    height: 48px;
-    padding-top: 0;
-    padding-bottom: 0;
   }
 
   .edit-header {
     width: 100px;
     cursor: default;
   }
+
   .edit-header:hover {
     color: var(--ink);
   }
@@ -165,24 +167,30 @@
     text-overflow: ellipsis;
     border: 1px solid var(--grey-4);
     overflow: hidden;
-    white-space: nowrap;
+    white-space: pre;
     box-sizing: border-box;
-    padding: var(--spacing-l) var(--spacing-m);
-    font-size: var(--font-size-xs);
-  }
-  td.no-border {
-    border: none;
   }
 
-  tbody {
-    border: 1px solid var(--grey-4);
-  }
   tbody tr {
     border-bottom: 1px solid var(--grey-4);
     transition: 0.3s background-color;
     color: var(--ink);
+    font-size: 12px;
   }
+
   tbody tr:hover {
     background: var(--grey-1);
+  }
+
+  .table-controls {
+    width: 100%;
+  }
+
+  .popovers {
+    display: flex;
+  }
+
+  .no-data {
+    padding: 14px;
   }
 </style>
