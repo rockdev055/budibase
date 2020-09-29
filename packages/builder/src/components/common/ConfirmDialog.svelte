@@ -34,9 +34,7 @@
 <Modal id={title} bind:this={theModal}>
   <h2>{title}</h2>
   <Spacer extraLarge />
-  <div class="content">
-    <slot class="rows">{body}</slot>
-  </div>
+  <slot class="rows">{body}</slot>
   <Spacer extraLarge />
   <div class="modal-footer">
     <Button red wide on:click={ok}>{okText}</Button>
@@ -55,10 +53,5 @@
   .modal-footer {
     display: grid;
     grid-gap: var(--spacing-s);
-  }
-
-  .content {
-    white-space: normal;
-    font-size: var(--font-size-s);
   }
 </style>
