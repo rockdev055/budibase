@@ -5,10 +5,24 @@
   import AppList from "components/start/AppList.svelte"
   import { onMount } from "svelte"
   import ActionButton from "components/common/ActionButton.svelte"
+  import { get } from "builderStore/api"
   import Spinner from "components/common/Spinner.svelte"
   import CreateAppModal from "components/start/CreateAppModal.svelte"
-  import TemplateList from "components/start/TemplateList.svelte"
   import { Button } from "@budibase/bbui"
+  import { Heading } from "@budibase/bbui"
+
+  let promise = getApps()
+
+  async function getApps() {
+    const res = await get("/api/applications")
+    const json = await res.json()
+
+    if (res.ok) {
+      return json
+    } else {
+      throw new Error(json)
+    }
+  }
 
   let hasKey
 
@@ -20,6 +34,7 @@
 
   async function checkIfKeysAndApps() {
     const key = await fetchKeys()
+    const apps = await getApps()
     if (key) {
       hasKey = true
     } else {
@@ -30,12 +45,11 @@
   // Handle create app modal
   const { open } = getContext("simple-modal")
 
-  const showCreateAppModal = template => {
+  const showCreateAppModal = () => {
     open(
       CreateAppModal,
       {
         hasKey,
-        template,
       },
       {
         closeButton: false,
@@ -51,8 +65,8 @@
 </script>
 
 <div class="header">
-  <div class="welcome">Welcome to the Budibase Beta</div>
-  <Button primary purple on:click={() => showCreateAppModal()}>
+  <Heading medium black>Welcome to the Budibase Beta</Heading>
+  <Button primary black on:click={showCreateAppModal}>
     Create New Web App
   </Button>
 </div>
@@ -64,8 +78,15 @@
   </div>
 </div>
 
-<TemplateList onSelect={showCreateAppModal} />
-<AppList />
+{#await promise}
+  <div class="spinner-container">
+    <Spinner />
+  </div>
+{:then result}
+  <AppList apps={result} />
+{:catch err}
+  <h1 style="color:red">{err}</h1>
+{/await}
 
 <style>
   .header {
@@ -103,5 +124,13 @@
     font-size: 24px;
     color: var(--white);
     font-weight: 500;
+  }
+
+  .spinner-container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 </style>
