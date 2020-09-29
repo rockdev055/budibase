@@ -19,7 +19,6 @@ const {
   automationRoutes,
   accesslevelRoutes,
   apiKeysRoutes,
-  templatesRoutes,
 } = require("./routes")
 
 const router = new Router()
@@ -90,9 +89,6 @@ router.use(automationRoutes.allowedMethods())
 
 router.use(deployRoutes.routes())
 router.use(deployRoutes.allowedMethods())
-
-router.use(templatesRoutes.routes())
-router.use(templatesRoutes.allowedMethods())
 // end auth routes
 
 router.use(pageRoutes.routes())
