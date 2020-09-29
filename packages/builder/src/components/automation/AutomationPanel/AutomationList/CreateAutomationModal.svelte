@@ -50,7 +50,7 @@
   header {
     font-size: var(--font-size-xl);
     color: var(--ink);
-    font-weight: 600;
+    font-weight: bold;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;

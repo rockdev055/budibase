@@ -12,12 +12,12 @@ exports.fetch = async function(ctx) {
 
 exports.find = async function(ctx) {
   const db = new CouchDB(ctx.user.instanceId)
-  ctx.body = await db.get(ctx.params.id)
+  const model = await db.get(ctx.params.id)
+  ctx.body = model
 }
 
 exports.save = async function(ctx) {
-  const instanceId = ctx.user.instanceId
-  const db = new CouchDB(instanceId)
+  const db = new CouchDB(ctx.user.instanceId)
   const modelToSave = {
     type: "model",
     _id: newid(),
@@ -54,7 +54,7 @@ exports.save = async function(ctx) {
   modelToSave._rev = result.rev
 
   const { schema } = ctx.request.body
-  for (let key of Object.keys(schema)) {
+  for (let key in schema) {
     // model has a linked record
     if (schema[key].type === "link") {
       // create the link field in the other model
@@ -63,6 +63,9 @@ exports.save = async function(ctx) {
         name: modelToSave.name,
         type: "link",
         modelId: modelToSave._id,
+        constraints: {
+          type: "array",
+        },
       }
       await db.put(linkedModel)
     }
@@ -81,18 +84,13 @@ exports.save = async function(ctx) {
   }
   await db.put(designDoc)
 
-  // syntactic sugar for event emission
-  modelToSave.modelId = modelToSave._id
-  ctx.eventEmitter &&
-    ctx.eventEmitter.emitModel(`model:save`, instanceId, modelToSave)
   ctx.status = 200
   ctx.message = `Model ${ctx.request.body.name} saved successfully.`
   ctx.body = modelToSave
 }
 
 exports.destroy = async function(ctx) {
-  const instanceId = ctx.user.instanceId
-  const db = new CouchDB(instanceId)
+  const db = new CouchDB(ctx.user.instanceId)
 
   const modelToDelete = await db.get(ctx.params.modelId)
 
@@ -107,7 +105,7 @@ exports.destroy = async function(ctx) {
   )
 
   // Delete linked record fields in dependent models
-  for (let key of Object.keys(modelToDelete.schema)) {
+  for (let key in modelToDelete.schema) {
     const { type, modelId } = modelToDelete.schema[key]
     if (type === "link") {
       const linkedModel = await db.get(modelId)
@@ -121,10 +119,6 @@ exports.destroy = async function(ctx) {
   delete designDoc.views[modelViewId]
   await db.put(designDoc)
 
-  // syntactic sugar for event emission
-  modelToDelete.modelId = modelToDelete._id
-  ctx.eventEmitter &&
-    ctx.eventEmitter.emitModel(`model:delete`, instanceId, modelToDelete)
   ctx.status = 200
   ctx.message = `Model ${ctx.params.modelId} deleted.`
 }
