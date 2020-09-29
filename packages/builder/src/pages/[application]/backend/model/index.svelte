@@ -22,13 +22,5 @@
 </script>
 
 {#if $backendUiStore.models.length === 0}
-  <i>Create your first table to start building</i>
+  Please create a table
 {:else}Please select a table{/if}
-
-<style>
-  i {
-    font-size: 20px;
-    padding-bottom: 10px;
-    color: var(--grey-4);
-  }
-</style>
