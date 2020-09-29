@@ -19,7 +19,6 @@ const {
   automationRoutes,
   accesslevelRoutes,
   apiKeysRoutes,
-  analyticsRoutes,
 } = require("./routes")
 
 const router = new Router()
@@ -109,9 +108,6 @@ router.use(accesslevelRoutes.allowedMethods())
 
 router.use(apiKeysRoutes.routes())
 router.use(apiKeysRoutes.allowedMethods())
-
-router.use(analyticsRoutes.routes())
-router.use(analyticsRoutes.allowedMethods())
 
 router.use(staticRoutes.routes())
 router.use(staticRoutes.allowedMethods())
