@@ -3,7 +3,6 @@
   import { notifier } from "builderStore/store/notifications"
   import ActionButton from "components/common/ActionButton.svelte"
   import { Input } from "@budibase/bbui"
-  import analytics from "analytics"
 
   export let onClosed
 
@@ -20,7 +19,6 @@
     })
     onClosed()
     notifier.success(`Automation ${name} created.`)
-    analytics.captureEvent("Automation Created", { name })
   }
 </script>
 
@@ -52,7 +50,7 @@
   header {
     font-size: var(--font-size-xl);
     color: var(--ink);
-    font-weight: bold;
+    font-weight: 600;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
