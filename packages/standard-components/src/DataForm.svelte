@@ -2,7 +2,6 @@
   import { onMount } from "svelte"
   import { fade } from "svelte/transition"
   import { Label, DatePicker } from "@budibase/bbui"
-  import Dropzone from "./attachments/Dropzone.svelte"
   import debounce from "lodash.debounce"
 
   export let _bb
@@ -55,9 +54,8 @@
   const save = debounce(async () => {
     for (let field of fields) {
       // Assign defaults to empty fields to prevent validation issues
-      if (!(field in record)) {
+      if (!(field in record))
         record[field] = DEFAULTS_FOR_TYPE[schema[field].type]
-      }
     }
 
     const SAVE_RECORD_URL = `/api/${model}/records`
@@ -134,8 +132,6 @@
           <input class="input" type="number" bind:value={record[field]} />
         {:else if schema[field].type === 'string'}
           <input class="input" type="text" bind:value={record[field]} />
-        {:else if schema[field].type === 'attachment'}
-          <Dropzone bind:files={record[field]} />
         {/if}
       </div>
       <hr />

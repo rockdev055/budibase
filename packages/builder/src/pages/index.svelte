@@ -9,7 +9,7 @@
   import Spinner from "components/common/Spinner.svelte"
   import CreateAppModal from "components/start/CreateAppModal.svelte"
   import { Button } from "@budibase/bbui"
-  import analytics from "analytics"
+  import { Heading } from "@budibase/bbui"
 
   let promise = getApps()
 
@@ -28,15 +28,15 @@
 
   async function fetchKeys() {
     const response = await api.get(`/api/keys/`)
-    return await response.json()
+    const res = await response.json()
+    return res.budibase
   }
 
   async function checkIfKeysAndApps() {
-    const keys = await fetchKeys()
+    const key = await fetchKeys()
     const apps = await getApps()
-    if (keys.userId) {
+    if (key) {
       hasKey = true
-      analytics.identify(keys.userId)
     } else {
       showCreateAppModal()
     }
@@ -65,8 +65,8 @@
 </script>
 
 <div class="header">
-  <div class="welcome">Welcome to the Budibase Beta</div>
-  <Button primary purple on:click={showCreateAppModal}>
+  <Heading medium black>Welcome to the Budibase Beta</Heading>
+  <Button primary black on:click={showCreateAppModal}>
     Create New Web App
   </Button>
 </div>
