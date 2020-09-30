@@ -1,6 +1,6 @@
 <script>
   import { params, goto } from "@sveltech/routify"
-  import { Input, TextArea, Button, Body } from "@budibase/bbui"
+  import { Input, TextArea, Button } from "@budibase/bbui"
   import { del } from "builderStore/api"
 
   let value = ""
@@ -23,18 +23,17 @@
 </script>
 
 <div class="background">
-  <Body>
-    Type
-    <b>DELETE</b>
-    into the textbox, then click the following button to delete your entire web
-    app.
-  </Body>
+  <p>
+    Type DELETE into the textbox, then click the following button to delete your
+    web app:
+  </p>
   <Input
     on:change={e => (value = e.target.value)}
     on:input={e => (value = e.target.value)}
     thin
     disabled={loading}
     placeholder="" />
+
   <Button
     disabled={value !== 'DELETE' || loading}
     red
@@ -47,10 +46,11 @@
 <style>
   .background {
     display: grid;
-    grid-gap: var(--spacing-xl);
+    grid-gap: 16px;
+    border-radius: 5px;
+    padding: 12px 0px;
   }
-  .background :global(p) {
-    line-height: 1.2;
+  p {
     margin: 0;
   }
   .background :global(button) {
