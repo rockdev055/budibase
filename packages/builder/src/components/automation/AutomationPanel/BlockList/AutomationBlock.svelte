@@ -1,6 +1,5 @@
 <script>
   import { automationStore } from "builderStore"
-  import analytics from "analytics"
 
   export let blockDefinition
   export let stepId
@@ -12,9 +11,6 @@
       inputs: blockDefinition.inputs || {},
       stepId,
       type: blockType,
-    })
-    analytics.captureEvent("Added Automation Block", {
-      name: blockDefinition.name,
     })
   }
 </script>
