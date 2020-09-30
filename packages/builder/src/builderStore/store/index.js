@@ -14,7 +14,6 @@ import { fetchComponentLibDefinitions } from "../loadComponentLibraries"
 import { buildCodeForScreens } from "../buildCodeForScreens"
 import { generate_screen_css } from "../generate_css"
 import { insertCodeMetadata } from "../insertCodeMetadata"
-import analytics from "analytics"
 import { uuid } from "../uuid"
 import {
   selectComponent as _selectComponent,
@@ -309,9 +308,7 @@ const addChildComponent = store => (componentToAdd, presetProps = {}) => {
 
     state.currentView = "component"
     state.currentComponentInfo = newComponent.props
-    analytics.captureEvent("Added Component", {
-      name: newComponent.props._component,
-    })
+
     return state
   })
 }
