@@ -1,6 +1,5 @@
 const CouchDB = require("../../db")
 const newid = require("../../db/newid")
-const linkRecords = require("../../db/linkedRecords")
 
 exports.fetch = async function(ctx) {
   const db = new CouchDB(ctx.user.instanceId)
@@ -13,12 +12,12 @@ exports.fetch = async function(ctx) {
 
 exports.find = async function(ctx) {
   const db = new CouchDB(ctx.user.instanceId)
-  ctx.body = await db.get(ctx.params.id)
+  const model = await db.get(ctx.params.id)
+  ctx.body = model
 }
 
 exports.save = async function(ctx) {
-  const instanceId = ctx.user.instanceId
-  const db = new CouchDB(instanceId)
+  const db = new CouchDB(ctx.user.instanceId)
   const modelToSave = {
     type: "model",
     _id: newid(),
@@ -54,9 +53,25 @@ exports.save = async function(ctx) {
   const result = await db.post(modelToSave)
   modelToSave._rev = result.rev
 
+  const { schema } = ctx.request.body
+  for (let key in schema) {
+    // model has a linked record
+    if (schema[key].type === "link") {
+      // create the link field in the other model
+      const linkedModel = await db.get(schema[key].modelId)
+      linkedModel.schema[modelToSave.name] = {
+        name: modelToSave.name,
+        type: "link",
+        modelId: modelToSave._id,
+        constraints: {
+          type: "array",
+        },
+      }
+      await db.put(linkedModel)
+    }
+  }
+
   const designDoc = await db.get("_design/database")
-  /** TODO: should we include the doc type here - currently it is possible for anything
-      with a modelId in it to be returned */
   designDoc.views = {
     ...designDoc.views,
     [`all_${modelToSave._id}`]: {
@@ -67,24 +82,15 @@ exports.save = async function(ctx) {
       }`,
     },
   }
-  // update linked records
-  await linkRecords.updateLinks({
-    instanceId,
-    eventType: linkRecords.EventType.MODEL_SAVE,
-    model: modelToSave,
-  })
   await db.put(designDoc)
 
-  ctx.eventEmitter &&
-    ctx.eventEmitter.emitModel(`model:save`, instanceId, modelToSave)
   ctx.status = 200
   ctx.message = `Model ${ctx.request.body.name} saved successfully.`
   ctx.body = modelToSave
 }
 
 exports.destroy = async function(ctx) {
-  const instanceId = ctx.user.instanceId
-  const db = new CouchDB(instanceId)
+  const db = new CouchDB(ctx.user.instanceId)
 
   const modelToDelete = await db.get(ctx.params.modelId)
 
@@ -98,19 +104,21 @@ exports.destroy = async function(ctx) {
     records.rows.map(record => ({ _id: record.id, _deleted: true }))
   )
 
-  // update linked records
-  await linkRecords.updateLinks({
-    instanceId,
-    eventType: linkRecords.EventType.MODEL_DELETE,
-    model: modelToDelete,
-  })
+  // Delete linked record fields in dependent models
+  for (let key in modelToDelete.schema) {
+    const { type, modelId } = modelToDelete.schema[key]
+    if (type === "link") {
+      const linkedModel = await db.get(modelId)
+      delete linkedModel.schema[modelToDelete.name]
+      await db.put(linkedModel)
+    }
+  }
+
   // delete the "all" view
   const designDoc = await db.get("_design/database")
   delete designDoc.views[modelViewId]
   await db.put(designDoc)
 
-  ctx.eventEmitter &&
-    ctx.eventEmitter.emitModel(`model:delete`, instanceId, modelToDelete)
   ctx.status = 200
   ctx.message = `Model ${ctx.params.modelId} deleted.`
 }

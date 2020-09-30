@@ -1,8 +1,8 @@
 const CouchDB = require("../db")
 const emitter = require("../events/index")
-const InMemoryQueue = require("../utilities/queue/inMemoryQueue")
+const InMemoryQueue = require("./queue/inMemoryQueue")
 
-let automationQueue = new InMemoryQueue("automationQueue")
+let automationQueue = new InMemoryQueue()
 
 const FAKE_STRING = "TEST"
 const FAKE_BOOL = false
@@ -11,11 +11,11 @@ const FAKE_DATETIME = "1970-01-01T00:00:00.000Z"
 
 const BUILTIN_DEFINITIONS = {
   RECORD_SAVED: {
-    name: "Row Saved",
+    name: "Record Saved",
     event: "record:save",
     icon: "ri-save-line",
-    tagline: "Row is added to {{inputs.enriched.model.name}}",
-    description: "Fired when a row is saved to your database",
+    tagline: "Record is added to {{inputs.enriched.model.name}}",
+    description: "Fired when a record is saved to your database",
     stepId: "RECORD_SAVED",
     inputs: {},
     schema: {
@@ -34,15 +34,15 @@ const BUILTIN_DEFINITIONS = {
           record: {
             type: "object",
             customType: "record",
-            description: "The new row that was saved",
+            description: "The new record that was saved",
           },
           id: {
             type: "string",
-            description: "Row ID - can be used for updating",
+            description: "Record ID - can be used for updating",
           },
           revision: {
             type: "string",
-            description: "Revision of row",
+            description: "Revision of record",
           },
         },
         required: ["record", "id"],
@@ -51,11 +51,11 @@ const BUILTIN_DEFINITIONS = {
     type: "TRIGGER",
   },
   RECORD_DELETED: {
-    name: "Row Deleted",
+    name: "Record Deleted",
     event: "record:delete",
     icon: "ri-delete-bin-line",
-    tagline: "Row is deleted from {{inputs.enriched.model.name}}",
-    description: "Fired when a row is deleted from your database",
+    tagline: "Record is deleted from {{inputs.enriched.model.name}}",
+    description: "Fired when a record is deleted from your database",
     stepId: "RECORD_DELETED",
     inputs: {},
     schema: {
@@ -74,7 +74,7 @@ const BUILTIN_DEFINITIONS = {
           record: {
             type: "object",
             customType: "record",
-            description: "The row that was deleted",
+            description: "The record that was deleted",
           },
         },
         required: ["record", "id"],
