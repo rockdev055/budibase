@@ -7,7 +7,6 @@ exports.fetch = async function(ctx) {
     include_docs: true,
     key: ["model"],
   })
-
   ctx.body = body.rows.map(row => row.doc)
 }
 
@@ -19,12 +18,11 @@ exports.find = async function(ctx) {
 
 exports.save = async function(ctx) {
   const db = new CouchDB(ctx.user.instanceId)
-  const { recordImport, ...rest } = ctx.request.body
   const modelToSave = {
     type: "model",
     _id: newid(),
     views: {},
-    ...rest,
+    ...ctx.request.body,
   }
 
   // rename record fields when table column is renamed
@@ -85,17 +83,6 @@ exports.save = async function(ctx) {
     },
   }
   await db.put(designDoc)
-
-  if (recordImport && recordImport.path) {
-    // Populate the table with records imported from CSV in a bulk update
-    const csv = require("csvtojson")
-    const json = await csv().fromFile(recordImport.path)
-    const records = json.map(record => ({
-      ...record,
-      modelId: modelToSave._id,
-    }))
-    await db.bulkDocs(records)
-  }
 
   ctx.status = 200
   ctx.message = `Model ${ctx.request.body.name} saved successfully.`
