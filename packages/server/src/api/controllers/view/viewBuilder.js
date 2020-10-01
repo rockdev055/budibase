@@ -61,11 +61,8 @@ function parseFilterExpression(filters) {
         `doc["${filter.key}"].${TOKEN_MAP[filter.condition]}("${filter.value}")`
       )
     } else {
-      const value =
-        typeof filter.value == "string" ? `"${filter.value}"` : filter.value
-
       expression.push(
-        `doc["${filter.key}"] ${TOKEN_MAP[filter.condition]} ${value}`
+        `doc["${filter.key}"] ${TOKEN_MAP[filter.condition]} "${filter.value}"`
       )
     }
   }

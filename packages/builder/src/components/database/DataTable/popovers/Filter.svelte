@@ -6,7 +6,6 @@
     Icon,
     Input,
     Select,
-    DatePicker,
   } from "@budibase/bbui"
   import { backendUiStore } from "builderStore"
   import { notifier } from "builderStore/store/notifications"
@@ -82,21 +81,10 @@
 
   function isMultipleChoice(field) {
     return (
-      (viewModel.schema[field].constraints &&
-        viewModel.schema[field].constraints.inclusion &&
-        viewModel.schema[field].constraints.inclusion.length) ||
-      viewModel.schema[field].type === "boolean"
+      viewModel.schema[field].constraints &&
+      viewModel.schema[field].constraints.inclusion &&
+      viewModel.schema[field].constraints.inclusion.length
     )
-  }
-
-  function fieldOptions(field) {
-    return viewModel.schema[field].type === "string"
-      ? viewModel.schema[field].constraints.inclusion
-      : [true, false]
-  }
-
-  function isDate(field) {
-    return viewModel.schema[field].type === "datetime"
   }
 </script>
 
@@ -138,14 +126,10 @@
       </Select>
       {#if filter.key && isMultipleChoice(filter.key)}
         <Select secondary thin bind:value={filter.value}>
-          {#each fieldOptions(filter.key) as option}
-            <option value={option}>{option.toString()}</option>
+          {#each viewModel.schema[filter.key].constraints.inclusion as option}
+            <option value={option}>{option}</option>
           {/each}
         </Select>
-      {:else if filter.key && isDate(filter.key)}
-        <DatePicker
-          bind:value={filter.value}
-          placeholder={filter.key || fields[0]} />
       {:else}
         <Input
           thin
