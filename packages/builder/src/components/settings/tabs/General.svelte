@@ -22,18 +22,19 @@
     thin
     edit
     value={$store.name}
-    label="App Name" />
+    label="Name" />
   <TextArea
     on:save={e => updateApplication({ description: e.detail })}
     thin
     edit
     value={$store.description}
-    label="App Description" />
+    label="Description" />
 </div>
 
 <style>
   .container {
     display: grid;
-    grid-gap: var(--spacing-xl);
+    grid-gap: 32px;
+    margin-top: 32px;
   }
 </style>
