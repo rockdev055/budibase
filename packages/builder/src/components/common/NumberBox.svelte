@@ -26,6 +26,7 @@
   .numberbox {
     display: grid;
     align-items: center;
+    margin-bottom: 16px;
   }
 
   label {
