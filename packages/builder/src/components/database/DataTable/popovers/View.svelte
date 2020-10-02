@@ -10,7 +10,7 @@
   import { goto } from "@sveltech/routify"
   import { backendUiStore } from "builderStore"
   import { notifier } from "builderStore/store/notifications"
-  import CreateEditRecord from "../modals/CreateEditRecord.svelte"
+  import analytics from "analytics"
 
   let anchor
   let dropdown
@@ -37,6 +37,7 @@
     })
     notifier.success(`View ${name} created`)
     dropdown.hide()
+    analytics.captureEvent("View Created", { name })
     $goto(`../../../view/${name}`)
   }
 </script>

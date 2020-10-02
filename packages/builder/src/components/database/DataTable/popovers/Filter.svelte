@@ -6,10 +6,11 @@
     Icon,
     Input,
     Select,
+    DatePicker,
   } from "@budibase/bbui"
   import { backendUiStore } from "builderStore"
   import { notifier } from "builderStore/store/notifications"
-  import CreateEditRecord from "../modals/CreateEditRecord.svelte"
+  import analytics from "analytics"
 
   const CONDITIONS = [
     {
@@ -63,6 +64,9 @@
     backendUiStore.actions.views.save(view)
     notifier.success(`View ${view.name} saved.`)
     dropdown.hide()
+    analytics.captureEvent("Added View Filter", {
+      filters: JSON.stringify(view.filters),
+    })
   }
 
   function removeFilter(idx) {
@@ -77,10 +81,37 @@
 
   function isMultipleChoice(field) {
     return (
-      viewModel.schema[field].constraints &&
-      viewModel.schema[field].constraints.inclusion &&
-      viewModel.schema[field].constraints.inclusion.length
+      (viewModel.schema[field].constraints &&
+        viewModel.schema[field].constraints.inclusion &&
+        viewModel.schema[field].constraints.inclusion.length) ||
+      viewModel.schema[field].type === "boolean"
     )
+  }
+
+  function fieldOptions(field) {
+    return viewModel.schema[field].type === "string"
+      ? viewModel.schema[field].constraints.inclusion
+      : [true, false]
+  }
+
+  function isDate(field) {
+    return viewModel.schema[field].type === "datetime"
+  }
+
+  function isNumber(field) {
+    return viewModel.schema[field].type === "number"
+  }
+
+  const fieldChanged = filter => ev => {
+    // reset if type changed
+    if (
+      filter.key &&
+      ev.target.value &&
+      viewModel.schema[filter.key].type !==
+        viewModel.schema[ev.target.value].type
+    ) {
+      filter.value = ""
+    }
   }
 </script>
 
@@ -102,27 +133,45 @@
         <p>Where</p>
       {:else}
         <Select secondary thin bind:value={filter.conjunction}>
+          <option value="">Choose an option</option>
           {#each CONJUNCTIONS as conjunction}
             <option value={conjunction.key}>{conjunction.name}</option>
           {/each}
         </Select>
       {/if}
-      <Select secondary thin bind:value={filter.key}>
+      <Select
+        secondary
+        thin
+        bind:value={filter.key}
+        on:change={fieldChanged(filter)}>
+        <option value="">Choose an option</option>
         {#each fields as field}
           <option value={field}>{field}</option>
         {/each}
       </Select>
       <Select secondary thin bind:value={filter.condition}>
+        <option value="">Choose an option</option>
         {#each CONDITIONS as condition}
           <option value={condition.key}>{condition.name}</option>
         {/each}
       </Select>
       {#if filter.key && isMultipleChoice(filter.key)}
         <Select secondary thin bind:value={filter.value}>
-          {#each viewModel.schema[filter.key].constraints.inclusion as option}
-            <option value={option}>{option}</option>
+          <option value="">Choose an option</option>
+          {#each fieldOptions(filter.key) as option}
+            <option value={option}>{option.toString()}</option>
           {/each}
         </Select>
+      {:else if filter.key && isDate(filter.key)}
+        <DatePicker
+          bind:value={filter.value}
+          placeholder={filter.key || fields[0]} />
+      {:else if filter.key && isNumber(filter.key)}
+        <Input
+          thin
+          bind:value={filter.value}
+          placeholder={filter.key || fields[0]}
+          type="number" />
       {:else}
         <Input
           thin
