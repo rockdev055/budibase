@@ -8,7 +8,6 @@ exports.fetch = async function(ctx) {
   ctx.body = {
     budibase: process.env.BUDIBASE_API_KEY,
     sendgrid: process.env.SENDGRID_API_KEY,
-    userId: process.env.USERID_API_KEY,
   }
 }
 

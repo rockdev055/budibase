@@ -158,10 +158,6 @@ export default {
           find: "constants",
           replacement: path.resolve(projectRootDir, "src/constants"),
         },
-        {
-          find: "analytics",
-          replacement: path.resolve(projectRootDir, "src/analytics"),
-        },
       ],
       customResolver,
     }),
