@@ -1,5 +1,4 @@
 const CouchDB = require("../../db")
-const linkRecords = require("../../db/linkedRecords")
 const {
   getRecordParams,
   getModelParams,
@@ -22,34 +21,22 @@ exports.find = async function(ctx) {
 }
 
 exports.save = async function(ctx) {
-  const instanceId = ctx.user.instanceId
-  const db = new CouchDB(instanceId)
-  const oldModelId = ctx.request.body._id
+  const db = new CouchDB(ctx.user.instanceId)
   const modelToSave = {
     type: "model",
     _id: generateModelID(),
     views: {},
     ...ctx.request.body,
   }
-  // get the model in its previous state for differencing
-  let oldModel = null
-  if (oldModelId) {
-    oldModel = await db.get(oldModelId)
-  }
 
   // rename record fields when table column is renamed
   const { _rename } = modelToSave
-  if (_rename && modelToSave.schema[_rename.updated].type === "link") {
-    throw "Cannot rename a linked field."
-  } else if (_rename && modelToSave.primaryDisplay === _rename.old) {
-    throw "Cannot rename the primary display field."
-  } else if (_rename) {
+  if (_rename) {
     const records = await db.allDocs(
       getRecordParams(modelToSave._id, null, {
         include_docs: true,
       })
     )
-
     const docs = records.rows.map(({ doc }) => {
       doc[_rename.updated] = doc[_rename.old]
       delete doc[_rename.old]
@@ -72,26 +59,31 @@ exports.save = async function(ctx) {
   const result = await db.post(modelToSave)
   modelToSave._rev = result.rev
 
-  // update linked records
-  await linkRecords.updateLinks({
-    instanceId,
-    eventType: oldModel
-      ? linkRecords.EventType.MODEL_UPDATED
-      : linkRecords.EventType.MODEL_SAVE,
-    model: modelToSave,
-    oldModel: oldModel,
-  })
+  const { schema } = ctx.request.body
+  for (let key of Object.keys(schema)) {
+    // model has a linked record
+    if (schema[key].type === "link") {
+      // create the link field in the other model
+      const linkedModel = await db.get(schema[key].modelId)
+      linkedModel.schema[modelToSave.name] = {
+        name: modelToSave.name,
+        type: "link",
+        modelId: modelToSave._id,
+        constraints: {
+          type: "array",
+        },
+      }
+      await db.put(linkedModel)
+    }
+  }
 
-  ctx.eventEmitter &&
-    ctx.eventEmitter.emitModel(`model:save`, instanceId, modelToSave)
   ctx.status = 200
   ctx.message = `Model ${ctx.request.body.name} saved successfully.`
   ctx.body = modelToSave
 }
 
 exports.destroy = async function(ctx) {
-  const instanceId = ctx.user.instanceId
-  const db = new CouchDB(instanceId)
+  const db = new CouchDB(ctx.user.instanceId)
 
   const modelToDelete = await db.get(ctx.params.modelId)
 
@@ -107,15 +99,16 @@ exports.destroy = async function(ctx) {
     records.rows.map(record => ({ _id: record.id, _deleted: true }))
   )
 
-  // update linked records
-  await linkRecords.updateLinks({
-    instanceId,
-    eventType: linkRecords.EventType.MODEL_DELETE,
-    model: modelToDelete,
-  })
+  // Delete linked record fields in dependent models
+  for (let key of Object.keys(modelToDelete.schema)) {
+    const { type, modelId } = modelToDelete.schema[key]
+    if (type === "link") {
+      const linkedModel = await db.get(modelId)
+      delete linkedModel.schema[modelToDelete.name]
+      await db.put(linkedModel)
+    }
+  }
 
-  ctx.eventEmitter &&
-    ctx.eventEmitter.emitModel(`model:delete`, instanceId, modelToDelete)
   ctx.status = 200
   ctx.message = `Model ${ctx.params.modelId} deleted.`
 }
