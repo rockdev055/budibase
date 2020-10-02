@@ -1,9 +1,21 @@
 const CouchDB = require("../../db")
 const validateJs = require("validate.js")
-const linkRecords = require("../../db/linkedRecords")
-const { getRecordParams, generateRecordID } = require("../../db/utils")
+const newid = require("../../db/newid")
 
-const MODEL_VIEW_BEGINS_WITH = "all_model:"
+function emitEvent(eventType, ctx, record) {
+  let event = {
+    record,
+    instanceId: ctx.user.instanceId,
+  }
+  // add syntactic sugar for mustache later
+  if (record._id) {
+    event.id = record._id
+  }
+  if (record._rev) {
+    event.revision = record._rev
+  }
+  ctx.eventEmitter && ctx.eventEmitter.emit(eventType, event)
+}
 
 validateJs.extend(validateJs.validators.datetime, {
   parse: function(value) {
@@ -16,13 +28,12 @@ validateJs.extend(validateJs.validators.datetime, {
 })
 
 exports.patch = async function(ctx) {
-  const instanceId = ctx.user.instanceId
-  const db = new CouchDB(instanceId)
+  const db = new CouchDB(ctx.user.instanceId)
+  const record = await db.get(ctx.params.id)
   const model = await db.get(record.modelId)
-  let record = await db.get(ctx.params.id)
   const patchfields = ctx.request.body
 
-  for (let key of Object.keys(patchfields)) {
+  for (let key in patchfields) {
     if (!model.schema[key]) continue
     record[key] = patchfields[key]
   }
@@ -41,33 +52,21 @@ exports.patch = async function(ctx) {
     return
   }
 
-  // returned record is cleaned and prepared for writing to DB
-  record = await linkRecords.updateLinks({
-    instanceId,
-    eventType: linkRecords.EventType.RECORD_UPDATE,
-    record,
-    modelId: record.modelId,
-    model,
-  })
   const response = await db.put(record)
   record._rev = response.rev
   record.type = "record"
-
-  ctx.eventEmitter &&
-    ctx.eventEmitter.emitRecord(`record:update`, instanceId, record, model)
   ctx.body = record
   ctx.status = 200
   ctx.message = `${model.name} updated successfully.`
 }
 
 exports.save = async function(ctx) {
-  const instanceId = ctx.user.instanceId
-  const db = new CouchDB(instanceId)
-  let record = ctx.request.body
+  const db = new CouchDB(ctx.user.instanceId)
+  const record = ctx.request.body
   record.modelId = ctx.params.modelId
 
   if (!record._rev && !record._id) {
-    record._id = generateRecordID(record.modelId)
+    record._id = newid()
   }
 
   const model = await db.get(record.modelId)
@@ -88,15 +87,6 @@ exports.save = async function(ctx) {
 
   const existingRecord = record._rev && (await db.get(record._id))
 
-  // make sure link records are up to date
-  record = await linkRecords.updateLinks({
-    instanceId,
-    eventType: linkRecords.EventType.RECORD_SAVE,
-    record,
-    modelId: record.modelId,
-    model,
-  })
-
   if (existingRecord) {
     const response = await db.put(record)
     record._rev = response.rev
@@ -111,27 +101,39 @@ exports.save = async function(ctx) {
   const response = await db.post(record)
   record._rev = response.rev
 
-  ctx.eventEmitter &&
-    ctx.eventEmitter.emitRecord(`record:save`, instanceId, record, model)
+  // create links in other tables
+  for (let key in record) {
+    if (model.schema[key] && model.schema[key].type === "link") {
+      const linked = await db.allDocs({
+        include_docs: true,
+        keys: record[key],
+      })
+
+      // add this record to the linked records in attached models
+      const linkedDocs = linked.rows.map(row => {
+        const doc = row.doc
+        return {
+          ...doc,
+          [model.name]: doc[model.name]
+            ? [...doc[model.name], record._id]
+            : [record._id],
+        }
+      })
+
+      await db.bulkDocs(linkedDocs)
+    }
+  }
+
+  emitEvent(`record:save`, ctx, record)
   ctx.body = record
   ctx.status = 200
   ctx.message = `${model.name} created successfully`
 }
 
 exports.fetchView = async function(ctx) {
-  const instanceId = ctx.user.instanceId
-  const db = new CouchDB(instanceId)
+  const db = new CouchDB(ctx.user.instanceId)
   const { stats, group, field } = ctx.query
-  const viewName = ctx.params.viewName
-
-  // if this is a model view being looked for just transfer to that
-  if (viewName.indexOf(MODEL_VIEW_BEGINS_WITH) === 0) {
-    ctx.params.modelId = viewName.substring(4)
-    await exports.fetchModelRecords(ctx)
-    return
-  }
-
-  const response = await db.query(`database/${viewName}`, {
+  const response = await db.query(`database/${ctx.params.viewName}`, {
     include_docs: !stats,
     group,
   })
@@ -147,69 +149,48 @@ exports.fetchView = async function(ctx) {
     response.rows = response.rows.map(row => row.doc)
   }
 
-  ctx.body = await linkRecords.attachLinkInfo(instanceId, response.rows)
+  ctx.body = response.rows
 }
 
 exports.fetchModelRecords = async function(ctx) {
-  const instanceId = ctx.user.instanceId
-  const db = new CouchDB(instanceId)	
-  const response = await db.allDocs(
-    getRecordParams(ctx.params.modelId, null, {
-      include_docs: true,
-    })
-  )
+  const db = new CouchDB(ctx.user.instanceId)
+  const response = await db.query(`database/all_${ctx.params.modelId}`, {
+    include_docs: true,
+  })
   ctx.body = response.rows.map(row => row.doc)
-    ctx.body = await linkRecords.attachLinkInfo(
-    instanceId,
-    response.rows.map(row => row.doc)
-  )
 }
 
 exports.search = async function(ctx) {
-  const instanceId = ctx.user.instanceId
-  const db = new CouchDB(instanceId)
+  const db = new CouchDB(ctx.user.instanceId)
   const response = await db.allDocs({
     include_docs: true,
     ...ctx.request.body,
   })
-  ctx.body = await linkRecords.attachLinkInfo(
-    instanceId,
-    response.rows.map(row => row.doc)
-  )
+  ctx.body = response.rows.map(row => row.doc)
 }
 
 exports.find = async function(ctx) {
-  const instanceId = ctx.user.instanceId
-  const db = new CouchDB(instanceId)
+  const db = new CouchDB(ctx.user.instanceId)
   const record = await db.get(ctx.params.recordId)
   if (record.modelId !== ctx.params.modelId) {
     ctx.throw(400, "Supplied modelId does not match the records modelId")
     return
   }
-  ctx.body = await linkRecords.attachLinkInfo(instanceId, record)
+  ctx.body = record
 }
 
 exports.destroy = async function(ctx) {
-  const instanceId = ctx.user.instanceId
-  const db = new CouchDB(instanceId)
+  const db = new CouchDB(ctx.user.instanceId)
   const record = await db.get(ctx.params.recordId)
   if (record.modelId !== ctx.params.modelId) {
     ctx.throw(400, "Supplied modelId doesn't match the record's modelId")
     return
   }
-  await linkRecords.updateLinks({
-    instanceId,
-    eventType: linkRecords.EventType.RECORD_DELETE,
-    record,
-    modelId: record.modelId,
-  })
   ctx.body = await db.remove(ctx.params.recordId, ctx.params.revId)
   ctx.status = 200
-
-  // for automations include the record that was deleted
+  // for automations
   ctx.record = record
-  ctx.eventEmitter &&
-    ctx.eventEmitter.emitRecord(`record:delete`, instanceId, record)
+  emitEvent(`record:delete`, ctx, record)
 }
 
 exports.validate = async function(ctx) {
@@ -228,7 +209,7 @@ async function validate({ instanceId, modelId, record, model }) {
     model = await db.get(modelId)
   }
   const errors = {}
-  for (let fieldName of Object.keys(model.schema)) {
+  for (let fieldName in model.schema) {
     const res = validateJs.single(
       record[fieldName],
       model.schema[fieldName].constraints
@@ -236,51 +217,4 @@ async function validate({ instanceId, modelId, record, model }) {
     if (res) errors[fieldName] = res
   }
   return { valid: Object.keys(errors).length === 0, errors }
-}
-
-exports.fetchEnrichedRecord = async function(ctx) {
-  const instanceId = ctx.user.instanceId
-  const db = new CouchDB(instanceId)
-  const modelId = ctx.params.modelId
-  const recordId = ctx.params.recordId
-  if (instanceId == null || modelId == null || recordId == null) {
-    ctx.status = 400
-    ctx.body = {
-      status: 400,
-      error:
-        "Cannot handle request, URI params have not been successfully prepared.",
-    }
-    return
-  }
-  // // need model to work out where links go in record
-  const modelAndRecord = await Promise.all([db.get(modelId), db.get(recordId)])
-  const model = modelAndRecord[0]
-  const record = modelAndRecord[1]
-  // get the link docs
-  const linkVals = await linkRecords.getLinkDocuments({
-    instanceId,
-    modelId,
-    recordId,
-  })
-  // look up the actual records based on the ids
-  const response = await db.allDocs({
-    include_docs: true,
-    keys: linkVals.map(linkVal => linkVal.id),
-  })
-  // need to include the IDs in these records for any links they may have
-  let linkedRecords = await linkRecords.attachLinkInfo(
-    instanceId,
-    response.rows.map(row => row.doc)
-  )
-  // insert the link records in the correct place throughout the main record
-  for (let fieldName of Object.keys(model.schema)) {
-    let field = model.schema[fieldName]
-    if (field.type === "link") {
-      record[fieldName] = linkedRecords.filter(
-        linkRecord => linkRecord.modelId === field.modelId
-      )
-    }
-  }
-  ctx.body = record
-  ctx.status = 200
 }

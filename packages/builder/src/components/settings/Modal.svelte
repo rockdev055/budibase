@@ -6,6 +6,7 @@
   import { getContext } from "svelte"
   import { post } from "builderStore/api"
 
+  const { open, close } = getContext("simple-modal")
   export let name = ""
   export let description = ""
   const tabs = [
@@ -35,40 +36,64 @@
 </script>
 
 <div class="container">
-  <div class="heading">
-    <i class="ri-settings-2-fill" />
-    <h3>Settings</h3>
+  <div class="body">
+    <div class="heading">
+      <span class="icon">
+        <SettingsIcon />
+      </span>
+      <h3>Settings</h3>
+    </div>
+    <Switcher headings={tabs} bind:value>
+      <svelte:component this={selectedTab} />
+    </Switcher>
   </div>
-  <Switcher headings={tabs} bind:value>
-    <svelte:component this={selectedTab} />
-  </Switcher>
+  <div class="close-button" on:click={close}>
+    <CloseIcon />
+  </div>
 </div>
 
 <style>
   .container {
-    padding: 30px;
-    display: grid;
-    grid-gap: var(--spacing-xl);
-  }
-  .container :global(section > header) {
-    /* Fix margin defined in BBUI as L rather than XL */
-    margin-bottom: var(--spacing-xl);
+    position: relative;
+    height: 36rem;
   }
 
+  .close-button {
+    cursor: pointer;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+  }
+  .close-button :global(svg) {
+    width: 24px;
+    height: 24px;
+  }
   .heading {
     display: flex;
     flex-direction: row;
     align-items: center;
+    margin-bottom: 20px;
   }
-  .heading h3 {
-    font-size: var(--font-size-xl);
-    color: var(--ink);
-    font-weight: 600;
+  h3 {
     margin: 0;
+    font-size: 24px;
+    font-weight: bold;
   }
-  .heading i {
-    margin-right: var(--spacing-m);
-    font-size: 28px;
-    color: var(--grey-6);
+  .icon {
+    display: grid;
+    border-radius: 3px;
+    align-content: center;
+    justify-content: center;
+    margin-right: 12px;
+    height: 20px;
+    width: 20px;
+    padding: 10px;
+    background-color: var(--blue-light);
+    color: var(--grey-7);
+  }
+  .body {
+    padding: 40px 40px 40px 40px;
+    display: grid;
+    grid-gap: 20px;
   }
 </style>
