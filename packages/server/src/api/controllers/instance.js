@@ -18,7 +18,30 @@ exports.create = async function(ctx) {
       clientId,
       applicationId: appId,
     },
-    views: {},
+    views: {
+      by_username: {
+        map: function(doc) {
+          if (doc.type === "user") {
+            emit([doc.username], doc._id)
+          }
+        }.toString(),
+      },
+      by_type: {
+        map: function(doc) {
+          emit([doc.type], doc._id)
+        }.toString(),
+      },
+      by_automation_trigger: {
+        map: function(doc) {
+          if (doc.type === "automation") {
+            const trigger = doc.definition.trigger
+            if (trigger) {
+              emit([trigger.event], trigger)
+            }
+          }
+        }.toString(),
+      },
+    },
   })
 
   // Add the new instance under the app clientDB

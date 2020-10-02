@@ -1,22 +1,18 @@
 const CouchDB = require("../../db")
+const newid = require("../../db/newid")
 const {
   generateAdminPermissions,
   generatePowerUserPermissions,
   POWERUSER_LEVEL_ID,
   ADMIN_LEVEL_ID,
 } = require("../../utilities/accessLevels")
-const {
-  generateAccessLevelID,
-  getAccessLevelParams,
-} = require("../../db/utils")
 
 exports.fetch = async function(ctx) {
   const db = new CouchDB(ctx.user.instanceId)
-  const body = await db.allDocs(
-    getAccessLevelParams(null, {
-      include_docs: true,
-    })
-  )
+  const body = await db.query("database/by_type", {
+    include_docs: true,
+    key: ["accesslevel"],
+  })
   const customAccessLevels = body.rows.map(row => row.doc)
 
   const staticAccessLevels = [
@@ -94,7 +90,7 @@ exports.create = async function(ctx) {
     name: ctx.request.body.name,
     _rev: ctx.request.body._rev,
     permissions: ctx.request.body.permissions || [],
-    _id: generateAccessLevelID(),
+    _id: newid(),
     type: "accesslevel",
   }
 
