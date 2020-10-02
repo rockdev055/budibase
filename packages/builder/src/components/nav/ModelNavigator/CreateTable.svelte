@@ -2,30 +2,19 @@
   import { goto } from "@sveltech/routify"
   import { backendUiStore } from "builderStore"
   import { notifier } from "builderStore/store/notifications"
-  import {
-    Body,
-    DropdownMenu,
-    Button,
-    Heading,
-    Icon,
-    Input,
-    Select,
-    Dropzone,
-  } from "@budibase/bbui"
-  import TableDataImport from "./TableDataImport.svelte"
-  import api from "builderStore/api"
+  import { DropdownMenu, Button, Icon, Input, Select } from "@budibase/bbui"
   import analytics from "analytics"
+
+  export let table
 
   let anchor
   let dropdown
   let name
-  let dataImport
 
   async function saveTable() {
     const model = await backendUiStore.actions.models.save({
       name,
-      schema: dataImport.schema || {},
-      dataImport,
+      schema: {},
     })
     notifier.success(`Table ${name} created successfully.`)
     $goto(`./model/${model._id}`)
@@ -46,27 +35,18 @@
 <DropdownMenu bind:this={dropdown} {anchor} align="left">
   <div class="container">
     <h5>Create Table</h5>
-    <Body grey small>Table Name</Body>
     <Input
       data-cy="table-name-input"
       placeholder="Table Name"
       thin
       bind:value={name} />
-
-    <Body grey small>Create Table from CSV (Optional)</Body>
-    <TableDataImport bind:dataImport />
   </div>
   <footer>
     <div class="button-margin-3">
       <Button secondary on:click={onClosed}>Cancel</Button>
     </div>
     <div class="button-margin-4">
-      <Button
-        disabled={!name || !dataImport.valid}
-        primary
-        on:click={saveTable}>
-        Save
-      </Button>
+      <Button primary on:click={saveTable}>Save</Button>
     </div>
   </footer>
 </DropdownMenu>
