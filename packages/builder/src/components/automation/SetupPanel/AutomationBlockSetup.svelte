@@ -48,7 +48,7 @@
   <div class="block-label">{block.name}</div>
   {#each inputs as [key, value]}
     <div class="bb-margin-xl block-field">
-      <Label extraSmall grey>{value.title}</Label>
+      <div class="field-label">{value.title}</div>
       {#if value.type === 'string' && value.enum}
         <Select bind:value={block.inputs[key]} thin secondary>
           <option value="">Choose an option</option>
@@ -78,6 +78,15 @@
 <style>
   .block-field {
     display: grid;
+  }
+
+  .field-label {
+    color: var(--ink);
+    margin-bottom: 12px;
+    display: flex;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: sans-serif;
   }
 
   .block-label {
