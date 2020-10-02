@@ -10,6 +10,7 @@
   import { goto } from "@sveltech/routify"
   import { backendUiStore } from "builderStore"
   import { notifier } from "builderStore/store/notifications"
+  import CreateEditRecord from "../modals/CreateEditRecord.svelte"
   import analytics from "analytics"
 
   let anchor
