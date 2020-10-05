@@ -55,15 +55,7 @@ module.exports.definition = {
 }
 
 module.exports.run = async function filter({ inputs }) {
-  let { field, condition, value } = inputs
-  // coerce types so that we can use them
-  if (!isNaN(value) && !isNaN(field)) {
-    value = parseFloat(value)
-    field = parseFloat(field)
-  } else if (!isNaN(Date.parse(value)) && !isNaN(Date.parse(field))) {
-    value = Date.parse(value)
-    field = Date.parse(field)
-  }
+  const { field, condition, value } = inputs
   let success
   if (typeof field !== "object" && typeof value !== "object") {
     switch (condition) {
