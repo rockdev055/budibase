@@ -190,9 +190,9 @@
   .item {
     display: grid;
     grid-template-columns: 1fr auto auto auto;
-    padding: 0 var(--spacing-m);
-    margin: 0;
-    border-radius: var(--border-radius-m);
+    padding: 0px 5px 0px 15px;
+    margin: auto 0px;
+    border-radius: 5px;
     height: 36px;
     align-items: center;
   }
@@ -205,6 +205,9 @@
   .actions {
     display: none;
     color: var(--ink);
+    padding: 0 5px;
+    width: 24px;
+    height: 24px;
     border-style: none;
     background: rgba(0, 0, 0, 0);
     cursor: pointer;

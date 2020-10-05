@@ -1,7 +1,6 @@
 const CouchDB = require("../../db")
 const client = require("../../db/clientDb")
 const newid = require("../../db/newid")
-const { createLinkView } = require("../../db/linkedRecords")
 
 exports.create = async function(ctx) {
   const instanceName = ctx.request.body.name
@@ -19,12 +18,31 @@ exports.create = async function(ctx) {
       clientId,
       applicationId: appId,
     },
-    // view collation information, read before writing any complex views:
-    // https://docs.couchdb.org/en/master/ddocs/views/collation.html#collation-specification
-    views: {},
+    views: {
+      by_username: {
+        map: function(doc) {
+          if (doc.type === "user") {
+            emit([doc.username], doc._id)
+          }
+        }.toString(),
+      },
+      by_type: {
+        map: function(doc) {
+          emit([doc.type], doc._id)
+        }.toString(),
+      },
+      by_automation_trigger: {
+        map: function(doc) {
+          if (doc.type === "automation") {
+            const trigger = doc.definition.trigger
+            if (trigger) {
+              emit([trigger.event], trigger)
+            }
+          }
+        }.toString(),
+      },
+    },
   })
-  // add view for linked records
-  await createLinkView(instanceId)
 
   // Add the new instance under the app clientDB
   const clientDb = new CouchDB(client.name(clientId))
