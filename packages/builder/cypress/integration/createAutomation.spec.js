@@ -15,8 +15,12 @@ context("Create a automation", () => {
 
     cy.contains("automate").click()
     cy.contains("Create New Automation").click()
-    cy.get("input").type("Add Record")
-    cy.contains("Save").click()
+    cy.get(".modal").within(() => {
+      cy.get("input").type("Add Record")
+      cy.get(".buttons")
+        .contains("Create")
+        .click()
+    })
 
     // Add trigger
     cy.get("[data-cy=add-automation-component]").click()
