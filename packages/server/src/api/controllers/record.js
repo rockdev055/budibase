@@ -1,6 +1,8 @@
 const CouchDB = require("../../db")
 const validateJs = require("validate.js")
-const newid = require("../../db/newid")
+const { getRecordParams, generateRecordID } = require("../../db/utils")
+
+const MODEL_VIEW_BEGINS_WITH = "all_model:"
 
 function emitEvent(eventType, ctx, record) {
   let event = {
@@ -32,8 +34,6 @@ exports.patch = async function(ctx) {
   const record = await db.get(ctx.params.id)
   const model = await db.get(record.modelId)
   const patchfields = ctx.request.body
-
-  coerceRecordValues(record, model)
 
   for (let key in patchfields) {
     if (!model.schema[key]) continue
@@ -68,12 +68,10 @@ exports.save = async function(ctx) {
   record.modelId = ctx.params.modelId
 
   if (!record._rev && !record._id) {
-    record._id = newid()
+    record._id = generateRecordID(record.modelId)
   }
 
   const model = await db.get(record.modelId)
-
-  coerceRecordValues(record, model)
 
   const validateResult = await validate({
     record,
@@ -137,7 +135,16 @@ exports.save = async function(ctx) {
 exports.fetchView = async function(ctx) {
   const db = new CouchDB(ctx.user.instanceId)
   const { stats, group, field } = ctx.query
-  const response = await db.query(`database/${ctx.params.viewName}`, {
+  const viewName = ctx.params.viewName
+
+  // if this is a model view being looked for just transfer to that
+  if (viewName.indexOf(MODEL_VIEW_BEGINS_WITH) === 0) {
+    ctx.params.modelId = viewName.substring(4)
+    await exports.fetchModelRecords(ctx)
+    return
+  }
+
+  const response = await db.query(`database/${viewName}`, {
     include_docs: !stats,
     group,
   })
@@ -158,9 +165,11 @@ exports.fetchView = async function(ctx) {
 
 exports.fetchModelRecords = async function(ctx) {
   const db = new CouchDB(ctx.user.instanceId)
-  const response = await db.query(`database/all_${ctx.params.modelId}`, {
-    include_docs: true,
-  })
+  const response = await db.allDocs(
+    getRecordParams(ctx.params.modelId, null, {
+      include_docs: true,
+    })
+  )
   ctx.body = response.rows.map(row => row.doc)
 }
 
@@ -221,56 +230,4 @@ async function validate({ instanceId, modelId, record, model }) {
     if (res) errors[fieldName] = res
   }
   return { valid: Object.keys(errors).length === 0, errors }
-}
-
-function coerceRecordValues(record, model) {
-  for (let [key, value] of Object.entries(record)) {
-    const field = model.schema[key]
-    if (!field) continue
-    const mapping = Object.prototype.hasOwnProperty.call(
-      TYPE_TRANSFORM_MAP[field.type],
-      value
-    )
-      ? TYPE_TRANSFORM_MAP[field.type][value]
-      : TYPE_TRANSFORM_MAP[field.type].parse
-
-    record[key] = typeof mapping === "function" ? mapping(value) : mapping
-  }
-}
-
-const TYPE_TRANSFORM_MAP = {
-  string: {
-    "": "",
-    [null]: "",
-    [undefined]: undefined,
-    parse: s => s,
-  },
-  number: {
-    "": null,
-    [null]: null,
-    [undefined]: undefined,
-    parse: n => parseFloat(n),
-  },
-  datetime: {
-    "": null,
-    [undefined]: undefined,
-    [null]: null,
-    parse: d => d,
-  },
-  attachment: {
-    "": [],
-    [null]: [],
-    [undefined]: undefined,
-    parse: a => a,
-  },
-  boolean: {
-    "": null,
-    [null]: null,
-    [undefined]: undefined,
-    parse: b => {
-      if (b === "true") return true
-      if (b === "false") return false
-      return b
-    },
-  },
 }

@@ -9,6 +9,7 @@
   } from "@budibase/bbui"
   import { backendUiStore } from "builderStore"
   import { notifier } from "builderStore/store/notifications"
+  import CreateEditRecord from "../modals/CreateEditRecord.svelte"
   import analytics from "analytics"
 
   const CALCULATIONS = [
@@ -33,7 +34,6 @@
     )
 
   function saveView() {
-    if (!view.calculation) view.calculation = "stats"
     backendUiStore.actions.views.save(view)
     notifier.success(`View ${view.name} saved.`)
     analytics.captureEvent("Added View Calculate", { field: view.field })
@@ -50,15 +50,14 @@
 <Popover bind:this={dropdown} {anchor} align="left">
   <h5>Calculate</h5>
   <div class="input-group-row">
-    <!-- <p>The</p>
+    <p>The</p>
     <Select secondary thin bind:value={view.calculation}>
       <option value="">Choose an option</option>
       {#each CALCULATIONS as calculation}
         <option value={calculation.key}>{calculation.name}</option>
       {/each}
     </Select>
-    <p>of</p> -->
-    <p>The statistics of</p>
+    <p>of</p>
     <Select secondary thin bind:value={view.field}>
       <option value="">Choose an option</option>
       {#each fields as field}
@@ -87,7 +86,7 @@
 
   .input-group-row {
     display: grid;
-    grid-template-columns: auto 1fr 20px 1fr;
+    grid-template-columns: 50px 1fr 20px 1fr;
     gap: var(--spacing-s);
     margin-bottom: var(--spacing-l);
     align-items: center;
