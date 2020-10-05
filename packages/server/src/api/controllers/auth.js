@@ -2,7 +2,6 @@ const jwt = require("jsonwebtoken")
 const CouchDB = require("../../db")
 const ClientDb = require("../../db/clientDb")
 const bcrypt = require("../../utilities/bcrypt")
-const { generateUserID } = require("../../db/utils")
 
 exports.authenticate = async ctx => {
   if (!ctx.user.appId) ctx.throw(400, "No appId")
@@ -36,7 +35,7 @@ exports.authenticate = async ctx => {
 
   let dbUser
   try {
-    dbUser = await instanceDb.get(generateUserID(username))
+    dbUser = await instanceDb.get(`user_${username}`)
   } catch (_) {
     // do not want to throw a 404 - as this could be
     // used to dtermine valid usernames

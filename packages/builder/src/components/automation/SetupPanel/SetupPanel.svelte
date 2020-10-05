@@ -1,19 +1,27 @@
 <script>
+  import { getContext } from "svelte"
   import { backendUiStore, automationStore } from "builderStore"
   import { notifier } from "builderStore/store/notifications"
   import AutomationBlockSetup from "./AutomationBlockSetup.svelte"
+  import DeleteAutomationModal from "./DeleteAutomationModal.svelte"
   import { Button, Input, Label } from "@budibase/bbui"
-  import ConfirmDialog from "components/common/ConfirmDialog.svelte"
+
+  const { open, close } = getContext("simple-modal")
 
   let selectedTab = "SETUP"
-  let confirmDeleteDialog
 
-  $: instanceId = $backendUiStore.selectedDatabase._id
   $: automation = $automationStore.selectedAutomation?.automation
   $: allowDeleteBlock =
     $automationStore.selectedBlock?.type !== "TRIGGER" ||
     !automation?.definition?.steps?.length
-  $: name = automation?.name ?? ""
+
+  function deleteAutomation() {
+    open(
+      DeleteAutomationModal,
+      { onClosed: close },
+      { styleContent: { padding: "0" } }
+    )
+  }
 
   function deleteAutomationBlock() {
     automationStore.actions.deleteAutomationBlock(
@@ -34,18 +42,10 @@
 
   async function saveAutomation() {
     await automationStore.actions.save({
-      instanceId,
+      instanceId: $backendUiStore.selectedDatabase._id,
       automation,
     })
     notifier.success(`Automation ${automation.name} saved.`)
-  }
-
-  async function deleteAutomation() {
-    await automationStore.actions.delete({
-      instanceId,
-      automation,
-    })
-    notifier.success("Automation deleted.")
   }
 </script>
 
@@ -93,18 +93,11 @@
         on:click={saveAutomation}>
         Save Automation
       </Button>
-      <Button red wide on:click={() => confirmDeleteDialog.show()}>
-        Delete Automation
-      </Button>
+      <Button red wide on:click={deleteAutomation}>Delete Automation</Button>
     {/if}
   </div>
+
 </section>
-<ConfirmDialog
-  bind:this={confirmDeleteDialog}
-  title="Confirm Delete"
-  body={`Are you sure you wish to delete the automation '${name}'?`}
-  okText="Delete Automation"
-  onOk={deleteAutomation} />
 
 <style>
   section {

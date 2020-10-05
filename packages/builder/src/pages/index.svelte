@@ -1,4 +1,5 @@
 <script>
+  import { getContext } from "svelte"
   import { store } from "builderStore"
   import api from "builderStore/api"
   import AppList from "components/start/AppList.svelte"
@@ -7,13 +8,10 @@
   import { get } from "builderStore/api"
   import Spinner from "components/common/Spinner.svelte"
   import CreateAppModal from "components/start/CreateAppModal.svelte"
-  import { Button, Heading } from "@budibase/bbui"
+  import { Button } from "@budibase/bbui"
   import analytics from "analytics"
-  import { Modal } from "components/common/Modal"
 
   let promise = getApps()
-  let hasKey
-  let modal
 
   async function getApps() {
     const res = await get("/api/applications")
@@ -26,6 +24,8 @@
     }
   }
 
+  let hasKey
+
   async function fetchKeys() {
     const response = await api.get(`/api/keys/`)
     return await response.json()
@@ -37,19 +37,38 @@
     if (keys.userId) {
       hasKey = true
       analytics.identify(keys.userId)
+    } else {
+      showCreateAppModal()
     }
+  }
 
-    if (!keys.budibase) {
-      modal.show()
-    }
+  // Handle create app modal
+  const { open } = getContext("simple-modal")
+
+  const showCreateAppModal = () => {
+    open(
+      CreateAppModal,
+      {
+        hasKey,
+      },
+      {
+        closeButton: false,
+        closeOnEsc: false,
+        closeOnOuterClick: false,
+        styleContent: { padding: 0 },
+        closeOnOuterClick: true,
+      }
+    )
   }
 
   checkIfKeysAndApps()
 </script>
 
 <div class="header">
-  <Heading medium black>Welcome to the Budibase Beta</Heading>
-  <Button primary black on:click={modal.show}>Create New Web App</Button>
+  <div class="welcome">Welcome to the Budibase Beta</div>
+  <Button primary purple on:click={showCreateAppModal}>
+    Create New Web App
+  </Button>
 </div>
 
 <div class="banner">
@@ -58,10 +77,6 @@
     Every accomplishment starts with a decision to try.
   </div>
 </div>
-
-<Modal bind:this={modal} wide padded={false}>
-  <CreateAppModal {hasKey} />
-</Modal>
 
 {#await promise}
   <div class="spinner-container">
