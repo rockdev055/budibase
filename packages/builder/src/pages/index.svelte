@@ -1,5 +1,4 @@
 <script>
-  import { getContext } from "svelte"
   import { store } from "builderStore"
   import api from "builderStore/api"
   import AppList from "components/start/AppList.svelte"
@@ -8,10 +7,15 @@
   import { get } from "builderStore/api"
   import Spinner from "components/common/Spinner.svelte"
   import CreateAppModal from "components/start/CreateAppModal.svelte"
-  import { Button } from "@budibase/bbui"
+  import { Button, Heading } from "@budibase/bbui"
+  import TemplateList from "components/start/TemplateList.svelte"
   import analytics from "analytics"
+  import { Modal } from "components/common/Modal"
 
   let promise = getApps()
+  let hasKey
+  let template
+  let modalVisible = false
 
   async function getApps() {
     const res = await get("/api/applications")
@@ -24,8 +28,6 @@
     }
   }
 
-  let hasKey
-
   async function fetchKeys() {
     const response = await api.get(`/api/keys/`)
     return await response.json()
@@ -37,69 +39,56 @@
     if (keys.userId) {
       hasKey = true
       analytics.identify(keys.userId)
-    } else {
-      showCreateAppModal()
+    }
+
+    if (!keys.budibase) {
+      modalVisible = true
     }
   }
 
-  // Handle create app modal
-  const { open } = getContext("simple-modal")
-
-  const showCreateAppModal = () => {
-    open(
-      CreateAppModal,
-      {
-        hasKey,
-      },
-      {
-        closeButton: false,
-        closeOnEsc: false,
-        closeOnOuterClick: false,
-        styleContent: { padding: 0 },
-        closeOnOuterClick: true,
-      }
-    )
+  function selectTemplate(newTemplate) {
+    template = newTemplate
+    modalVisible = true
   }
 
   checkIfKeysAndApps()
 </script>
 
-<div class="header">
-  <div class="welcome">Welcome to the Budibase Beta</div>
-  <Button primary purple on:click={showCreateAppModal}>
-    Create New Web App
-  </Button>
-</div>
-
-<div class="banner">
-  <img src="/_builder/assets/orange-landscape.png" alt="rocket" />
-  <div class="banner-content">
-    Every accomplishment starts with a decision to try.
+<div class="container">
+  <div class="header">
+    <Heading medium black>Welcome to the Budibase Beta</Heading>
+    <Button primary purple on:click={() => (modalVisible = true)}>
+      Create New Web App
+    </Button>
   </div>
-</div>
 
-{#await promise}
-  <div class="spinner-container">
-    <Spinner />
+  <div class="banner">
+    <img src="/_builder/assets/orange-landscape.png" alt="rocket" />
+    <div class="banner-content">
+      Every accomplishment starts with a decision to try.
+    </div>
   </div>
-{:then result}
-  <AppList apps={result} />
-{:catch err}
-  <h1 style="color:red">{err}</h1>
-{/await}
+
+  <TemplateList onSelect={selectTemplate} />
+
+  <AppList />
+
+  {#if modalVisible}
+    <CreateAppModal bind:visible={modalVisible} {hasKey} {template} />
+  {/if}
+</div>
 
 <style>
+  .container {
+    display: grid;
+    gap: var(--spacing-xl);
+    margin: 40px 80px;
+  }
+
   .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 40px 80px 0px 80px;
-  }
-
-  .welcome {
-    font-size: var(--font-size-3xl);
-    color: var(--ink);
-    font-weight: 600;
   }
 
   .banner {
@@ -109,7 +98,6 @@
     position: relative;
     text-align: center;
     color: white;
-    margin: 20px 80px 40px 80px;
     border-radius: 16px;
   }
 
@@ -124,13 +112,5 @@
     font-size: 24px;
     color: var(--white);
     font-weight: 500;
-  }
-
-  .spinner-container {
-    height: 100%;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 </style>

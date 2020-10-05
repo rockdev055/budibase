@@ -1,39 +1,60 @@
 const CouchDB = require("../../db")
-const newid = require("../../db/newid")
-const csvParser = require("../../utilities/csvParser")
+const linkRecords = require("../../db/linkedRecords")
+const {
+  getRecordParams,
+  getModelParams,
+  generateModelID,
+} = require("../../db/utils")
 
 exports.fetch = async function(ctx) {
   const db = new CouchDB(ctx.user.instanceId)
-  const body = await db.query("database/by_type", {
-    include_docs: true,
-    key: ["model"],
-  })
-
+  const body = await db.allDocs(
+    getModelParams(null, {
+      include_docs: true,
+    })
+  )
   ctx.body = body.rows.map(row => row.doc)
 }
 
 exports.find = async function(ctx) {
   const db = new CouchDB(ctx.user.instanceId)
-  const model = await db.get(ctx.params.id)
-  ctx.body = model
+  ctx.body = await db.get(ctx.params.id)
 }
 
 exports.save = async function(ctx) {
-  const db = new CouchDB(ctx.user.instanceId)
-  const { dataImport, ...rest } = ctx.request.body
+  const instanceId = ctx.user.instanceId
+  const db = new CouchDB(instanceId)
   const modelToSave = {
     type: "model",
-    _id: newid(),
+    _id: generateModelID(),
     views: {},
-    ...rest,
+    ...ctx.request.body,
+  }
+  // get the model in its previous state for differencing
+  let oldModel
+  let oldModelId = ctx.request.body._id
+  if (oldModelId) {
+    // if it errors then the oldModelId is invalid - can't diff it
+    try {
+      oldModel = await db.get(oldModelId)
+    } catch (err) {
+      oldModel = null
+    }
   }
 
   // rename record fields when table column is renamed
   const { _rename } = modelToSave
-  if (_rename) {
-    const records = await db.query(`database/all_${modelToSave._id}`, {
-      include_docs: true,
-    })
+  if (_rename && modelToSave.schema[_rename.updated].type === "link") {
+    throw "Cannot rename a linked field."
+  } else if (_rename && modelToSave.primaryDisplay === _rename.old) {
+    throw "Cannot rename the primary display field."
+  } else if (_rename) {
+    const records = await db.allDocs(
+      getRecordParams(modelToSave._id, null, {
+        include_docs: true,
+      })
+    )
+
     const docs = records.rows.map(({ doc }) => {
       doc[_rename.updated] = doc[_rename.old]
       delete doc[_rename.old]
@@ -56,90 +77,50 @@ exports.save = async function(ctx) {
   const result = await db.post(modelToSave)
   modelToSave._rev = result.rev
 
-  const { schema } = ctx.request.body
-  for (let key in schema) {
-    // model has a linked record
-    if (schema[key].type === "link") {
-      // create the link field in the other model
-      const linkedModel = await db.get(schema[key].modelId)
-      linkedModel.schema[modelToSave.name] = {
-        name: modelToSave.name,
-        type: "link",
-        modelId: modelToSave._id,
-        constraints: {
-          type: "array",
-        },
-      }
-      await db.put(linkedModel)
-    }
-  }
+  // update linked records
+  await linkRecords.updateLinks({
+    instanceId,
+    eventType: oldModel
+      ? linkRecords.EventType.MODEL_UPDATED
+      : linkRecords.EventType.MODEL_SAVE,
+    model: modelToSave,
+    oldModel: oldModel,
+  })
 
-  const designDoc = await db.get("_design/database")
-  designDoc.views = {
-    ...designDoc.views,
-    [`all_${modelToSave._id}`]: {
-      map: `function(doc) {
-        if (doc.modelId === "${modelToSave._id}") {
-          emit(doc._id); 
-        }
-      }`,
-    },
-  }
-  await db.put(designDoc)
-
-  if (dataImport && dataImport.path) {
-    // Populate the table with records imported from CSV in a bulk update
-    const data = await csvParser.transform(dataImport)
-
-    for (let row of data) row.modelId = modelToSave._id
-
-    await db.bulkDocs(data)
-  }
-
+  ctx.eventEmitter &&
+    ctx.eventEmitter.emitModel(`model:save`, instanceId, modelToSave)
   ctx.status = 200
   ctx.message = `Model ${ctx.request.body.name} saved successfully.`
   ctx.body = modelToSave
 }
 
 exports.destroy = async function(ctx) {
-  const db = new CouchDB(ctx.user.instanceId)
+  const instanceId = ctx.user.instanceId
+  const db = new CouchDB(instanceId)
 
   const modelToDelete = await db.get(ctx.params.modelId)
 
   await db.remove(modelToDelete)
 
-  const modelViewId = `all_${ctx.params.modelId}`
-
   // Delete all records for that model
-  const records = await db.query(`database/${modelViewId}`)
+  const records = await db.allDocs(
+    getRecordParams(ctx.params.modelId, null, {
+      include_docs: true,
+    })
+  )
   await db.bulkDocs(
     records.rows.map(record => ({ _id: record.id, _deleted: true }))
   )
 
-  // Delete linked record fields in dependent models
-  for (let key in modelToDelete.schema) {
-    const { type, modelId } = modelToDelete.schema[key]
-    if (type === "link") {
-      const linkedModel = await db.get(modelId)
-      delete linkedModel.schema[modelToDelete.name]
-      await db.put(linkedModel)
-    }
-  }
+  // update linked records
+  await linkRecords.updateLinks({
+    instanceId,
+    eventType: linkRecords.EventType.MODEL_DELETE,
+    model: modelToDelete,
+  })
 
-  // delete the "all" view
-  const designDoc = await db.get("_design/database")
-  delete designDoc.views[modelViewId]
-  await db.put(designDoc)
-
+  ctx.eventEmitter &&
+    ctx.eventEmitter.emitModel(`model:delete`, instanceId, modelToDelete)
   ctx.status = 200
   ctx.message = `Model ${ctx.params.modelId} deleted.`
-}
-
-exports.validateCSVSchema = async function(ctx) {
-  const { file, schema = {} } = ctx.request.body
-  const result = await csvParser.parse(file.path, schema)
-  ctx.body = {
-    schema: result,
-    path: file.path,
-  }
 }
