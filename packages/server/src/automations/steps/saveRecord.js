@@ -2,12 +2,12 @@ const recordController = require("../../api/controllers/record")
 const automationUtils = require("../automationUtils")
 
 module.exports.definition = {
-  name: "Create Record",
-  tagline: "Create a {{inputs.enriched.model.name}} record",
+  name: "Save Record",
+  tagline: "Save a {{inputs.enriched.model.name}} record",
   icon: "ri-save-3-fill",
-  description: "Create a record to your database",
+  description: "Save a record to your database",
   type: "ACTION",
-  stepId: "CREATE_RECORD",
+  stepId: "SAVE_RECORD",
   inputs: {},
   schema: {
     inputs: {
