@@ -5,7 +5,7 @@
   import posthog from "posthog-js"
   import analytics from "analytics"
 
-  let keys = { budibase: "" }
+  let keys = { budibase: "", sendGrid: "" }
 
   async function updateKey([key, value]) {
     if (key === "budibase") {
@@ -41,6 +41,14 @@
       edit
       value={keys.budibase}
       label="Budibase" />
+  </div>
+  <div class="background">
+    <Input
+      on:save={e => updateKey(['sendgrid', e.detail])}
+      thin
+      edit
+      value={keys.sendgrid}
+      label="Sendgrid" />
   </div>
 </div>
 
