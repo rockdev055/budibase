@@ -1,22 +1,20 @@
 <script>
-  import { Label, Heading, Input } from "@budibase/bbui"
+  import { Input, Heading, Body } from "@budibase/bbui"
   export let validationErrors
   export let template
 
   let blurred = { appName: false }
 </script>
 
+{#if template}
+  <Heading small black>Selected Template</Heading>
+  <Body>{template.name}</Body>
+{/if}
 <h2>Create your web app</h2>
 <div class="container">
-  {#if template}
-    <div class="template">
-      <Label extraSmall grey>Selected Template</Label>
-      <Heading small>{template.name}</Heading>
-    </div>
-  {/if}
   <Input
     on:input={() => (blurred.appName = true)}
-    label="Web App Name"
+    label="Web app name"
     name="applicationName"
     placeholder="Enter name of your web application"
     type="name"
@@ -26,11 +24,6 @@
 <style>
   .container {
     display: grid;
-    grid-gap: var(--spacing-xl);
-  }
-
-  .template :global(label) {
-    /*  Fix layout due to LH 0 on heading */
-    margin-bottom: 16px;
+    grid-gap: 40px;
   }
 </style>

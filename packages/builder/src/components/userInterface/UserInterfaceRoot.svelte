@@ -15,9 +15,12 @@
   let newScreenPicker
   let confirmDeleteDialog
   let componentToDelete = ""
-  let settingsView
-  let modalVisible = false
 
+  const newScreen = () => {
+    newScreenPicker.show()
+  }
+
+  let settingsView
   const settings = () => {
     settingsView.show()
   }
@@ -49,7 +52,7 @@
           Screens
         </span>
         <div>
-          <button on:click={() => (modalVisible = true)}>
+          <button on:click={newScreen}>
             <AddIcon />
           </button>
         </div>
@@ -73,9 +76,7 @@
 
 </div>
 
-{#if modalVisible}
-  <NewScreen bind:visible={modalVisible} />
-{/if}
+<NewScreen bind:this={newScreenPicker} />
 <SettingsView bind:this={settingsView} />
 
 <style>

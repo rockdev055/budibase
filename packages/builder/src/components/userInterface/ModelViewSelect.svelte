@@ -1,10 +1,10 @@
 <script>
-  import { Button, Icon, DropdownMenu, Spacer, Heading } from "@budibase/bbui"
+  import { Button, Icon, DropdownMenu } from "@budibase/bbui"
   import { createEventDispatcher } from "svelte"
   import { backendUiStore } from "builderStore"
 
   const dispatch = createEventDispatcher()
-  let anchorRight, dropdownRight
+  let anchor, dropdown
 
   export let value = {}
 
@@ -30,17 +30,21 @@
   }, [])
 </script>
 
-<div class="dropdownbutton" bind:this={anchorRight}>
-  <Button secondary wide on:click={dropdownRight.show}>
+<div bind:this={anchor}>
+  <Button secondary small on:click={dropdown.show}>
     <span>{value.label ? value.label : 'Model / View'}</span>
     <Icon name="arrowdown" />
   </Button>
 </div>
-<DropdownMenu bind:this={dropdownRight} anchor={anchorRight}>
-  <div class="dropdown">
-    <div class="title">
-      <Heading extraSmall>Tables</Heading>
-    </div>
+<DropdownMenu
+  bind:this={dropdown}
+  width="175px"
+  borderColor="#d1d1d1ff"
+  {anchor}
+  align="right">
+  <div class="model-view-container">
+    <p>Tables</p>
+
     <ul>
       {#each models as model}
         <li
@@ -51,9 +55,7 @@
       {/each}
     </ul>
     <hr />
-    <div class="title">
-      <Heading extraSmall>Views</Heading>
-    </div>
+    <p>Views</p>
     <ul>
       {#each views as view}
         <li
@@ -67,19 +69,23 @@
 </DropdownMenu>
 
 <style>
-  .dropdownbutton {
-    width: 100%;
+  .model-view-container {
+    padding-bottom: 8px;
+    font: var(--smallheavybodytext);
   }
-  .dropdown {
-    padding: var(--spacing-m) 0;
-    z-index: 99999999;
+
+  p {
+    color: var(--grey-7);
+    margin: 0px;
+    padding: 8px;
   }
-  .title {
-    padding: 0 var(--spacing-m) var(--spacing-xs) var(--spacing-m);
+
+  span {
+    text-transform: capitalize;
   }
 
   hr {
-    margin: var(--spacing-m) 0 var(--spacing-xl) 0;
+    margin: 10px 0px 5px 0px;
   }
 
   ul {
@@ -91,8 +97,7 @@
   li {
     cursor: pointer;
     margin: 0px;
-    padding: var(--spacing-s) var(--spacing-m);
-    font-size: var(--font-size-xs);
+    padding: 5px 8px;
   }
 
   .selected {

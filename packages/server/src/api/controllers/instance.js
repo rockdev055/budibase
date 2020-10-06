@@ -2,7 +2,6 @@ const fs = require("fs")
 const CouchDB = require("../../db")
 const client = require("../../db/clientDb")
 const newid = require("../../db/newid")
-const { createLinkView } = require("../../db/linkedRecords")
 const { downloadTemplate } = require("../../utilities/templates")
 
 exports.create = async function(ctx) {
@@ -22,12 +21,8 @@ exports.create = async function(ctx) {
       clientId,
       applicationId: appId,
     },
-    // view collation information, read before writing any complex views:
-    // https://docs.couchdb.org/en/master/ddocs/views/collation.html#collation-specification
     views: {},
   })
-  // add view for linked records
-  await createLinkView(instanceId)
 
   // Add the new instance under the app clientDB
   const clientDb = new CouchDB(client.name(clientId))

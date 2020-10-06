@@ -40,9 +40,6 @@ exports.defaultHeaders = (appId, instanceId) => {
 }
 
 exports.createModel = async (request, appId, instanceId, model) => {
-  if (model != null && model._id) {
-    delete model._id
-  }
   model = model || {
     name: "TestModel",
     type: "model",

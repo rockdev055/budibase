@@ -1,5 +1,5 @@
 <script>
-  import { Button, Heading, Body, Spacer } from "@budibase/bbui"
+  import { Button, Heading, Body } from "@budibase/bbui"
   import AppCard from "./AppCard.svelte"
   import Spinner from "components/common/Spinner.svelte"
   import api from "builderStore/api"
@@ -15,7 +15,7 @@
 </script>
 
 <div class="root">
-  <Heading lh medium black>Start With a Template</Heading>
+  <Heading medium black>Start With a Template</Heading>
   {#await templatesPromise}
     <div class="spinner-container">
       <Spinner size="30" />
@@ -24,12 +24,11 @@
     <div class="templates">
       {#each templates as template}
         <div class="templates-card">
-          <Heading black small>{template.name}</Heading>
-          <Spacer small />
+          <Heading black medium>{template.name}</Heading>
           <Body medium grey>{template.category}</Body>
-          <Body lh small black>{template.description}</Body>
+          <Body small black>{template.description}</Body>
           <div>
-            <img src={template.image} width="100%" />
+            <img src={template.image} width="300" />
           </div>
           <div class="card-footer">
             <Button secondary on:click={() => onSelect(template)}>
@@ -68,5 +67,9 @@
     font-weight: 600;
     color: var(--ink);
     text-transform: capitalize;
+  }
+
+  .root {
+    margin: 20px 80px;
   }
 </style>

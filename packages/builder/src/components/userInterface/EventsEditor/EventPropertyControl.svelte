@@ -7,17 +7,19 @@
   export let value
   export let name
 
-  let modalVisible = false
+  let eventsModal
 </script>
 
-<Button secondary small on:click={() => (modalVisible = true)}>
-  Define Actions
-</Button>
+<Button secondary small on:click={eventsModal.show}>Define Actions</Button>
 
-{#if modalVisible}
+<Modal bind:this={eventsModal} maxWidth="100vw" hideCloseButton padding="0">
   <EventEditorModal
-    bind:visible={modalVisible}
     event={value}
     eventType={name}
-    on:change />
-{/if}
+    on:change
+    on:close={eventsModal.hide} />
+</Modal>
+
+<style>
+
+</style>
