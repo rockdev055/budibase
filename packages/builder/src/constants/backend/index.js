@@ -1,12 +1,22 @@
 export const FIELDS = {
   STRING: {
-    name: "Plain Text",
+    name: "Text",
     icon: "ri-text",
     type: "string",
     constraints: {
       type: "string",
       length: {},
-      presence: false,
+      presence: { allowEmpty: true },
+    },
+  },
+  OPTIONS: {
+    name: "Options",
+    icon: "ri-list-check-2",
+    type: "options",
+    constraints: {
+      type: "string",
+      presence: { allowEmpty: true },
+      inclusion: [],
     },
   },
   NUMBER: {
@@ -15,7 +25,7 @@ export const FIELDS = {
     type: "number",
     constraints: {
       type: "number",
-      presence: false,
+      presence: { allowEmpty: true },
       numericality: { greaterThanOrEqualTo: "", lessThanOrEqualTo: "" },
     },
   },
@@ -25,18 +35,9 @@ export const FIELDS = {
     type: "boolean",
     constraints: {
       type: "boolean",
-      presence: false,
+      presence: { allowEmpty: true },
     },
   },
-  // OPTIONS: {
-  //   name: "Options",
-  //   icon: "ri-list-check-2",
-  //   type: "options",
-  //   constraints: {
-  //     type: "string",
-  //     presence: { allowEmpty: true },
-  //   },
-  // },
   DATETIME: {
     name: "Date/Time",
     icon: "ri-calendar-event-fill",
@@ -44,7 +45,7 @@ export const FIELDS = {
     constraints: {
       type: "string",
       length: {},
-      presence: false,
+      presence: { allowEmpty: true },
       datetime: {
         latest: "",
         earliest: "",
@@ -57,18 +58,18 @@ export const FIELDS = {
     type: "attachment",
     constraints: {
       type: "array",
-      presence: false,
+      presence: { allowEmpty: true },
     },
   },
-  // LINKED_FIELDS: {
-  //   name: "Linked Fields",
-  //   icon: "ri-link",
-  //   type: "link",
-  //   modelId: null,
-  //   constraints: {
-  //     type: "array",
-  //   },
-  // },
+  LINK: {
+    name: "Relationship",
+    icon: "ri-link",
+    type: "link",
+    constraints: {
+      type: "array",
+      presence: { allowEmpty: true },
+    },
+  },
 }
 
 export const FILE_TYPES = {

@@ -11,7 +11,7 @@
     on:input={() => (blurred.api = true)}
     label="API Key"
     name="apiKey"
-    placeholder="Use command-V to paste your API Key"
+    placeholder="Enter your API Key"
     type="password"
     error={blurred.api && validationErrors.apiKey} />
   <a target="_blank" href="https://portal.budi.live/">Get API Key</a>
