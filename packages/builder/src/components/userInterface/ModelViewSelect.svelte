@@ -10,7 +10,7 @@
 
   function handleSelected(selected) {
     dispatch("change", selected)
-    dropdownRight.hide()
+    dropdown.hide()
   }
 
   const models = $backendUiStore.models.map(m => ({
