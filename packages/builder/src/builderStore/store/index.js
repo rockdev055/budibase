@@ -153,12 +153,11 @@ const _saveScreen = async (store, s, screen) => {
   return s
 }
 
-const createScreen = store => ({ screenName, route, screen }) => {
+const createScreen = store => (screenName, route, layoutComponentName) => {
   store.update(state => {
-    const rootComponent =
-      state.components["@budibase/standard-components/container"]
+    const rootComponent = state.components[layoutComponentName]
 
-    const newScreen = screen || {
+    const newScreen = {
       description: "",
       url: "",
       _css: "",
