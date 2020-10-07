@@ -4,28 +4,25 @@
   import PageLayout from "components/userInterface/PageLayout.svelte"
   import PagesList from "components/userInterface/PagesList.svelte"
   import NewScreen from "components/userInterface/NewScreen.svelte"
-  import { Button } from "@budibase/bbui"
-  import { Spacer } from "@budibase/bbui"
 
-  let modalVisible = false
+  const newScreen = () => {
+    newScreenPicker.show()
+  }
+
+  let newScreenPicker
 </script>
 
 <PagesList />
 
-<Spacer medium />
-<Button primary wide on:click={() => (modalVisible = true)}>
-  Create New Screen
-</Button>
-<Spacer medium />
+<button class="newscreen" on:click={newScreen}>Create New Screen</button>
+
 <PageLayout layout={$store.pages[$store.currentPageName]} />
 
 <div class="nav-items-container">
   <ComponentsHierarchy screens={$store.screens} />
 </div>
 
-{#if modalVisible}
-  <NewScreen bind:visible={modalVisible} />
-{/if}
+<NewScreen bind:this={newScreenPicker} />
 
 <style>
   .newscreen {

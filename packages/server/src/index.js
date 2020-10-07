@@ -1,4 +1,4 @@
-const { resolve, join } = require("./utilities/sanitisedPath")
+const { resolve, join } = require("path")
 const { homedir } = require("os")
 const { app } = require("electron")
 const fixPath = require("fix-path")
