@@ -20,7 +20,8 @@
   .topnavitemright {
     cursor: pointer;
     color: var(--grey-7);
-    margin: 0 20px 0 0;
+    margin: 0px 20px 0px 0px;
+    padding-top: 4px;
     font-weight: 500;
     font-size: 1rem;
     height: 100%;
