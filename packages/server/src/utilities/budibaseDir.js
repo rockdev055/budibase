@@ -1,4 +1,4 @@
-const { join } = require("./sanitisedPath")
+const { join } = require("path")
 const { homedir, tmpdir } = require("os")
 const env = require("../environment")
 

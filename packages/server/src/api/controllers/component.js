@@ -1,6 +1,6 @@
 const CouchDB = require("../../db")
 const ClientDb = require("../../db/clientDb")
-const { resolve, join } = require("../../utilities/sanitisedPath")
+const { resolve, join } = require("path")
 const {
   budibaseTempDir,
   budibaseAppsDir,
