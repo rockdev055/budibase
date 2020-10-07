@@ -1,28 +1,28 @@
 const CouchDB = require("../../db")
 const ClientDb = require("../../db/clientDb")
 const { getPackageForBuilder, buildPage } = require("../../utilities/builder")
+const newid = require("../../db/newid")
 const env = require("../../environment")
 const instanceController = require("./instance")
+const { resolve, join } = require("path")
 const { copy, exists, readFile, writeFile } = require("fs-extra")
 const { budibaseAppsDir } = require("../../utilities/budibaseDir")
 const sqrl = require("squirrelly")
 const setBuilderToken = require("../../utilities/builder/setBuilderToken")
 const fs = require("fs-extra")
-const { join, resolve } = require("../../utilities/sanitisedPath")
 const { promisify } = require("util")
 const chmodr = require("chmodr")
-const { generateAppID, getAppParams } = require("../../db/utils")
 const {
   downloadExtractComponentLibraries,
 } = require("../../utilities/createAppPackage")
 
 exports.fetch = async function(ctx) {
   const db = new CouchDB(ClientDb.name(getClientId(ctx)))
-  const body = await db.allDocs(
-    getAppParams(null, {
-      include_docs: true,
-    })
-  )
+  const body = await db.query("client/by_type", {
+    include_docs: true,
+    key: ["app"],
+  })
+
   ctx.body = body.rows.map(row => row.doc)
 }
 
@@ -48,7 +48,7 @@ exports.create = async function(ctx) {
   if (!clientId) {
     ctx.throw(400, "ClientId not suplied")
   }
-  const appId = generateAppID()
+  const appId = newid()
   // insert an appId -> clientId lookup
   const masterDb = new CouchDB("client_app_lookup")
 
@@ -66,7 +66,6 @@ exports.create = async function(ctx) {
     userInstanceMap: {},
     componentLibraries: ["@budibase/standard-components"],
     name: ctx.request.body.name,
-    template: ctx.request.body.template,
   }
 
   const { rev } = await db.put(newApplication)
@@ -76,13 +75,9 @@ exports.create = async function(ctx) {
       appId: newApplication._id,
     },
     request: {
-      body: {
-        name: `dev-${clientId}`,
-        template: ctx.request.body.template,
-      },
+      body: { name: `dev-${clientId}` },
     },
   }
-
   await instanceController.create(createInstCtx)
   newApplication.instances.push(createInstCtx.body)
 
@@ -116,7 +111,7 @@ exports.delete = async function(ctx) {
   const db = new CouchDB(ClientDb.name(getClientId(ctx)))
   const app = await db.get(ctx.params.applicationId)
   const result = await db.remove(app)
-  await fs.rmdir(join(budibaseAppsDir(), ctx.params.applicationId), {
+  await fs.rmdir(`${budibaseAppsDir()}/${ctx.params.applicationId}`, {
     recursive: true,
   })
 
@@ -135,7 +130,7 @@ const createEmptyAppPackage = async (ctx, app) => {
   )
 
   const appsFolder = budibaseAppsDir()
-  const newAppFolder = resolve(join(appsFolder, app._id))
+  const newAppFolder = resolve(appsFolder, app._id)
 
   if (await exists(newAppFolder)) {
     ctx.throw(400, "App folder already exists for this application")
@@ -158,19 +153,6 @@ const createEmptyAppPackage = async (ctx, app) => {
   await updateJsonFile(join(appsFolder, app._id, "package.json"), {
     name: npmFriendlyAppName(app.name),
   })
-
-  // if this app is being created from a template,
-  // copy the frontend page definition files from
-  // the template directory.
-  if (app.template) {
-    const templatePageDefinitions = join(
-      appsFolder,
-      "templates",
-      app.template.key,
-      "pages"
-    )
-    await copy(templatePageDefinitions, join(appsFolder, app._id, "pages"))
-  }
 
   const mainJson = await updateJsonFile(
     join(appsFolder, app._id, "pages", "main", "page.json"),

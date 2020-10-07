@@ -1,5 +1,4 @@
 const fs = require("fs")
-const { join } = require("../../utilities/sanitisedPath")
 const readline = require("readline")
 const { budibaseAppsDir } = require("../../utilities/budibaseDir")
 const ENV_FILE_PATH = "/.env"
@@ -8,6 +7,7 @@ exports.fetch = async function(ctx) {
   ctx.status = 200
   ctx.body = {
     budibase: process.env.BUDIBASE_API_KEY,
+    sendgrid: process.env.SENDGRID_API_KEY,
     userId: process.env.USERID_API_KEY,
   }
 }
@@ -29,9 +29,8 @@ exports.update = async function(ctx) {
 async function updateValues([key, value]) {
   let newContent = ""
   let keyExists = false
-  let envPath = join(budibaseAppsDir(), ENV_FILE_PATH)
   const readInterface = readline.createInterface({
-    input: fs.createReadStream(envPath),
+    input: fs.createReadStream(`${budibaseAppsDir()}/${ENV_FILE_PATH}`),
     output: process.stdout,
     console: false,
   })
@@ -49,6 +48,6 @@ async function updateValues([key, value]) {
       // Add API Key if it doesn't exist in the file at all
       newContent = `${newContent}\n${key}=${value}`
     }
-    fs.writeFileSync(envPath, newContent)
+    fs.writeFileSync(`${budibaseAppsDir()}/${ENV_FILE_PATH}`, newContent)
   })
 }

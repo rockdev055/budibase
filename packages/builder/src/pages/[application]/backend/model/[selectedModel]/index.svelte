@@ -5,6 +5,7 @@
   import { backendUiStore } from "builderStore"
   import ActionButton from "components/common/ActionButton.svelte"
   import * as api from "components/database/DataTable/api"
+  import { CreateEditRecordModal } from "components/database/DataTable/modals"
 
   const { open, close } = getContext("simple-modal")
 

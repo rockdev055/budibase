@@ -1,7 +1,7 @@
 const CouchDB = require("../../../db")
 const viewTemplate = require("./viewBuilder")
 const fs = require("fs")
-const { join } = require("../../../utilities/sanitisedPath")
+const path = require("path")
 const os = require("os")
 const exporters = require("./exporters")
 
@@ -11,11 +11,18 @@ const controller = {
     const designDoc = await db.get("_design/database")
     const response = []
 
-    for (let name of Object.keys(designDoc.views)) {
-      response.push({
-        name,
-        ...designDoc.views[name],
-      })
+    for (let name in designDoc.views) {
+      if (
+        !name.startsWith("all") &&
+        name !== "by_type" &&
+        name !== "by_username" &&
+        name !== "by_automation_trigger"
+      ) {
+        response.push({
+          name,
+          ...designDoc.views[name],
+        })
+      }
     }
 
     ctx.body = response
@@ -105,7 +112,7 @@ const controller = {
 
     const filename = `${view.name}.${format}`
 
-    fs.writeFileSync(join(os.tmpdir(), filename), exportedFile)
+    fs.writeFileSync(path.join(os.tmpdir(), filename), exportedFile)
 
     ctx.body = {
       url: `/api/views/export/download/${filename}`,
@@ -116,7 +123,7 @@ const controller = {
     const filename = ctx.params.fileName
 
     ctx.attachment(filename)
-    ctx.body = fs.createReadStream(join(os.tmpdir(), filename))
+    ctx.body = fs.createReadStream(path.join(os.tmpdir(), filename))
   },
 }
 

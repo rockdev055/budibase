@@ -6,7 +6,7 @@ export const FIELDS = {
     constraints: {
       type: "string",
       length: {},
-      presence: false,
+      presence: { allowEmpty: true },
     },
   },
   NUMBER: {
@@ -15,7 +15,7 @@ export const FIELDS = {
     type: "number",
     constraints: {
       type: "number",
-      presence: false,
+      presence: { allowEmpty: true },
       numericality: { greaterThanOrEqualTo: "", lessThanOrEqualTo: "" },
     },
   },
@@ -25,7 +25,7 @@ export const FIELDS = {
     type: "boolean",
     constraints: {
       type: "boolean",
-      presence: false,
+      presence: { allowEmpty: true },
     },
   },
   // OPTIONS: {
@@ -44,7 +44,7 @@ export const FIELDS = {
     constraints: {
       type: "string",
       length: {},
-      presence: false,
+      presence: { allowEmpty: true },
       datetime: {
         latest: "",
         earliest: "",
@@ -57,7 +57,7 @@ export const FIELDS = {
     type: "attachment",
     constraints: {
       type: "array",
-      presence: false,
+      presence: { allowEmpty: true },
     },
   },
   // LINKED_FIELDS: {

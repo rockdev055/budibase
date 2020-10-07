@@ -1,12 +1,12 @@
 const sendEmail = require("./steps/sendEmail")
-const createRecord = require("./steps/createRecord")
+const saveRecord = require("./steps/saveRecord")
 const updateRecord = require("./steps/updateRecord")
 const deleteRecord = require("./steps/deleteRecord")
 const createUser = require("./steps/createUser")
 const environment = require("../environment")
 const download = require("download")
 const fetch = require("node-fetch")
-const { join } = require("../utilities/sanitisedPath")
+const path = require("path")
 const os = require("os")
 const fs = require("fs")
 const Sentry = require("@sentry/node")
@@ -17,14 +17,14 @@ const DEFAULT_DIRECTORY = ".budibase-automations"
 const AUTOMATION_MANIFEST = "manifest.json"
 const BUILTIN_ACTIONS = {
   SEND_EMAIL: sendEmail.run,
-  CREATE_RECORD: createRecord.run,
+  SAVE_RECORD: saveRecord.run,
   UPDATE_RECORD: updateRecord.run,
   DELETE_RECORD: deleteRecord.run,
   CREATE_USER: createUser.run,
 }
 const BUILTIN_DEFINITIONS = {
   SEND_EMAIL: sendEmail.definition,
-  CREATE_RECORD: createRecord.definition,
+  SAVE_RECORD: saveRecord.definition,
   UPDATE_RECORD: updateRecord.definition,
   DELETE_RECORD: deleteRecord.definition,
   CREATE_USER: createUser.definition,
@@ -43,7 +43,7 @@ async function downloadPackage(name, version, bundleName) {
     `${AUTOMATION_BUCKET}/${name}/${version}/${bundleName}`,
     AUTOMATION_DIRECTORY
   )
-  return require(join(AUTOMATION_DIRECTORY, bundleName))
+  return require(path.join(AUTOMATION_DIRECTORY, bundleName))
 }
 
 module.exports.getAction = async function(actionName) {
@@ -57,7 +57,7 @@ module.exports.getAction = async function(actionName) {
   const pkg = MANIFEST.packages[actionName]
   const bundleName = buildBundleName(pkg.stepId, pkg.version)
   try {
-    return require(join(AUTOMATION_DIRECTORY, bundleName))
+    return require(path.join(AUTOMATION_DIRECTORY, bundleName))
   } catch (err) {
     return downloadPackage(pkg.stepId, pkg.version, bundleName)
   }
@@ -66,7 +66,7 @@ module.exports.getAction = async function(actionName) {
 module.exports.init = async function() {
   // set defaults
   if (!AUTOMATION_DIRECTORY) {
-    AUTOMATION_DIRECTORY = join(os.homedir(), DEFAULT_DIRECTORY)
+    AUTOMATION_DIRECTORY = path.join(os.homedir(), DEFAULT_DIRECTORY)
   }
   if (!AUTOMATION_BUCKET) {
     AUTOMATION_BUCKET = DEFAULT_BUCKET

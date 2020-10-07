@@ -69,13 +69,13 @@ describe("/views", () => {
           filters: [],
           schema: {
             name: {
-              type: "string",
+              type: "text",
               constraints: {
                 type: "string" 
               },
             },
             description: {
-              type: "string",
+              type: "text",
               constraints: {
                 type: "string" 
               },

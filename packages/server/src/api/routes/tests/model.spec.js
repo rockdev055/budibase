@@ -180,7 +180,7 @@ describe("/models", () => {
         key: "name",
         schema: {
           name: {
-            type: "string",
+            type: "text",
             constraints: {
               type: "string",
             },
