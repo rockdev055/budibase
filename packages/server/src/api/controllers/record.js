@@ -1,6 +1,9 @@
 const CouchDB = require("../../db")
 const validateJs = require("validate.js")
-const newid = require("../../db/newid")
+const { getRecordParams, generateRecordID } = require("../../db/utils")
+const { cloneDeep } = require("lodash")
+
+const MODEL_VIEW_BEGINS_WITH = "all_model:"
 
 function emitEvent(eventType, ctx, record) {
   let event = {
@@ -18,20 +21,22 @@ function emitEvent(eventType, ctx, record) {
 }
 
 validateJs.extend(validateJs.validators.datetime, {
-  parse: function (value) {
+  parse: function(value) {
     return new Date(value).getTime()
   },
   // Input is a unix timestamp
-  format: function (value) {
+  format: function(value) {
     return new Date(value).toISOString()
   },
 })
 
-exports.patch = async function (ctx) {
+exports.patch = async function(ctx) {
   const db = new CouchDB(ctx.user.instanceId)
-  const record = await db.get(ctx.params.id)
+  let record = await db.get(ctx.params.id)
   const model = await db.get(record.modelId)
   const patchfields = ctx.request.body
+
+  record = coerceRecordValues(record, model)
 
   for (let key in patchfields) {
     if (!model.schema[key]) continue
@@ -60,130 +65,18 @@ exports.patch = async function (ctx) {
   ctx.message = `${model.name} updated successfully.`
 }
 
-exports.save = async function (ctx) {
-  if (ctx.request.body.type === 'delete') {
-    await bulkDelete(ctx)
-  } else {
-    await saveRecords(ctx)
-  }
-}
-
-exports.fetchView = async function (ctx) {
+exports.save = async function(ctx) {
   const db = new CouchDB(ctx.user.instanceId)
-  const { stats, group, field } = ctx.query
-  const response = await db.query(`database/${ctx.params.viewName}`, {
-    include_docs: !stats,
-    group,
-  })
-
-  if (stats) {
-    response.rows = response.rows.map(row => ({
-      group: row.key,
-      field,
-      ...row.value,
-      avg: row.value.sum / row.value.count,
-    }))
-  } else {
-    response.rows = response.rows.map(row => row.doc)
-  }
-
-  ctx.body = response.rows
-}
-
-exports.fetchModelRecords = async function (ctx) {
-  const db = new CouchDB(ctx.user.instanceId)
-  const response = await db.query(`database/all_${ctx.params.modelId}`, {
-    include_docs: true,
-  })
-  ctx.body = response.rows.map(row => row.doc)
-}
-
-exports.search = async function (ctx) {
-  const db = new CouchDB(ctx.user.instanceId)
-  const response = await db.allDocs({
-    include_docs: true,
-    ...ctx.request.body,
-  })
-  ctx.body = response.rows.map(row => row.doc)
-}
-
-exports.find = async function (ctx) {
-  const db = new CouchDB(ctx.user.instanceId)
-  const record = await db.get(ctx.params.recordId)
-  if (record.modelId !== ctx.params.modelId) {
-    ctx.throw(400, "Supplied modelId does not match the records modelId")
-    return
-  }
-  ctx.body = record
-}
-
-exports.destroy = async function (ctx) {
-  const db = new CouchDB(ctx.user.instanceId)
-  const record = await db.get(ctx.params.recordId)
-  if (record.modelId !== ctx.params.modelId) {
-    ctx.throw(400, "Supplied modelId doesn't match the record's modelId")
-    return
-  }
-  ctx.body = await db.remove(ctx.params.recordId, ctx.params.revId)
-  ctx.status = 200
-  // for automations
-  ctx.record = record
-  emitEvent(`record:delete`, ctx, record)
-}
-
-exports.validate = async function (ctx) {
-  const errors = await validate({
-    instanceId: ctx.user.instanceId,
-    modelId: ctx.params.modelId,
-    record: ctx.request.body,
-  })
-  ctx.status = 200
-  ctx.body = errors
-}
-
-async function validate({ instanceId, modelId, record, model }) {
-  if (!model) {
-    const db = new CouchDB(instanceId)
-    model = await db.get(modelId)
-  }
-  const errors = {}
-  for (let fieldName in model.schema) {
-    const res = validateJs.single(
-      record[fieldName],
-      model.schema[fieldName].constraints
-    )
-    if (res) errors[fieldName] = res
-  }
-  return { valid: Object.keys(errors).length === 0, errors }
-}
-
-async function bulkDelete(ctx) {
-  const { records } = ctx.request.body
-  const db = new CouchDB(ctx.user.instanceId)
-
-  await db.bulkDocs(
-    records.map(record => ({ ...record, _deleted: true }), (err, res) => {
-      if (err) {
-        ctx.status = 500
-      } else {
-        records.forEach(record => {
-          emitEvent(`record:delete`, ctx, record)
-        })
-        ctx.status = 200
-      }
-    }))
-}
-
-async function saveRecords(ctx) {
-  const db = new CouchDB(ctx.user.instanceId)
-  const record = ctx.request.body
+  let record = ctx.request.body
   record.modelId = ctx.params.modelId
 
   if (!record._rev && !record._id) {
-    record._id = newid()
+    record._id = generateRecordID(record.modelId)
   }
 
   const model = await db.get(record.modelId)
+
+  record = coerceRecordValues(record, model)
 
   const validateResult = await validate({
     record,
@@ -242,4 +135,151 @@ async function saveRecords(ctx) {
   ctx.body = record
   ctx.status = 200
   ctx.message = `${model.name} created successfully`
+}
+
+exports.fetchView = async function(ctx) {
+  const db = new CouchDB(ctx.user.instanceId)
+  const { stats, group, field } = ctx.query
+  const viewName = ctx.params.viewName
+
+  // if this is a model view being looked for just transfer to that
+  if (viewName.indexOf(MODEL_VIEW_BEGINS_WITH) === 0) {
+    ctx.params.modelId = viewName.substring(4)
+    await exports.fetchModelRecords(ctx)
+    return
+  }
+
+  const response = await db.query(`database/${viewName}`, {
+    include_docs: !stats,
+    group,
+  })
+
+  if (stats) {
+    response.rows = response.rows.map(row => ({
+      group: row.key,
+      field,
+      ...row.value,
+      avg: row.value.sum / row.value.count,
+    }))
+  } else {
+    response.rows = response.rows.map(row => row.doc)
+  }
+
+  ctx.body = response.rows
+}
+
+exports.fetchModelRecords = async function(ctx) {
+  const db = new CouchDB(ctx.user.instanceId)
+  const response = await db.allDocs(
+    getRecordParams(ctx.params.modelId, null, {
+      include_docs: true,
+    })
+  )
+  ctx.body = response.rows.map(row => row.doc)
+}
+
+exports.search = async function(ctx) {
+  const db = new CouchDB(ctx.user.instanceId)
+  const response = await db.allDocs({
+    include_docs: true,
+    ...ctx.request.body,
+  })
+  ctx.body = response.rows.map(row => row.doc)
+}
+
+exports.find = async function(ctx) {
+  const db = new CouchDB(ctx.user.instanceId)
+  const record = await db.get(ctx.params.recordId)
+  if (record.modelId !== ctx.params.modelId) {
+    ctx.throw(400, "Supplied modelId does not match the records modelId")
+    return
+  }
+  ctx.body = record
+}
+
+exports.destroy = async function(ctx) {
+  const db = new CouchDB(ctx.user.instanceId)
+  const record = await db.get(ctx.params.recordId)
+  if (record.modelId !== ctx.params.modelId) {
+    ctx.throw(400, "Supplied modelId doesn't match the record's modelId")
+    return
+  }
+  ctx.body = await db.remove(ctx.params.recordId, ctx.params.revId)
+  ctx.status = 200
+  // for automations
+  ctx.record = record
+  emitEvent(`record:delete`, ctx, record)
+}
+
+exports.validate = async function(ctx) {
+  const errors = await validate({
+    instanceId: ctx.user.instanceId,
+    modelId: ctx.params.modelId,
+    record: ctx.request.body,
+  })
+  ctx.status = 200
+  ctx.body = errors
+}
+
+async function validate({ instanceId, modelId, record, model }) {
+  if (!model) {
+    const db = new CouchDB(instanceId)
+    model = await db.get(modelId)
+  }
+  const errors = {}
+  for (let fieldName in model.schema) {
+    const res = validateJs.single(
+      record[fieldName],
+      model.schema[fieldName].constraints
+    )
+    if (res) errors[fieldName] = res
+  }
+  return { valid: Object.keys(errors).length === 0, errors }
+}
+
+function coerceRecordValues(rec, model) {
+  const record = cloneDeep(rec)
+  for (let [key, value] of Object.entries(record)) {
+    const field = model.schema[key]
+    if (!field) continue
+
+    // eslint-disable-next-line no-prototype-builtins
+    if (TYPE_TRANSFORM_MAP[field.type].hasOwnProperty(value)) {
+      record[key] = TYPE_TRANSFORM_MAP[field.type][value]
+    } else if (TYPE_TRANSFORM_MAP[field.type].parse) {
+      record[key] = TYPE_TRANSFORM_MAP[field.type].parse(value)
+    }
+  }
+  return record
+}
+
+const TYPE_TRANSFORM_MAP = {
+  string: {
+    "": "",
+    [null]: "",
+    [undefined]: undefined,
+  },
+  number: {
+    "": null,
+    [null]: null,
+    [undefined]: undefined,
+    parse: n => parseFloat(n),
+  },
+  datetime: {
+    "": null,
+    [undefined]: undefined,
+    [null]: null,
+  },
+  attachment: {
+    "": [],
+    [null]: [],
+    [undefined]: undefined,
+  },
+  boolean: {
+    "": null,
+    [null]: null,
+    [undefined]: undefined,
+    true: true,
+    false: false,
+  },
 }
