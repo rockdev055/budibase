@@ -15,12 +15,8 @@ context("Create a automation", () => {
 
     cy.contains("automate").click()
     cy.contains("Create New Automation").click()
-    cy.get(".modal").within(() => {
-      cy.get("input").type("Add Record")
-      cy.get(".buttons")
-        .contains("Create")
-        .click()
-    })
+    cy.get("input").type("Add Record")
+    cy.contains("Save").click()
 
     // Add trigger
     cy.get("[data-cy=add-automation-component]").click()
@@ -50,6 +46,7 @@ context("Create a automation", () => {
 
     // Activate Automation
     cy.get("[data-cy=activate-automation]").click()
+    cy.contains("Add Record").should("be.visible")
     cy.get(".stop-button.highlighted").should("be.visible")
   })
 
