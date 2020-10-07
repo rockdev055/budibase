@@ -1,4 +1,5 @@
 const fs = require("fs")
+const { join } = require("../../../utilities/sanitisedPath")
 const AWS = require("aws-sdk")
 const fetch = require("node-fetch")
 const { budibaseAppsDir } = require("../../../utilities/budibaseDir")
@@ -21,21 +22,11 @@ async function invalidateCDN(cfDistribution, appId) {
     .promise()
 }
 
-/**
- * Verifies the users API key and
- * Verifies that the deployment fits within the quota of the user,
- * @param {String} instanceId - instanceId being deployed
- * @param {String} appId - appId being deployed
- * @param {quota} quota - current quota being changed with this application
- */
-exports.verifyDeployment = async function({ instanceId, appId, quota }) {
+exports.fetchTemporaryCredentials = async function() {
   const response = await fetch(process.env.DEPLOYMENT_CREDENTIALS_URL, {
     method: "POST",
     body: JSON.stringify({
       apiKey: process.env.BUDIBASE_API_KEY,
-      instanceId,
-      appId,
-      quota,
     }),
   })
 
@@ -118,7 +109,7 @@ exports.uploadAppAssets = async function({
     },
   })
 
-  const appAssetsPath = `${budibaseAppsDir()}/${appId}/public`
+  const appAssetsPath = join(budibaseAppsDir(), appId, "public")
 
   const appPages = fs.readdirSync(appAssetsPath)
 
@@ -126,7 +117,7 @@ exports.uploadAppAssets = async function({
 
   for (let page of appPages) {
     // Upload HTML, CSS and JS for each page of the web app
-    walkDir(`${appAssetsPath}/${page}`, function(filePath) {
+    walkDir(join(appAssetsPath, page), function(filePath) {
       const appAssetUpload = prepareUploadForS3({
         file: {
           path: filePath,
