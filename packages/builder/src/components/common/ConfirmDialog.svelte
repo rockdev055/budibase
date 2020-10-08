@@ -1,27 +1,33 @@
 <script>
-  import { Modal, ModalContent } from "@budibase/bbui"
+  import { Modal } from "components/common/Modal"
 
   export let title = ""
   export let body = ""
   export let okText = "Confirm"
   export let cancelText = "Cancel"
-  export let onOk = undefined
-  export let onCancel = undefined
+  export let onOk = () => {}
+  export let onCancel = () => {}
 
-  let modal
+  let visible = false
 
   export const show = () => {
-    modal.show()
+    visible = true
   }
   export const hide = () => {
-    modal.hide()
+    visible = false
   }
 </script>
 
-<Modal bind:this={modal} on:hide={onCancel}>
-  <ModalContent onConfirm={onOk} {title} confirmText={okText} {cancelText} red>
-    <div class="body">{body}</div>
-  </ModalContent>
+<Modal
+  id={title}
+  bind:visible
+  on:hide={onCancel}
+  {title}
+  confirmText={okText}
+  {cancelText}
+  onConfirm={onOk}
+  red>
+  <div class="body">{body}</div>
 </Modal>
 
 <style>

@@ -1,6 +1,7 @@
 <script>
   import { General, Users, DangerZone, APIKeys } from "./tabs"
-  import { Switcher, ModalContent } from "@budibase/bbui"
+  import { Switcher } from "@budibase/bbui"
+  import { Modal } from "components/common/Modal"
 
   const tabs = [
     {
@@ -25,13 +26,17 @@
     },
   ]
 
+  export let visible
+
   let value = "GENERAL"
 
   $: selectedTab = tabs.find(tab => tab.key === value).component
 </script>
 
-<ModalContent
+<Modal
   title="Settings"
+  wide
+  bind:visible
   showConfirmButton={false}
   showCancelButton={false}>
   <div class="container">
@@ -39,7 +44,7 @@
       <svelte:component this={selectedTab} />
     </Switcher>
   </div>
-</ModalContent>
+</Modal>
 
 <style>
   .container :global(section > header) {

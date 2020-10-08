@@ -1,7 +1,14 @@
 <script>
   import { store } from "builderStore"
-  import { Input, Select, ModalContent } from "@budibase/bbui"
-  import { find, filter, some } from "lodash/fp"
+  import { pipe } from "components/common/core"
+  import { isRootComponent } from "./pagesParsing/searchComponents"
+  import { splitName } from "./pagesParsing/splitRootComponentName.js"
+  import { Input, Select, Button, Spacer } from "@budibase/bbui"
+  import { Modal } from "components/common/Modal"
+  import { find, filter, some, map, includes } from "lodash/fp"
+  import { assign } from "lodash"
+
+  export let visible
 
   let dialog
   let layoutComponents
@@ -53,7 +60,11 @@
   }
 </script>
 
-<ModalContent title="New Screen" confirmText="Create Screen" onConfirm={save}>
+<Modal
+  bind:visible
+  title="New Screen"
+  confirmText="Create Screen"
+  onConfirm={save}>
   <Input label="Name" bind:value={name} />
   <Input
     label="Url"
@@ -65,4 +76,4 @@
       <option value={_component}>{name}</option>
     {/each}
   </Select>
-</ModalContent>
+</Modal>

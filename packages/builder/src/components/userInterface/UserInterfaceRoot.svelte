@@ -4,20 +4,19 @@
   import PageLayout from "./PageLayout.svelte"
   import PagesList from "./PagesList.svelte"
   import { store } from "builderStore"
-  import NewScreenModal from "./NewScreenModal.svelte"
-  import CurrentItemPreview from "./AppPreview/CurrentItemPreview.svelte"
+  import NewScreen from "./NewScreen.svelte"
+  import CurrentItemPreview from "./CurrentItemPreview.svelte"
   import SettingsView from "./SettingsView.svelte"
   import ComponentsPaneSwitcher from "./ComponentsPaneSwitcher.svelte"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
   import { last } from "lodash/fp"
   import { AddIcon } from "components/common/Icons"
-  import { Modal } from "@budibase/bbui"
 
   let newScreenPicker
   let confirmDeleteDialog
   let componentToDelete = ""
   let settingsView
-  let modal
+  let modalVisible = false
 
   const settings = () => {
     settingsView.show()
@@ -27,24 +26,30 @@
 </script>
 
 <div class="root">
+
   <div class="ui-nav">
+
     <div class="pages-list-container">
       <div class="nav-header">
         <span class="navigator-title">Navigator</span>
+
         <span class="components-nav-page">Pages</span>
       </div>
+
       <div class="nav-items-container">
         <PagesList />
       </div>
     </div>
+
     <PageLayout layout={$store.pages[$store.currentPageName]} />
+
     <div class="components-list-container">
       <div class="nav-group-header">
         <span class="components-nav-header" style="margin-top: 0;">
           Screens
         </span>
         <div>
-          <button on:click={modal.show}>
+          <button on:click={() => (modalVisible = true)}>
             <AddIcon />
           </button>
         </div>
@@ -53,21 +58,24 @@
         <ComponentsHierarchy screens={$store.screens} />
       </div>
     </div>
+
   </div>
+
   <div class="preview-pane">
     <CurrentItemPreview />
   </div>
+
   {#if $store.currentFrontEndType === 'screen' || $store.currentFrontEndType === 'page'}
     <div class="components-pane">
       <ComponentsPaneSwitcher />
     </div>
   {/if}
+
 </div>
 
-<Modal bind:this={modal}>
-  <NewScreenModal />
-</Modal>
-
+{#if modalVisible}
+  <NewScreen bind:visible={modalVisible} />
+{/if}
 <SettingsView bind:this={settingsView} />
 
 <style>

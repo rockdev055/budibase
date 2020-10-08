@@ -2,9 +2,10 @@
   import { onMount } from "svelte"
   import { automationStore } from "builderStore"
   import CreateAutomationModal from "./CreateAutomationModal.svelte"
-  import { Button, Modal } from "@budibase/bbui"
+  import { Button } from "@budibase/bbui"
+  import { Modal } from "components/common/Modal"
 
-  let modal
+  let modalVisible = false
 
   $: selectedAutomationId = $automationStore.selectedAutomation?.automation?._id
 
@@ -14,7 +15,9 @@
 </script>
 
 <section>
-  <Button primary wide on:click={modal.show}>Create New Automation</Button>
+  <Button primary wide on:click={() => (modalVisible = true)}>
+    Create New Automation
+  </Button>
   <ul>
     {#each $automationStore.automations as automation}
       <li
@@ -27,9 +30,9 @@
     {/each}
   </ul>
 </section>
-<Modal bind:this={modal}>
-  <CreateAutomationModal />
-</Modal>
+{#if modalVisible}
+  <CreateAutomationModal bind:visible={modalVisible} />
+{/if}
 
 <style>
   section {
@@ -48,7 +51,7 @@
     color: var(--grey-6);
   }
   i.live {
-    color: var(--ink);
+    color: var(--purple);
   }
 
   li {

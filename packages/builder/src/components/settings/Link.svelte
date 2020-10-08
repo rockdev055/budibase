@@ -1,17 +1,17 @@
 <script>
   import SettingsModal from "./SettingsModal.svelte"
   import { SettingsIcon } from "components/common/Icons/"
-  import { Modal } from "@budibase/bbui"
+  import { Modal } from "components/common/Modal"
 
-  let modal
+  let modalVisible
 </script>
 
-<span class="topnavitemright settings" on:click={modal.show}>
+<span class="topnavitemright settings" on:click={() => (modalVisible = true)}>
   <SettingsIcon />
 </span>
-<Modal bind:this={modal} width="600px">
-  <SettingsModal />
-</Modal>
+{#if modalVisible}
+  <SettingsModal bind:visible={modalVisible} />
+{/if}
 
 <style>
   span:first-letter {
@@ -20,7 +20,8 @@
   .topnavitemright {
     cursor: pointer;
     color: var(--grey-7);
-    margin: 0 20px 0 0;
+    margin: 0px 20px 0px 0px;
+    padding-top: 4px;
     font-weight: 500;
     font-size: 1rem;
     height: 100%;

@@ -1,21 +1,22 @@
 <script>
   import { backendUiStore } from "builderStore"
-  import { DropdownMenu, Icon, Modal } from "@budibase/bbui"
+  import { DropdownMenu, Icon } from "@budibase/bbui"
   import CreateEditRecordModal from "../modals/CreateEditRecordModal.svelte"
   import * as api from "../api"
   import { notifier } from "builderStore/store/notifications"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
+  import { Modal } from "components/common/Modal"
 
   export let row
 
   let anchor
   let dropdown
   let confirmDeleteDialog
-  let modal
+  let editModalVisible
 
   function showModal() {
     dropdown.hide()
-    modal.show()
+    editModalVisible = true
   }
 
   function showDelete() {
@@ -51,9 +52,9 @@
   okText="Delete Row"
   onOk={deleteRow}
   title="Confirm Delete" />
-<Modal bind:this={modal}>
-  <CreateEditRecordModal record={row} />
-</Modal>
+{#if editModalVisible}
+  <CreateEditRecordModal bind:visible={editModalVisible} record={row} />
+{/if}
 
 <style>
   .ri-more-line:hover {

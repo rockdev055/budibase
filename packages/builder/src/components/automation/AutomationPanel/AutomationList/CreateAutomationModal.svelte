@@ -1,8 +1,11 @@
 <script>
   import { store, backendUiStore, automationStore } from "builderStore"
   import { notifier } from "builderStore/store/notifications"
-  import { Input, ModalContent } from "@budibase/bbui"
+  import { Input } from "@budibase/bbui"
   import analytics from "analytics"
+  import { Modal } from "components/common/Modal"
+
+  export let visible
 
   let name
 
@@ -26,21 +29,22 @@
   }
 </script>
 
-<ModalContent
+<Modal
+  bind:visible
   title="Create Automation"
   confirmText="Create"
   onConfirm={createAutomation}
   disabled={!valid}>
   <Input bind:value={name} label="Name" />
-  <div slot="footer">
+  <slot name="footer">
     <a
       target="_blank"
       href="https://docs.budibase.com/automate/introduction-to-automate">
       <i class="ri-information-line" />
       <span>Learn about automations</span>
     </a>
-  </div>
-</ModalContent>
+  </slot>
+</Modal>
 
 <style>
   a {

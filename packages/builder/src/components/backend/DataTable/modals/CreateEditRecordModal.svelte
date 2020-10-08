@@ -3,11 +3,13 @@
   import { notifier } from "builderStore/store/notifications"
   import RecordFieldControl from "../RecordFieldControl.svelte"
   import * as api from "../api"
-  import { ModalContent } from "@budibase/bbui"
+  import { Modal } from "components/common/Modal"
   import ErrorsBox from "components/common/ErrorsBox.svelte"
 
   export let record = {}
+  export let visible
 
+  let modal
   let errors = []
 
   $: creating = record?._id == null
@@ -33,7 +35,8 @@
   }
 </script>
 
-<ModalContent
+<Modal
+  bind:visible
   title={creating ? 'Create Row' : 'Edit Row'}
   confirmText={creating ? 'Create Row' : 'Save Row'}
   onConfirm={saveRecord}>
@@ -43,4 +46,4 @@
       <RecordFieldControl {meta} bind:value={record[key]} />
     </div>
   {/each}
-</ModalContent>
+</Modal>

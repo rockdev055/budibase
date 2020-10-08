@@ -1,17 +1,23 @@
 <script>
   import { Button, Modal } from "@budibase/bbui"
   import EventEditorModal from "./EventEditorModal.svelte"
-  import { createEventDispatcher } from "svelte"
+  import { createEventDispatcher, onMount } from "svelte"
   const dispatch = createEventDispatcher()
 
   export let value
   export let name
 
-  let modal
+  let modalVisible = false
 </script>
 
-<Button secondary small on:click={modal.show}>Define Actions</Button>
+<Button secondary small on:click={() => (modalVisible = true)}>
+  Define Actions
+</Button>
 
-<Modal bind:this={modal} width="600px">
-  <EventEditorModal event={value} eventType={name} on:change />
-</Modal>
+{#if modalVisible}
+  <EventEditorModal
+    bind:visible={modalVisible}
+    event={value}
+    eventType={name}
+    on:change />
+{/if}
