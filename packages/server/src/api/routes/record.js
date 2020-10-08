@@ -34,7 +34,7 @@ router
   )
   .post(
     "/api/:modelId/records/validate",
-    authorized(WRITE_MODEL, ctx => ctx.params.modelId),
+    authorized(WRITE_MODEL),
     recordController.validate
   )
   .delete(
