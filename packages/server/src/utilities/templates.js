@@ -1,5 +1,5 @@
+const path = require("path")
 const fs = require("fs-extra")
-const { join } = require("./sanitisedPath")
 const os = require("os")
 const fetch = require("node-fetch")
 const stream = require("stream")
@@ -27,10 +27,10 @@ exports.downloadTemplate = async function(type, name) {
   await streamPipeline(
     response.body,
     zlib.Unzip(),
-    tar.extract(join(budibaseAppsDir(), "templates", type))
+    tar.extract(path.join(budibaseAppsDir(), "templates", type))
   )
 
-  return join(budibaseAppsDir(), "templates", type, name)
+  return path.join(budibaseAppsDir(), "templates", type, name)
 }
 
 exports.exportTemplateFromApp = async function({
@@ -39,17 +39,15 @@ exports.exportTemplateFromApp = async function({
   instanceId,
 }) {
   // Copy frontend files
-  const appToExport = join(os.homedir(), ".budibase", appId, "pages")
-  const templatesDir = join(os.homedir(), ".budibase", "templates")
+  const appToExport = path.join(os.homedir(), ".budibase", appId, "pages")
+  const templatesDir = path.join(os.homedir(), ".budibase", "templates")
   fs.ensureDirSync(templatesDir)
 
-  const templateOutputPath = join(templatesDir, templateName)
-  fs.copySync(appToExport, join(templateOutputPath, "pages"))
+  const templateOutputPath = path.join(templatesDir, templateName)
+  fs.copySync(appToExport, `${templateOutputPath}/pages`)
 
-  fs.ensureDirSync(join(templateOutputPath, "db"))
-  const writeStream = fs.createWriteStream(
-    join(templateOutputPath, "db", "dump.txt")
-  )
+  fs.ensureDirSync(path.join(templateOutputPath, "db"))
+  const writeStream = fs.createWriteStream(`${templateOutputPath}/db/dump.txt`)
 
   // perform couch dump
   const instanceDb = new CouchDB(instanceId)
