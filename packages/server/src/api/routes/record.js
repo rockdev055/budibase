@@ -7,6 +7,11 @@ const router = Router()
 
 router
   .get(
+    "/api/:modelId/:recordId/enrich",
+    authorized(READ_MODEL, ctx => ctx.params.modelId),
+    recordController.fetchEnrichedRecord
+  )
+  .get(
     "/api/:modelId/records",
     authorized(READ_MODEL, ctx => ctx.params.modelId),
     recordController.fetchModelRecords
@@ -29,7 +34,7 @@ router
   )
   .post(
     "/api/:modelId/records/validate",
-    authorized(WRITE_MODEL, ctx => ctx.params.modelId),
+    authorized(WRITE_MODEL),
     recordController.validate
   )
   .delete(

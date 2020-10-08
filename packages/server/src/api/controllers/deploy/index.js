@@ -1,17 +1,10 @@
 const CouchDB = require("pouchdb")
 const PouchDB = require("../../../db")
-const {
-  uploadAppAssets,
-  verifyDeployment,
-  updateDeploymentQuota,
-} = require("./aws")
-const { getRecordParams } = require("../../db/utils")
+const { uploadAppAssets, fetchTemporaryCredentials } = require("./aws")
 
 function replicate(local, remote) {
   return new Promise((resolve, reject) => {
-    const replication = local.sync(remote, {
-      retry: true,
-    })
+    const replication = local.sync(remote)
 
     replication.on("complete", () => resolve())
     replication.on("error", err => reject(err))
@@ -38,41 +31,13 @@ async function replicateCouch({ instanceId, clientId, credentials }) {
   await Promise.all(replications)
 }
 
-async function getCurrentInstanceQuota(instanceId) {
-  const db = new PouchDB(instanceId)
-  const records = await db.allDocs(
-    getRecordParams("", null, {
-      include_docs: true,
-    })
-  )
-  const existingRecords = records.rows.length
-
-  const designDoc = await db.get("_design/database")
-
-  return {
-    records: existingRecords,
-    views: Object.keys(designDoc.views).length,
-  }
-}
-
 exports.deployApp = async function(ctx) {
   try {
     const clientAppLookupDB = new PouchDB("client_app_lookup")
     const { clientId } = await clientAppLookupDB.get(ctx.user.appId)
 
-    const instanceQuota = await getCurrentInstanceQuota(ctx.user.instanceId)
-    const credentials = await verifyDeployment({
-      instanceId: ctx.user.instanceId,
-      appId: ctx.user.appId,
-      quota: instanceQuota,
-    })
-
     ctx.log.info(`Uploading assets for appID ${ctx.user.appId} assets to s3..`)
-
-    if (credentials.errors) {
-      ctx.throw(500, credentials.errors)
-      return
-    }
+    const credentials = await fetchTemporaryCredentials()
 
     await uploadAppAssets({
       clientId,
@@ -88,11 +53,6 @@ exports.deployApp = async function(ctx) {
       clientId,
       credentials: credentials.couchDbCreds,
     })
-
-    const deployedInstanceQuota = await getCurrentInstanceQuota(
-      ctx.user.instanceId
-    )
-    await updateDeploymentQuota(deployedInstanceQuota)
 
     ctx.body = {
       status: "SUCCESS",
