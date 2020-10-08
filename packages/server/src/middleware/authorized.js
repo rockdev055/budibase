@@ -16,7 +16,8 @@ module.exports = (permName, getItemId) => async (ctx, next) => {
   }
 
   if (ctx.user.accessLevel._id === BUILDER_LEVEL_ID) {
-    return next()
+    await next()
+    return
   }
 
   if (permName === BUILDER) {
@@ -27,7 +28,8 @@ module.exports = (permName, getItemId) => async (ctx, next) => {
   const permissionId = ({ name, itemId }) => name + (itemId ? `-${itemId}` : "")
 
   if (ctx.user.accessLevel._id === ADMIN_LEVEL_ID) {
-    return next()
+    await next()
+    return
   }
 
   const thisPermissionId = permissionId({
@@ -40,7 +42,8 @@ module.exports = (permName, getItemId) => async (ctx, next) => {
     ctx.user.accessLevel._id === POWERUSER_LEVEL_ID &&
     !adminPermissions.map(permissionId).includes(thisPermissionId)
   ) {
-    return next()
+    await next()
+    return
   }
 
   if (
@@ -48,7 +51,8 @@ module.exports = (permName, getItemId) => async (ctx, next) => {
       .map(permissionId)
       .includes(thisPermissionId)
   ) {
-    return next()
+    await next()
+    return
   }
 
   ctx.throw(403, "Not Authorized")

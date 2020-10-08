@@ -1,13 +1,11 @@
 const recordController = require("../../api/controllers/record")
 const automationUtils = require("../automationUtils")
-const environment = require("../../environment")
-const usage = require("../../utilities/usageQuota")
 
 module.exports.definition = {
-  name: "Create Row",
-  tagline: "Create a {{inputs.enriched.model.name}} row",
+  name: "Create Record",
+  tagline: "Create a {{inputs.enriched.model.name}} record",
   icon: "ri-save-3-fill",
-  description: "Add a row to your database",
+  description: "Create a record to your database",
   type: "ACTION",
   stepId: "CREATE_RECORD",
   inputs: {},
@@ -34,7 +32,7 @@ module.exports.definition = {
         record: {
           type: "object",
           customType: "record",
-          description: "The new row",
+          description: "The new record",
         },
         response: {
           type: "object",
@@ -46,11 +44,11 @@ module.exports.definition = {
         },
         id: {
           type: "string",
-          description: "The identifier of the new row",
+          description: "The identifier of the new record",
         },
         revision: {
           type: "string",
-          description: "The revision of the new row",
+          description: "The revision of the new record",
         },
       },
       required: ["success", "id", "revision"],
@@ -58,7 +56,7 @@ module.exports.definition = {
   },
 }
 
-module.exports.run = async function({ inputs, instanceId, apiKey }) {
+module.exports.run = async function({ inputs, instanceId }) {
   // TODO: better logging of when actions are missed due to missing parameters
   if (inputs.record == null || inputs.record.modelId == null) {
     return
@@ -80,9 +78,6 @@ module.exports.run = async function({ inputs, instanceId, apiKey }) {
   }
 
   try {
-    if (environment.CLOUD) {
-      await usage.update(apiKey, usage.Properties.RECORD, 1)
-    }
     await recordController.save(ctx)
     return {
       record: inputs.record,

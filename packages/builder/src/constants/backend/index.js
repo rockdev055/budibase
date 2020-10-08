@@ -1,22 +1,12 @@
 export const FIELDS = {
   STRING: {
-    name: "Text",
+    name: "Plain Text",
     icon: "ri-text",
     type: "string",
     constraints: {
       type: "string",
       length: {},
       presence: false,
-    },
-  },
-  OPTIONS: {
-    name: "Options",
-    icon: "ri-list-check-2",
-    type: "options",
-    constraints: {
-      type: "string",
-      presence: { allowEmpty: true },
-      inclusion: [],
     },
   },
   NUMBER: {
@@ -38,6 +28,15 @@ export const FIELDS = {
       presence: false,
     },
   },
+  // OPTIONS: {
+  //   name: "Options",
+  //   icon: "ri-list-check-2",
+  //   type: "options",
+  //   constraints: {
+  //     type: "string",
+  //     presence: { allowEmpty: true },
+  //   },
+  // },
   DATETIME: {
     name: "Date/Time",
     icon: "ri-calendar-event-fill",
@@ -61,15 +60,15 @@ export const FIELDS = {
       presence: false,
     },
   },
-  LINK: {
-    name: "Relationship",
-    icon: "ri-link",
-    type: "link",
-    constraints: {
-      type: "array",
-      presence: { allowEmpty: true },
-    },
-  },
+  // LINKED_FIELDS: {
+  //   name: "Linked Fields",
+  //   icon: "ri-link",
+  //   type: "link",
+  //   modelId: null,
+  //   constraints: {
+  //     type: "array",
+  //   },
+  // },
 }
 
 export const FILE_TYPES = {
