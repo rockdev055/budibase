@@ -153,24 +153,13 @@ const _saveScreen = async (store, s, screen) => {
   return s
 }
 
-const createScreen = store => (screenName, route, layoutComponentName) => {
+const createScreen = store => screen => {
   store.update(state => {
-    const rootComponent = state.components[layoutComponentName]
-
-    const newScreen = {
-      description: "",
-      url: "",
-      _css: "",
-      props: createProps(rootComponent).props,
-    }
-    newScreen.route = route
-    newScreen.name = newScreen.props._id
-    newScreen.props._instanceName = screenName || ""
-    state.currentPreviewItem = newScreen
-    state.currentComponentInfo = newScreen.props
+    state.currentPreviewItem = screen
+    state.currentComponentInfo = screen.props
     state.currentFrontEndType = "screen"
 
-    _saveScreen(store, state, newScreen)
+    _saveScreen(store, state, screen)
 
     return state
   })
