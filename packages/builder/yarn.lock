@@ -709,14 +709,13 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@budibase/bbui@^1.41.0":
-  version "1.41.0"
-  resolved "https://registry.yarnpkg.com/@budibase/bbui/-/bbui-1.41.0.tgz#cb239db3071a4a6c6f0ef48ddde55f5eab9808ce"
-  integrity sha512-pT5u6HDdXcylWgSE1TBt3jETg92GwgAXpUsBVqX+OUE/2lNbmThb8egAckpemHDvm91FAL0nApQYpV7c/qLzvw==
+"@budibase/bbui@^1.34.6":
+  version "1.34.6"
+  resolved "https://registry.yarnpkg.com/@budibase/bbui/-/bbui-1.34.6.tgz#d94a9c0af52244ded20dfcd7c93dbd6b184460dc"
+  integrity sha512-FLYKst1WDjQWpZPOm5w31M5mpdc4FZaHNT5UPyE+LTOtVJquUPycyS1Y/lhGjt/QjwP/Gn8wSvwwsD0gCNJvvg==
   dependencies:
     sirv-cli "^0.4.6"
     svelte-flatpickr "^2.4.0"
-    svelte-portal "^1.0.0"
 
 "@budibase/colorpicker@^1.0.1":
   version "1.0.1"
@@ -5845,15 +5844,14 @@ svelte-portal@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/svelte-portal/-/svelte-portal-0.1.0.tgz#cc2821cc84b05ed5814e0218dcdfcbebc53c1742"
 
-svelte-portal@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/svelte-portal/-/svelte-portal-1.0.0.tgz#36a47c5578b1a4d9b4dc60fa32a904640ec4cdd3"
-  integrity sha512-nHf+DS/jZ6jjnZSleBMSaZua9JlG5rZv9lOGKgJuaZStfevtjIlUJrkLc3vbV8QdBvPPVmvcjTlazAzfKu0v3Q==
+svelte-simple-modal@^0.4.2:
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/svelte-simple-modal/-/svelte-simple-modal-0.4.2.tgz#2cfe26ec8c0760b89813d65dfee836399620d6b2"
 
-svelte@^3.28.0:
-  version "3.29.0"
-  resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.29.0.tgz#80acac4254341ad8f3301e5ef03f4127ea967d96"
-  integrity sha512-f+A65eyOQ5ujETLy+igNXtlr6AEjAQLYd1yJE1VwNiXMQO5Z/Vmiy3rL+zblV/9jd7rtTTWqO1IcuXsP2Qv0OA==
+svelte@^3.24.1:
+  version "3.25.1"
+  resolved "https://registry.yarnpkg.com/svelte/-/svelte-3.25.1.tgz#218def1243fea5a97af6eb60f5e232315bb57ac4"
+  integrity sha512-IbrVKTmuR0BvDw4ii8/gBNy8REu7nWTRy9uhUz+Yuae5lIjWgSGwKlWtJGC2Vg95s+UnXPqDu0Kk/sUwe0t2GQ==
 
 symbol-observable@^1.1.0:
   version "1.2.0"

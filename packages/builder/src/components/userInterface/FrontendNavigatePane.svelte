@@ -1,25 +1,57 @@
 <script>
-  import { store } from "builderStore"
+  import { store, backendUiStore } from "builderStore"
   import ComponentsHierarchy from "components/userInterface/ComponentsHierarchy.svelte"
   import PageLayout from "components/userInterface/PageLayout.svelte"
   import PagesList from "components/userInterface/PagesList.svelte"
-  import NewScreenModal from "components/userInterface/NewScreenModal.svelte"
-  import { Button, Spacer, Modal } from "@budibase/bbui"
+  import NewScreen from "components/userInterface/CreateScreen/NewScreen.svelte"
 
-  let modal
+  const newScreen = () => {
+    newScreenPicker.show()
+  }
+
+  let newScreenPicker
 </script>
 
 <PagesList />
 
-<Spacer medium />
-<Button primary wide on:click={modal.show}>Create New Screen</Button>
-<Spacer medium />
+<button class="newscreen" on:click={newScreen}>Create New Screen</button>
+
 <PageLayout layout={$store.pages[$store.currentPageName]} />
 
 <div class="nav-items-container">
   <ComponentsHierarchy screens={$store.screens} />
 </div>
 
-<Modal bind:this={modal}>
-  <NewScreenModal />
-</Modal>
+<NewScreen bind:this={newScreenPicker} />
+
+<style>
+  .newscreen {
+    cursor: pointer;
+    border: 1px solid var(--purple);
+    border-radius: 5px;
+    width: 100%;
+    height: 36px;
+    padding: 8px 16px;
+    margin: 20px 0px 12px 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--purple);
+    color: var(--white);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 3ms;
+    outline: none;
+  }
+
+  .newscreen:hover {
+    background: var(--purple-light);
+    color: var(--purple);
+  }
+
+  .icon {
+    color: var(--ink);
+    font-size: 16px;
+    margin-right: 4px;
+  }
+</style>

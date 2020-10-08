@@ -1,4 +1,5 @@
 <script>
+  import { MoreIcon } from "components/common/Icons"
   import { store } from "builderStore"
   import { getComponentDefinition } from "builderStore/storeUtils"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
@@ -68,18 +69,8 @@
   }
 
   const copyComponent = () => {
-    store.update(s => {
-      const parent = getParent(s.currentPreviewItem.props, component)
-      const copiedComponent = cloneDeep(component)
-      walkProps(copiedComponent, p => {
-        p._id = uuid()
-      })
-      parent._children = [...parent._children, copiedComponent]
-      saveCurrentPreviewItem(s)
-      s.currentComponentInfo = copiedComponent
-      regenerateCssForCurrentScreen(s)
-      return s
-    })
+    storeComponentForCopy(false)
+    pasteComponent("below")
   }
 
   const deleteComponent = () => {
@@ -108,9 +99,9 @@
 </script>
 
 <div bind:this={anchor} on:click|stopPropagation={() => {}}>
-  <div class="icon" on:click={dropdown.show}>
-    <i class="ri-more-line" />
-  </div>
+  <button on:click={dropdown.show}>
+    <MoreIcon />
+  </button>
 </div>
 <DropdownMenu
   class="menu"
@@ -121,27 +112,27 @@
   align="left">
   <ul>
     <li class="item" on:click={() => confirmDeleteDialog.show()}>
-      <i class="ri-delete-bin-2-line" />
+      <i class="icon ri-delete-bin-2-line" />
       Delete
     </li>
     <li class="item" on:click={moveUpComponent}>
-      <i class="ri-arrow-up-line" />
+      <i class="icon ri-arrow-up-line" />
       Move up
     </li>
     <li class="item" on:click={moveDownComponent}>
-      <i class="ri-arrow-down-line" />
+      <i class="icon ri-arrow-down-line" />
       Move down
     </li>
     <li class="item" on:click={copyComponent}>
-      <i class="ri-repeat-one-line" />
+      <i class="icon ri-repeat-one-line" />
       Duplicate
     </li>
     <li class="item" on:click={() => storeComponentForCopy(true)}>
-      <i class="ri-scissors-cut-line" />
+      <i class="icon ri-scissors-cut-line" />
       Cut
     </li>
     <li class="item" on:click={() => storeComponentForCopy(false)}>
-      <i class="ri-file-copy-line" />
+      <i class="icon ri-file-copy-line" />
       Copy
     </li>
     <hr class="hr-style" />
@@ -149,21 +140,21 @@
       class="item"
       class:disabled={noPaste}
       on:click={() => pasteComponent('above')}>
-      <i class="ri-insert-row-top" />
+      <i class="icon ri-insert-row-top" />
       Paste above
     </li>
     <li
       class="item"
       class:disabled={noPaste}
       on:click={() => pasteComponent('below')}>
-      <i class="ri-insert-row-bottom" />
+      <i class="icon ri-insert-row-bottom" />
       Paste below
     </li>
     <li
       class="item"
       class:disabled={noPaste || noChildrenAllowed}
       on:click={() => pasteComponent('inside')}>
-      <i class="ri-insert-column-right" />
+      <i class="icon ri-insert-column-right" />
       Paste inside
     </li>
   </ul>
@@ -180,7 +171,7 @@
   ul {
     list-style: none;
     padding: 0;
-    margin: var(--spacing-s) 0;
+    margin: 0;
   }
 
   li {
@@ -189,27 +180,42 @@
     font-size: var(--font-size-xs);
     color: var(--ink);
     padding: var(--spacing-s) var(--spacing-m);
-    margin: auto 0;
+    margin: auto 0px;
     align-items: center;
     cursor: pointer;
   }
-  li:not(.disabled):hover {
+
+  button {
+    border-style: none;
+    border-radius: 2px;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+    color: var(--ink);
+    outline: none;
+  }
+
+  li:hover {
     background-color: var(--grey-2);
   }
+
   li:active {
     color: var(--blue);
   }
-  li i {
-    margin-right: 8px;
-    font-size: var(--font-size-s);
-  }
-  li.disabled {
-    color: var(--grey-4);
-    cursor: default;
+
+  .item {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
   }
 
-  .icon i {
-    font-size: 16px;
+  .icon {
+    margin-right: 8px;
+  }
+
+  .disabled {
+    color: var(--grey-4);
+    cursor: default;
   }
 
   .hr-style {

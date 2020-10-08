@@ -8,12 +8,7 @@
   let store = _bb.store
   let target
 
-  async function fetchModel(id) {
-    const FETCH_MODEL_URL = `/api/models/${id}`
-    const response = await _bb.api.get(FETCH_MODEL_URL)
-    return await response.json()
-  }
-
+  // this function should only get called when in builder preview mode
   async function fetchFirstRecord() {
     const FETCH_RECORDS_URL = `/api/views/all_${model}`
     const response = await _bb.api.get(FETCH_RECORDS_URL)
@@ -30,30 +25,22 @@
     // if srcdoc, then we assume this is the builder preview
     if (pathParts.length === 0 || pathParts[0] === "srcdoc") {
       record = await fetchFirstRecord()
-    } else {
-      const id = pathParts[pathParts.length - 1]
-      const GET_RECORD_URL = `/api/${model}/records/${id}`
+    } else if (_bb.routeParams().id) {
+      const GET_RECORD_URL = `/api/${model}/records/${_bb.routeParams().id}`
       const response = await _bb.api.get(GET_RECORD_URL)
       if (response.status === 200) {
         record = await response.json()
+      } else {
+        throw new Error("Failed to fetch record.", response)
       }
+    } else {
+      throw new Exception("Record ID was not supplied to RecordDetail")
     }
 
     if (record) {
-      // Fetch model schema so we can check for linked records
-      const model = await fetchModel(record.modelId)
-      for (let key of Object.keys(model.schema)) {
-        if (model.schema[key].type === "link") {
-          record[key] = Array.isArray(record[key]) ? record[key].length : 0
-        }
-      }
-
       _bb.attachChildren(target, {
-        hydrate: false,
         context: record,
       })
-    } else {
-      throw new Error("Failed to fetch record.", response)
     }
   }
 
