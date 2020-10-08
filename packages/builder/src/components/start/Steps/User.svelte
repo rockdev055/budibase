@@ -21,7 +21,7 @@
     placeholder="Password"
     type="password"
     error={blurred.password && validationErrors.password} />
-  <Select label="Access Level" secondary name="accessLevelId">
+  <Select secondary name="accessLevelId">
     <option value="ADMIN">Admin</option>
     <option value="POWER_USER">Power User</option>
   </Select>
@@ -30,6 +30,6 @@
 <style>
   .container {
     display: grid;
-    grid-gap: var(--spacing-xl);
+    grid-gap: 40px;
   }
 </style>

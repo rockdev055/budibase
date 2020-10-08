@@ -153,19 +153,30 @@ const _saveScreen = async (store, s, screen) => {
   return s
 }
 
-const createScreen = store => (screenName, route, layoutComponentName) => {
+const createScreen = store => ({
+  screenName,
+  route,
+  baseComponent,
+  screen,
+}) => {
   store.update(state => {
-    const rootComponent = state.components[layoutComponentName]
+    const rootComponent =
+      state.components[
+        baseComponent || "@budibase/standard-components/container"
+      ]
 
-    const newScreen = {
+    const newScreen = screen || {
       description: "",
       url: "",
       _css: "",
       props: createProps(rootComponent).props,
+      route,
     }
-    newScreen.route = route
     newScreen.name = newScreen.props._id
-    newScreen.props._instanceName = screenName || ""
+    if (screenName) {
+      newScreen.props._instanceName = screenName
+    }
+
     state.currentPreviewItem = newScreen
     state.currentComponentInfo = newScreen.props
     state.currentFrontEndType = "screen"

@@ -14,7 +14,7 @@
     bind:value={user.username}
     name="Name"
     placeholder="Username" />
-  <Select disabled={!editMode} bind:value={user.accessLevelId} thin secondary>
+  <Select disabled={!editMode} bind:value={user.accessLevelId} thin>
     <option value="">Choose an option</option>
     <option value="ADMIN">Admin</option>
     <option value="POWER_USER">Power User</option>
@@ -37,7 +37,19 @@
   .inputs {
     display: grid;
     justify-items: stretch;
-    grid-gap: var(--spacing-m);
-    grid-template-columns: 1fr 1fr 140px;
+    grid-gap: 18px;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+  .inputs :global(input) {
+    padding: 10px 12px;
+    border-radius: var(--rounded-small);
+  }
+  .inputs :global(select) {
+    padding: 9px 12px;
+    border-radius: var(--rounded-small);
+  }
+  .inputs :global(button) {
+    border-radius: var(--rounded-small);
+    height: initial;
   }
 </style>
