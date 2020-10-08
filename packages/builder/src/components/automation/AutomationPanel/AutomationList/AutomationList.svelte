@@ -1,12 +1,24 @@
 <script>
-  import { onMount } from "svelte"
-  import { automationStore } from "builderStore"
+  import Modal from "svelte-simple-modal"
+  import { notifier } from "builderStore/store/notifications"
+  import { onMount, getContext } from "svelte"
+  import { backendUiStore, automationStore } from "builderStore"
   import CreateAutomationModal from "./CreateAutomationModal.svelte"
-  import { Button, Modal } from "@budibase/bbui"
+  import { Button } from "@budibase/bbui"
 
-  let modal
+  const { open, close } = getContext("simple-modal")
 
   $: selectedAutomationId = $automationStore.selectedAutomation?.automation?._id
+
+  function newAutomation() {
+    open(
+      CreateAutomationModal,
+      {
+        onClosed: close,
+      },
+      { styleContent: { padding: "0" } }
+    )
+  }
 
   onMount(() => {
     automationStore.actions.fetch()
@@ -14,7 +26,7 @@
 </script>
 
 <section>
-  <Button primary wide on:click={modal.show}>Create New Automation</Button>
+  <Button purple wide on:click={newAutomation}>Create New Automation</Button>
   <ul>
     {#each $automationStore.automations as automation}
       <li
@@ -27,9 +39,6 @@
     {/each}
   </ul>
 </section>
-<Modal bind:this={modal}>
-  <CreateAutomationModal />
-</Modal>
 
 <style>
   section {
@@ -48,7 +57,7 @@
     color: var(--grey-6);
   }
   i.live {
-    color: var(--ink);
+    color: var(--purple);
   }
 
   li {

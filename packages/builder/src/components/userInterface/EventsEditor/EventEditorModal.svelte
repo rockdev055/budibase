@@ -1,12 +1,6 @@
 <script>
   import { store } from "builderStore"
-  import {
-    TextButton,
-    Button,
-    Body,
-    DropdownMenu,
-    ModalContent,
-  } from "@budibase/bbui"
+  import { TextButton, Button, Heading, DropdownMenu } from "@budibase/bbui"
   import { AddIcon, ArrowDownIcon } from "components/common/Icons/"
   import { EVENT_TYPE_MEMBER_NAME } from "../../common/eventHandlers"
   import actionTypes from "./actions"
@@ -27,6 +21,12 @@
     selectedAction &&
     actionTypes.find(t => t.name === selectedAction[EVENT_TYPE_MEMBER_NAME])
       .component
+
+  const closeModal = () => {
+    dispatch("close")
+    draftEventHandler = { parameters: [] }
+    actions = []
+  }
 
   const updateEventHandler = (updatedHandler, index) => {
     actions[index] = updatedHandler
@@ -54,17 +54,20 @@
 
   const saveEventData = () => {
     dispatch("change", actions)
+    closeModal()
   }
 </script>
 
-<ModalContent title="Actions" confirmText="Save" onConfirm={saveEventData}>
-  <div slot="header">
+<div class="root">
+
+  <div class="header">
+    <Heading small dark>Actions</Heading>
     <div bind:this={addActionButton}>
       <TextButton text small blue on:click={addActionDropdown.show}>
+        Add Action
         <div style="height: 20px; width: 20px;">
           <AddIcon />
         </div>
-        Add Action
       </TextButton>
     </div>
     <DropdownMenu
@@ -86,7 +89,11 @@
       {#each actions as action, index}
         <div class="action-container">
           <div class="action-header" on:click={selectAction(action)}>
-            <Body small lh>{index + 1}. {action[EVENT_TYPE_MEMBER_NAME]}</Body>
+            <p
+              class="bb-body bb-body--small bb-body--color-dark"
+              style="margin: var(--spacing-s) 0;">
+              {index + 1}. {action[EVENT_TYPE_MEMBER_NAME]}
+            </p>
             <div class="row-expander" class:rotate={action !== selectedAction}>
               <ArrowDownIcon />
             </div>
@@ -108,12 +115,30 @@
     {/if}
   </div>
 
-  <div slot="footer">
+  <div class="footer">
     <a href="https://docs.budibase.com">Learn more about Actions</a>
+    <Button secondary on:click={closeModal}>Cancel</Button>
+    <Button primary on:click={saveEventData}>Save</Button>
   </div>
-</ModalContent>
+</div>
 
 <style>
+  .root {
+    max-height: 50vh;
+    width: 700px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-xl);
+    padding-bottom: 0;
+  }
+
   .action-header {
     display: flex;
     flex-direction: row;
@@ -141,7 +166,8 @@
 
   .actions-container {
     flex: 1;
-    min-height: 0;
+    min-height: 0px;
+    padding-bottom: var(--spacing-s);
     padding-top: 0;
     border: var(--border-light);
     border-width: 0 0 1px 0;
@@ -151,6 +177,10 @@
   .action-container {
     border: var(--border-light);
     border-width: 1px 0 0 0;
+    padding-left: var(--spacing-xl);
+    padding-right: var(--spacing-xl);
+    padding-top: 0;
+    padding-bottom: 0;
   }
 
   .selected-action-container {
@@ -165,13 +195,22 @@
     flex-direction: row;
   }
 
-  a {
+  .footer {
+    display: flex;
+    flex-direction: row;
+    gap: var(--spacing-s);
+    padding: var(--spacing-xl);
+    padding-top: var(--spacing-m);
+  }
+
+  .footer > a {
     flex: 1;
     color: var(--grey-5);
     font-size: var(--font-size-s);
     text-decoration: none;
   }
-  a:hover {
+
+  .footer > a:hover {
     color: var(--blue);
   }
 
