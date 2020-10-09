@@ -1,15 +1,10 @@
 const CouchDB = require("../../db")
 const validateJs = require("validate.js")
 const linkRecords = require("../../db/linkedRecords")
-const {
-  getRecordParams,
-  generateRecordID,
-  DocumentTypes,
-  SEPARATOR,
-} = require("../../db/utils")
+const { getRecordParams, generateRecordID } = require("../../db/utils")
 const { cloneDeep } = require("lodash")
 
-const MODEL_VIEW_BEGINS_WITH = `all${SEPARATOR}${DocumentTypes.MODEL}${SEPARATOR}`
+const MODEL_VIEW_BEGINS_WITH = "all_model:"
 
 validateJs.extend(validateJs.validators.datetime, {
   parse: function(value) {
