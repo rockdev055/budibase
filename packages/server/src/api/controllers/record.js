@@ -7,16 +7,16 @@ const { cloneDeep } = require("lodash")
 const MODEL_VIEW_BEGINS_WITH = "all_model:"
 
 validateJs.extend(validateJs.validators.datetime, {
-  parse: function (value) {
+  parse: function(value) {
     return new Date(value).getTime()
   },
   // Input is a unix timestamp
-  format: function (value) {
+  format: function(value) {
     return new Date(value).toISOString()
   },
 })
 
-exports.patch = async function (ctx) {
+exports.patch = async function(ctx) {
   const instanceId = ctx.user.instanceId
   const db = new CouchDB(instanceId)
   let record = await db.get(ctx.params.id)
@@ -62,15 +62,67 @@ exports.patch = async function (ctx) {
   ctx.message = `${model.name} updated successfully.`
 }
 
-exports.save = async function (ctx) {
-  if (ctx.request.body.type === 'delete') {
-    await bulkDelete(ctx)
-  } else {
-    await saveRecords(ctx)
+exports.save = async function(ctx) {
+  const instanceId = ctx.user.instanceId
+  const db = new CouchDB(instanceId)
+  let record = ctx.request.body
+  record.modelId = ctx.params.modelId
+
+  if (!record._rev && !record._id) {
+    record._id = generateRecordID(record.modelId)
   }
+
+  const model = await db.get(record.modelId)
+
+  record = coerceRecordValues(record, model)
+
+  const validateResult = await validate({
+    record,
+    model,
+  })
+
+  if (!validateResult.valid) {
+    ctx.status = 400
+    ctx.body = {
+      status: 400,
+      errors: validateResult.errors,
+    }
+    return
+  }
+
+  const existingRecord = record._rev && (await db.get(record._id))
+
+  // make sure link records are up to date
+  record = await linkRecords.updateLinks({
+    instanceId,
+    eventType: linkRecords.EventType.RECORD_SAVE,
+    record,
+    modelId: record.modelId,
+    model,
+  })
+
+  if (existingRecord) {
+    const response = await db.put(record)
+    record._rev = response.rev
+    record.type = "record"
+    ctx.body = record
+    ctx.status = 200
+    ctx.message = `${model.name} updated successfully.`
+    return
+  }
+
+  record.type = "record"
+  const response = await db.post(record)
+  record._rev = response.rev
+
+  ctx.eventEmitter &&
+    ctx.eventEmitter.emitRecord(`record:save`, instanceId, record, model)
+  ctx.body = record
+  ctx.status = 200
+  ctx.message = `${model.name} created successfully`
 }
 
-exports.fetchView = async function (ctx) {
+exports.fetchView = async function(ctx) {
   const instanceId = ctx.user.instanceId
   const db = new CouchDB(instanceId)
   const { stats, group, field } = ctx.query
@@ -102,7 +154,7 @@ exports.fetchView = async function (ctx) {
   ctx.body = await linkRecords.attachLinkInfo(instanceId, response.rows)
 }
 
-exports.fetchModelRecords = async function (ctx) {
+exports.fetchModelRecords = async function(ctx) {
   const instanceId = ctx.user.instanceId
   const db = new CouchDB(instanceId)
   const response = await db.allDocs(
@@ -117,7 +169,7 @@ exports.fetchModelRecords = async function (ctx) {
   )
 }
 
-exports.search = async function (ctx) {
+exports.search = async function(ctx) {
   const instanceId = ctx.user.instanceId
   const db = new CouchDB(instanceId)
   const response = await db.allDocs({
@@ -130,7 +182,7 @@ exports.search = async function (ctx) {
   )
 }
 
-exports.find = async function (ctx) {
+exports.find = async function(ctx) {
   const instanceId = ctx.user.instanceId
   const db = new CouchDB(instanceId)
   const record = await db.get(ctx.params.recordId)
@@ -141,7 +193,7 @@ exports.find = async function (ctx) {
   ctx.body = await linkRecords.attachLinkInfo(instanceId, record)
 }
 
-exports.destroy = async function (ctx) {
+exports.destroy = async function(ctx) {
   const instanceId = ctx.user.instanceId
   const db = new CouchDB(instanceId)
   const record = await db.get(ctx.params.recordId)
@@ -164,7 +216,7 @@ exports.destroy = async function (ctx) {
     ctx.eventEmitter.emitRecord(`record:delete`, instanceId, record)
 }
 
-exports.validate = async function (ctx) {
+exports.validate = async function(ctx) {
   const errors = await validate({
     instanceId: ctx.user.instanceId,
     modelId: ctx.params.modelId,
@@ -190,7 +242,7 @@ async function validate({ instanceId, modelId, record, model }) {
   return { valid: Object.keys(errors).length === 0, errors }
 }
 
-exports.fetchEnrichedRecord = async function (ctx) {
+exports.fetchEnrichedRecord = async function(ctx) {
   const instanceId = ctx.user.instanceId
   const db = new CouchDB(instanceId)
   const modelId = ctx.params.modelId
@@ -249,83 +301,6 @@ function coerceRecordValues(rec, model) {
     }
   }
   return record
-}
-
-
-async function bulkDelete(ctx) {
-  const { records } = ctx.request.body
-  const db = new CouchDB(ctx.user.instanceId)
-
-  await db.bulkDocs(
-    records.map(record => ({ ...record, _deleted: true }), (err, res) => {
-      if (err) {
-        ctx.status = 500
-      } else {
-        records.forEach(record => {
-          emitEvent(`record:delete`, ctx, record)
-        })
-        ctx.status = 200
-      }
-    }))
-}
-async function saveRecords(ctx) {
-  const instanceId = ctx.user.instanceId
-  const db = new CouchDB(instanceId)
-  let record = ctx.request.body
-  record.modelId = ctx.params.modelId
-
-  if (!record._rev && !record._id) {
-    record._id = generateRecordID(record.modelId)
-  }
-
-  const model = await db.get(record.modelId)
-
-  record = coerceRecordValues(record, model)
-
-  const validateResult = await validate({
-    record,
-    model,
-  })
-
-  if (!validateResult.valid) {
-    ctx.status = 400
-    ctx.body = {
-      status: 400,
-      errors: validateResult.errors,
-    }
-    return
-  }
-
-  const existingRecord = record._rev && (await db.get(record._id))
-
-  // make sure link records are up to date
-  record = await linkRecords.updateLinks({
-    instanceId,
-    eventType: linkRecords.EventType.RECORD_SAVE,
-    record,
-    modelId: record.modelId,
-    model,
-  })
-
-  if (existingRecord) {
-    const response = await db.put(record)
-    record._rev = response.rev
-    record.type = "record"
-    ctx.body = record
-    ctx.status = 200
-    ctx.message = `${model.name} updated successfully.`
-    return
-  }
-
-  record.type = "record"
-  const response = await db.post(record)
-  record._rev = response.rev
-
-  ctx.eventEmitter &&
-    ctx.eventEmitter.emitRecord(`record:save`, instanceId, record, model)
-  ctx.body = record
-  ctx.status = 200
-  ctx.message = `${model.name} created successfully`
 }
 
 const TYPE_TRANSFORM_MAP = {
