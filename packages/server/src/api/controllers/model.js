@@ -33,9 +33,17 @@ exports.save = async function(ctx) {
     views: {},
     ...rest,
   }
-
-  // if the model obj had an _id then it will have been retrieved
-  const oldModel = ctx.preExisting
+  // get the model in its previous state for differencing
+  let oldModel
+  let oldModelId = ctx.request.body._id
+  if (oldModelId) {
+    // if it errors then the oldModelId is invalid - can't diff it
+    try {
+      oldModel = await db.get(oldModelId)
+    } catch (err) {
+      oldModel = null
+    }
+  }
 
   // rename record fields when table column is renamed
   const { _rename } = modelToSave

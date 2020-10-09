@@ -1,20 +1,18 @@
 const newid = require("./newid")
 
-const UNICODE_MAX = "\ufff0"
-const SEPARATOR = "_"
-
 const DocumentTypes = {
-  MODEL: "mo",
-  RECORD: "re",
-  USER: "us",
-  AUTOMATION: "au",
-  LINK: "li",
+  MODEL: "model",
+  RECORD: "record",
+  USER: "user",
+  AUTOMATION: "automation",
+  LINK: "link",
   APP: "app",
-  ACCESS_LEVEL: "ac",
+  ACCESS_LEVEL: "accesslevel",
 }
 
 exports.DocumentTypes = DocumentTypes
-exports.SEPARATOR = SEPARATOR
+
+const UNICODE_MAX = "\ufff0"
 
 /**
  * If creating DB allDocs/query params with only a single top level ID this can be used, this
@@ -34,8 +32,8 @@ function getDocParams(docType, docId = null, otherProps = {}) {
   }
   return {
     ...otherProps,
-    startkey: `${docType}${SEPARATOR}${docId}`,
-    endkey: `${docType}${SEPARATOR}${docId}${UNICODE_MAX}`,
+    startkey: `${docType}:${docId}`,
+    endkey: `${docType}:${docId}${UNICODE_MAX}`,
   }
 }
 
@@ -51,7 +49,7 @@ exports.getModelParams = (modelId = null, otherProps = {}) => {
  * @returns {string} The new model ID which the model doc can be stored under.
  */
 exports.generateModelID = () => {
-  return `${DocumentTypes.MODEL}${SEPARATOR}${newid()}`
+  return `${DocumentTypes.MODEL}:${newid()}`
 }
 
 /**
@@ -66,10 +64,7 @@ exports.getRecordParams = (modelId, recordId = null, otherProps = {}) => {
   if (modelId == null) {
     throw "Cannot build params for records without a model ID"
   }
-  const endOfKey =
-    recordId == null
-      ? `${modelId}${SEPARATOR}`
-      : `${modelId}${SEPARATOR}${recordId}`
+  const endOfKey = recordId == null ? `${modelId}:` : `${modelId}:${recordId}`
   return getDocParams(DocumentTypes.RECORD, endOfKey, otherProps)
 }
 
@@ -79,7 +74,7 @@ exports.getRecordParams = (modelId, recordId = null, otherProps = {}) => {
  * @returns {string} The new ID which a record doc can be stored under.
  */
 exports.generateRecordID = modelId => {
-  return `${DocumentTypes.RECORD}${SEPARATOR}${modelId}${SEPARATOR}${newid()}`
+  return `${DocumentTypes.RECORD}:${modelId}:${newid()}`
 }
 
 /**
@@ -95,7 +90,7 @@ exports.getUserParams = (username = null, otherProps = {}) => {
  * @returns {string} The new user ID which the user doc can be stored under.
  */
 exports.generateUserID = username => {
-  return `${DocumentTypes.USER}${SEPARATOR}${username}`
+  return `${DocumentTypes.USER}:${username}`
 }
 
 /**
@@ -110,7 +105,7 @@ exports.getAutomationParams = (automationId = null, otherProps = {}) => {
  * @returns {string} The new automation ID which the automation doc can be stored under.
  */
 exports.generateAutomationID = () => {
-  return `${DocumentTypes.AUTOMATION}${SEPARATOR}${newid()}`
+  return `${DocumentTypes.AUTOMATION}:${newid()}`
 }
 
 /**
@@ -123,7 +118,7 @@ exports.generateAutomationID = () => {
  * @returns {string} The new link doc ID which the automation doc can be stored under.
  */
 exports.generateLinkID = (modelId1, modelId2, recordId1, recordId2) => {
-  return `${DocumentTypes.AUTOMATION}${SEPARATOR}${modelId1}${SEPARATOR}${modelId2}${SEPARATOR}${recordId1}${SEPARATOR}${recordId2}`
+  return `${DocumentTypes.AUTOMATION}:${modelId1}:${modelId2}:${recordId1}:${recordId2}`
 }
 
 /**
@@ -131,7 +126,7 @@ exports.generateLinkID = (modelId1, modelId2, recordId1, recordId2) => {
  * @returns {string} The new app ID which the app doc can be stored under.
  */
 exports.generateAppID = () => {
-  return `${DocumentTypes.APP}${SEPARATOR}${newid()}`
+  return `${DocumentTypes.APP}:${newid()}`
 }
 
 /**
@@ -146,7 +141,7 @@ exports.getAppParams = (appId = null, otherProps = {}) => {
  * @returns {string} The new access level ID which the access level doc can be stored under.
  */
 exports.generateAccessLevelID = () => {
-  return `${DocumentTypes.ACCESS_LEVEL}${SEPARATOR}${newid()}`
+  return `${DocumentTypes.ACCESS_LEVEL}:${newid()}`
 }
 
 /**
