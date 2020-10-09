@@ -314,29 +314,6 @@ export default {
           children: [],
         },
         {
-          name: "Grid",
-          _component: "@budibase/standard-components/datagrid",
-          description: "a datagrid component with functionality to add, remove and edit rows.",
-          icon: "ri-file-list-line",
-          properties: {
-            design: { ...all },
-            settings: [
-              {
-                label: "Source",
-                key: "datasource",
-                control: ModelViewSelect,
-              },
-              {
-                label: "Editable",
-                key: "editable",
-                valueKey: "checked",
-                control: Checkbox,
-              },
-            ],
-          },
-          children: [],
-        },
-        {
           _component: "@budibase/standard-components/stackedlist",
           name: "Stacked List",
           description:
@@ -606,23 +583,7 @@ export default {
               icon: "ri-file-edit-line",
               properties: {
                 design: { ...all },
-                settings: [
-                  {
-                    label: "Table",
-                    key: "model",
-                    control: ModelSelect,
-                  },
-                  {
-                    label: "Title",
-                    key: "title",
-                    control: Input,
-                  },
-                  {
-                    label: "Button Text",
-                    key: "buttonText",
-                    control: Input,
-                  },
-                ],
+                settings: [],
               },
             },
             {
@@ -631,23 +592,7 @@ export default {
               icon: "ri-file-edit-line",
               properties: {
                 design: { ...all },
-                settings: [
-                  {
-                    label: "Table",
-                    key: "model",
-                    control: ModelSelect,
-                  },
-                  {
-                    label: "Title",
-                    key: "title",
-                    control: Input,
-                  },
-                  {
-                    label: "Button Text",
-                    key: "buttonText",
-                    control: Input,
-                  },
-                ],
+                settings: [],
               },
             },
           ],
@@ -1152,6 +1097,18 @@ export default {
           _component: "@budibase/standard-components/recorddetail",
           description:
             "Loads a record, using an id from the URL, which can be used with {{ context }}, in children",
+          icon: "ri-profile-line",
+          properties: {
+            design: { ...all },
+            settings: [{ label: "Table", key: "model", control: ModelSelect }],
+          },
+          children: [],
+        },
+        {
+          name: "Record Detail",
+          _component: "@budibase/standard-components/newrecord",
+          description:
+            "Sets up a new record for creation, which can be used with {{ context }}, in children",
           icon: "ri-profile-line",
           properties: {
             design: { ...all },

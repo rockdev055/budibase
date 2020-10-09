@@ -13,7 +13,7 @@
     "dev:builder": "rollup -cw"
   },
   "devDependencies": {
-    "@budibase/client": "^0.1.25",
+    "@budibase/client": "^0.2.0",
     "@rollup/plugin-commonjs": "^11.1.0",
     "lodash": "^4.17.15",
     "rollup": "^2.11.2",
@@ -26,20 +26,18 @@
     "rollup-plugin-terser": "^7.0.2",
     "shortid": "^2.2.15",
     "sirv-cli": "^0.4.4",
-    "svelte": "^3.28.0"
+    "svelte": "^3.29.0"
   },
   "keywords": [
     "svelte"
   ],
-  "version": "0.1.25",
+  "version": "0.2.0",
   "license": "MIT",
   "gitHead": "284cceb9b703c38566c6e6363c022f79a08d5691",
   "dependencies": {
     "@beyonk/svelte-googlemaps": "^2.2.0",
     "@budibase/bbui": "^1.41.0",
-    "@budibase/svelte-ag-grid": "^0.0.11",
     "@fortawesome/fontawesome-free": "^5.14.0",
-    "@svelteschool/svelte-forms": "^0.7.0",
     "britecharts": "^2.16.1",
     "d3-selection": "^1.4.2",
     "fast-sort": "^2.2.0",

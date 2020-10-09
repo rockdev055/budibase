@@ -199,15 +199,9 @@
 	"icon": {
 		"description": "A HTML icon tag",
 		"props": {
-			"icon": "string",
-			"size": {
-				"type": "string",
-				"default": "fa-lg"
-			},
-			"color": {
-				"type": "string",
-				"default": "#000"
-			}
+			"icon": "string",	
+			"size": {"type": "string", "default": "fa-lg"},
+			"color": {"type": "string", "default": "#000"}
 		}
 	},
 	"datatable": {
@@ -221,31 +215,15 @@
 			"color": "string"
 		}
 	},
-	"datagrid": {
-		"description": "a datagrid component with functionality to add, remove and edit rows.",
-		"data": true,
-		"props": {
-			"datasource": "models",
-			"editable": "bool"
-		}
-	},
 	"dataform": {
 		"description": "an HTML table that fetches data from a table or view and displays it.",
 		"data": true,
-		"props": {
-			"model": "models",
-			"title": "string",
-			"buttonText": "string"
-		}
+		"props": {}
 	},
 	"dataformwide": {
 		"description": "an HTML table that fetches data from a table or view and displays it.",
 		"data": true,
-		"props": {
-			"model": "models",
-			"title": "string",
-			"buttonText": "string"
-		}
+		"props": {}
 	},
 	"datalist": {
 		"description": "A configurable data list that attaches to your backend models.",
@@ -288,6 +266,17 @@
 		"context": "model",
 		"children": true,
 		"data": true,
+		"baseComponent": true,
+		"props": {
+			"model": "models"
+		}
+	},
+	"newrecord": {
+		"description": "Prepares a new record for creation",
+		"context": "model",
+		"children": true,
+		"data": true,
+		"baseComponent": true,
 		"props": {
 			"model": "models"
 		}
@@ -549,34 +538,19 @@
 			"height": "number",
 			"axisTimeCombinations": "string",
 			"color": "string",
-			"grid": {
-				"type": "string",
-				"default": "horizontal"
-			},
+			"grid": {"type":"string", "default": "horizontal"},
 			"aspectRatio": "number",
 			"dateLabel": "string",
-			"isAnimated": {
-				"type": "bool",
-				"default": true
-			},
+			"isAnimated": {"type": "bool", "default": true},
 			"lineCurve": "string",
 			"locale": "string",
 			"numberFormat": "string",
-			"shouldShowAllDataPoints": {
-				"type": "bool",
-				"default": true
-			},
+			"shouldShowAllDataPoints": {"type": "bool", "default": true},
 			"topicLabel": "string",
 			"valueLabel": "string",
-			"xAxisValueType": {
-				"type": "string",
-				"default": "date"
-			},
+			"xAxisValueType": {"type":"string", "default": "date"},
 			"xAxisScale": "string",
-			"xAxisFormat": {
-				"type": "string",
-				"default": "custom"
-			},
+			"xAxisFormat": {"type":"string", "default": "custom"},
 			"xAxisCustomFormat": "string",
 			"xAxisLabel": "string",
 			"yAxisLabel": "string",
@@ -744,7 +718,7 @@
 				"default": "div"
 			}
 		},
-		"container": true,
+		"baseComponent": true,
 		"tags": [
 			"div",
 			"container",
