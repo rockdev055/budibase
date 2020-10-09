@@ -1,5 +1,5 @@
 const fs = require("fs")
-const { join } = require("../../utilities/centralPath")
+const { join } = require("../../utilities/sanitisedPath")
 const readline = require("readline")
 const { budibaseAppsDir } = require("../../utilities/budibaseDir")
 const ENV_FILE_PATH = "/.env"

@@ -2,31 +2,31 @@
   import { onMount } from "svelte"
 
   export let _bb
-  export let table
+  export let model
   export let layout = "list"
 
   let headers = []
   let store = _bb.store
 
   async function fetchData() {
-    if (!table || !table.length) return
+    if (!model || !model.length) return
 
-    const FETCH_ROWS_URL = `/api/views/all_${table}`
-    const response = await _bb.api.get(FETCH_ROWS_URL)
+    const FETCH_RECORDS_URL = `/api/views/all_${model}`
+    const response = await _bb.api.get(FETCH_RECORDS_URL)
     if (response.status === 200) {
       const json = await response.json()
 
       store.update(state => {
-        state[table] = json
+        state[model] = json
         return state
       })
     } else {
-      throw new Error("Failed to fetch rows.", response)
+      throw new Error("Failed to fetch records.", response)
     }
   }
 
-  $: data = $store[table] || []
-  $: if (table) fetchData()
+  $: data = $store[model] || []
+  $: if (model) fetchData()
 
   onMount(async () => {
     await fetchData()

@@ -20,7 +20,7 @@ export const TYPE_MAP = {
       "##bbstate": "",
     },
   },
-  tables: {
+  models: {
     default: {},
   },
 }

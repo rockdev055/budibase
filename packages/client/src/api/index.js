@@ -52,22 +52,22 @@ const apiOpts = {
   delete: del,
 }
 
-const createRow = async params =>
+const createRecord = async params =>
   await post({
-    url: `/api/${params.tableId}/rows`,
-    body: makeRowRequestBody(params),
+    url: `/api/${params.modelId}/records`,
+    body: makeRecordRequestBody(params),
   })
 
-const updateRow = async params => {
-  const row = makeRowRequestBody(params)
-  row._id = params._id
+const updateRecord = async params => {
+  const record = makeRecordRequestBody(params)
+  record._id = params._id
   await patch({
-    url: `/api/${params.tableId}/rows/${params._id}`,
-    body: row,
+    url: `/api/${params.modelId}/records/${params._id}`,
+    body: record,
   })
 }
 
-const makeRowRequestBody = parameters => {
+const makeRecordRequestBody = parameters => {
   const body = {}
   for (let fieldName in parameters.fields) {
     const field = parameters.fields[fieldName]
@@ -95,6 +95,6 @@ const makeRowRequestBody = parameters => {
 
 export default {
   authenticate: authenticate(apiOpts),
-  createRow,
-  updateRow,
+  createRecord,
+  updateRecord,
 }

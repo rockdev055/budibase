@@ -64,7 +64,7 @@ Cypress.Commands.add("createTestTableWithData", () => {
 })
 
 Cypress.Commands.add("createTable", tableName => {
-  // Enter table name
+  // Enter model name
   cy.contains("Create New Table").click()
   cy.get(".modal").within(() => {
     cy.get("input")
@@ -92,7 +92,7 @@ Cypress.Commands.add("addColumn", (tableName, columnName, type) => {
   })
 })
 
-Cypress.Commands.add("addRow", values => {
+Cypress.Commands.add("addRecord", values => {
   cy.contains("Create New Row").click()
 
   cy.get(".modal").within(() => {

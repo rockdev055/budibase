@@ -90,12 +90,12 @@ function parseEmitExpression(field, groupBy) {
  *
  * @param {Object} viewDefinition - the JSON definition for a custom view.
  * field: field that calculations will be performed on
- * tableId: tableId of the table this view was created from
+ * modelId: modelId of the model this view was created from
  * groupBy: field that calculations will be grouped by. Field must be present for this to be useful
  * filters: Array of filter objects containing predicates that are parsed into a JS expression
  * calculation: an optional calculation to be performed over the view data.
  */
-function viewTemplate({ field, tableId, groupBy, filters = [], calculation }) {
+function viewTemplate({ field, modelId, groupBy, filters = [], calculation }) {
   const parsedFilters = parseFilterExpression(filters)
   const filterExpression = parsedFilters ? `&& ${parsedFilters}` : ""
 
@@ -115,14 +115,14 @@ function viewTemplate({ field, tableId, groupBy, filters = [], calculation }) {
   return {
     meta: {
       field,
-      tableId,
+      modelId,
       groupBy,
       filters,
       schema,
       calculation,
     },
     map: `function (doc) {
-      if (doc.tableId === "${tableId}" ${filterExpression}) {
+      if (doc.modelId === "${modelId}" ${filterExpression}) {
         ${emitExpression}
       }
     }`,

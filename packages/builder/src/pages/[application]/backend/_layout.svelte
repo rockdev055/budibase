@@ -1,13 +1,13 @@
 <script>
   import { store, backendUiStore } from "builderStore"
   import * as api from "components/backend/DataTable/api"
-  import TableNavigator from "components/backend/TableNavigator/TableNavigator.svelte"
+  import ModelNavigator from "components/backend/ModelNavigator/ModelNavigator.svelte"
 </script>
 
 <!-- routify:options index=1 -->
 <div class="root">
   <div class="nav">
-    <TableNavigator />
+    <ModelNavigator />
   </div>
   <div class="content">
     <slot />
