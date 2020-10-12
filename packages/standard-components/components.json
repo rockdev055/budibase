@@ -1,8 +1,8 @@
 {
 	"_lib": "./dist/index.js",
 	"_templates": {
-		"saveRecordButton": {
-			"description": "Save record button",
+		"saveRowButton": {
+			"description": "Save row button",
 			"component": "button"
 		}
 	},
@@ -214,7 +214,7 @@
 		"description": "an HTML table that fetches data from a table or view and displays it.",
 		"data": true,
 		"props": {
-			"datasource": "models",
+			"datasource": "tables",
 			"stripeColor": "string",
 			"borderColor": "string",
 			"backgroundColor": "string",
@@ -251,10 +251,10 @@
 		"props": {}
 	},
 	"datalist": {
-		"description": "A configurable data list that attaches to your backend models.",
+		"description": "A configurable data list that attaches to your backend tables.",
 		"data": true,
 		"props": {
-			"model": "models",
+			"table": "tables",
 			"layout": {
 				"type": "options",
 				"default": "list",
@@ -266,12 +266,12 @@
 		}
 	},
 	"list": {
-		"description": "A configurable data list that attaches to your backend models.",
+		"description": "A configurable data list that attaches to your backend tables.",
 		"context": "datasource",
 		"children": true,
 		"data": true,
 		"props": {
-			"datasource": "models"
+			"datasource": "tables"
 		}
 	},
 	"stackedlist": {
@@ -287,8 +287,13 @@
 		}
 	},
 	"rowdetail": {
+<<<<<<< HEAD
+		"description": "Loads a row, using an ID in the url",
+		"context": "table",
+=======
 		"description": "Loads a record, using an ID in the url",
 		"context": "model",
+>>>>>>> 3af1d8dc7f13091cc4673d53046919bad9ea28f7
 		"children": true,
 		"data": true,
 		"baseComponent": true,
@@ -303,7 +308,7 @@
 		"data": true,
 		"baseComponent": true,
 		"props": {
-			"model": "models"
+			"table": "tables"
 		}
 	},
 	"card": {
@@ -385,7 +390,7 @@
 		"description": "shiny chart",
 		"data": true,
 		"props": {
-			"model": "models"
+			"table": "tables"
 		}
 	},
 	"donut": {
@@ -417,7 +422,7 @@
 		"description": "Sparkline Chart",
 		"data": true,
 		"props": {
-			"model": "string",
+			"table": "string",
 			"areaGradient": "string",
 			"height": "number",
 			"width": "number",
@@ -433,7 +438,7 @@
 		"description": "Stacked Bar Chart",
 		"data": true,
 		"props": {
-			"datasource": "models",
+			"datasource": "tables",
 			"color": "string",
 			"height": "number",
 			"width": "number",
@@ -462,7 +467,7 @@
 		"description": "Step Chart",
 		"data": true,
 		"props": {
-			"model": "string",
+			"table": "string",
 			"color": "string",
 			"height": "number",
 			"width": "number",
@@ -496,7 +501,7 @@
 		"description": "Step Chart",
 		"data": true,
 		"props": {
-			"model": "string",
+			"table": "string",
 			"height": "number",
 			"width": "number",
 			"margin": "string",
@@ -511,7 +516,7 @@
 		"description": "Scatterplot Chart",
 		"data": true,
 		"props": {
-			"model": "string",
+			"table": "string",
 			"color": "string",
 			"height": "number",
 			"width": "number",
@@ -534,7 +539,7 @@
 		"description": "Bar Chart",
 		"data": true,
 		"props": {
-			"datasource": "models",
+			"datasource": "tables",
 			"nameLabel": "string",
 			"valueLabel": "string",
 			"betweenBarsPadding": "number",
@@ -558,7 +563,7 @@
 		"description": "Line Chart",
 		"data": true,
 		"props": {
-			"datasource": "models",
+			"datasource": "tables",
 			"width": "number",
 			"height": "number",
 			"axisTimeCombinations": "string",
@@ -603,7 +608,7 @@
 		"description": "brush chart",
 		"data": true,
 		"props": {
-			"model": "string",
+			"table": "string",
 			"gradient": "string",
 			"height": "number",
 			"width": "number",
@@ -620,7 +625,7 @@
 		"description": "Heatmap chart",
 		"data": true,
 		"props": {
-			"model": "string",
+			"table": "string",
 			"color": "string",
 			"height": "number",
 			"width": "number",
@@ -633,7 +638,7 @@
 		"description": "Groupedbar chart",
 		"data": true,
 		"props": {
-			"datasource": "models",
+			"datasource": "tables",
 			"nameLabel": "string",
 			"valueLabel": "string",
 			"color": "string",
@@ -653,7 +658,7 @@
 		"description": "Bullet chart",
 		"data": true,
 		"props": {
-			"model": "string",
+			"table": "string",
 			"color": "string",
 			"customSubtitle": "string",
 			"customTitle": "string",
@@ -674,7 +679,7 @@
 		"description": "shiny chart",
 		"data": true,
 		"props": {
-			"model": "models",
+			"table": "tables",
 			"type": {
 				"type": "options",
 				"default": "column2d",
