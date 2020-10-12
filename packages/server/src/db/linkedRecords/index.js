@@ -1,6 +1,5 @@
 const LinkController = require("./LinkController")
 const { IncludeDocs, getLinkDocuments, createLinkView } = require("./linkUtils")
-const _ = require("lodash")
 
 /**
  * This functionality makes sure that when records with links are created, updated or deleted they are processed
@@ -89,23 +88,23 @@ exports.attachLinkInfo = async (instanceId, records) => {
     records = [records]
     wasArray = false
   }
-  let modelIds = [...new Set(records.map(el => el.modelId))]
   // start by getting all the link values for performance reasons
-  let responses = _.flatten(
-    await Promise.all(
-      modelIds.map(modelId =>
-        getLinkDocuments({
-          instanceId,
-          modelId: modelId,
-          includeDocs: IncludeDocs.EXCLUDE,
-        })
-      )
+  let responses = await Promise.all(
+    records.map(record =>
+      getLinkDocuments({
+        instanceId,
+        modelId: record.modelId,
+        recordId: record._id,
+        includeDocs: IncludeDocs.EXCLUDE,
+      })
     )
   )
+  // can just use an index to access responses, order maintained
+  let index = 0
   // now iterate through the records and all field information
   for (let record of records) {
     // get all links for record, ignore fieldName for now
-    const linkVals = responses.filter(el => el.thisId === record._id)
+    const linkVals = responses[index++]
     for (let linkVal of linkVals) {
       // work out which link pertains to this record
       if (!(record[linkVal.fieldName] instanceof Array)) {
