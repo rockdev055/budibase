@@ -124,14 +124,14 @@
     {/if}
   {/each}
 {:else}
-  <div>This component does not have any settings.</div>
+  <div>
+    <span>This component does not have any settings.</span>
+  </div>
 {/if}
 
 <style>
   div {
-    font-size: var(--font-size-s);
-    margin-top: var(--spacing-m);
-    color: var(--grey-6);
+    text-align: center;
   }
 
   .duplicate-name {

@@ -27,10 +27,6 @@
   async function fetchData() {
     const pathParts = window.location.pathname.split("/")
 
-    if (!model) {
-      return
-    }
-
     let record
     // if srcdoc, then we assume this is the builder preview
     if (pathParts.length === 0 || pathParts[0] === "srcdoc") {
@@ -52,9 +48,7 @@
       const modelObj = await fetchModel(record.modelId)
       for (let key of Object.keys(modelObj.schema)) {
         if (modelObj.schema[key].type === "link") {
-          record[`${key}_count`] = Array.isArray(record[key])
-            ? record[key].length
-            : 0
+          record[key] = Array.isArray(record[key]) ? record[key].length : 0
         }
       }
 
