@@ -2,29 +2,29 @@
   import { onMount } from "svelte"
 
   export let _bb
-  export let table
+  export let model
 
-  let row = {}
+  let record = {}
 
   $: {
-    row.tableId = table
+    record.modelId = model
   }
 
   let target
 
-  async function fetchTable(id) {
-    const FETCH_TABLE_URL = `/api/tables/${id}`
-    const response = await _bb.api.get(FETCH_TABLE_URL)
+  async function fetchModel(id) {
+    const FETCH_MODEL_URL = `/api/models/${id}`
+    const response = await _bb.api.get(FETCH_MODEL_URL)
     return await response.json()
   }
 
   onMount(async () => {
-    if (table) {
-      const tableObj = await fetchTable(table)
-      row.tableId = table
-      row._table = tableObj
+    if (model) {
+      const modelObj = await fetchModel(model)
+      record.modelId = model
+      record._model = modelObj
       _bb.attachChildren(target, {
-        context: row,
+        context: record,
       })
     } else {
       _bb.attachChildren(target, {

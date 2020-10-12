@@ -30,7 +30,7 @@
       componentInstanceId: $store.currentComponentInfo._id,
       components: $store.components,
       screen: $store.currentPreviewItem,
-      tables: $backendUiStore.tables,
+      models: $backendUiStore.models,
     })
 
     const detailScreens = $store.screens.filter(screen =>
@@ -42,11 +42,11 @@
         if (
           p.type === "context" &&
           p.runtimeBinding.endsWith("._id") &&
-          p.table
+          p.model
         ) {
-          const tableId =
-            typeof p.table === "string" ? p.table : p.table.tableId
-          return tableId === detailScreen.props.table
+          const modelId =
+            typeof p.model === "string" ? p.model : p.model.modelId
+          return modelId === detailScreen.props.model
         }
         return false
       })
