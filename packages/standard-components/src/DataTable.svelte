@@ -39,7 +39,7 @@
 
   onMount(async () => {
     if (!isEmpty(datasource)) {
-      data = await fetchData(datasource)
+      data = await fetchData(datasource, _bb)
       if (data && data.length) {
         await fetchModel(data[0].modelId)
         headers = Object.keys(schema).filter(shouldDisplayField)
@@ -100,8 +100,8 @@
               <AttachmentList files={row[header]} />
             {:else if schema[header].type === 'link'}
               <td>{row[header]} related row(s)</td>
-            {:else if row[header]}
-              <td>{row[header]}</td>
+            {:else}
+              <td>{row[header] == null ? '' : row[header]}</td>
             {/if}
           {/if}
         {/each}

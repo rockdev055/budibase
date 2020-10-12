@@ -11,7 +11,6 @@
   export let componentDefinition = {}
   export let componentInstance = {}
   export let onChange = () => {}
-  export let onScreenPropChange = () => {}
   export let displayNameField = false
   export let screenOrPageInstance
 
@@ -92,7 +91,7 @@
       label={def.label}
       key={def.key}
       value={screenOrPageInstance[def.key]}
-      onChange={onScreenPropChange}
+      {onChange}
       props={{ ...excludeProps(def, ['control', 'label']) }} />
   {/each}
   <hr />
