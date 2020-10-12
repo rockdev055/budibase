@@ -79,7 +79,7 @@
   }
 
   function fieldOptions(field) {
-    return viewModel.schema[field].type === "options"
+    return viewModel.schema[field].type === "string"
       ? viewModel.schema[field].constraints.inclusion
       : [true, false]
   }
