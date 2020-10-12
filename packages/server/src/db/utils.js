@@ -57,26 +57,21 @@ exports.generateModelID = () => {
 
 /**
  * Gets the DB allDocs/query params for retrieving a record.
- * @param {string|null} modelId The model in which the records have been stored.
+ * @param {string} modelId The model in which the records have been stored.
  * @param {string|null} recordId The ID of the record which is being specifically queried for. This can be
  * left null to get all the records in the model.
  * @param {object} otherProps Any other properties to add to the request.
  * @returns {object} Parameters which can then be used with an allDocs request.
  */
-exports.getRecordParams = (
-  modelId = null,
-  recordId = null,
-  otherProps = {}
-) => {
+exports.getRecordParams = (modelId, recordId = null, otherProps = {}) => {
   if (modelId == null) {
-    return getDocParams(DocumentTypes.RECORD, null, otherProps)
-  } else {
-    const endOfKey =
-      recordId == null
-        ? `${modelId}${SEPARATOR}`
-        : `${modelId}${SEPARATOR}${recordId}`
-    return getDocParams(DocumentTypes.RECORD, endOfKey, otherProps)
+    throw "Cannot build params for records without a model ID"
   }
+  const endOfKey =
+    recordId == null
+      ? `${modelId}${SEPARATOR}`
+      : `${modelId}${SEPARATOR}${recordId}`
+  return getDocParams(DocumentTypes.RECORD, endOfKey, otherProps)
 }
 
 /**
@@ -129,14 +124,7 @@ exports.generateAutomationID = () => {
  * @returns {string} The new link doc ID which the automation doc can be stored under.
  */
 exports.generateLinkID = (modelId1, modelId2, recordId1, recordId2) => {
-  return `${DocumentTypes.LINK}${SEPARATOR}${modelId1}${SEPARATOR}${modelId2}${SEPARATOR}${recordId1}${SEPARATOR}${recordId2}`
-}
-
-/**
- * Gets parameters for retrieving link docs, this is a utility function for the getDocParams function.
- */
-exports.getLinkParams = (otherProps = {}) => {
-  return getDocParams(DocumentTypes.LINK, null, otherProps)
+  return `${DocumentTypes.AUTOMATION}${SEPARATOR}${modelId1}${SEPARATOR}${modelId2}${SEPARATOR}${recordId1}${SEPARATOR}${recordId2}`
 }
 
 /**

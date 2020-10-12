@@ -41,6 +41,7 @@
       .map(template => template.create())
 
     for (let screen of screens) {
+      console.log(JSON.stringify(screen))
       try {
         await store.createScreen(screen)
       } catch (_) {
