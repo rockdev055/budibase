@@ -39,7 +39,7 @@
 
   onMount(async () => {
     if (!isEmpty(datasource)) {
-      data = await fetchData(datasource)
+      data = await fetchData(datasource, _bb)
       if (data && data.length) {
         await fetchModel(data[0].modelId)
         headers = Object.keys(schema).filter(shouldDisplayField)

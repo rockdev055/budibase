@@ -1,5 +1,6 @@
 import NavigateTo from "./NavigateTo.svelte"
-import SaveRecord from "./SaveRecord.svelte"
+import UpdateRecord from "./UpdateRecord.svelte"
+import CreateRecord from "./CreateRecord.svelte"
 
 // defines what actions are available, when adding a new one
 // the component is the setup panel for the action
@@ -8,11 +9,15 @@ import SaveRecord from "./SaveRecord.svelte"
 
 export default [
   {
-    name: "Save Record",
-    component: SaveRecord,
+    name: "Create Record",
+    component: CreateRecord,
   },
   {
     name: "Navigate To",
     component: NavigateTo,
+  },
+  {
+    name: "Update Record",
+    component: UpdateRecord,
   },
 ]
