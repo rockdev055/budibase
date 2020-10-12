@@ -316,7 +316,8 @@ export default {
         {
           name: "Grid",
           _component: "@budibase/standard-components/datagrid",
-          description: "a datagrid component with functionality to add, remove and edit rows.",
+          description:
+            "a datagrid component with functionality to add, remove and edit rows.",
           icon: "ri-file-list-line",
           properties: {
             design: { ...all },
@@ -336,7 +337,13 @@ export default {
                 label: "Theme",
                 key: "theme",
                 control: OptionSelect,
-                options: ["alpine", "alpine-dark", "balham", "balham-dark", "material"],
+                options: [
+                  "alpine",
+                  "alpine-dark",
+                  "balham",
+                  "balham-dark",
+                  "material",
+                ],
                 placeholder: "alpine",
               },
             ],
@@ -386,7 +393,7 @@ export default {
               {
                 label: "destinationUrl",
                 key: "destinationUrl",
-                control: Input,
+                control: ScreenSelect,
                 placeholder: "/table/_id",
               },
             ],
@@ -435,7 +442,7 @@ export default {
                   {
                     label: "Link Url",
                     key: "linkUrl",
-                    control: Input,
+                    control: ScreenSelect,
                     placeholder: "Link URL",
                   },
                   {
@@ -510,7 +517,7 @@ export default {
                   {
                     label: "Link Url",
                     key: "linkUrl",
-                    control: Input,
+                    control: ScreenSelect,
                     placeholder: "Link URL",
                   },
                   {
