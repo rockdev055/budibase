@@ -5,8 +5,33 @@ const {
   BUILDER_LEVEL_ID,
   BUILDER,
 } = require("../utilities/accessLevels")
+const environment = require("../environment")
+const { apiKeyTable } = require("../db/dynamoClient")
 
 module.exports = (permName, getItemId) => async (ctx, next) => {
+  if (
+    environment.CLOUD &&
+    ctx.headers["x-api-key"] &&
+    ctx.headers["x-instanceid"]
+  ) {
+    // api key header passed by external webhook
+    const apiKeyInfo = await apiKeyTable.get({
+      primary: ctx.headers["x-api-key"],
+    })
+
+    if (apiKeyInfo) {
+      ctx.isAuthenticated = true
+      ctx.externalWebhook = true
+      ctx.apiKey = ctx.headers["x-api-key"]
+      ctx.user = {
+        instanceId: ctx.headers["x-instanceid"],
+      }
+      return next()
+    }
+
+    ctx.throw(403, "API key invalid")
+  }
+
   if (!ctx.isAuthenticated) {
     ctx.throw(403, "Session not authenticated")
   }
@@ -16,8 +41,7 @@ module.exports = (permName, getItemId) => async (ctx, next) => {
   }
 
   if (ctx.user.accessLevel._id === BUILDER_LEVEL_ID) {
-    await next()
-    return
+    return next()
   }
 
   if (permName === BUILDER) {
@@ -28,8 +52,7 @@ module.exports = (permName, getItemId) => async (ctx, next) => {
   const permissionId = ({ name, itemId }) => name + (itemId ? `-${itemId}` : "")
 
   if (ctx.user.accessLevel._id === ADMIN_LEVEL_ID) {
-    await next()
-    return
+    return next()
   }
 
   const thisPermissionId = permissionId({
@@ -42,8 +65,7 @@ module.exports = (permName, getItemId) => async (ctx, next) => {
     ctx.user.accessLevel._id === POWERUSER_LEVEL_ID &&
     !adminPermissions.map(permissionId).includes(thisPermissionId)
   ) {
-    await next()
-    return
+    return next()
   }
 
   if (
@@ -51,8 +73,7 @@ module.exports = (permName, getItemId) => async (ctx, next) => {
       .map(permissionId)
       .includes(thisPermissionId)
   ) {
-    await next()
-    return
+    return next()
   }
 
   ctx.throw(403, "Not Authorized")
