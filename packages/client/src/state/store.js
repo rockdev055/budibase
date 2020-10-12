@@ -95,7 +95,7 @@ const getState = contextStoreKey =>
   contextStoreKey ? contextStores[contextStoreKey].state : rootState
 
 const getStore = contextStoreKey =>
-  contextStoreKey ? contextStores[contextStoreKey].store : rootStore
+  contextStoreKey ? contextStores[contextStoreKey] : rootStore
 
 export default {
   subscribe,

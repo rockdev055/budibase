@@ -124,18 +124,17 @@ const saveScreen = store => screen => {
 }
 
 const _saveScreen = async (store, s, screen) => {
-  const pageName = s.currentPageName || "main"
-  const currentPageScreens = s.pages[pageName]._screens
+  const currentPageScreens = s.pages[s.currentPageName]._screens
 
   await api
-    .post(`/_builder/api/${s.appId}/pages/${pageName}/screen`, screen)
+    .post(`/_builder/api/${s.appId}/pages/${s.currentPageName}/screen`, screen)
     .then(() => {
       if (currentPageScreens.includes(screen)) return
 
       const screens = [...currentPageScreens, screen]
 
       store.update(innerState => {
-        innerState.pages[pageName]._screens = screens
+        innerState.pages[s.currentPageName]._screens = screens
         innerState.screens = screens
         innerState.currentPreviewItem = screen
         innerState.allScreens = [...innerState.allScreens, screen]
@@ -154,17 +153,27 @@ const _saveScreen = async (store, s, screen) => {
   return s
 }
 
-const createScreen = store => async screen => {
-  let savePromise
+const createScreen = store => (screenName, route, layoutComponentName) => {
   store.update(state => {
-    state.currentPreviewItem = screen
-    state.currentComponentInfo = screen.props
+    const rootComponent = state.components[layoutComponentName]
+
+    const newScreen = {
+      description: "",
+      url: "",
+      _css: "",
+      props: createProps(rootComponent).props,
+    }
+    newScreen.route = route
+    newScreen.name = newScreen.props._id
+    newScreen.props._instanceName = screenName || ""
+    state.currentPreviewItem = newScreen
+    state.currentComponentInfo = newScreen.props
     state.currentFrontEndType = "screen"
-    savePromise = _saveScreen(store, state, screen)
-    regenerateCssForCurrentScreen(state)
+
+    _saveScreen(store, state, newScreen)
+
     return state
   })
-  await savePromise
 }
 
 const setCurrentScreen = store => screenName => {
