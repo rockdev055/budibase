@@ -13,7 +13,7 @@
   let templateIndex
   let draftScreen
 
-  $: templates = getTemplates($store, $backendUiStore.models)
+  $: templates = getTemplates($store, $backendUiStore.tables)
 
   $: route = !route && $store.screens.length === 0 ? "*" : route
 

@@ -103,6 +103,7 @@
   </div>
 </div>
 <DropdownMenu
+  class="menu"
   bind:this={dropdown}
   on:click={hideDropdown}
   width="170px"
