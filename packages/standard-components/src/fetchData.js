@@ -1,17 +1,10 @@
 import api from "./api"
 
-export default async function fetchData(datasource, store) {
-  const { type, name } = datasource
+export default async function fetchData(datasource) {
+  const { isModel, name } = datasource
 
   if (name) {
-    let records = []
-    if (type === "model") {
-      records = await fetchModelData()
-    } else if (type === "view") {
-      records = await fetchViewData()
-    } else if (type === "link") {
-      records = await fetchLinkedRecordsData()
-    }
+    const records = isModel ? await fetchModelData() : await fetchViewData()
 
     // Fetch model schema so we can check for linked records
     if (records && records.length) {
@@ -20,9 +13,7 @@ export default async function fetchData(datasource, store) {
       records.forEach(record => {
         for (let key of keys) {
           if (model.schema[key].type === "link") {
-            record[`${key}_count`] = Array.isArray(record[key])
-              ? record[key].length
-              : 0
+            record[key] = Array.isArray(record[key]) ? record[key].length : 0
           }
         }
       })
@@ -61,15 +52,5 @@ export default async function fetchData(datasource, store) {
 
     const response = await api.get(QUERY_VIEW_URL)
     return await response.json()
-  }
-
-  async function fetchLinkedRecordsData() {
-    if (!store || !store.data || !store.data._id) {
-      return []
-    }
-    const QUERY_URL = `/api/${store.data.modelId}/${store.data._id}/enrich`
-    const response = await api.get(QUERY_URL)
-    const record = await response.json()
-    return record[datasource.fieldName]
   }
 }

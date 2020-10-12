@@ -49,7 +49,7 @@
         {/each}
       {:else}
         <div class="no-design">
-          This component does not have any design properties.
+          <span>This component does not have any design properties</span>
         </div>
       {/if}
     </div>
@@ -78,12 +78,9 @@
     flex: 1;
     overflow-y: auto;
     min-height: 0;
-    margin: 0 -20px;
-    padding: 0 20px;
   }
 
   .no-design {
-    font-size: var(--font-size-s);
-    color: var(--grey-6);
+    text-align: center;
   }
 </style>
