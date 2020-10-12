@@ -52,29 +52,23 @@ const apiOpts = {
   delete: del,
 }
 
-const saveRecord = async (params, state) =>
+const createRow = async params =>
   await post({
-    url: `/api/${params.modelId}/records`,
-    body: makeRecordRequestBody(params, state),
+    url: `/api/${params.tableId}/rows`,
+    body: makeRowRequestBody(params),
   })
 
-const updateRecord = async (params, state) => {
-  const record = makeRecordRequestBody(params, state)
-  record._id = params._id
+const updateRow = async params => {
+  const row = makeRowRequestBody(params)
+  row._id = params._id
   await patch({
-    url: `/api/${params.modelId}/records/${params._id}`,
-    body: record,
+    url: `/api/${params.tableId}/rows/${params._id}`,
+    body: row,
   })
 }
 
-const makeRecordRequestBody = (parameters, state) => {
-  // start with the record thats currently in context
-  const body = { ...(state.data || {}) }
-
-  // dont send the model
-  if (body._model) delete body._model
-
-  // then override with supplied parameters
+const makeRowRequestBody = parameters => {
+  const body = {}
   for (let fieldName in parameters.fields) {
     const field = parameters.fields[fieldName]
 
@@ -101,6 +95,6 @@ const makeRecordRequestBody = (parameters, state) => {
 
 export default {
   authenticate: authenticate(apiOpts),
-  saveRecord,
-  updateRecord,
+  createRow,
+  updateRow,
 }
