@@ -1,5 +1,5 @@
 const send = require("koa-send")
-const { resolve, join } = require("../../utilities/sanitisedPath")
+const { resolve, join } = require("../../utilities/centralPath")
 const jwt = require("jsonwebtoken")
 const fetch = require("node-fetch")
 const fs = require("fs-extra")
@@ -153,7 +153,7 @@ exports.serveApp = async function(ctx) {
 
   // only set the appId cookie for /appId .. we COULD check for valid appIds
   // but would like to avoid that DB hit
-  const looksLikeAppId = /^[0-9a-f]{32}$/.test(appId)
+  const looksLikeAppId = /^(app_)?[0-9a-f]{32}$/.test(appId)
   if (looksLikeAppId && !ctx.isAuthenticated) {
     const anonUser = {
       userId: "ANON",
