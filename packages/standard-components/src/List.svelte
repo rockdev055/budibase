@@ -7,11 +7,10 @@
   export let datasource = []
 
   let target
-  let store = _bb.store
 
   onMount(async () => {
     if (!isEmpty(datasource)) {
-      const data = await fetchData(datasource, $store)
+      const data = await fetchData(datasource)
       _bb.attachChildren(target, {
         hydrate: false,
         context: data,
