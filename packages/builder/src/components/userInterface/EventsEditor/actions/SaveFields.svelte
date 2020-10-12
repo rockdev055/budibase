@@ -35,7 +35,7 @@
     componentInstanceId: $store.currentComponentInfo._id,
     components: $store.components,
     screen: $store.currentPreviewItem,
-    tables: $backendUiStore.tables,
+    models: $backendUiStore.models,
   })
 
   const addField = () => {

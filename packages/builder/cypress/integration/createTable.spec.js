@@ -16,8 +16,8 @@ context("Create a Table", () => {
     cy.contains("name").should("be.visible")
   })
 
-  it("creates a row in the table", () => {
-    cy.addRow(["Rover"])
+  it("creates a record in the table", () => {
+    cy.addRecord(["Rover"])
     cy.contains("Rover").should("be.visible")
   })
 
@@ -32,7 +32,7 @@ context("Create a Table", () => {
     cy.contains("nameupdated").should("have.text", "nameupdated")
   })
 
-  it("edits a row", () => {
+  it("edits a record", () => {
     cy.get("tbody .ri-more-line").click()
     cy.get("[data-cy=edit-row]").click()
     cy.get(".modal input").type("Updated")
@@ -40,7 +40,7 @@ context("Create a Table", () => {
     cy.contains("RoverUpdated").should("have.text", "RoverUpdated")
   })
 
-  it("deletes a row", () => {
+  it("deletes a record", () => {
     cy.get("tbody .ri-more-line").click()
     cy.get("[data-cy=delete-row]").click()
     cy.contains("Delete Row").click()

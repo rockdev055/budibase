@@ -30,18 +30,18 @@
 
   $: sorted = sort.direction ? fsort(data)[sort.direction](sort.column) : data
 
-  async function fetchTable(tableId) {
-    const FETCH_TABLE_URL = `/api/tables/${tableId}`
-    const response = await _bb.api.get(FETCH_TABLE_URL)
-    const table = await response.json()
-    schema = table.schema
+  async function fetchModel(modelId) {
+    const FETCH_MODEL_URL = `/api/models/${modelId}`
+    const response = await _bb.api.get(FETCH_MODEL_URL)
+    const model = await response.json()
+    schema = model.schema
   }
 
   onMount(async () => {
     if (!isEmpty(datasource)) {
       data = await fetchData(datasource)
       if (data && data.length) {
-        await fetchTable(data[0].tableId)
+        await fetchModel(data[0].modelId)
         headers = Object.keys(schema).filter(shouldDisplayField)
       }
     }
@@ -49,10 +49,10 @@
 
   const shouldDisplayField = name => {
     if (name.startsWith("_")) return false
-    // always 'row'
+    // always 'record'
     if (name === "type") return false
-    // tables are always tied to a single tableId, this is irrelevant
-    if (name === "tableId") return false
+    // tables are always tied to a single modelId, this is irrelevant
+    if (name === "modelId") return false
 
     return true
   }
@@ -99,7 +99,7 @@
             {#if schema[header].type === 'attachment'}
               <AttachmentList files={row[header]} />
             {:else if schema[header].type === 'link'}
-              <td>{row[header]} related row(s)</td>
+              <td>{row[header] ? row[header].length : 0} related row(s)</td>
             {:else if row[header]}
               <td>{row[header]}</td>
             {/if}
