@@ -1,11 +1,6 @@
 const CouchDB = require("pouchdb")
 const PouchDB = require("../../../db")
-const {
-  uploadAppAssets,
-  verifyDeployment,
-  updateDeploymentQuota,
-} = require("./aws")
-const { DocumentTypes, SEPARATOR, UNICODE_MAX } = require("../../../db/utils")
+const { uploadAppAssets, fetchTemporaryCredentials } = require("./aws")
 
 function replicate(local, remote) {
   return new Promise((resolve, reject) => {
@@ -36,49 +31,13 @@ async function replicateCouch({ instanceId, clientId, credentials }) {
   await Promise.all(replications)
 }
 
-async function getCurrentInstanceQuota(instanceId) {
-  const db = new PouchDB(instanceId)
-
-  const rows = await db.allDocs({
-    startkey: DocumentTypes.ROW + SEPARATOR,
-    endkey: DocumentTypes.ROW + SEPARATOR + UNICODE_MAX,
-  })
-
-  const users = await db.allDocs({
-    startkey: DocumentTypes.USER + SEPARATOR,
-    endkey: DocumentTypes.USER + SEPARATOR + UNICODE_MAX,
-  })
-
-  const existingRows = rows.rows.length
-  const existingUsers = users.rows.length
-
-  const designDoc = await db.get("_design/database")
-
-  return {
-    rows: existingRows,
-    users: existingUsers,
-    views: Object.keys(designDoc.views).length,
-  }
-}
-
 exports.deployApp = async function(ctx) {
   try {
     const clientAppLookupDB = new PouchDB("client_app_lookup")
     const { clientId } = await clientAppLookupDB.get(ctx.user.appId)
 
-    const instanceQuota = await getCurrentInstanceQuota(ctx.user.instanceId)
-    const credentials = await verifyDeployment({
-      instanceId: ctx.user.instanceId,
-      appId: ctx.user.appId,
-      quota: instanceQuota,
-    })
-
     ctx.log.info(`Uploading assets for appID ${ctx.user.appId} assets to s3..`)
-
-    if (credentials.errors) {
-      ctx.throw(500, credentials.errors)
-      return
-    }
+    const credentials = await fetchTemporaryCredentials()
 
     await uploadAppAssets({
       clientId,
@@ -94,8 +53,6 @@ exports.deployApp = async function(ctx) {
       clientId,
       credentials: credentials.couchDbCreds,
     })
-
-    await updateDeploymentQuota(credentials.quota)
 
     ctx.body = {
       status: "SUCCESS",

@@ -1,6 +1,6 @@
 import NavigateTo from "./NavigateTo.svelte"
-import UpdateRow from "./UpdateRow.svelte"
-import CreateRow from "./CreateRow.svelte"
+import UpdateRecord from "./UpdateRecord.svelte"
+import CreateRecord from "./CreateRecord.svelte"
 
 // defines what actions are available, when adding a new one
 // the component is the setup panel for the action
@@ -9,15 +9,15 @@ import CreateRow from "./CreateRow.svelte"
 
 export default [
   {
-    name: "Create Row",
-    component: CreateRow,
+    name: "Create Record",
+    component: CreateRecord,
   },
   {
     name: "Navigate To",
     component: NavigateTo,
   },
   {
-    name: "Update Row",
-    component: UpdateRow,
+    name: "Update Record",
+    component: UpdateRecord,
   },
 ]

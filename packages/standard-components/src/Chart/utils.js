@@ -24,16 +24,16 @@ export function reformatDataKey(data = [], dataKey = null, formatKey = null) {
   let ignoreList = ["_id", "_rev", "id"]
   if (dataKey && data.every(d => d[dataKey])) {
     return data.map(d => {
-      let clonedRow = { ...d }
-      if (clonedRow[formatKey]) {
-        delete clonedRow[formatKey]
+      let clonedRecord = { ...d }
+      if (clonedRecord[formatKey]) {
+        delete clonedRecord[formatKey]
       }
-      let value = clonedRow[dataKey]
+      let value = clonedRecord[dataKey]
       if (!ignoreList.includes(dataKey)) {
-        delete clonedRow[dataKey]
+        delete clonedRecord[dataKey]
       }
-      clonedRow[formatKey] = value
-      return clonedRow
+      clonedRecord[formatKey] = value
+      return clonedRecord
     })
   } else {
     return data
