@@ -11,7 +11,7 @@ const entityMap = {
 
 mustache.escape = text =>
   String(text).replace(/[&<>"'`=/]/g, function fromEntityMap(s) {
-    return entityMap[s] || s
+    return entityMap[s]
   })
 
 export default mustache.render
