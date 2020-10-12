@@ -24,7 +24,6 @@ app.use(
 )
 
 app.context.eventEmitter = eventEmitter
-app.context.auth = {}
 
 // api routes
 app.use(api.routes())

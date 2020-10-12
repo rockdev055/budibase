@@ -20,10 +20,8 @@ module.exports = async (ctx, next) => {
   if (builderToken) {
     try {
       const jwtPayload = jwt.verify(builderToken, ctx.config.jwtSecret)
-      ctx.auth = {
-        apiKey: jwtPayload.apiKey,
-        authenticated: jwtPayload.accessLevelId === BUILDER_LEVEL_ID,
-      }
+      ctx.apiKey = jwtPayload.apiKey
+      ctx.isAuthenticated = jwtPayload.accessLevelId === BUILDER_LEVEL_ID
       ctx.user = {
         ...jwtPayload,
         accessLevel: await getAccessLevel(
@@ -40,13 +38,14 @@ module.exports = async (ctx, next) => {
   }
 
   if (!appToken) {
-    ctx.auth.authenticated = false
+    ctx.isAuthenticated = false
     await next()
     return
   }
 
   try {
     const jwtPayload = jwt.verify(appToken, ctx.config.jwtSecret)
+    ctx.apiKey = jwtPayload.apiKey
     ctx.user = {
       ...jwtPayload,
       accessLevel: await getAccessLevel(
@@ -54,10 +53,7 @@ module.exports = async (ctx, next) => {
         jwtPayload.accessLevelId
       ),
     }
-    ctx.auth = {
-      authenticated: ctx.user.accessLevelId !== ANON_LEVEL_ID,
-      apiKey: jwtPayload.apiKey,
-    }
+    ctx.isAuthenticated = ctx.user.accessLevelId !== ANON_LEVEL_ID
   } catch (err) {
     ctx.throw(err.status || STATUS_CODES.FORBIDDEN, err.text)
   }

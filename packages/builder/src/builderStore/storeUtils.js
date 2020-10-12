@@ -36,8 +36,7 @@ export const saveCurrentPreviewItem = s =>
     : saveScreenApi(s.currentPreviewItem, s)
 
 export const savePage = async s => {
-  const pageName = s.currentPageName || "main"
-  const page = s.pages[pageName]
+  const page = s.pages[s.currentPageName]
   await api.post(`/_builder/api/${s.appId}/pages/${s.currentPageName}`, {
     page: { componentLibraries: s.pages.componentLibraries, ...page },
     uiFunctions: s.currentPageFunctions,
