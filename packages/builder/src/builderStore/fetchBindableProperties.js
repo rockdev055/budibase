@@ -6,7 +6,7 @@ import { cloneDeep, difference } from "lodash/fp"
  * @property {string}  componentInstanceId - an _id of a component that has been added to a screen, which you want to fetch bindable props for
  * @propperty {Object} screen - current screen - where componentInstanceId lives
  * @property {Object} components - dictionary of component definitions
- * @property {Array} tables - array of all tables
+ * @property {Array} models - array of all models
  */
 
 /**
@@ -23,13 +23,13 @@ import { cloneDeep, difference } from "lodash/fp"
  * @param {fetchBindablePropertiesParameter} param
  * @returns {Array.<BindableProperty>}
  */
-export default function({ componentInstanceId, screen, components, tables }) {
+export default function({ componentInstanceId, screen, components, models }) {
   const walkResult = walk({
     // cloning so we are free to mutate props (e.g. by adding _contexts)
     instance: cloneDeep(screen.props),
     targetId: componentInstanceId,
     components,
-    tables,
+    models,
   })
 
   return [
@@ -38,7 +38,7 @@ export default function({ componentInstanceId, screen, components, tables }) {
       .map(componentInstanceToBindable(walkResult)),
 
     ...(walkResult.target?._contexts
-      .map(contextToBindables(tables, walkResult))
+      .map(contextToBindables(models, walkResult))
       .flat() ?? []),
   ]
 }
@@ -71,38 +71,53 @@ const componentInstanceToBindable = walkResult => i => {
   }
 }
 
-const contextToBindables = (tables, walkResult) => context => {
+const contextToBindables = (models, walkResult) => context => {
   const contextParentPath = getParentPath(walkResult, context)
-  const isTable = context.table?.isTable || typeof context.table === "string"
-  const tableId =
-    typeof context.table === "string" ? context.table : context.table.tableId
-  const table = tables.find(table => table._id === tableId)
+
+  let model, schema
+  if (typeof context.model === "string" || context.model.type === "model") {
+    const modelId =
+      typeof context.model === "string" ? context.model : context.model.modelId
+    model = models.find(model => model._id === modelId)
+    schema = model?.schema
+  } else if (context.model.type === "view") {
+    const modelId = context.model.modelId
+    model = models.find(model => model._id === modelId)
+    schema = model?.views?.[context.model.name]?.schema
+  } else if (context.model.type === "link") {
+    const modelId = context.model.modelId
+    model = models.find(model => model._id === modelId)
+    schema = model?.schema
+  }
 
   // Avoid crashing whenever no data source has been selected
-  if (table == null) {
+  if (!schema) {
     return []
   }
 
-  const newBindable = key => ({
-    type: "context",
-    instance: context.instance,
-    // how the binding expression persists, and is used in the app at runtime
-    runtimeBinding: `${contextParentPath}data.${key}`,
-    // how the binding exressions looks to the user of the builder
-    readableBinding: `${context.instance._instanceName}.${table.name}.${key}`,
-    // table / view info
-    table: context.table,
-  })
+  const newBindable = ([key, fieldSchema]) => {
+    // Replace link bindings with a new property representing the count
+    let runtimeBoundKey = key
+    if (fieldSchema.type === "link") {
+      runtimeBoundKey = `${key}_count`
+    }
 
-  // see TableViewSelect.svelte for the format of context.table
-  // ... this allows us to bind to Table schemas, or View schemas
-  const schema = isTable ? table.schema : table.views[context.table.name].schema
+    return {
+      type: "context",
+      fieldSchema,
+      instance: context.instance,
+      // how the binding expression persists, and is used in the app at runtime
+      runtimeBinding: `${contextParentPath}data.${runtimeBoundKey}`,
+      // how the binding expressions looks to the user of the builder
+      readableBinding: `${context.instance._instanceName}.${model.name}.${key}`,
+    }
+  }
 
   return (
-    Object.keys(schema)
+    Object.entries(schema)
       .map(newBindable)
       // add _id and _rev fields - not part of schema, but always valid
-      .concat([newBindable("_id"), newBindable("_rev")])
+      .concat([newBindable(["_id", "string"]), newBindable(["_rev", "string"])])
   )
 }
 
@@ -120,7 +135,7 @@ const getParentPath = (walkResult, context) => {
   )
 }
 
-const walk = ({ instance, targetId, components, tables, result }) => {
+const walk = ({ instance, targetId, components, models, result }) => {
   if (!result) {
     result = {
       target: null,
@@ -159,8 +174,8 @@ const walk = ({ instance, targetId, components, tables, result }) => {
   if (contextualInstance) {
     // add to currentContexts (ancestory of context)
     // before walking children
-    const table = instance[component.context]
-    result.currentContexts.push({ instance, table })
+    const model = instance[component.context]
+    result.currentContexts.push({ instance, model })
   }
 
   const currentContexts = [...result.currentContexts]
@@ -169,7 +184,7 @@ const walk = ({ instance, targetId, components, tables, result }) => {
     // these have been deep cloned above, so shouln't modify the
     // original component instances
     child._contexts = currentContexts
-    walk({ instance: child, targetId, components, tables, result })
+    walk({ instance: child, targetId, components, models, result })
   }
 
   if (contextualInstance) {

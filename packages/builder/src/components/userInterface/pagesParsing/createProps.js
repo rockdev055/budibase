@@ -1,4 +1,4 @@
-import { isString, isUndefined, cloneDeep } from "lodash/fp"
+import { isString, isUndefined } from "lodash/fp"
 import { TYPE_MAP } from "./types"
 import { assign } from "lodash"
 import { uuid } from "builderStore/uuid"
@@ -83,13 +83,13 @@ const parsePropDef = propDef => {
   if (isString(propDef)) {
     if (!TYPE_MAP[propDef]) return error(`Type ${propDef} is not recognised.`)
 
-    return cloneDeep(TYPE_MAP[propDef].default)
+    return TYPE_MAP[propDef].default
   }
 
   const type = TYPE_MAP[propDef.type]
   if (!type) return error(`Type ${propDef.type} is not recognised.`)
 
-  return cloneDeep(propDef.default)
+  return propDef.default
 }
 
 export const arrayElementComponentName = (parentComponentName, arrayPropName) =>

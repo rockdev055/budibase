@@ -1,39 +1,48 @@
 import api from "./api"
 
-export default async function fetchData(datasource) {
-  const { isTable, name } = datasource
+export default async function fetchData(datasource, store) {
+  const { type, name } = datasource
 
   if (name) {
-    const rows = isTable ? await fetchTableData() : await fetchViewData()
+    let records = []
+    if (type === "model") {
+      records = await fetchModelData()
+    } else if (type === "view") {
+      records = await fetchViewData()
+    } else if (type === "link") {
+      records = await fetchLinkedRecordsData()
+    }
 
-    // Fetch table schema so we can check for linked rows
-    if (rows && rows.length) {
-      const table = await fetchTable(rows[0].tableId)
-      const keys = Object.keys(table.schema)
-      rows.forEach(row => {
+    // Fetch model schema so we can check for linked records
+    if (records && records.length) {
+      const model = await fetchModel(records[0].modelId)
+      const keys = Object.keys(model.schema)
+      records.forEach(record => {
         for (let key of keys) {
-          if (table.schema[key].type === "link") {
-            row[key] = Array.isArray(row[key]) ? row[key].length : 0
+          if (model.schema[key].type === "link") {
+            record[`${key}_count`] = Array.isArray(record[key])
+              ? record[key].length
+              : 0
           }
         }
       })
     }
 
-    return rows
+    return records
   }
 
-  async function fetchTable(id) {
-    const FETCH_TABLE_URL = `/api/tables/${id}`
-    const response = await api.get(FETCH_TABLE_URL)
+  async function fetchModel(id) {
+    const FETCH_MODEL_URL = `/api/models/${id}`
+    const response = await api.get(FETCH_MODEL_URL)
     return await response.json()
   }
 
-  async function fetchTableData() {
+  async function fetchModelData() {
     if (!name.startsWith("all_")) {
-      throw new Error("Incorrect table convention - must begin with all_")
+      throw new Error("Incorrect model convention - must begin with all_")
     }
-    const tablesResponse = await api.get(`/api/views/${name}`)
-    return await tablesResponse.json()
+    const modelsResponse = await api.get(`/api/views/${name}`)
+    return await modelsResponse.json()
   }
 
   async function fetchViewData() {
@@ -52,5 +61,15 @@ export default async function fetchData(datasource) {
 
     const response = await api.get(QUERY_VIEW_URL)
     return await response.json()
+  }
+
+  async function fetchLinkedRecordsData() {
+    if (!store || !store.data || !store.data._id) {
+      return []
+    }
+    const QUERY_URL = `/api/${store.data.modelId}/${store.data._id}/enrich`
+    const response = await api.get(QUERY_URL)
+    const record = await response.json()
+    return record[datasource.fieldName]
   }
 }

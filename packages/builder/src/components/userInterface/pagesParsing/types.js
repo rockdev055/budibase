@@ -10,6 +10,7 @@ export const TYPE_MAP = {
   },
   options: {
     default: [],
+    options: [],
   },
   event: {
     default: [],
@@ -19,7 +20,7 @@ export const TYPE_MAP = {
       "##bbstate": "",
     },
   },
-  tables: {
+  models: {
     default: {},
   },
 }

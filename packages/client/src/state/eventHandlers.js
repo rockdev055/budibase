@@ -6,8 +6,8 @@ export const EVENT_TYPE_MEMBER_NAME = "##eventHandlerType"
 export const eventHandlers = routeTo => {
   const handlers = {
     "Navigate To": param => routeTo(param && param.url),
-    "Update Record": api.updateRow,
-    "Save Record": api.saveRow,
+    "Update Record": api.updateRecord,
+    "Save Record": api.saveRecord,
     "Trigger Workflow": api.triggerWorkflow,
   }
 
