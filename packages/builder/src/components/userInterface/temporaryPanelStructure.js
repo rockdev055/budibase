@@ -305,7 +305,7 @@ export default {
             design: { ...all },
             settings: [
               {
-                label: "Table",
+                label: "Data",
                 key: "datasource",
                 control: ModelViewSelect,
               },
@@ -345,6 +345,18 @@ export default {
                   "material",
                 ],
                 placeholder: "alpine",
+              },
+              {
+                label: "Height",
+                key: "height",
+                defaultValue: "500",
+                control: Input,
+              },
+              {
+                label: "Pagination",
+                key: "pagination",
+                valueKey: "checked",
+                control: Checkbox,
               },
             ],
           },
@@ -575,7 +587,7 @@ export default {
             design: { ...all },
             settings: [
               {
-                label: "Table",
+                label: "Data",
                 key: "datasource",
                 control: ModelViewSelect,
               },
@@ -647,7 +659,7 @@ export default {
               properties: {
                 settings: [
                   {
-                    label: "Table",
+                    label: "Data",
                     key: "datasource",
                     control: ModelViewSelect,
                   },
@@ -741,7 +753,7 @@ export default {
               properties: {
                 settings: [
                   {
-                    label: "Table",
+                    label: "Data",
                     key: "datasource",
                     control: ModelViewSelect,
                   },
@@ -855,7 +867,7 @@ export default {
               properties: {
                 settings: [
                   {
-                    label: "Table",
+                    label: "Data",
                     key: "datasource",
                     control: ModelViewSelect,
                   },
@@ -958,7 +970,7 @@ export default {
               properties: {
                 settings: [
                   {
-                    label: "Table",
+                    label: "Data",
                     key: "datasource",
                     control: ModelViewSelect,
                   },
