@@ -36,14 +36,10 @@
 </script>
 
 <nav use:cssVars={cssVariables}>
-  {#if logoUrl}
-    <a href="/">
-      <img class="logo" alt="logo" src={logoUrl} height="48" />
-      <span>{title}</span>
-    </a>
-  {:else}
-    <div />
-  {/if}
+  <a href="/">
+    <img class="logo" alt="logo" src={logoUrl} height="48" />
+    <span>{title}</span>
+  </a>
   <div class="menu-items" bind:this={itemContainer} />
 </nav>
 

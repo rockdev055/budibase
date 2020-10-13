@@ -11,8 +11,6 @@
   let dropdown
   let editing
   let confirmDeleteDialog
-  let error = ""
-  let originalName = table.name
 
   $: fields = Object.keys(table.schema)
 
@@ -41,18 +39,6 @@
     notifier.success("Table renamed successfully")
     hideEditor()
   }
-
-  function checkValid(evt) {
-    const tableName = evt.target.value
-    if (
-      originalName !== tableName &&
-      $backendUiStore.models?.some(model => model.name === tableName)
-    ) {
-      error = `Table with name ${tableName} already exists. Please choose another name.`
-      return
-    }
-    error = ""
-  }
 </script>
 
 <div bind:this={anchor} class="icon" on:click={dropdown.show}>
@@ -62,12 +48,7 @@
   {#if editing}
     <div class="actions">
       <h5>Edit Table</h5>
-      <Input
-        label="Table Name"
-        thin
-        bind:value={table.name}
-        on:input={checkValid}
-        {error} />
+      <Input label="Table Name" thin bind:value={table.name} />
       <Select
         label="Primary Display Column"
         thin
@@ -80,7 +61,7 @@
       </Select>
       <footer>
         <Button secondary on:click={hideEditor}>Cancel</Button>
-        <Button primary disabled={error} on:click={save}>Save</Button>
+        <Button primary on:click={save}>Save</Button>
       </footer>
     </div>
   {:else}
