@@ -45,10 +45,10 @@
   export let view = {}
   export let onClosed
 
-  $: viewTable = $backendUiStore.tables.find(
-    ({ _id }) => _id === $backendUiStore.selectedView.tableId
+  $: viewModel = $backendUiStore.models.find(
+    ({ _id }) => _id === $backendUiStore.selectedView.modelId
   )
-  $: fields = viewTable && Object.keys(viewTable.schema)
+  $: fields = viewModel && Object.keys(viewModel.schema)
 
   function saveView() {
     backendUiStore.actions.views.save(view)
@@ -71,25 +71,25 @@
 
   function isMultipleChoice(field) {
     return (
-      (viewTable.schema[field].constraints &&
-        viewTable.schema[field].constraints.inclusion &&
-        viewTable.schema[field].constraints.inclusion.length) ||
-      viewTable.schema[field].type === "boolean"
+      (viewModel.schema[field].constraints &&
+        viewModel.schema[field].constraints.inclusion &&
+        viewModel.schema[field].constraints.inclusion.length) ||
+      viewModel.schema[field].type === "boolean"
     )
   }
 
   function fieldOptions(field) {
-    return viewTable.schema[field].type === "options"
-      ? viewTable.schema[field].constraints.inclusion
+    return viewModel.schema[field].type === "options"
+      ? viewModel.schema[field].constraints.inclusion
       : [true, false]
   }
 
   function isDate(field) {
-    return viewTable.schema[field].type === "datetime"
+    return viewModel.schema[field].type === "datetime"
   }
 
   function isNumber(field) {
-    return viewTable.schema[field].type === "number"
+    return viewModel.schema[field].type === "number"
   }
 
   const fieldChanged = filter => ev => {
@@ -97,8 +97,8 @@
     if (
       filter.key &&
       ev.target.value &&
-      viewTable.schema[filter.key].type !==
-        viewTable.schema[ev.target.value].type
+      viewModel.schema[filter.key].type !==
+        viewModel.schema[ev.target.value].type
     ) {
       filter.value = ""
     }

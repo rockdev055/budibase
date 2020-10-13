@@ -8,7 +8,7 @@
   let anchor
   let dropdown
 
-  export let _bb, table
+  export let _bb, model
 </script>
 
 <div bind:this={anchor}>
@@ -21,9 +21,9 @@
   <h5>Add New Row</h5>
   <Modal
     {_bb}
-    {table}
+    {model}
     onClosed={dropdown.hide}
-    on:newRow={() => dispatch('newRow')} />
+    on:newRecord={() => dispatch('newRecord')} />
 </DropdownMenu>
 
 <style>

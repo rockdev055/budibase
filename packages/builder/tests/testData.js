@@ -29,8 +29,8 @@ export const componentsAndScreens = () => ({
       },
     },
     {
-      _instanceName: "Row View",
-      tags: ["row"],
+      _instanceName: "Record View",
+      tags: ["record"],
       props: {
         data: "state",
       },

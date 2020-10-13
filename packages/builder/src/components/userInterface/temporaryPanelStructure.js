@@ -1,9 +1,9 @@
 import Input from "./PropertyPanelControls/Input.svelte"
 import OptionSelect from "./OptionSelect.svelte"
 import Checkbox from "../common/Checkbox.svelte"
-import TableSelect from "components/userInterface/TableSelect.svelte"
-import TableViewSelect from "components/userInterface/TableViewSelect.svelte"
-import TableViewFieldSelect from "components/userInterface/TableViewFieldSelect.svelte"
+import ModelSelect from "components/userInterface/ModelSelect.svelte"
+import ModelViewSelect from "components/userInterface/ModelViewSelect.svelte"
+import ModelViewFieldSelect from "components/userInterface/ModelViewFieldSelect.svelte"
 import Event from "components/userInterface/EventsEditor/EventPropertyControl.svelte"
 import ScreenSelect from "components/userInterface/ScreenSelect.svelte"
 import { IconSelect } from "components/userInterface/IconSelect"
@@ -299,7 +299,7 @@ export default {
         {
           name: "List",
           _component: "@budibase/standard-components/list",
-          description: "Renders all children once per row, of a given table",
+          description: "Renders all children once per record, of a given table",
           icon: "ri-file-list-line",
           properties: {
             design: { ...all },
@@ -307,7 +307,7 @@ export default {
               {
                 label: "Data",
                 key: "datasource",
-                control: TableViewSelect,
+                control: ModelViewSelect,
               },
             ],
           },
@@ -325,7 +325,7 @@ export default {
               {
                 label: "Source",
                 key: "datasource",
-                control: TableViewSelect,
+                control: ModelViewSelect,
               },
               {
                 label: "Editable",
@@ -589,7 +589,7 @@ export default {
               {
                 label: "Data",
                 key: "datasource",
-                control: TableViewSelect,
+                control: ModelViewSelect,
               },
               {
                 label: "Stripe Color",
@@ -615,7 +615,7 @@ export default {
                 control: Colorpicker,
                 defaultValue: "#FFFFFF",
               },
-              { label: "Table", key: "table", control: TableSelect },
+              { label: "Table", key: "model", control: ModelSelect },
             ],
           },
           children: [],
@@ -661,19 +661,19 @@ export default {
                   {
                     label: "Data",
                     key: "datasource",
-                    control: TableViewSelect,
+                    control: ModelViewSelect,
                   },
                   {
                     label: "Name Field",
                     key: "nameKey",
                     dependsOn: "datasource",
-                    control: TableViewFieldSelect,
+                    control: ModelViewFieldSelect,
                   },
                   {
                     label: "Value Field",
                     key: "valueKey",
                     dependsOn: "datasource",
-                    control: TableViewFieldSelect,
+                    control: ModelViewFieldSelect,
                   },
                   {
                     label: "Animate Chart",
@@ -755,19 +755,19 @@ export default {
                   {
                     label: "Data",
                     key: "datasource",
-                    control: TableViewSelect,
+                    control: ModelViewSelect,
                   },
                   {
                     label: "Name Label",
                     key: "nameLabel",
                     dependsOn: "datasource",
-                    control: TableViewFieldSelect,
+                    control: ModelViewFieldSelect,
                   },
                   {
                     label: "Value Label",
                     key: "valueLabel",
                     dependsOn: "datasource",
-                    control: TableViewFieldSelect,
+                    control: ModelViewFieldSelect,
                   },
                   {
                     label: "Y Axis Label",
@@ -869,25 +869,25 @@ export default {
                   {
                     label: "Data",
                     key: "datasource",
-                    control: TableViewSelect,
+                    control: ModelViewSelect,
                   },
                   {
                     label: "Name Label",
                     key: "nameLabel",
                     dependsOn: "datasource",
-                    control: TableViewFieldSelect,
+                    control: ModelViewFieldSelect,
                   },
                   {
                     label: "Group Label",
                     key: "groupLabel",
                     dependsOn: "datasource",
-                    control: TableViewFieldSelect,
+                    control: ModelViewFieldSelect,
                   },
                   {
                     label: "Value Label",
                     key: "valueLabel",
                     dependsOn: "datasource",
-                    control: TableViewFieldSelect,
+                    control: ModelViewFieldSelect,
                   },
                   {
                     label: "Color",
@@ -972,25 +972,25 @@ export default {
                   {
                     label: "Data",
                     key: "datasource",
-                    control: TableViewSelect,
+                    control: ModelViewSelect,
                   },
                   {
                     label: "Value Label",
                     key: "valueLabel",
                     dependsOn: "datasource",
-                    control: TableViewFieldSelect,
+                    control: ModelViewFieldSelect,
                   },
                   {
                     label: "Topic Label",
                     key: "topicLabel",
                     dependsOn: "datasource",
-                    control: TableViewFieldSelect,
+                    control: ModelViewFieldSelect,
                   },
                   {
                     label: "Date Label",
                     key: "dateLabel",
                     dependsOn: "datasource",
-                    control: TableViewFieldSelect,
+                    control: ModelViewFieldSelect,
                   },
                   {
                     label: "Colors",
@@ -1137,7 +1137,7 @@ export default {
         //  icon: "ri-file-list-line",
         //  properties: {
         //   design: { ...all },
-        //   settings: [{ label: "Table", key: "table", control: TableSelect }],
+        //   settings: [{ label: "Table", key: "model", control: ModelSelect }],
         //  },
         //  children: [],
         // },
@@ -1145,11 +1145,11 @@ export default {
           name: "Row Detail",
           _component: "@budibase/standard-components/rowdetail",
           description:
-            "Loads a row, using an id from the URL, which can be used with {{ context }}, in children",
+            "Loads a record, using an id from the URL, which can be used with {{ context }}, in children",
           icon: "ri-profile-line",
           properties: {
             design: { ...all },
-            settings: [{ label: "Table", key: "table", control: TableSelect }],
+            settings: [{ label: "Table", key: "model", control: ModelSelect }],
           },
           children: [],
         },
@@ -1157,11 +1157,11 @@ export default {
           name: "New Row",
           _component: "@budibase/standard-components/newrow",
           description:
-            "Sets up a new row for creation, which can be used with {{ context }}, in children",
+            "Sets up a new record for creation, which can be used with {{ context }}, in children",
           icon: "ri-profile-line",
           properties: {
             design: { ...all },
-            settings: [{ label: "Table", key: "table", control: TableSelect }],
+            settings: [{ label: "Table", key: "model", control: ModelSelect }],
           },
           children: [],
         },

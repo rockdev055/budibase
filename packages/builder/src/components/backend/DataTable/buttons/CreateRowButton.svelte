@@ -1,6 +1,6 @@
 <script>
   import { TextButton as Button, Icon, Modal } from "@budibase/bbui"
-  import CreateEditRowModal from "../modals/CreateEditRowModal.svelte"
+  import CreateEditRecordModal from "../modals/CreateEditRecordModal.svelte"
 
   let modal
 </script>
@@ -12,5 +12,5 @@
   </Button>
 </div>
 <Modal bind:this={modal}>
-  <CreateEditRowModal />
+  <CreateEditRecordModal />
 </Modal>

@@ -22,9 +22,9 @@
   <h5>Edit Attachment(s)</h5>
    <Modal
         {_bb}
-        {table}
+        {model}
         onClosed={dropdown.hide}
-        on:newRow={() => dispatch('newRow')} />
+        on:newRecord={() => dispatch('newRecord')} />
  </DropdownMenu> -->
 
 <!-- <style>

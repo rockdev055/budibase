@@ -3,7 +3,7 @@
   import { number } from "./valueSetters"
   import { getRenderer } from "./customRenderer"
 
-  // These maps need to be set up to handle whatever types that are used in the tables.
+  // These maps need to be set up to handle whatever types that are used in the models.
   const setters = new Map([["number", number]])
 
   import fetchData from "../fetchData.js"
@@ -18,14 +18,14 @@
   export let datasource = {}
   export let editable
   export let theme = "alpine"
-  export let height
+  export let height = 500
   export let pagination
 
   let dataLoaded = false
   let data
   let columnDefs
   let selectedRows = []
-  let table
+  let model
   let options = {
     defaultColDef: {
       flex: 1,
@@ -40,10 +40,10 @@
   let store = _bb.store
 
   onMount(async () => {
-    if (datasource.tableId) {
-      const jsonTable = await _bb.api.get(`/api/tables/${datasource.tableId}`)
-      table = await jsonTable.json()
-      const { schema } = table
+    if (datasource.modelId) {
+      const jsonModel = await _bb.api.get(`/api/models/${datasource.modelId}`)
+      model = await jsonModel.json()
+      const { schema } = model
       if (!isEmpty(datasource)) {
         data = await fetchData(datasource, $store)
         columnDefs = Object.keys(schema).map((key, i) => {
@@ -74,37 +74,37 @@
 
   const shouldHideField = name => {
     if (name.startsWith("_")) return true
-    // always 'row'
+    // always 'record'
     if (name === "type") return true
-    // tables are always tied to a single tableId, this is irrelevant
-    if (name === "tableId") return true
+    // tables are always tied to a single modelId, this is irrelevant
+    if (name === "modelId") return true
 
     return false
   }
 
-  const handleNewRow = async () => {
+  const handleNewRecord = async () => {
     data = await fetchData(datasource)
   }
 
   const handleUpdate = ({ detail }) => {
     data[detail.row] = detail.data
-    updateRow(detail.data)
+    updateRecord(detail.data)
   }
 
-  const updateRow = async row => {
+  const updateRecord = async record => {
     const response = await _bb.api.patch(
-      `/api/${row.tableId}/rows/${row._id}`,
-      row
+      `/api/${record.modelId}/records/${record._id}`,
+      record
     )
     const json = await response.json()
   }
 
-  const deleteRows = async () => {
-    const response = await _bb.api.post(`/api/${datasource.name}/rows`, {
-      rows: selectedRows,
+  const deleteRecords = async () => {
+    const response = await _bb.api.post(`/api/${datasource.name}/records`, {
+      records: selectedRows,
       type: "delete",
     })
-    data = data.filter(row => !selectedRows.includes(row))
+    data = data.filter(record => !selectedRows.includes(record))
     selectedRows = []
   }
 </script>
@@ -115,13 +115,13 @@
     href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
 </svelte:head>
 
-<div class="container" style="--grid-height: {height}px">
+<div style="--grid-height: {height}px">
   {#if dataLoaded}
     {#if editable}
       <div class="controls">
-        <CreateRowButton {_bb} {table} on:newRow={handleNewRow} />
+        <CreateRowButton {_bb} {model} on:newRecord={handleNewRecord} />
         {#if selectedRows.length > 0}
-          <DeleteButton text small on:click={deleteRows}>
+          <DeleteButton text small on:click={deleteRecords}>
             <Icon name="addrow" />
             Delete {selectedRows.length} row(s)
           </DeleteButton>
@@ -139,9 +139,6 @@
 </div>
 
 <style>
-  .container {
-    --grid-height: 800px;
-  }
   .container :global(form) {
     display: grid;
     grid-template-columns: repeat(2);

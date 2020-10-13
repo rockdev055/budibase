@@ -26,16 +26,16 @@ export default {
     ],
     trigger: {
       id: "iRzYMOqND",
-      name: "Row Saved",
-      event: "row:save",
+      name: "Record Saved",
+      event: "record:save",
       icon: "ri-save-line",
-      tagline: "Row is added to <b>{{table.name}}</b>",
-      description: "Fired when a row is saved to your database.",
-      params: { table: "table" },
+      tagline: "Record is added to <b>{{model.name}}</b>",
+      description: "Fired when a record is saved to your database.",
+      params: { model: "model" },
       type: "TRIGGER",
       args: {
-        table: {
-          type: "table",
+        model: {
+          type: "model",
           views: {},
           name: "users",
           schema: {
@@ -65,7 +65,7 @@ export default {
           _rev: "7-b8aa1ce0b53e88928bb88fc11bdc0aff",
         },
       },
-      stepId: "ROW_SAVED",
+      stepId: "RECORD_SAVED",
     },
   },
   type: "automation",

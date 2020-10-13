@@ -11,35 +11,35 @@ const EventEmitter = require("events").EventEmitter
  * This is specifically quite important for mustache used in automations.
  */
 class BudibaseEmitter extends EventEmitter {
-  emitRow(eventName, instanceId, row, table = null) {
+  emitRecord(eventName, instanceId, record, model = null) {
     let event = {
-      row,
+      record,
       instanceId,
-      tableId: row.tableId,
+      modelId: record.modelId,
     }
-    if (table) {
-      event.table = table
+    if (model) {
+      event.model = model
     }
-    event.id = row._id
-    if (row._rev) {
-      event.revision = row._rev
+    event.id = record._id
+    if (record._rev) {
+      event.revision = record._rev
     }
     this.emit(eventName, event)
   }
 
-  emitTable(eventName, instanceId, table = null) {
-    const tableId = table._id
+  emitModel(eventName, instanceId, model = null) {
+    const modelId = model._id
     let event = {
-      table: {
-        ...table,
-        tableId: tableId,
+      model: {
+        ...model,
+        modelId: modelId,
       },
       instanceId,
-      tableId: tableId,
+      modelId: modelId,
     }
-    event.id = tableId
-    if (table._rev) {
-      event.revision = table._rev
+    event.id = modelId
+    if (model._rev) {
+      event.revision = model._rev
     }
     this.emit(eventName, event)
   }

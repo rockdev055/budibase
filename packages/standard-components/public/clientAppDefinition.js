@@ -5,7 +5,7 @@ window["##BUDIBASE_APPDEFINITION##"] = {
     children: [
       {
         name: "customer",
-        type: "row",
+        type: "record",
         fields: [
           {
             name: "name",
@@ -23,7 +23,7 @@ window["##BUDIBASE_APPDEFINITION##"] = {
         children: [
           {
             name: "invoiceyooo",
-            type: "row",
+            type: "record",
             fields: [
               {
                 name: "amount",
@@ -53,13 +53,13 @@ window["##BUDIBASE_APPDEFINITION##"] = {
           {
             name: "customer_invoices",
             type: "index",
-            map: "return {...row};",
+            map: "return {...record};",
             filter: "",
             indexType: "ancestor",
             getShardName: "",
-            getSortKey: "row.id",
+            getSortKey: "record.id",
             aggregateGroups: [],
-            allowedTableNodeIds: [2],
+            allowedModelNodeIds: [2],
             nodeId: 5,
           },
         ],
@@ -73,25 +73,25 @@ window["##BUDIBASE_APPDEFINITION##"] = {
       {
         name: "Yeo index",
         type: "index",
-        map: "return {...row};",
+        map: "return {...record};",
         filter: "",
         indexType: "ancestor",
         getShardName: "",
-        getSortKey: "row.id",
+        getSortKey: "record.id",
         aggregateGroups: [],
-        allowedTableNodeIds: [1],
+        allowedModelNodeIds: [1],
         nodeId: 4,
       },
       {
         name: "everyones_invoices",
         type: "index",
-        map: "return {...row};",
+        map: "return {...record};",
         filter: "",
         indexType: "ancestor",
         getShardName: "",
-        getSortKey: "row.id",
+        getSortKey: "record.id",
         aggregateGroups: [],
-        allowedTableNodeIds: [2],
+        allowedModelNodeIds: [2],
         nodeId: 6,
       },
     ],
