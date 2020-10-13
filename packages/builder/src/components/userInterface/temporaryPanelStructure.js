@@ -346,18 +346,6 @@ export default {
                 ],
                 placeholder: "alpine",
               },
-              {
-                label: "Height",
-                key: "height",
-                defaultValue: "500",
-                control: Input,
-              },
-              {
-                label: "Pagination",
-                key: "pagination",
-                valueKey: "checked",
-                control: Checkbox,
-              },
             ],
           },
           children: [],
