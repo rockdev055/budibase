@@ -35,20 +35,15 @@
     const FETCH_TABLE_URL = `/api/tables/${tableId}`
     const response = await _bb.api.get(FETCH_TABLE_URL)
     const table = await response.json()
-    return table.schema
+    schema = table.schema
   }
 
   onMount(async () => {
     if (!isEmpty(datasource)) {
       data = await fetchData(datasource, $store)
       if (data && data.length) {
-        if (datasource.type === "view") {
-          schema = data[0]
-          headers = Object.keys(schema).filter(shouldDisplayField)
-        } else {
-          schema = await fetchTable(datasource.tableId)
-          headers = Object.keys(schema)
-        }
+        await fetchTable(data[0].tableId)
+        headers = Object.keys(schema).filter(shouldDisplayField)
       }
     }
   })
@@ -59,6 +54,7 @@
     if (name === "type") return false
     // tables are always tied to a single tableId, this is irrelevant
     if (name === "tableId") return false
+
     return true
   }
 
@@ -99,11 +95,11 @@
     {#each sorted as row (row._id)}
       <tr>
         {#each headers as header}
-          {#if schema[header] !== undefined}
+          {#if schema[header]}
             <!-- Rudimentary solution for attachments on array given this entire table will be replaced by AG Grid -->
-            {#if schema[header] && schema[header].type === 'attachment'}
+            {#if schema[header].type === 'attachment'}
               <AttachmentList files={row[header]} />
-            {:else if schema[header] && schema[header].type === 'link'}
+            {:else if schema[header].type === 'link'}
               <td>{row[header] ? row[header].length : 0} related row(s)</td>
             {:else}
               <td>{row[header] == null ? '' : row[header]}</td>
