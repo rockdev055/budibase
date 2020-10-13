@@ -9,7 +9,6 @@
   export let value = ""
 
   $: urls = getUrls()
-  $: console.log(urls)
 
   const handleBlur = () => dispatch("change", value)
 
@@ -31,7 +30,7 @@
       componentInstanceId: $store.currentComponentInfo._id,
       components: $store.components,
       screen: $store.currentPreviewItem,
-      models: $backendUiStore.models,
+      tables: $backendUiStore.tables,
     })
 
     const detailScreens = $store.screens.filter(screen =>
@@ -43,11 +42,11 @@
         if (
           p.type === "context" &&
           p.runtimeBinding.endsWith("._id") &&
-          p.model
+          p.table
         ) {
-          const modelId =
-            typeof p.model === "string" ? p.model : p.model.modelId
-          return modelId === detailScreen.props.model
+          const tableId =
+            typeof p.table === "string" ? p.table : p.table.tableId
+          return tableId === detailScreen.props.table
         }
         return false
       })
@@ -62,9 +61,9 @@
           sort: detailScreen.props._component,
         })
       }
-    }
 
-    return urls
+      return urls
+    }
   }
 </script>
 
