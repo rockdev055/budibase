@@ -118,7 +118,8 @@
     position: relative;
     display: flex;
     flex-flow: row;
-    margin: 8px 0;
+    min-width: 260px;
+    margin: 8px 0px;
     align-items: center;
   }
 
@@ -127,7 +128,7 @@
     align-items: center;
     font-size: 12px;
     font-weight: 400;
-    flex: 0 0 100px;
+    width: 100px;
     text-align: left;
     color: var(--ink);
     margin-right: auto;
@@ -138,7 +139,7 @@
     flex: 1;
     display: flex;
     padding-left: 2px;
-    overflow: hidden;
+    max-width: 164px;
   }
   button {
     position: absolute;

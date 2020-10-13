@@ -20,7 +20,6 @@
   let sort = {}
   let sorted = []
   let schema = {}
-  let store = _bb.store
 
   $: cssVariables = {
     backgroundColor,
@@ -40,7 +39,7 @@
 
   onMount(async () => {
     if (!isEmpty(datasource)) {
-      data = await fetchData(datasource, $store)
+      data = await fetchData(datasource)
       if (data && data.length) {
         await fetchModel(data[0].modelId)
         headers = Object.keys(schema).filter(shouldDisplayField)
@@ -100,9 +99,9 @@
             {#if schema[header].type === 'attachment'}
               <AttachmentList files={row[header]} />
             {:else if schema[header].type === 'link'}
-              <td>{row[header] ? row[header].length : 0} related row(s)</td>
-            {:else}
-              <td>{row[header] == null ? '' : row[header]}</td>
+              <td>{row[header]} related row(s)</td>
+            {:else if row[header]}
+              <td>{row[header]}</td>
             {/if}
           {/if}
         {/each}
