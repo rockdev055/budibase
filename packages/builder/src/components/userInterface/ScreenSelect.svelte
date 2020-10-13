@@ -30,7 +30,7 @@
       componentInstanceId: $store.currentComponentInfo._id,
       components: $store.components,
       screen: $store.currentPreviewItem,
-      tables: $backendUiStore.tables,
+      models: $backendUiStore.models,
     })
 
     const detailScreens = $store.screens.filter(screen =>
@@ -42,11 +42,11 @@
         if (
           p.type === "context" &&
           p.runtimeBinding.endsWith("._id") &&
-          p.table
+          p.model
         ) {
-          const tableId =
-            typeof p.table === "string" ? p.table : p.table.tableId
-          return tableId === detailScreen.props.table
+          const modelId =
+            typeof p.model === "string" ? p.model : p.model.modelId
+          return modelId === detailScreen.props.model
         }
         return false
       })
@@ -67,22 +67,9 @@
   }
 </script>
 
-<div>
-  <DataList editable secondary thin on:blur={handleBlur} on:change bind:value>
-    <option value="" />
-    {#each urls as url}
-      <option value={url.url}>{url.name}</option>
-    {/each}
-  </DataList>
-</div>
-
-<style>
-  div {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: row;
-  }
-  div :global(> div) {
-    flex: 1 1 auto;
-  }
-</style>
+<DataList editable secondary on:blur={handleBlur} on:change bind:value>
+  <option value="" />
+  {#each urls as url}
+    <option value={url.url}>{url.name}</option>
+  {/each}
+</DataList>

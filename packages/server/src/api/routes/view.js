@@ -1,6 +1,6 @@
 const Router = require("@koa/router")
 const viewController = require("../controllers/view")
-const rowController = require("../controllers/row")
+const recordController = require("../controllers/record")
 const authorized = require("../../middleware/authorized")
 const { BUILDER, READ_VIEW } = require("../../utilities/accessLevels")
 const usage = require("../../middleware/usageQuota")
@@ -11,7 +11,7 @@ router
   .get(
     "/api/views/:viewName",
     authorized(READ_VIEW, ctx => ctx.params.viewName),
-    rowController.fetchView
+    recordController.fetchView
   )
   .get("/api/views", authorized(BUILDER), viewController.fetch)
   .delete(

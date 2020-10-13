@@ -2,7 +2,7 @@ const {
   createInstance, 
   createClientDatabase,
   createApplication,
-  createTable,
+  createModel,
   createView,
   supertest,
   defaultHeaders
@@ -12,8 +12,8 @@ const {
   generatePowerUserPermissions,
   POWERUSER_LEVEL_ID,
   ADMIN_LEVEL_ID,
-  READ_TABLE,
-  WRITE_TABLE,
+  READ_MODEL,
+  WRITE_MODEL,
 } = require("../../../utilities/accessLevels")
 
 describe("/accesslevels", () => {
@@ -21,7 +21,7 @@ describe("/accesslevels", () => {
   let server
   let request
   let instanceId
-  let table
+  let model
   let view
 
   beforeAll(async () => {
@@ -36,8 +36,8 @@ describe("/accesslevels", () => {
 
   beforeEach(async () => {
     instanceId = (await createInstance(request, appId))._id
-    table = await createTable(request, appId, instanceId)
-    view = await createView(request, appId, instanceId, table._id)
+    model = await createModel(request, appId, instanceId)
+    view = await createView(request, appId, instanceId, model._id)
   })
 
   describe("create", () => {
@@ -63,7 +63,7 @@ describe("/accesslevels", () => {
     it("should list custom levels, plus 2 default levels", async () => {
       const createRes = await request
         .post(`/api/accesslevels`)
-        .send({ name: "user", permissions: [ { itemId: table._id, name: READ_TABLE }] })
+        .send({ name: "user", permissions: [ { itemId: model._id, name: READ_MODEL }] })
         .set(defaultHeaders(appId, instanceId))
         .expect('Content-Type', /json/)
         .expect(200)
@@ -96,7 +96,7 @@ describe("/accesslevels", () => {
     it("should delete custom access level", async () => {
       const createRes = await request
         .post(`/api/accesslevels`)
-        .send({ name: "user", permissions: [ { itemId: table._id, name: READ_TABLE } ] })
+        .send({ name: "user", permissions: [ { itemId: model._id, name: READ_MODEL } ] })
         .set(defaultHeaders(appId, instanceId))
         .expect('Content-Type', /json/)
         .expect(200)
@@ -119,7 +119,7 @@ describe("/accesslevels", () => {
     it("should add given permissions", async () => {
       const createRes = await request
         .post(`/api/accesslevels`)
-        .send({ name: "user", permissions: [ { itemId: table._id, name: READ_TABLE }] })
+        .send({ name: "user", permissions: [ { itemId: model._id, name: READ_MODEL }] })
         .set(defaultHeaders(appId, instanceId))
         .expect('Content-Type', /json/)
         .expect(200)
@@ -130,7 +130,7 @@ describe("/accesslevels", () => {
         .patch(`/api/accesslevels/${customLevel._id}`)
         .send({
           _rev: customLevel._rev,
-          addedPermissions:  [ { itemId: table._id, name: WRITE_TABLE } ] 
+          addedPermissions:  [ { itemId: model._id, name: WRITE_MODEL } ] 
         })
         .set(defaultHeaders(appId, instanceId))
         .expect('Content-Type', /json/)
@@ -142,8 +142,8 @@ describe("/accesslevels", () => {
         .expect(200) 
 
       expect(finalRes.body.permissions.length).toBe(2)
-      expect(finalRes.body.permissions.some(p => p.name === WRITE_TABLE)).toBe(true)
-      expect(finalRes.body.permissions.some(p => p.name === READ_TABLE)).toBe(true)
+      expect(finalRes.body.permissions.some(p => p.name === WRITE_MODEL)).toBe(true)
+      expect(finalRes.body.permissions.some(p => p.name === READ_MODEL)).toBe(true)
     })
 
     it("should remove given permissions", async () => {
@@ -152,8 +152,8 @@ describe("/accesslevels", () => {
         .send({ 
           name: "user", 
           permissions: [ 
-            { itemId: table._id, name: READ_TABLE },
-            { itemId: table._id, name: WRITE_TABLE },
+            { itemId: model._id, name: READ_MODEL },
+            { itemId: model._id, name: WRITE_MODEL },
           ] 
         })
         .set(defaultHeaders(appId, instanceId))
@@ -166,7 +166,7 @@ describe("/accesslevels", () => {
         .patch(`/api/accesslevels/${customLevel._id}`)
         .send({
           _rev: customLevel._rev,
-          removedPermissions:  [ { itemId: table._id, name: WRITE_TABLE }] 
+          removedPermissions:  [ { itemId: model._id, name: WRITE_MODEL }] 
         })
         .set(defaultHeaders(appId, instanceId))
         .expect('Content-Type', /json/)
@@ -178,7 +178,7 @@ describe("/accesslevels", () => {
         .expect(200) 
 
       expect(finalRes.body.permissions.length).toBe(1)
-      expect(finalRes.body.permissions.some(p => p.name === READ_TABLE)).toBe(true)
+      expect(finalRes.body.permissions.some(p => p.name === READ_MODEL)).toBe(true)
     })
   })
 });

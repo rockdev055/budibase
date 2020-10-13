@@ -1,19 +1,19 @@
-import newRowScreen from "./newRowScreen"
-import rowDetailScreen from "./rowDetailScreen"
-import rowListScreen from "./rowListScreen"
-import emptyNewRowScreen from "./emptyNewRowScreen"
+import newRecordScreen from "./newRecordScreen"
+import recordDetailScreen from "./recordDetailScreen"
+import recordListScreen from "./recordListScreen"
+import emptyNewRecordScreen from "./emptyNewRecordScreen"
 import createFromScratchScreen from "./createFromScratchScreen"
-import emptyRowDetailScreen from "./emptyRowDetailScreen"
+import emptyRecordDetailScreen from "./emptyRecordDetailScreen"
 import { generateNewIdsForComponent } from "../../storeUtils"
 import { uuid } from "builderStore/uuid"
 
-const allTemplates = tables => [
+const allTemplates = models => [
   createFromScratchScreen,
-  ...newRowScreen(tables),
-  ...rowDetailScreen(tables),
-  ...rowListScreen(tables),
-  emptyNewRowScreen,
-  emptyRowDetailScreen,
+  ...newRecordScreen(models),
+  ...recordDetailScreen(models),
+  ...recordListScreen(models),
+  emptyNewRecordScreen,
+  emptyRecordDetailScreen,
 ]
 
 // allows us to apply common behaviour to all create() functions
@@ -28,8 +28,8 @@ const createTemplateOverride = (frontendState, create) => () => {
   return screen
 }
 
-export default (frontendState, tables) =>
-  allTemplates(tables).map(template => ({
+export default (frontendState, models) =>
+  allTemplates(models).map(template => ({
     ...template,
     create: createTemplateOverride(frontendState, template.create),
   }))

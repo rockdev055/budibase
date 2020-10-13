@@ -1,10 +1,15 @@
 <script>
-  import { goto } from "@sveltech/routify"
   import { store } from "builderStore"
   import { getComponentDefinition } from "builderStore/storeUtils"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
   import { last, cloneDeep } from "lodash/fp"
-  import { getParent, saveCurrentPreviewItem } from "builderStore/storeUtils"
+  import {
+    selectComponent,
+    getParent,
+    walkProps,
+    saveCurrentPreviewItem,
+    regenerateCssForCurrentScreen,
+  } from "builderStore/storeUtils"
   import { uuid } from "builderStore/uuid"
   import { DropdownMenu } from "@budibase/bbui"
 
@@ -22,12 +27,6 @@
 
   const hideDropdown = () => {
     dropdown.hide()
-  }
-
-  const selectComponent = component => {
-    store.selectComponent(component)
-    const path = store.getPathToComponent(component)
-    $goto(`./:page/:screen/${path}`)
   }
 
   const moveUpComponent = () => {
@@ -79,10 +78,10 @@
 
       if (parent) {
         parent._children = parent._children.filter(c => c !== component)
-        selectComponent(parent)
       }
 
       saveCurrentPreviewItem(state)
+
       return state
     })
   }

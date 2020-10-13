@@ -12,7 +12,7 @@
 
   $: name = view.name
 
-  // Fetch rows for specified view
+  // Fetch records for specified view
   $: {
     if (!name.startsWith("all_")) {
       fetchViewData(name, view.field, view.groupBy)

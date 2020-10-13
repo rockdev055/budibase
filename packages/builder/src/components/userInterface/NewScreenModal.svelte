@@ -1,5 +1,4 @@
 <script>
-  import { goto } from "@sveltech/routify"
   import { store, backendUiStore } from "builderStore"
   import { Input, Button, Spacer, Select, ModalContent } from "@budibase/bbui"
   import getTemplates from "builderStore/store/screenTemplates"
@@ -14,7 +13,7 @@
   let templateIndex
   let draftScreen
 
-  $: templates = getTemplates($store, $backendUiStore.tables)
+  $: templates = getTemplates($store, $backendUiStore.models)
 
   $: route = !route && $store.screens.length === 0 ? "*" : route
 
@@ -72,7 +71,14 @@
       })
     }
 
-    $goto(`./:page/${name}`)
+    finished()
+  }
+
+  const finished = () => {
+    templateIndex = 0
+    name = ""
+    route = ""
+    baseComponent = CONTAINER
   }
 
   const routeNameExists = route => {
