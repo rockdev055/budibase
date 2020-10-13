@@ -12,18 +12,13 @@
 </script>
 
 <input type="checkbox" class="checkbox" id="_checkbox" />
-<div class="checkbox-container" on:click={handleChange}>
+<div on:click={handleChange}>
   <div class="check-div" class:checked>
     <div class="tick_mark" />
   </div>
 </div>
 
 <style>
-  .checkbox-container {
-    position: relative;
-    z-index: 0;
-  }
-
   .checkbox {
     display: none;
   }
