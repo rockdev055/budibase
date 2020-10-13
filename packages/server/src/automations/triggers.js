@@ -11,30 +11,30 @@ const FAKE_NUMBER = 1
 const FAKE_DATETIME = "1970-01-01T00:00:00.000Z"
 
 const BUILTIN_DEFINITIONS = {
-  ROW_SAVED: {
+  RECORD_SAVED: {
     name: "Row Saved",
-    event: "row:save",
+    event: "record:save",
     icon: "ri-save-line",
-    tagline: "Row is added to {{inputs.enriched.table.name}}",
+    tagline: "Row is added to {{inputs.enriched.model.name}}",
     description: "Fired when a row is saved to your database",
-    stepId: "ROW_SAVED",
+    stepId: "RECORD_SAVED",
     inputs: {},
     schema: {
       inputs: {
         properties: {
-          tableId: {
+          modelId: {
             type: "string",
-            customType: "table",
+            customType: "model",
             title: "Table",
           },
         },
-        required: ["tableId"],
+        required: ["modelId"],
       },
       outputs: {
         properties: {
-          row: {
+          record: {
             type: "object",
-            customType: "row",
+            customType: "record",
             description: "The new row that was saved",
           },
           id: {
@@ -46,46 +46,46 @@ const BUILTIN_DEFINITIONS = {
             description: "Revision of row",
           },
         },
-        required: ["row", "id"],
+        required: ["record", "id"],
       },
     },
     type: "TRIGGER",
   },
-  ROW_DELETED: {
+  RECORD_DELETED: {
     name: "Row Deleted",
-    event: "row:delete",
+    event: "record:delete",
     icon: "ri-delete-bin-line",
-    tagline: "Row is deleted from {{inputs.enriched.table.name}}",
+    tagline: "Row is deleted from {{inputs.enriched.model.name}}",
     description: "Fired when a row is deleted from your database",
-    stepId: "ROW_DELETED",
+    stepId: "RECORD_DELETED",
     inputs: {},
     schema: {
       inputs: {
         properties: {
-          tableId: {
+          modelId: {
             type: "string",
-            customType: "table",
+            customType: "model",
             title: "Table",
           },
         },
-        required: ["tableId"],
+        required: ["modelId"],
       },
       outputs: {
         properties: {
-          row: {
+          record: {
             type: "object",
-            customType: "row",
+            customType: "record",
             description: "The row that was deleted",
           },
         },
-        required: ["row", "id"],
+        required: ["record", "id"],
       },
     },
     type: "TRIGGER",
   },
 }
 
-async function queueRelevantRowAutomations(event, eventType) {
+async function queueRelevantRecordAutomations(event, eventType) {
   if (event.instanceId == null) {
     throw `No instanceId specified for ${eventType} - check event emitters.`
   }
@@ -108,7 +108,7 @@ async function queueRelevantRowAutomations(event, eventType) {
     if (
       !automation.live ||
       !automationTrigger.inputs ||
-      automationTrigger.inputs.tableId !== event.row.tableId
+      automationTrigger.inputs.modelId !== event.record.modelId
     ) {
       continue
     }
@@ -116,50 +116,50 @@ async function queueRelevantRowAutomations(event, eventType) {
   }
 }
 
-emitter.on("row:save", async function(event) {
-  if (!event || !event.row || !event.row.tableId) {
+emitter.on("record:save", async function(event) {
+  if (!event || !event.record || !event.record.modelId) {
     return
   }
-  await queueRelevantRowAutomations(event, "row:save")
+  await queueRelevantRecordAutomations(event, "record:save")
 })
 
-emitter.on("row:delete", async function(event) {
-  if (!event || !event.row || !event.row.tableId) {
+emitter.on("record:delete", async function(event) {
+  if (!event || !event.record || !event.record.modelId) {
     return
   }
-  await queueRelevantRowAutomations(event, "row:delete")
+  await queueRelevantRecordAutomations(event, "record:delete")
 })
 
-async function fillRowOutput(automation, params) {
+async function fillRecordOutput(automation, params) {
   let triggerSchema = automation.definition.trigger
-  let tableId = triggerSchema.inputs.tableId
+  let modelId = triggerSchema.inputs.modelId
   const db = new CouchDB(params.instanceId)
   try {
-    let table = await db.get(tableId)
-    let row = {}
-    for (let schemaKey of Object.keys(table.schema)) {
+    let model = await db.get(modelId)
+    let record = {}
+    for (let schemaKey of Object.keys(model.schema)) {
       if (params[schemaKey] != null) {
         continue
       }
-      let propSchema = table.schema[schemaKey]
+      let propSchema = model.schema[schemaKey]
       switch (propSchema.constraints.type) {
         case "string":
-          row[schemaKey] = FAKE_STRING
+          record[schemaKey] = FAKE_STRING
           break
         case "boolean":
-          row[schemaKey] = FAKE_BOOL
+          record[schemaKey] = FAKE_BOOL
           break
         case "number":
-          row[schemaKey] = FAKE_NUMBER
+          record[schemaKey] = FAKE_NUMBER
           break
         case "datetime":
-          row[schemaKey] = FAKE_DATETIME
+          record[schemaKey] = FAKE_DATETIME
           break
       }
     }
-    params.row = row
+    params.record = record
   } catch (err) {
-    throw "Failed to find table for trigger"
+    throw "Failed to find model for trigger"
   }
   return params
 }
@@ -169,9 +169,9 @@ module.exports.externalTrigger = async function(automation, params) {
   if (
     automation.definition != null &&
     automation.definition.trigger != null &&
-    automation.definition.trigger.inputs.tableId != null
+    automation.definition.trigger.inputs.modelId != null
   ) {
-    params = await fillRowOutput(automation, params)
+    params = await fillRecordOutput(automation, params)
   }
 
   automationQueue.add({ automation, event: params })

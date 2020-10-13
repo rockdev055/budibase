@@ -39,9 +39,9 @@ async function replicateCouch({ instanceId, clientId, credentials }) {
 async function getCurrentInstanceQuota(instanceId) {
   const db = new PouchDB(instanceId)
 
-  const rows = await db.allDocs({
-    startkey: DocumentTypes.ROW + SEPARATOR,
-    endkey: DocumentTypes.ROW + SEPARATOR + UNICODE_MAX,
+  const records = await db.allDocs({
+    startkey: DocumentTypes.RECORD + SEPARATOR,
+    endkey: DocumentTypes.RECORD + SEPARATOR + UNICODE_MAX,
   })
 
   const users = await db.allDocs({
@@ -49,13 +49,13 @@ async function getCurrentInstanceQuota(instanceId) {
     endkey: DocumentTypes.USER + SEPARATOR + UNICODE_MAX,
   })
 
-  const existingRows = rows.rows.length
+  const existingRecords = records.rows.length
   const existingUsers = users.rows.length
 
   const designDoc = await db.get("_design/database")
 
   return {
-    rows: existingRows,
+    records: existingRecords,
     users: existingUsers,
     views: Object.keys(designDoc.views).length,
   }

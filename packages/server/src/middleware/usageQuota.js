@@ -9,7 +9,7 @@ const METHOD_MAP = {
 }
 
 const DOMAIN_MAP = {
-  rows: usageQuota.Properties.ROW,
+  records: usageQuota.Properties.RECORD,
   upload: usageQuota.Properties.UPLOAD,
   views: usageQuota.Properties.VIEW,
   users: usageQuota.Properties.USER,

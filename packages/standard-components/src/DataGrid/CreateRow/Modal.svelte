@@ -14,14 +14,14 @@
   }
 
   export let _bb
-  export let table
+  export let model
   export let onClosed
 
-  let row = { tableId: table._id }
+  let record = { modelId: model._id }
   let store = _bb.store
-  let schema = table.schema
+  let schema = model.schema
   let saved = false
-  let rowId
+  let recordId
   let isNew = true
   let errors = {}
 
@@ -34,32 +34,32 @@
   const save = debounce(async () => {
     for (let field of fields) {
       // Assign defaults to empty fields to prevent validation issues
-      if (!(field in row)) {
-        row[field] = DEFAULTS_FOR_TYPE[schema[field].type]
+      if (!(field in record)) {
+        record[field] = DEFAULTS_FOR_TYPE[schema[field].type]
       }
     }
 
-    const SAVE_ROW_URL = `/api/${table._id}/rows`
-    const response = await _bb.api.post(SAVE_ROW_URL, row)
+    const SAVE_RECORD_URL = `/api/${model._id}/records`
+    const response = await _bb.api.post(SAVE_RECORD_URL, record)
 
     const json = await response.json()
 
     if (response.status === 200) {
       store.update(state => {
-        state[table._id] = state[table._id]
-          ? [...state[table._id], json]
+        state[model._id] = state[model._id]
+          ? [...state[model._id], json]
           : [json]
         return state
       })
 
       errors = {}
 
-      // wipe form, if new row, otherwise update
-      // table to get new _rev
-      row = isNew ? { tableId: table._id } : json
+      // wipe form, if new record, otherwise update
+      // model to get new _rev
+      record = isNew ? { modelId: model._id } : json
 
       onClosed()
-      dispatch("newRow")
+      dispatch("newRecord")
     }
 
     if (response.status === 400) {
@@ -69,19 +69,19 @@
 
   onMount(async () => {
     const routeParams = _bb.routeParams()
-    rowId =
+    recordId =
       Object.keys(routeParams).length > 0 && (routeParams.id || routeParams[0])
-    isNew = !rowId || rowId === "new"
+    isNew = !recordId || recordId === "new"
 
     if (isNew) {
-      row = { tableId: table }
+      record = { modelId: model }
       return
     }
 
-    const GET_ROW_URL = `/api/${table._id}/rows/${rowId}`
-    const response = await _bb.api.get(GET_ROW_URL)
+    const GET_RECORD_URL = `/api/${model._id}/records/${recordId}`
+    const response = await _bb.api.get(GET_RECORD_URL)
     const json = await response.json()
-    row = json
+    record = json
   })
 </script>
 
@@ -94,21 +94,21 @@
       <div class="form-item">
         <Label small forAttr={'form-stacked-text'}>{field}</Label>
         {#if schema[field].type === 'string' && schema[field].constraints.inclusion}
-          <select bind:value={row[field]}>
+          <select bind:value={record[field]}>
             {#each schema[field].constraints.inclusion as opt}
               <option>{opt}</option>
             {/each}
           </select>
         {:else if schema[field].type === 'datetime'}
-          <DatePicker bind:value={row[field]} />
+          <DatePicker bind:value={record[field]} />
         {:else if schema[field].type === 'boolean'}
-          <input class="input" type="checkbox" bind:checked={row[field]} />
+          <input class="input" type="checkbox" bind:checked={record[field]} />
         {:else if schema[field].type === 'number'}
-          <input class="input" type="number" bind:value={row[field]} />
+          <input class="input" type="number" bind:value={record[field]} />
         {:else if schema[field].type === 'string'}
-          <input class="input" type="text" bind:value={row[field]} />
+          <input class="input" type="text" bind:value={record[field]} />
         {:else if schema[field].type === 'attachment'}
-          <Dropzone bind:files={row[field]} />
+          <Dropzone bind:files={record[field]} />
         {/if}
       </div>
       <hr />
