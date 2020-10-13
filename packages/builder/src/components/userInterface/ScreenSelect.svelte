@@ -9,6 +9,7 @@
   export let value = ""
 
   $: urls = getUrls()
+  $: console.log(urls)
 
   const handleBlur = () => dispatch("change", value)
 
@@ -61,15 +62,28 @@
           sort: detailScreen.props._component,
         })
       }
-
-      return urls
     }
+
+    return urls
   }
 </script>
 
-<DataList editable secondary on:blur={handleBlur} on:change bind:value>
-  <option value="" />
-  {#each urls as url}
-    <option value={url.url}>{url.name}</option>
-  {/each}
-</DataList>
+<div>
+  <DataList editable secondary thin on:blur={handleBlur} on:change bind:value>
+    <option value="" />
+    {#each urls as url}
+      <option value={url.url}>{url.name}</option>
+    {/each}
+  </DataList>
+</div>
+
+<style>
+  div {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: row;
+  }
+  div :global(> div) {
+    flex: 1 1 auto;
+  }
+</style>
