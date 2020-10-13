@@ -3,7 +3,7 @@ const ClientDb = require("../../db/clientDb")
 const { getPackageForBuilder, buildPage } = require("../../utilities/builder")
 const env = require("../../environment")
 const instanceController = require("./instance")
-const { copy, existsSync, readFile, writeFile } = require("fs-extra")
+const { copy, exists, readFile, writeFile } = require("fs-extra")
 const { budibaseAppsDir } = require("../../utilities/budibaseDir")
 const sqrl = require("squirrelly")
 const setBuilderToken = require("../../utilities/builder/setBuilderToken")
@@ -116,12 +116,6 @@ exports.delete = async function(ctx) {
   const db = new CouchDB(ClientDb.name(getClientId(ctx)))
   const app = await db.get(ctx.params.applicationId)
   const result = await db.remove(app)
-  for (let instance of app.instances) {
-    const instanceDb = new CouchDB(instance._id)
-    await instanceDb.destroy()
-  }
-
-  // remove top level directory
   await fs.rmdir(join(budibaseAppsDir(), ctx.params.applicationId), {
     recursive: true,
   })
@@ -143,7 +137,7 @@ const createEmptyAppPackage = async (ctx, app) => {
   const appsFolder = budibaseAppsDir()
   const newAppFolder = resolve(appsFolder, app._id)
 
-  if (existsSync(newAppFolder)) {
+  if (await exists(newAppFolder)) {
     ctx.throw(400, "App folder already exists for this application")
   }
 
