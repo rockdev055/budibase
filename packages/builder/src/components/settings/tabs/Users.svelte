@@ -73,7 +73,7 @@
     <Label extraSmall grey>Current Users</Label>
     {#await fetchUsersPromise}
       Loading...
-    {:then users}
+    {:then fetchUsersPromise}
       <ul>
         {#each users as user}
           <li>
