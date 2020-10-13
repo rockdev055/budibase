@@ -1,8 +1,7 @@
 <script>
   import { Button, Icon, DropdownMenu, Spacer, Heading } from "@budibase/bbui"
   import { createEventDispatcher } from "svelte"
-  import { store, backendUiStore } from "builderStore"
-  import fetchBindableProperties from "../../builderStore/fetchBindableProperties"
+  import { backendUiStore } from "builderStore"
 
   const dispatch = createEventDispatcher()
   let anchorRight, dropdownRight
@@ -14,47 +13,28 @@
     dropdownRight.hide()
   }
 
-  $: models = $backendUiStore.models.map(m => ({
+  const models = $backendUiStore.models.map(m => ({
     label: m.name,
     name: `all_${m._id}`,
     modelId: m._id,
-    type: "model",
+    isModel: true,
   }))
 
-  $: views = $backendUiStore.models.reduce((acc, cur) => {
+  const views = $backendUiStore.models.reduce((acc, cur) => {
     let viewsArr = Object.entries(cur.views).map(([key, value]) => ({
       label: key,
       name: key,
       ...value,
-      type: "view",
     }))
     return [...acc, ...viewsArr]
   }, [])
-
-  $: bindableProperties = fetchBindableProperties({
-    componentInstanceId: $store.currentComponentInfo._id,
-    components: $store.components,
-    screen: $store.currentPreviewItem,
-    models: $backendUiStore.models,
-  })
-
-  $: links = bindableProperties
-    .filter(x => x.fieldSchema.type === "link")
-    .map(property => ({
-      label: property.readableBinding,
-      fieldName: property.fieldSchema.name,
-      name: `all_${property.fieldSchema.modelId}`,
-      modelId: property.fieldSchema.modelId,
-      type: "link",
-    }))
 </script>
 
-<div
-  class="dropdownbutton"
-  bind:this={anchorRight}
-  on:click={dropdownRight.show}>
-  <span>{value.label ? value.label : 'Model / View'}</span>
-  <Icon name="arrowdown" />
+<div class="dropdownbutton" bind:this={anchorRight}>
+  <Button secondary wide on:click={dropdownRight.show}>
+    <span>{value.label ? value.label : 'Model / View'}</span>
+    <Icon name="arrowdown" />
+  </Button>
 </div>
 <DropdownMenu bind:this={dropdownRight} anchor={anchorRight}>
   <div class="dropdown">
@@ -83,51 +63,13 @@
         </li>
       {/each}
     </ul>
-    <hr />
-    <div class="title">
-      <Heading extraSmall>Relationships</Heading>
-    </div>
-    <ul>
-      {#each links as link}
-        <li
-          class:selected={value === link}
-          on:click={() => handleSelected(link)}>
-          {link.label}
-        </li>
-      {/each}
-    </ul>
   </div>
 </DropdownMenu>
 
 <style>
   .dropdownbutton {
-    background-color: var(--grey-2);
-    border: var(--border-transparent);
-    padding: var(--spacing-m);
-    border-radius: var(--border-radius-m);
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    overflow: hidden;
-    flex: 1 1 auto;
+    width: 100%;
   }
-  .dropdownbutton:hover {
-    cursor: pointer;
-    background-color: var(--grey-3);
-  }
-  .dropdownbutton span {
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    flex: 1 1 auto;
-    text-align: left;
-    font-size: var(--font-size-xs);
-  }
-  .dropdownbutton :global(svg) {
-    margin: -4px 0;
-  }
-
   .dropdown {
     padding: var(--spacing-m) 0;
     z-index: 99999999;

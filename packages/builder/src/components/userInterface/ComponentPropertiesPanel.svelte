@@ -127,9 +127,6 @@
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
-    margin-left: -20px;
-    margin-right: -20px;
-    padding: 0 20px;
   }
 
   .instance-name {
