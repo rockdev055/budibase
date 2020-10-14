@@ -28,9 +28,7 @@
       _id: "screenslot-placeholder",
       _component: "@budibase/standard-components/container",
       _styles: {
-        normal: {
-          flex: "1 1 auto",
-        },
+        normal: {},
         hover: {},
         active: {},
         selected: {},
@@ -48,7 +46,6 @@
               display: "flex",
               "flex-direction": "column",
               "align-items": "center",
-              flex: "1 1 auto",
             },
             hover: {},
             active: {},
