@@ -21,11 +21,6 @@
   export let height = 500
   export let pagination
 
-  // These can never change at runtime so don't need to be reactive
-  let canEdit = editable && datasource && datasource.type !== "view"
-  let canAddDelete = editable && datasource && datasource.type === "table"
-
-  let store = _bb.store
   let dataLoaded = false
   let data
   let columnDefs
@@ -37,42 +32,35 @@
       minWidth: 150,
       filter: true,
     },
-    rowSelection: canEdit ? "multiple" : false,
-    suppressRowClickSelection: !canEdit,
+    rowSelection: editable ? "multiple" : false,
+    suppressRowClickSelection: !editable,
     paginationAutoPageSize: true,
     pagination,
   }
+  let store = _bb.store
 
   onMount(async () => {
-    if (!isEmpty(datasource)) {
-      data = await fetchData(datasource, $store)
-      let schema = {}
-
-      // Get schema for datasource
-      // Views with "Calculate" applied provide their own schema.
-      // For everything else, use the tableId property to pull to table schema
-      if (datasource.schema) {
-        schema = datasource.schema
-      } else {
-        const jsonTable = await _bb.api.get(`/api/tables/${datasource.tableId}`)
-        table = await jsonTable.json()
-        schema = table.schema
+    if (datasource.tableId) {
+      const jsonTable = await _bb.api.get(`/api/tables/${datasource.tableId}`)
+      table = await jsonTable.json()
+      const { schema } = table
+      if (!isEmpty(datasource)) {
+        data = await fetchData(datasource, $store)
+        columnDefs = Object.keys(schema).map((key, i) => {
+          return {
+            headerCheckboxSelection: i === 0 && editable,
+            checkboxSelection: i === 0 && editable,
+            valueSetter: setters.get(schema[key].type),
+            headerName: key.charAt(0).toUpperCase() + key.slice(1),
+            field: key,
+            hide: shouldHideField(key),
+            sortable: true,
+            editable: editable,
+            cellRenderer: getRenderer(schema[key], editable),
+            autoHeight: true,
+          }
+        })
       }
-
-      columnDefs = Object.keys(schema).map((key, i) => {
-        return {
-          headerCheckboxSelection: i === 0 && canEdit,
-          checkboxSelection: i === 0 && canEdit,
-          valueSetter: setters.get(schema[key].type),
-          headerName: key.charAt(0).toUpperCase() + key.slice(1),
-          field: key,
-          hide: shouldHideField(key),
-          sortable: true,
-          editable: canEdit,
-          cellRenderer: getRenderer(schema[key], canEdit),
-          autoHeight: true,
-        }
-      })
       dataLoaded = true
     }
   })
@@ -129,7 +117,7 @@
 
 <div style="--grid-height: {height}px">
   {#if dataLoaded}
-    {#if canAddDelete}
+    {#if editable}
       <div class="controls">
         <CreateRowButton {_bb} {table} on:newRow={handleNewRow} />
         {#if selectedRows.length > 0}
