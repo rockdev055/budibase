@@ -38,11 +38,13 @@
 </script>
 
 <div class="root">
+
   {#each screens as screen}
     <div
       class="budibase__nav-item screen-header-row"
       class:selected={$store.currentComponentInfo._id === screen.props._id}
       on:click|stopPropagation={() => changeScreen(screen)}>
+
       <span
         class="icon"
         class:rotate={$store.currentPreviewItem.name !== screen.props._instanceName}>
@@ -67,6 +69,7 @@
         {dragDropStore} />
     {/if}
   {/each}
+
 </div>
 
 <style>

@@ -41,7 +41,7 @@ exports.authenticate = async ctx => {
     dbUser = await instanceDb.get(generateUserID(username))
   } catch (_) {
     // do not want to throw a 404 - as this could be
-    // used to determine valid usernames
+    // used to dtermine valid usernames
     ctx.throw(401, "Invalid Credentials")
   }
 

@@ -58,7 +58,6 @@
       <Input thin bind:value={username} name="Name" placeholder="Username" />
       <Input
         thin
-        type="password"
         bind:value={password}
         name="Password"
         placeholder="Password" />

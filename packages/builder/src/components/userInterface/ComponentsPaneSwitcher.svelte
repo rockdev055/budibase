@@ -20,6 +20,7 @@
 <div class="root">
   {#if $store.currentFrontEndType === 'page' || $store.screens.length}
     <div class="switcher">
+
       <button
         class:selected={selected === COMPONENT_SELECTION_TAB}
         on:click={() => selectTab(COMPONENT_SELECTION_TAB)}>
@@ -31,6 +32,7 @@
         on:click={() => selectTab(PROPERTIES_TAB)}>
         Edit
       </button>
+
     </div>
 
     <div class="panel">
@@ -41,8 +43,10 @@
       {#if selected === COMPONENT_SELECTION_TAB}
         <ComponentSelectionList {toggleTab} />
       {/if}
+
     </div>
   {/if}
+
 </div>
 
 <style>

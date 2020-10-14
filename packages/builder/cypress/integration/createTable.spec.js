@@ -27,6 +27,7 @@ context("Create a Table", () => {
     cy.get(".actions input")
       .first()
       .type("updated")
+    cy.get("select").select("Text")
     cy.contains("Save Column").click()
     cy.contains("nameupdated").should("have.text", "nameupdated")
   })

@@ -13,6 +13,7 @@
       {category.name}
     </li>
   {/each}
+
 </div>
 
 <style>
