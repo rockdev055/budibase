@@ -28,15 +28,9 @@
   export let field = {
     type: "string",
     constraints: fieldDefinitions.STRING.constraints,
-
-    // Initial value for column name in other table for linked records
-    fieldName: $backendUiStore.selectedTable.name,
   }
 
   let originalName = field.name
-  let primaryDisplay =
-    $backendUiStore.selectedTable.primaryDisplay == null ||
-    $backendUiStore.selectedTable.primaryDisplay === field.name
   $: tableOptions = $backendUiStore.tables.filter(
     table => table._id !== $backendUiStore.draftTable._id
   )
@@ -47,7 +41,6 @@
       backendUiStore.actions.tables.saveField({
         originalName,
         field,
-        primaryDisplay,
       })
       return state
     })
@@ -91,13 +84,6 @@
       on:change={onChangeRequired}
       thin
       text="Required" />
-  {/if}
-
-  {#if field.type !== 'link'}
-    <Toggle
-      bind:checked={primaryDisplay}
-      thin
-      text="Use as table display column" />
   {/if}
 
   {#if field.type === 'string'}
