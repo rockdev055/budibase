@@ -4,20 +4,17 @@ import { parseAppIdFromCookie } from "./getAppId"
 
 export const screenRouter = ({ screens, onScreenSelected, window }) => {
   const makeRootedPath = url => {
-    const hostname = window.location && window.location.hostname
-    if (hostname) {
-      if (
-        hostname === "localhost" ||
-        hostname === "127.0.0.1" ||
-        hostname.startsWith("192.168")
-      ) {
-        const appId = parseAppIdFromCookie(window.document.cookie)
-        if (url) {
-          if (url.startsWith(appId)) return url
-          return `/${appId}${url.startsWith("/") ? "" : "/"}${url}`
-        }
-        return appId
+    if (
+      window.location &&
+      (window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1")
+    ) {
+      const appId = parseAppIdFromCookie(window.document.cookie)
+      if (url) {
+        if (url.startsWith(appId)) return url
+        return `/${appId}${url.startsWith("/") ? "" : "/"}${url}`
       }
+      return appId
     }
     return url
   }

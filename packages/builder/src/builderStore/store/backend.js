@@ -91,11 +91,10 @@ export const getBackendUiStore = () => {
           return state
         })
       },
-      saveField: ({ originalName, field, primaryDisplay = false }) => {
+      saveField: ({ originalName, field }) => {
         store.update(state => {
           // delete the original if renaming
-          // need to handle if the column had no name, empty string
-          if (originalName || originalName === "") {
+          if (originalName) {
             delete state.draftTable.schema[originalName]
             state.draftTable._rename = {
               old: originalName,
@@ -103,12 +102,8 @@ export const getBackendUiStore = () => {
             }
           }
 
-          // Optionally set display column
-          if (primaryDisplay) {
-            state.draftTable.primaryDisplay = field.name
-          }
-
           state.draftTable.schema[field.name] = cloneDeep(field)
+
           store.actions.tables.save(state.draftTable)
           return state
         })
