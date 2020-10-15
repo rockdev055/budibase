@@ -9,11 +9,7 @@
 </script>
 
 <div bind:this={anchor}>
-  <TextButton
-    text
-    small
-    on:click={dropdown.show}
-    active={view.field && view.calculation}>
+  <TextButton text small on:click={dropdown.show} active={!!view.field}>
     <Icon name="calculate" />
     Calculate
   </TextButton>
