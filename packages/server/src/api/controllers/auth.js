@@ -70,7 +70,6 @@ exports.authenticate = async ctx => {
       expires,
       path: "/",
       httpOnly: false,
-      overwrite: true,
     })
 
     ctx.body = {
