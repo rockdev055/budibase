@@ -34,15 +34,13 @@ module.exports = async (ctx, next) => {
 
     let appId = process.env.CLOUD ? ctx.subdomains[1] : ctx.params.appId
 
-    // if appId can't be determined from path param or subdomain
-    if (!appId && ctx.request.headers.referer) {
-      const url = new URL(ctx.request.headers.referer)
-      // remove leading and trailing slashes from appId
-      appId = url.pathname.replace(/\//g, "")
+    if (!appId) {
+      appId = ctx.referer && ctx.referer.split("/").pop()
     }
 
     ctx.user = {
-      appId,
+      // if appId can't be determined from path param or subdomain
+      appId: appId,
     }
     await next()
     return
