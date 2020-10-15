@@ -37,6 +37,8 @@
 <Table title={decodeURI(name)} schema={view.schema} {data}>
   <FilterButton {view} />
   <CalculateButton {view} />
-  <GroupByButton {view} />
+  {#if view.calculation}
+    <GroupByButton {view} />
+  {/if}
   <ExportButton {view} />
 </Table>

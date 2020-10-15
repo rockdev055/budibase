@@ -88,7 +88,6 @@
 {#if screenOrPageInstance}
   {#each screenOrPageDefinition as def}
     <PropertyControl
-      bindable={false}
       control={def.control}
       label={def.label}
       key={def.key}
@@ -96,7 +95,6 @@
       onChange={onScreenPropChange}
       props={{ ...excludeProps(def, ['control', 'label']) }} />
   {/each}
-  <hr />
 {/if}
 
 {#if displayNameField}
