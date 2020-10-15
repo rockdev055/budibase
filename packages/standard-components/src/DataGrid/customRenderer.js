@@ -2,29 +2,26 @@
 // https://www.ag-grid.com/javascript-grid-cell-rendering-components/
 
 import AttachmentCell from "./AttachmentCell/Button.svelte"
-import ViewDetails from "./ViewDetails/Cell.svelte"
 import Select from "./Select/Wrapper.svelte"
 import DatePicker from "./DateTime/Wrapper.svelte"
-import RelationshipDisplay from "./Relationship/RelationshipDisplay.svelte"
 
 const renderers = new Map([
   ["boolean", booleanRenderer],
   ["attachment", attachmentRenderer],
   ["options", optionsRenderer],
   ["link", linkedRowRenderer],
-  ["_id", viewDetailsRenderer],
 ])
 
-export function getRenderer(schema, editable) {
-  if (renderers.get(schema.type)) {
-    return renderers.get(schema.type)(schema.options, editable)
+export function getRenderer({ type, constraints }, editable) {
+  if (renderers.get(type)) {
+    return renderers.get(type)(constraints, editable)
   } else {
     return false
   }
 }
 
 /* eslint-disable no-unused-vars */
-function booleanRenderer(options, editable) {
+function booleanRenderer(constraints, editable) {
   return params => {
     const toggle = e => {
       params.value = !params.value
@@ -46,7 +43,7 @@ function booleanRenderer(options, editable) {
   }
 }
 /* eslint-disable no-unused-vars */
-function attachmentRenderer(options, editable) {
+function attachmentRenderer(constraints, editable) {
   return params => {
     const container = document.createElement("div")
 
@@ -57,18 +54,11 @@ function attachmentRenderer(options, editable) {
       },
     })
 
-    const deleteFile = event => {
-      const newFilesArray = params.value.filter(file => file !== event.detail)
-      params.setValue(newFilesArray)
-    }
-
-    attachmentInstance.$on("delete", deleteFile)
-
     return container
   }
 }
 /* eslint-disable no-unused-vars */
-function dateRenderer(options, editable) {
+function dateRenderer(constraints, editable) {
   return function(params) {
     const container = document.createElement("div")
     const toggle = e => {
@@ -113,39 +103,14 @@ function optionsRenderer({ inclusion }, editable) {
   }
 }
 /* eslint-disable no-unused-vars */
-function linkedRowRenderer(options, editable) {
+function linkedRowRenderer(constraints, editable) {
   return params => {
     let container = document.createElement("div")
     container.style.display = "grid"
     container.style.placeItems = "center"
     container.style.height = "100%"
 
-    new RelationshipDisplay({
-      target: container,
-      props: {
-        row: params.data,
-        columnName: params.column.colId,
-      },
-    })
-
-    return container
-  }
-}
-
-/* eslint-disable no-unused-vars */
-function viewDetailsRenderer(options) {
-  return params => {
-    let container = document.createElement("div")
-    container.style.display = "grid"
-    container.style.placeItems = "center"
-    container.style.height = "100%"
-
-    new ViewDetails({
-      target: container,
-      props: {
-        url: `${options}/${params.data._id}`,
-      },
-    })
+    container.innerText = params.value ? params.value.length : 0
 
     return container
   }

@@ -29,7 +29,7 @@
   {:else if parameter.name === 'url'}
     <DataList on:change bind:value={parameter.value}>
       <option value="" />
-      {#each $store.screens as screen}
+      {#each $store.allScreens as screen}
         <option value={screen.route}>{screen.props._instanceName}</option>
       {/each}
     </DataList>

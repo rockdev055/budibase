@@ -15,16 +15,7 @@ module.exports = (ctx, appId, instanceId) => {
     expiresIn: "30 days",
   })
 
-  const expiry = new Date()
+  var expiry = new Date()
   expiry.setDate(expiry.getDate() + 30)
-  // remove the app token
-  ctx.cookies.set("budibase:token", "", {
-    overwrite: true,
-  })
-  // set the builder token
-  ctx.cookies.set("builder:token", token, {
-    expires: expiry,
-    httpOnly: false,
-    overwrite: true,
-  })
+  ctx.cookies.set("builder:token", token, { expires: expiry, httpOnly: false })
 }

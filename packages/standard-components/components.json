@@ -242,11 +242,7 @@
 				"type": "number",
 				"default": "500"
 			},
-			"pagination": {
-				"type": "bool",
-				"default": true
-			},
-			"detailUrl": "string"
+			"pagination": "bool"
 		}
 	},
 	"dataform": {
