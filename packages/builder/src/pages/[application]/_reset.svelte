@@ -80,7 +80,7 @@
   {#await promise}
     <!-- This should probably be some kind of loading state? -->
     <div />
-  {:then _}
+  {:then results}
     <slot />
   {:catch error}
     <p>Something went wrong: {error.message}</p>
