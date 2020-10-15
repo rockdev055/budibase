@@ -4,7 +4,6 @@
 import AttachmentCell from "./AttachmentCell/Button.svelte"
 import Select from "./Select/Wrapper.svelte"
 import DatePicker from "./DateTime/Wrapper.svelte"
-import RelationshipDisplay from "./Relationship/RelationshipDisplay.svelte"
 
 const renderers = new Map([
   ["boolean", booleanRenderer],
@@ -54,6 +53,13 @@ function attachmentRenderer(constraints, editable) {
         files: params.value || [],
       },
     })
+
+    const deleteFile = event => {
+      const newFilesArray = params.value.filter(file => file !== event.detail)
+      params.setValue(newFilesArray)
+    }
+
+    attachmentInstance.$on("delete", deleteFile)
 
     return container
   }
@@ -111,13 +117,7 @@ function linkedRowRenderer(constraints, editable) {
     container.style.placeItems = "center"
     container.style.height = "100%"
 
-    new RelationshipDisplay({
-      target: container,
-      props: {
-        row: params.data,
-        columnName: params.column.colId,
-      },
-    })
+    container.innerText = params.value ? params.value.length : 0
 
     return container
   }

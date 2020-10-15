@@ -18,9 +18,7 @@
 </script>
 
 <div class="handler-option">
-  {#if parameter.name === 'automation'}
-    <span>{parameter.name}</span>
-  {/if}
+  {#if parameter.name === 'automation'}<span>{parameter.name}</span>{/if}
   {#if parameter.name === 'automation'}
     <Select on:change bind:value={parameter.value}>
       <option value="" />
@@ -31,7 +29,7 @@
   {:else if parameter.name === 'url'}
     <DataList on:change bind:value={parameter.value}>
       <option value="" />
-      {#each $store.screens as screen}
+      {#each $store.allScreens as screen}
         <option value={screen.route}>{screen.props._instanceName}</option>
       {/each}
     </DataList>
