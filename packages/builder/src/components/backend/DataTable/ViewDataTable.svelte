@@ -15,15 +15,15 @@
   // Fetch rows for specified view
   $: {
     if (!name.startsWith("all_")) {
-      fetchViewData(name, view.field, view.groupBy, view.calculation)
+      fetchViewData(name, view.field, view.groupBy)
     }
   }
 
-  async function fetchViewData(name, field, groupBy, calculation) {
+  async function fetchViewData(name, field, groupBy) {
     const params = new URLSearchParams()
-    if (calculation) {
+    if (field) {
       params.set("field", field)
-      params.set("calculation", calculation)
+      params.set("stats", true)
     }
     if (groupBy) {
       params.set("group", groupBy)
