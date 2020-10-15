@@ -12,21 +12,25 @@
 
   import AgGrid from "@budibase/svelte-ag-grid"
   import CreateRowButton from "./CreateRow/Button.svelte"
-  import { TextButton as DeleteButton, Icon, Modal, ModalContent } from "@budibase/bbui"
+  import {
+    TextButton as DeleteButton,
+    Icon,
+    Modal,
+    ModalContent,
+  } from "@budibase/bbui"
 
   export let _bb
   export let datasource = {}
   export let editable
   export let theme = "alpine"
   export let height = 500
-  export let pagination
-  export let detailUrl
+  export let pagination = true
 
   // These can never change at runtime so don't need to be reactive
   let canEdit = editable && datasource && datasource.type !== "view"
   let canAddDelete = editable && datasource && datasource.type === "table"
 
-  let modal;
+  let modal
 
   let store = _bb.store
   let dataLoaded = false
@@ -76,19 +80,6 @@
           autoHeight: true,
         }
       })
-      columnDefs = [...columnDefs, {
-          headerName: 'Details',
-          field: '_id',
-          width: 25,
-          flex: 0,
-          editable: false,
-          sortable: false,
-          cellRenderer: getRenderer({
-            type: '_id',
-            options: detailUrl
-          }),
-          autoHeight: true,
-      }]
       dataLoaded = true
     }
   })
@@ -167,7 +158,10 @@
       on:select={({ detail }) => (selectedRows = detail)} />
   {/if}
   <Modal bind:this={modal}>
-    <ModalContent title="Confirm Row Deletion" confirmText="Delete" onConfirm={deleteRows} >
+    <ModalContent
+      title="Confirm Row Deletion"
+      confirmText="Delete"
+      onConfirm={deleteRows}>
       <span>Are you sure you want to delete {selectedRows.length} row(s)?</span>
     </ModalContent>
   </Modal>
