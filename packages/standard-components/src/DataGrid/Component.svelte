@@ -11,6 +11,7 @@
   import { onMount } from "svelte"
 
   import AgGrid from "@budibase/svelte-ag-grid"
+  import CreateRowButton from "./CreateRow/Button.svelte"
   import { TextButton as DeleteButton, Icon, Modal, ModalContent } from "@budibase/bbui"
 
   export let _bb
@@ -78,6 +79,13 @@
     }
   })
 
+  const isEditable = type =>
+    type !== "boolean" &&
+    type !== "options" &&
+    // type !== "datetime" &&
+    type !== "link" &&
+    type !== "attachment"
+
   const shouldHideField = name => {
     if (name.startsWith("_")) return true
     // always 'row'
@@ -86,6 +94,10 @@
     if (name === "tableId") return true
 
     return false
+  }
+
+  const handleNewRow = async () => {
+    data = await fetchData(datasource)
   }
 
   const handleUpdate = ({ detail }) => {
@@ -121,6 +133,7 @@
   {#if dataLoaded}
     {#if canAddDelete}
       <div class="controls">
+        <CreateRowButton {_bb} {table} on:newRow={handleNewRow} />
         {#if selectedRows.length > 0}
           <DeleteButton text small on:click={modal.show()}>
             <Icon name="addrow" />
@@ -148,7 +161,6 @@
 
 <style>
   .controls {
-    min-height: 15px;
     margin-bottom: var(--spacing-s);
     display: grid;
     grid-gap: var(--spacing-s);
