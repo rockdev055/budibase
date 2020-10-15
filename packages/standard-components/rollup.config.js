@@ -4,7 +4,6 @@ import commonjs from "@rollup/plugin-commonjs"
 import postcss from "rollup-plugin-postcss"
 import { terser } from "rollup-plugin-terser"
 
-const production = !process.env.ROLLUP_WATCH
 const lodash_fp_exports = ["isEmpty"]
 
 export default {
@@ -18,8 +17,7 @@ export default {
     },
   ],
   plugins: [
-    // Only run terser in production environments
-    production && terser(),
+    terser(),
     postcss({
       plugins: [],
     }),
