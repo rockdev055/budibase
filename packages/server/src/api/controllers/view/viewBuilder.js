@@ -1,6 +1,5 @@
 const TOKEN_MAP = {
   EQUALS: "===",
-  NOT_EQUALS: "!==",
   LT: "<",
   LTE: "<=",
   MT: ">",
@@ -23,14 +22,6 @@ const FIELD_PROPERTY = {
 }
 
 const SCHEMA_MAP = {
-  sum: {
-    field: "string",
-    value: "number",
-  },
-  count: {
-    field: "string",
-    value: "number",
-  },
   stats: {
     sum: {
       type: "number",
@@ -90,7 +81,7 @@ function parseFilterExpression(filters) {
  */
 function parseEmitExpression(field, groupBy) {
   if (field) return `emit(doc["${groupBy || "_id"}"], doc["${field}"]);`
-  return `emit(doc._id, 1);`
+  return `emit(doc._id);`
 }
 
 /**
@@ -110,7 +101,7 @@ function viewTemplate({ field, tableId, groupBy, filters = [], calculation }) {
 
   const emitExpression = parseEmitExpression(field, groupBy)
 
-  const reduction = field ? { reduce: `_${calculation}` } : {}
+  const reduction = field ? { reduce: "_stats" } : {}
 
   let schema = null
 

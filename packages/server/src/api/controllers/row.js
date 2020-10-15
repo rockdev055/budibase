@@ -137,7 +137,7 @@ exports.save = async function(ctx) {
 exports.fetchView = async function(ctx) {
   const instanceId = ctx.user.instanceId
   const db = new CouchDB(instanceId)
-  const { calculation, group, field } = ctx.query
+  const { stats, group, field } = ctx.query
   const viewName = ctx.params.viewName
 
   // if this is a table view being looked for just transfer to that
@@ -148,34 +148,22 @@ exports.fetchView = async function(ctx) {
   }
 
   const response = await db.query(`database/${viewName}`, {
-    include_docs: !calculation,
+    include_docs: !stats,
     group,
   })
 
-  // TODO: create constants for calculation types
-  if (!calculation) {
-    response.rows = response.rows.map(row => row.doc)
-    ctx.body = await linkRows.attachLinkInfo(instanceId, response.rows)
-  }
-
-  if (calculation === "stats") {
+  if (stats) {
     response.rows = response.rows.map(row => ({
       group: row.key,
       field,
       ...row.value,
       avg: row.value.sum / row.value.count,
     }))
-    ctx.body = response.rows
+  } else {
+    response.rows = response.rows.map(row => row.doc)
   }
 
-  if (calculation === "count" || calculation === "sum") {
-    ctx.body = field
-      ? response.rows.map(row => ({
-          field,
-          value: row.value,
-        }))
-      : [{ field: "All Rows", value: response.total_rows }]
-  }
+  ctx.body = await linkRows.attachLinkInfo(instanceId, response.rows)
 }
 
 exports.fetchTableRows = async function(ctx) {
