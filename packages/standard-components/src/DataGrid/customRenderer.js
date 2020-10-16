@@ -17,18 +17,14 @@ const renderers = new Map([
 
 export function getRenderer(schema, editable) {
   if (renderers.get(schema.type)) {
-    return renderers.get(schema.type)(
-      schema.options,
-      schema.constraints,
-      editable
-    )
+    return renderers.get(schema.type)(schema.options, editable)
   } else {
     return false
   }
 }
 
 /* eslint-disable no-unused-vars */
-function booleanRenderer(options, constraints, editable) {
+function booleanRenderer(options, editable) {
   return params => {
     const toggle = e => {
       params.value = !params.value
@@ -50,7 +46,7 @@ function booleanRenderer(options, constraints, editable) {
   }
 }
 /* eslint-disable no-unused-vars */
-function attachmentRenderer(options, constraints, editable) {
+function attachmentRenderer(options, editable) {
   return params => {
     const container = document.createElement("div")
 
@@ -72,7 +68,7 @@ function attachmentRenderer(options, constraints, editable) {
   }
 }
 /* eslint-disable no-unused-vars */
-function dateRenderer(options, constraints, editable) {
+function dateRenderer(options, editable) {
   return function(params) {
     const container = document.createElement("div")
     const toggle = e => {
@@ -92,7 +88,7 @@ function dateRenderer(options, constraints, editable) {
   }
 }
 
-function optionsRenderer(options, constraints, editable) {
+function optionsRenderer({ inclusion }, editable) {
   return params => {
     if (!editable) return params.value
     const container = document.createElement("div")
@@ -107,7 +103,7 @@ function optionsRenderer(options, constraints, editable) {
       target: container,
       props: {
         value: params.value,
-        options: constraints.inclusion,
+        options: inclusion,
       },
     })
 
@@ -117,7 +113,7 @@ function optionsRenderer(options, constraints, editable) {
   }
 }
 /* eslint-disable no-unused-vars */
-function linkedRowRenderer(options, constraints, editable) {
+function linkedRowRenderer(options, editable) {
   return params => {
     let container = document.createElement("div")
     container.style.display = "grid"
@@ -137,11 +133,11 @@ function linkedRowRenderer(options, constraints, editable) {
 }
 
 /* eslint-disable no-unused-vars */
-function viewDetailsRenderer(options, constraints, editable) {
+function viewDetailsRenderer(options) {
   return params => {
     let container = document.createElement("div")
     container.style.display = "grid"
-    container.style.alignItems = "center"
+    container.style.placeItems = "center"
     container.style.height = "100%"
 
     new ViewDetails({
