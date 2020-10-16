@@ -24,8 +24,7 @@
   export let editable
   export let theme = "alpine"
   export let height = 500
-  export let pagination
-  export let detailUrl
+  export let pagination = true
 
   // These can never change at runtime so don't need to be reactive
   let canEdit = editable && datasource && datasource.type !== "view"
@@ -72,7 +71,7 @@
           headerCheckboxSelection: i === 0 && canEdit,
           checkboxSelection: i === 0 && canEdit,
           valueSetter: setters.get(schema[key].type),
-          headerName: key,
+          headerName: key.charAt(0).toUpperCase() + key.slice(1),
           field: key,
           hide: shouldHideField(key),
           sortable: true,
@@ -81,22 +80,6 @@
           autoHeight: true,
         }
       })
-      columnDefs = [
-        ...columnDefs,
-        {
-          headerName: "Details",
-          field: "_id",
-          width: 25,
-          flex: 0,
-          editable: false,
-          sortable: false,
-          cellRenderer: getRenderer({
-            type: "_id",
-            options: detailUrl,
-          }),
-          autoHeight: true,
-        },
-      ]
       dataLoaded = true
     }
   })

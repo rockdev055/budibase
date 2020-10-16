@@ -92,9 +92,3 @@ exports.getLinkDocuments = async function({
     }
   }
 }
-
-exports.getUniqueByProp = (array, prop) => {
-  return array.filter((obj, pos, arr) => {
-    return arr.map(mapObj => mapObj[prop]).indexOf(obj[prop]) === pos
-  })
-}
