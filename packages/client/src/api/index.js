@@ -67,11 +67,6 @@ const updateRow = async (params, state) => {
   })
 }
 
-const deleteRow = async params =>
-  await del({
-    url: `/api/${params.tableId}/rows/${params.rowId}/${params.revId}`,
-  })
-
 const makeRowRequestBody = (parameters, state) => {
   // start with the row thats currently in context
   const body = { ...(state.data || {}) }
@@ -108,5 +103,4 @@ export default {
   authenticate: authenticate(apiOpts),
   saveRow,
   updateRow,
-  deleteRow,
 }

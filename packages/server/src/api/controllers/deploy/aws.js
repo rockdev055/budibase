@@ -2,7 +2,6 @@ const fs = require("fs")
 const { join } = require("../../../utilities/centralPath")
 const AWS = require("aws-sdk")
 const fetch = require("node-fetch")
-const uuid = require("uuid")
 const { budibaseAppsDir } = require("../../../utilities/budibaseDir")
 const PouchDB = require("../../../db")
 const environment = require("../../../environment")
@@ -14,7 +13,7 @@ async function invalidateCDN(cfDistribution, appId) {
     .createInvalidation({
       DistributionId: cfDistribution,
       InvalidationBatch: {
-        CallerReference: `${appId}-${uuid.v4()}`,
+        CallerReference: appId,
         Paths: {
           Quantity: 1,
           Items: [`/assets/${appId}/*`],
