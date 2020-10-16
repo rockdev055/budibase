@@ -1,4 +1,4 @@
-import { cloneDeep } from "lodash/fp"
+import { values, cloneDeep } from "lodash/fp"
 import getNewComponentName from "../getNewComponentName"
 import { backendUiStore } from "builderStore"
 import { writable, get } from "svelte/store"
@@ -129,10 +129,7 @@ const setPackage = (store, initial) => async pkg => {
   initial.appId = pkg.application._id
   initial.pages = pkg.pages
   initial.hasAppPackage = true
-  initial.screens = [
-    ...Object.values(main_screens),
-    ...Object.values(unauth_screens),
-  ]
+  initial.screens = values(pkg.screens)
   initial.builtins = [getBuiltin("##builtin/screenslot")]
   initial.appInstances = pkg.application.instances
   initial.appId = pkg.application._id
