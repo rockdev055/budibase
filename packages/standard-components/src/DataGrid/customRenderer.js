@@ -6,6 +6,7 @@ import ViewDetails from "./ViewDetails/Cell.svelte"
 import Select from "./Select/Wrapper.svelte"
 import DatePicker from "./DateTime/Wrapper.svelte"
 import RelationshipDisplay from "./Relationship/RelationshipDisplay.svelte"
+import { detailUrl } from "./Component.svelte"
 
 const renderers = new Map([
   ["boolean", booleanRenderer],
@@ -17,14 +18,18 @@ const renderers = new Map([
 
 export function getRenderer(schema, editable) {
   if (renderers.get(schema.type)) {
-    return renderers.get(schema.type)(schema.options, editable)
+    return renderers.get(schema.type)(
+      schema.options,
+      schema.constraints,
+      editable
+    )
   } else {
     return false
   }
 }
 
 /* eslint-disable no-unused-vars */
-function booleanRenderer(options, editable) {
+function booleanRenderer(options, constraints, editable) {
   return params => {
     const toggle = e => {
       params.value = !params.value
@@ -46,7 +51,7 @@ function booleanRenderer(options, editable) {
   }
 }
 /* eslint-disable no-unused-vars */
-function attachmentRenderer(options, editable) {
+function attachmentRenderer(options, constraints, editable) {
   return params => {
     const container = document.createElement("div")
 
@@ -68,7 +73,7 @@ function attachmentRenderer(options, editable) {
   }
 }
 /* eslint-disable no-unused-vars */
-function dateRenderer(options, editable) {
+function dateRenderer(options, constraints, editable) {
   return function(params) {
     const container = document.createElement("div")
     const toggle = e => {
@@ -76,8 +81,7 @@ function dateRenderer(options, editable) {
     }
 
     // Options need to be passed in with minTime and maxTime! Needs bbui update.
-
-    const datePickerInstance = new DatePicker({
+    new DatePicker({
       target: container,
       props: {
         value: params.value,
@@ -88,7 +92,7 @@ function dateRenderer(options, editable) {
   }
 }
 
-function optionsRenderer({ inclusion }, editable) {
+function optionsRenderer(options, constraints, editable) {
   return params => {
     if (!editable) return params.value
     const container = document.createElement("div")
@@ -103,7 +107,7 @@ function optionsRenderer({ inclusion }, editable) {
       target: container,
       props: {
         value: params.value,
-        options: inclusion,
+        options: constraints.inclusion,
       },
     })
 
@@ -113,7 +117,7 @@ function optionsRenderer({ inclusion }, editable) {
   }
 }
 /* eslint-disable no-unused-vars */
-function linkedRowRenderer(options, editable) {
+function linkedRowRenderer(options, constraints, editable) {
   return params => {
     let container = document.createElement("div")
     container.style.display = "grid"
@@ -133,18 +137,21 @@ function linkedRowRenderer(options, editable) {
 }
 
 /* eslint-disable no-unused-vars */
-function viewDetailsRenderer(options) {
+function viewDetailsRenderer(options, constraints, editable) {
   return params => {
     let container = document.createElement("div")
     container.style.display = "grid"
-    container.style.placeItems = "center"
+    container.style.alignItems = "center"
     container.style.height = "100%"
+
+    let url = "/"
+    if (options.detailUrl) {
+      url = options.detailUrl.replace(":id", params.data._id)
+    }
 
     new ViewDetails({
       target: container,
-      props: {
-        url: `${options}/${params.data._id}`,
-      },
+      props: { url },
     })
 
     return container
