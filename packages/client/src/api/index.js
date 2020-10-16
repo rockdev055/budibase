@@ -37,7 +37,7 @@ const del = apiCall("DELETE")
 const ERROR_MEMBER = "##error"
 const error = message => {
   const err = { [ERROR_MEMBER]: message }
-  appStore.update(s => s["##error_message"], message)
+  // appStore.update(s => s["##error_message"], message)
   return err
 }
 
@@ -66,6 +66,11 @@ const updateRow = async (params, state) => {
     body: row,
   })
 }
+
+const deleteRow = async params =>
+  await del({
+    url: `/api/${params.tableId}/rows/${params.rowId}/${params.revId}`,
+  })
 
 const makeRowRequestBody = (parameters, state) => {
   // start with the row thats currently in context
@@ -103,4 +108,5 @@ export default {
   authenticate: authenticate(apiOpts),
   saveRow,
   updateRow,
+  deleteRow,
 }
