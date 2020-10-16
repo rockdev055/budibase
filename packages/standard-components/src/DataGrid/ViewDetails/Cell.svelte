@@ -1,14 +1,12 @@
 <script>
-  import { Button } from "@budibase/bbui"
-  export let url
-  let link
+    import { Icon } from '@budibase/bbui'
+    export let url
 </script>
 
-<a href={url} bind:this={link} />
-<Button small translucent on:click={() => link.click()}>View</Button>
+<a href={url}><Icon name="view" /></a>
 
 <style>
-  a {
-    display: none;
-  }
+    a {
+        color: var(--grey-6)
+    }
 </style>
