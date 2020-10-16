@@ -3,18 +3,6 @@ import appStore from "../state/store"
 import { parseAppIdFromCookie } from "./getAppId"
 
 export const screenRouter = ({ screens, onScreenSelected, window }) => {
-  function sanitize(url) {
-    return url
-      .split("/")
-      .map(part => {
-        // if parameter, then use as is
-        if (part.startsWith(":")) return part
-        return encodeURIComponent(part)
-      })
-      .join("/")
-      .toLowerCase()
-  }
-
   const makeRootedPath = url => {
     const hostname = window.location && window.location.hostname
     if (hostname) {
@@ -25,16 +13,13 @@ export const screenRouter = ({ screens, onScreenSelected, window }) => {
       ) {
         const appId = parseAppIdFromCookie(window.document.cookie)
         if (url) {
-          const sanitizedUrl = sanitize(url)
-          if (sanitizedUrl.startsWith(appId)) return sanitizedUrl
-          return `/${appId}${
-            sanitizedUrl.startsWith("/") ? "" : "/"
-          }${sanitizedUrl}`
+          if (url.startsWith(appId)) return url
+          return `/${appId}${url.startsWith("/") ? "" : "/"}${url}`
         }
         return appId
       }
     }
-    return sanitize(url)
+    return url
   }
 
   const routes = screens.map(s => makeRootedPath(s.route))

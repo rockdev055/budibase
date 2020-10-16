@@ -1,6 +1,3 @@
-import urlSanitize from "./urlSanitize"
-import { rowListUrl } from "./rowListScreen"
-
 export default function(tables) {
   return tables.map(table => {
     const fields = Object.keys(table.schema)
@@ -14,7 +11,6 @@ export default function(tables) {
 }
 
 export const ROW_DETAIL_TEMPLATE = "ROW_DETAIL_TEMPLATE"
-export const editRowUrl = table => urlSanitize(`/${table.name}/:id`)
 
 const createScreen = (table, heading) => ({
   props: {
@@ -95,7 +91,7 @@ const createScreen = (table, heading) => ({
             onClick: [
               {
                 parameters: {
-                  url: rowListUrl(table),
+                  url: `/${table.name.toLowerCase()}`,
                 },
                 "##eventHandlerType": "Navigate To",
               },
@@ -134,6 +130,6 @@ const createScreen = (table, heading) => ({
     _instanceName: `${table.name} - Detail`,
     _code: "",
   },
-  route: editRowUrl(table),
+  route: `/${table.name.toLowerCase()}/:id`,
   name: "",
 })

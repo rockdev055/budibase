@@ -11,7 +11,12 @@
   import { onMount } from "svelte"
 
   import AgGrid from "@budibase/svelte-ag-grid"
-  import { TextButton as DeleteButton, Icon, Modal, ModalContent } from "@budibase/bbui"
+  import {
+    TextButton as DeleteButton,
+    Icon,
+    Modal,
+    ModalContent,
+  } from "@budibase/bbui"
 
   export let _bb
   export let datasource = {}
@@ -66,7 +71,7 @@
           headerCheckboxSelection: i === 0 && canEdit,
           checkboxSelection: i === 0 && canEdit,
           valueSetter: setters.get(schema[key].type),
-          headerName: key.charAt(0).toUpperCase() + key.slice(1),
+          headerName: key,
           field: key,
           hide: shouldHideField(key),
           sortable: true,
@@ -75,19 +80,22 @@
           autoHeight: true,
         }
       })
-      columnDefs = [...columnDefs, {
-          headerName: 'Details',
-          field: '_id',
+      columnDefs = [
+        ...columnDefs,
+        {
+          headerName: "Details",
+          field: "_id",
           width: 25,
           flex: 0,
           editable: false,
           sortable: false,
           cellRenderer: getRenderer({
-            type: '_id',
-            options: detailUrl
+            type: "_id",
+            options: detailUrl,
           }),
           autoHeight: true,
-      }]
+        },
+      ]
       dataLoaded = true
     }
   })
