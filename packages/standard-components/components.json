@@ -240,7 +240,7 @@
 			},
 			"height": {
 				"type": "number",
-				"default": "540"
+				"default": "500"
 			},
 			"pagination": {
 				"type": "bool",
