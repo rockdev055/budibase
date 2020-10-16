@@ -1,6 +1,3 @@
-import sanitizeUrl from "./sanitizeUrl"
-import { rowListUrl } from "./rowListScreen"
-
 export default function(tables) {
   return tables.map(table => {
     const heading = table.primaryDisplay
@@ -15,7 +12,6 @@ export default function(tables) {
 }
 
 export const ROW_DETAIL_TEMPLATE = "ROW_DETAIL_TEMPLATE"
-export const rowDetailUrl = table => sanitizeUrl(`/${table.name}/:id`)
 
 const createScreen = (table, heading) => ({
   props: {
@@ -228,7 +224,7 @@ const createScreen = (table, heading) => ({
                   },
                   {
                     parameters: {
-                      url: rowListUrl(table),
+                      url: `/${table.name.toLowerCase()}`,
                     },
                     "##eventHandlerType": "Navigate To",
                   },
@@ -269,7 +265,7 @@ const createScreen = (table, heading) => ({
                   },
                   {
                     parameters: {
-                      url: rowListUrl(table),
+                      url: `/${table.name.toLowerCase()}`,
                     },
                     "##eventHandlerType": "Navigate To",
                   },
@@ -299,6 +295,6 @@ const createScreen = (table, heading) => ({
     _instanceName: `${table.name} - Detail`,
     _code: "",
   },
-  route: rowDetailUrl(table),
+  route: `/${table.name.toLowerCase()}/:id`,
   name: "",
 })

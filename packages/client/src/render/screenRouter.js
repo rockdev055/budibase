@@ -3,19 +3,6 @@ import appStore from "../state/store"
 import { parseAppIdFromCookie } from "./getAppId"
 
 export const screenRouter = ({ screens, onScreenSelected, window }) => {
-  function sanitize(url) {
-    if (!url) return url
-    return url
-      .split("/")
-      .map(part => {
-        // if parameter, then use as is
-        if (part.startsWith(":")) return part
-        return encodeURIComponent(part)
-      })
-      .join("/")
-      .toLowerCase()
-  }
-
   const isRunningLocally = () => {
     const hostname = (window.location && window.location.hostname) || ""
     return (
@@ -29,7 +16,6 @@ export const screenRouter = ({ screens, onScreenSelected, window }) => {
     if (isRunningLocally()) {
       const appId = parseAppIdFromCookie(window.document.cookie)
       if (url) {
-        url = sanitize(url)
         if (!url.startsWith("/")) {
           url = `/${url}`
         }
@@ -40,7 +26,7 @@ export const screenRouter = ({ screens, onScreenSelected, window }) => {
       }
       return `/${appId}`
     }
-    return sanitize(url)
+    return url
   }
 
   const routes = screens.map(s => makeRootedPath(s.route))

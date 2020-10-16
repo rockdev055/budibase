@@ -40,7 +40,7 @@
   $: tableOptions = $backendUiStore.tables.filter(
     table => table._id !== $backendUiStore.draftTable._id
   )
-  $: required = !!field?.constraints?.presence || primaryDisplay
+  $: required = !!field?.constraints?.presence
 
   async function saveColumn() {
     backendUiStore.update(state => {
@@ -67,14 +67,6 @@
     field.constraints.presence = req ? { allowEmpty: false } : false
     required = req
   }
-
-  function onChangePrimaryDisplay(e) {
-    const isPrimary = e.target.checked
-    // primary display is always required
-    if (isPrimary) {
-      field.constraints.presence = { allowEmpty: false }
-    }
-  }
 </script>
 
 <div class="actions">
@@ -96,7 +88,6 @@
     <Toggle
       checked={required}
       on:change={onChangeRequired}
-      disabled={primaryDisplay}
       thin
       text="Required" />
   {/if}
@@ -104,7 +95,6 @@
   {#if field.type !== 'link'}
     <Toggle
       bind:checked={primaryDisplay}
-      on:change={onChangePrimaryDisplay}
       thin
       text="Use as table display column" />
   {/if}

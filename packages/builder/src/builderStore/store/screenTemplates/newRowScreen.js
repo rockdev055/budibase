@@ -1,6 +1,3 @@
-import sanitizeUrl from "./sanitizeUrl"
-import { rowListUrl } from "./rowListScreen"
-
 export default function(tables) {
   return tables.map(table => {
     return {
@@ -11,7 +8,6 @@ export default function(tables) {
   })
 }
 
-export const newRowUrl = table => sanitizeUrl(`/${table.name}/new`)
 export const NEW_ROW_TEMPLATE = "NEW_ROW_TEMPLATE"
 
 const createScreen = table => ({
@@ -220,7 +216,7 @@ const createScreen = table => ({
                   },
                   {
                     parameters: {
-                      url: rowListUrl(table),
+                      url: `/${table.name.toLowerCase()}`,
                     },
                     "##eventHandlerType": "Navigate To",
                   },
@@ -250,6 +246,6 @@ const createScreen = table => ({
     _instanceName: `${table.name} - New`,
     _code: "",
   },
-  route: newRowUrl(table),
+  route: `/${table.name.toLowerCase()}/new`,
   name: "",
 })
