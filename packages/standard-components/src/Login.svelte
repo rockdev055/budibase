@@ -91,20 +91,16 @@
   .content {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
+    align-items: center;
     justify-content: center;
   }
 
   .logo-container {
     margin-bottom: 10px;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
   }
 
   .logo-container > img {
-    max-height: 80px;
+    height: 80px;
     max-width: 200px;
     margin-bottom: 20px;
   }
@@ -141,7 +137,7 @@
   .form-root {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
+    align-items: center;
     width: 300px;
   }
 
@@ -189,9 +185,5 @@
     background-color: white;
     border-color: #393c44;
     color: #393c44;
-  }
-
-  h2 {
-    text-align: center;
   }
 </style>
