@@ -1,22 +1,19 @@
 <script>
-  import { onMount } from "svelte"
   import { Button, Spacer } from "@budibase/bbui"
   import { store } from "builderStore"
   import { notifier } from "builderStore/store/notifications"
   import api from "builderStore/api"
   import Spinner from "components/common/Spinner.svelte"
-  import DeploymentHistory from "components/deploy/DeploymentHistory.svelte"
   import analytics from "analytics"
 
   let deployed = false
   let loading = false
-  let deployments = []
 
   $: appId = $store.appId
 
   async function deployApp() {
     loading = true
-    const DEPLOY_URL = `/api/deploy`
+    const DEPLOY_URL = `/deploy`
 
     try {
       notifier.info("Starting Deployment..")
@@ -41,18 +38,6 @@
       loading = false
     }
   }
-
-  async function fetchDeployments() {
-    try {
-      const response = await api.get(`/api/deployments`)
-      deployments = await response.json()
-    } catch (err) {
-      console.error(err)
-      notifier.danger("Error fetching deployment history. Please try again.")
-    }
-  }
-
-  onMount(fetchDeployments)
 </script>
 
 <section>
@@ -75,7 +60,6 @@
   <img
     src="/_builder/assets/deploy-rocket.jpg"
     alt="Rocket flying through sky" />
-  <DeploymentHistory {deployments} />
 </section>
 
 <style>
