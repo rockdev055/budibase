@@ -1,5 +1,5 @@
 <script>
-  import { Heading, Body, Button, Select, Label } from "@budibase/bbui"
+  import { Heading, Body, Button, Select } from "@budibase/bbui"
   import { notifier } from "builderStore/store/notifications"
   import { FIELDS } from "constants/backend"
   import api from "builderStore/api"
@@ -14,17 +14,15 @@
     schema: {},
   }
 
-  let csvString
-  let primaryDisplay
-  let schema = {}
-  let fields = []
+  let parseResult
 
-  $: valid = !schema || fields.every(column => schema[column].success)
+  $: schema = parseResult && parseResult.schema
+  $: valid =
+    !schema || Object.keys(schema).every(column => schema[column].success)
   $: dataImport = {
     valid,
     schema: buildTableSchema(schema),
-    csvString,
-    primaryDisplay,
+    path: files[0] && files[0].path,
   }
 
   function buildTableSchema(schema) {
@@ -45,20 +43,11 @@
 
   async function validateCSV() {
     const response = await api.post("/api/tables/csv/validate", {
-      csvString,
+      file: files[0],
       schema: schema || {},
     })
 
-    const parseResult = await response.json()
-    schema = parseResult && parseResult.schema
-    fields = Object.keys(schema || {}).filter(
-      key => schema[key].type !== "omit"
-    )
-
-    // Check primary display is valid
-    if (!primaryDisplay || fields.indexOf(primaryDisplay) === -1) {
-      primaryDisplay = fields[0]
-    }
+    parseResult = await response.json()
 
     if (response.status !== 200) {
       notifier.danger("CSV Invalid, please try another CSV file")
@@ -68,7 +57,13 @@
 
   async function handleFile(evt) {
     const fileArray = Array.from(evt.target.files)
-    if (fileArray.some(file => file.size >= FILE_SIZE_LIMIT)) {
+    const filesToProcess = fileArray.map(({ name, path, size }) => ({
+      name,
+      path,
+      size,
+    }))
+
+    if (filesToProcess.some(file => file.size >= FILE_SIZE_LIMIT)) {
       notifier.danger(
         `Files cannot exceed ${FILE_SIZE_LIMIT /
           BYTES_IN_MB}MB. Please try again with smaller files.`
@@ -76,14 +71,9 @@
       return
     }
 
-    // Read CSV as plain text to upload alongside schema
-    let reader = new FileReader()
-    reader.addEventListener("load", function(e) {
-      csvString = e.target.result
-      files = fileArray
-      validateCSV()
-    })
-    reader.readAsBinaryString(fileArray[0])
+    files = filesToProcess
+
+    await validateCSV()
   }
 
   async function omitColumn(columnName) {
@@ -104,8 +94,8 @@
   </label>
 </div>
 <div class="schema-fields">
-  {#if fields.length}
-    {#each fields as columnName}
+  {#if schema}
+    {#each Object.keys(schema).filter(key => schema[key].type !== 'omit') as columnName}
       <div class="field">
         <span>{columnName}</span>
         <Select
@@ -127,16 +117,6 @@
     {/each}
   {/if}
 </div>
-{#if fields.length}
-  <div class="display-column">
-    <Label extraSmall grey>Display Column</Label>
-    <Select thin secondary bind:value={primaryDisplay}>
-      {#each fields as field}
-        <option value={field}>{field}</option>
-      {/each}
-    </Select>
-  </div>
-{/if}
 
 <style>
   .dropzone {
@@ -207,9 +187,5 @@
     align-items: center;
     grid-gap: var(--spacing-m);
     font-size: var(--font-size-xs);
-  }
-
-  .display-column {
-    margin-top: var(--spacing-xl);
   }
 </style>
