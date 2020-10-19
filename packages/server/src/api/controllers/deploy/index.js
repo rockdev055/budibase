@@ -4,9 +4,16 @@ const {
   uploadAppAssets,
   verifyDeployment,
   updateDeploymentQuota,
+  MAX_INVALIDATE_WAIT_MS,
 } = require("./aws")
 const { DocumentTypes, SEPARATOR, UNICODE_MAX } = require("../../../db/utils")
 const newid = require("../../../db/newid")
+
+const DeploymentStatus = {
+  SUCCESS: "SUCCESS",
+  PENDING: "PENDING",
+  FAILURE: "FAILURE",
+}
 
 function replicate(local, remote) {
   return new Promise((resolve, reject) => {
@@ -17,7 +24,7 @@ function replicate(local, remote) {
   })
 }
 
-async function replicateCouch({ instanceId, clientId, session }) {
+async function replicateCouch({ instanceId, clientId, credentials }) {
   const databases = [`client_${clientId}`, "client_app_lookup", instanceId]
 
   const replications = databases.map(localDbName => {
@@ -25,9 +32,8 @@ async function replicateCouch({ instanceId, clientId, session }) {
     const remoteDb = new CouchDB(
       `${process.env.DEPLOYMENT_DB_URL}/${localDbName}`,
       {
-        fetch: function(url, opts) {
-          opts.headers.set("Cookie", `${session};`)
-          return CouchDB.fetch(url, opts)
+        auth: {
+          ...credentials,
         },
       }
     )
@@ -112,7 +118,7 @@ async function deployApp({ instanceId, appId, clientId, deploymentId }) {
     await replicateCouch({
       instanceId,
       clientId,
-      session: credentials.couchDbSession,
+      credentials: credentials.couchDbCreds,
     })
 
     await updateDeploymentQuota(credentials.quota)
@@ -138,6 +144,20 @@ exports.fetchDeployments = async function(ctx) {
   try {
     const db = new PouchDB(ctx.user.instanceId)
     const deploymentDoc = await db.get("_local/deployments")
+    // check that no deployments have crashed etc and are now stuck
+    let changed = false
+    for (let deployment of Object.values(deploymentDoc.history)) {
+      if (
+        deployment.status === DeploymentStatus.PENDING &&
+        Date.now() - deployment.updatedAt > MAX_INVALIDATE_WAIT_MS
+      ) {
+        deployment.status = DeploymentStatus.FAILURE
+        changed = true
+      }
+    }
+    if (changed) {
+      await db.put(deploymentDoc)
+    }
     ctx.body = Object.values(deploymentDoc.history).reverse()
   } catch (err) {
     ctx.body = []
