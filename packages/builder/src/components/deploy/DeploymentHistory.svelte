@@ -1,6 +1,5 @@
 <script>
   import { onMount, onDestroy } from "svelte"
-  import Spinner from "components/common/Spinner.svelte"
   import { slide } from "svelte/transition"
   import { Heading, Body } from "@budibase/bbui"
   import api from "builderStore/api"
@@ -67,13 +66,8 @@
               {formatDate(deployment.updatedAt, 'timeOnly')}
             </span>
           </div>
-          <div class="deployment-right">
-            {#if deployment.status.toLowerCase() === "pending"}
-              <Spinner size="10" />
-            {/if}
-            <div class={`deployment-status ${deployment.status}`}>
-              {deployment.status}
-            </div>
+          <div class={`deployment-status ${deployment.status}`}>
+            {deployment.status}
           </div>
         </article>
       {/each}
@@ -130,13 +124,6 @@
     color: var(--grey-7);
     font-weight: 500;
     font-size: var(--font-size-s);
-  }
-
-  .deployment-right {
-    display: flex;
-    flex-direction: row;
-    gap: 16px;
-    align-items: center;
   }
 
   .deployment-status {

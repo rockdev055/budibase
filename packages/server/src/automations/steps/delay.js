@@ -1,4 +1,4 @@
-let { wait } = require("../../utilities")
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 module.exports.definition = {
   name: "Delay",
