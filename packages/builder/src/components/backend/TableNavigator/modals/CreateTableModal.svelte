@@ -38,19 +38,12 @@
   }
 
   async function saveTable() {
-    let newTable = {
+    // Create table
+    const table = await backendUiStore.actions.tables.save({
       name,
       schema: dataImport.schema || {},
       dataImport,
-    }
-
-    // Only set primary display if defined
-    if (dataImport.primaryDisplay && dataImport.primaryDisplay.length) {
-      newTable.primaryDisplay = dataImport.primaryDisplay
-    }
-
-    // Create table
-    const table = await backendUiStore.actions.tables.save(newTable)
+    })
     notifier.success(`Table ${name} created successfully.`)
     analytics.captureEvent("Table Created", { name })
 
