@@ -3,7 +3,6 @@ const { join } = require("../../../utilities/centralPath")
 const AWS = require("aws-sdk")
 const fetch = require("node-fetch")
 const uuid = require("uuid")
-const sanitize = require("sanitize-s3-objectkey")
 const { budibaseAppsDir } = require("../../../utilities/budibaseDir")
 const PouchDB = require("../../../db")
 const environment = require("../../../environment")
@@ -138,8 +137,7 @@ async function prepareUploadForS3({ s3Key, metadata, s3, file }) {
 
   const upload = await s3
     .upload({
-      // windows filepaths need to be converted to forward slashes for s3
-      Key: sanitize(s3Key).replace(/\\/g, "/"),
+      Key: s3Key,
       Body: fileBytes,
       ContentType: file.type || CONTENT_TYPE_MAP[extension.toLowerCase()],
       Metadata: metadata,
