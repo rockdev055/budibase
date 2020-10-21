@@ -51,15 +51,8 @@
       // Fetch table schema so we can check for linked rows
       const tableObj = await fetchTable(row.tableId)
       for (let key of Object.keys(tableObj.schema)) {
-        const type = tableObj.schema[key].type
-        if (type === "link") {
+        if (tableObj.schema[key].type === "link") {
           row[`${key}_count`] = Array.isArray(row[key]) ? row[key].length : 0
-        } else if (type === "attachment") {
-          let url = null
-          if (Array.isArray(row[key]) && row[key][0] != null) {
-            url = row[key][0].url
-          }
-          row[`${key}_first`] = url
         }
       }
 

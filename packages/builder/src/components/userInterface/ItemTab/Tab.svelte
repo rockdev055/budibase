@@ -25,13 +25,11 @@
 {#if !list.isCategory}
   <button class="back-button" on:click={goBack}>Back</button>
 {/if}
-<div class="list">
-  {#each list.children as item}
-    {#if !item.showOnPages || item.showOnPages.includes($store.currentPageName)}
-      <Item {item} on:click={() => handleClick(item)} />
-    {/if}
-  {/each}
-</div>
+{#each list.children as item}
+  {#if !item.showOnPages || item.showOnPages.includes($store.currentPageName)}
+    <Item {item} on:click={() => handleClick(item)} />
+  {/if}
+{/each}
 
 <style>
   .back-button {
@@ -47,16 +45,8 @@
     font-family: Inter;
     transition: all 0.3ms;
   }
+
   .back-button:hover {
     background: var(--grey-1);
-  }
-
-  .list {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    gap: var(--spacing-m);
-    flex-wrap: wrap;
   }
 </style>
