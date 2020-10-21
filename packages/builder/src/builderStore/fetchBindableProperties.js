@@ -86,12 +86,10 @@ const contextToBindables = (tables, walkResult) => context => {
   }
 
   const newBindable = ([key, fieldSchema]) => {
-    // Replace certain bindings with a new property to help display components
+    // Replace link bindings with a new property representing the count
     let runtimeBoundKey = key
     if (fieldSchema.type === "link") {
       runtimeBoundKey = `${key}_count`
-    } else if (fieldSchema.type === "attachment") {
-      runtimeBoundKey = `${key}_first`
     }
     return {
       type: "context",
