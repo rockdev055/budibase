@@ -14,13 +14,12 @@
     display: flex;
     flex-direction: column;
     cursor: pointer;
+    padding: 12px 16px 16px 16px;
+    height: 80px;
     justify-content: center;
     align-items: center;
     background-color: var(--grey-1);
     border-radius: 5px;
-    width: 120px;
-    height: 80px;
-    color: var(--grey-7);
   }
 
   .item-item:hover {
@@ -36,16 +35,16 @@
   .item-text {
     display: flex;
     flex-direction: column;
-    margin-top: 5px;
   }
 
   .item-name {
-    font-size: 12px;
-    font-weight: 500;
+    font-size: 14px;
+    font-weight: 400;
     text-align: center;
   }
 
   i {
     font-size: 24px;
+    color: var(--grey-7);
   }
 </style>
