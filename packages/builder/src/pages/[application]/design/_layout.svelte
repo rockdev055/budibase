@@ -32,6 +32,8 @@
     settingsView.show()
   }
 
+  let leftNavSwitcher
+
   const lastPartOfName = c => (c ? last(c.split("/")) : "")
 </script>
 
@@ -39,15 +41,21 @@
 <div class="root">
 
   <div class="ui-nav">
-    <FrontendNavigatePane />
+
+    <Switcher bind:this={leftNavSwitcher} tabs={['Navigate', 'Add']}>
+      <div slot="0">
+        <FrontendNavigatePane />
+      </div>
+      <div slot="1">
+        <ComponentSelectionList toggleTab={leftNavSwitcher.selectTab} />
+      </div>
+    </Switcher>
+
   </div>
 
   <div class="preview-pane">
     {#if $store.currentPageName && $store.currentPageName.length > 0}
-      <ComponentSelectionList/>
-      <div class="preview-content">
-        <CurrentItemPreview />
-      </div>
+      <CurrentItemPreview />
     {/if}
   </div>
 
@@ -65,42 +73,34 @@
   .root {
     display: grid;
     grid-template-columns: 300px 1fr 300px;
+    width: 100%;
     background: var(--grey-1);
+    flex: 1;
+    min-height: 0;
     align-items: stretch;
-    height: calc(100vh - 60px);
   }
 
   .ui-nav {
     grid-column: 1;
     background-color: var(--white);
+    height: calc(100vh - 69px);
+    padding: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-m);
-    padding: var(--spacing-xl);
-    overflow-y: auto;
-    border-right: 1px solid var(--grey-2);
   }
 
   .preview-pane {
     grid-column: 2;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: stretch;
-    gap: var(--spacing-m);
-  }
-  .preview-content {
+    margin: 40px;
     background: #fff;
-    box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
-    flex: 1 1 auto;
-    margin: var(--spacing-xl) 40px;
+    border-radius: 5px;
   }
 
   .components-pane {
     grid-column: 3;
     background-color: var(--white);
-    border-left: 1px solid var(--grey-2);
+    min-height: 0px;
+    height: calc(100vh - 69px);
   }
 
   .nav-group-header > div:nth-child(1) {
