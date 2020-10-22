@@ -1,9 +1,8 @@
 <script>
   import TableSelector from "./ParamInputs/TableSelector.svelte"
   import RowSelector from "./ParamInputs/RowSelector.svelte"
-  import { Button, Input, TextArea, Select, Label } from "@budibase/bbui"
+  import { Input, TextArea, Select, Label } from "@budibase/bbui"
   import { automationStore } from "builderStore"
-  import { notifier } from "builderStore/store/notifications"
   import BindableInput from "../../userInterface/BindableInput.svelte"
 
   export let block
@@ -43,20 +42,6 @@
     }
     return bindings
   }
-
-  function fullWebhookURL(uri) {
-    return `http://localhost:4001/${uri}`
-  }
-
-  function copyToClipboard(input) {
-    const dummy = document.createElement("textarea")
-    document.body.appendChild(dummy)
-    dummy.value = input
-    dummy.select()
-    document.execCommand("copy")
-    document.body.removeChild(dummy)
-    notifier.success(`URL copied to clipboard`)
-  }
 </script>
 
 <div class="container" data-cy="automation-block-setup">
@@ -79,18 +64,6 @@
         <TableSelector bind:value={block.inputs[key]} />
       {:else if value.customType === 'row'}
         <RowSelector bind:value={block.inputs[key]} {bindings} />
-      {:else if value.customType === 'webhookUrl'}
-        <div class="copy-area">
-          <Input
-            disabled="true"
-            thin
-            value={fullWebhookURL(block.inputs[key])} />
-          <span
-            class="copy-btn"
-            on:click={() => copyToClipboard(fullWebhookURL(block.inputs[key]))}>
-            <i class="ri-clipboard-line copy-icon" />
-          </span>
-        </div>
       {:else if value.type === 'string' || value.type === 'number'}
         <BindableInput
           type="string"
@@ -118,28 +91,5 @@
     font-family: inherit;
     padding: 12px;
     margin-top: 8px;
-  }
-
-  .copy-area {
-    position: relative;
-  }
-
-  .copy-btn {
-    position: absolute;
-    border: none;
-    border-radius: 50%;
-    height: 24px;
-    width: 24px;
-    background: white;
-    right: var(--spacing-s);
-    bottom: 9px;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .copy-btn:hover {
-    background-color: var(--grey-4);
   }
 </style>

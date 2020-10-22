@@ -1,14 +1,10 @@
 <script>
-  import { backendUiStore, automationStore } from "builderStore"
+  import { automationStore } from "builderStore"
   import analytics from "analytics"
 
   export let blockDefinition
   export let stepId
   export let blockType
-
-  $: blockDefinitions = $automationStore.blockDefinitions
-  $: instanceId = $backendUiStore.selectedDatabase._id
-  $: automation = $automationStore.selectedAutomation?.automation
 
   function addBlockToAutomation() {
     automationStore.actions.addBlockToAutomation({
@@ -17,12 +13,6 @@
       stepId,
       type: blockType,
     })
-    if (stepId === blockDefinitions.TRIGGER["WEBHOOK"].stepId) {
-      automationStore.actions.save({
-        instanceId,
-        automation,
-      })
-    }
     analytics.captureEvent("Added Automation Block", {
       name: blockDefinition.name,
     })
@@ -72,7 +62,6 @@
   }
   .automation-text p {
     font-size: 12px;
-    line-height: 1.4;
     color: var(--grey-7);
     margin: 0;
   }
