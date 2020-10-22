@@ -7,7 +7,6 @@ const {
   BUILDER_LEVEL_ID,
   generateAdminPermissions,
 } = require("../../../utilities/accessLevels")
-const packageJson = require("../../../../package")
 const jwt = require("jsonwebtoken")
 const env = require("../../../environment")
 
@@ -215,7 +214,6 @@ const createUserWithPermissions = async (
     userId: "ANON",
     accessLevelId: ANON_LEVEL_ID,
     appId: appId,
-    version: packageJson.version,
   }
 
   const anonToken = jwt.sign(anonUser, env.JWT_SECRET)
