@@ -2,7 +2,6 @@
   import { store, automationStore, backendUiStore } from "builderStore"
   import { Button } from "@budibase/bbui"
   import SettingsLink from "components/settings/Link.svelte"
-  import FeedbackNavLink from "components/userInterface/Feedback/FeedbackNavLink.svelte"
   import { get } from "builderStore/api"
   import { isActive, goto, layout } from "@sveltech/routify"
   import { PreviewIcon } from "components/common/Icons/"
@@ -66,7 +65,6 @@
       {/each}
     </div>
     <div class="toprightnav">
-      <FeedbackNavLink />
       <SettingsLink />
       <span
         class:active={false}
