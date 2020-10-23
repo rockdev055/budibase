@@ -1,21 +1,24 @@
 const fs = require("fs")
-const jimp = require("jimp")
+const sharp = require("sharp")
 const fsPromises = fs.promises
 
 const FORMATS = {
-  IMAGES: ["png", "jpg", "jpeg", "gif", "bmp", "tiff"],
+  IMAGES: ["png", "jpg", "jpeg", "gif", "svg", "tiff", "raw"],
 }
 
-function processImage(file) {
-  return jimp.read(file.path).then(img => {
-    return img.resize(300, jimp.AUTO).write(file.outputPath)
-  })
+async function processImage(file) {
+  const imgMeta = await sharp(file.path)
+    .resize(300)
+    .toFile(file.outputPath)
+  return {
+    ...file,
+    ...imgMeta,
+  }
 }
 
 async function process(file) {
   if (FORMATS.IMAGES.includes(file.extension.toLowerCase())) {
-    await processImage(file)
-    return file
+    return await processImage(file)
   }
 
   // No processing required
