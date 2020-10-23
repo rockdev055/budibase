@@ -20,7 +20,7 @@
   $: componentPropDefinition =
     flattenedPanel.find(
       //use for getting controls for each component property
-      (c) => c._component === componentInstance._component
+      c => c._component === componentInstance._component
     ) || {}
 
   $: panelDefinition =
@@ -48,8 +48,8 @@
 
   function flattenComponents(props) {
     const components = []
-    props.forEach((comp) =>
-      walkProps(comp, (c) => {
+    props.forEach(comp =>
+      walkProps(comp, c => {
         if ("_component" in c) {
           components.push(c)
         }
@@ -63,31 +63,41 @@
   }
 </script>
 
-<CategoryTab
-  onClick={(category) => (selectedCategory = category)}
-  {categories}
-  {selectedCategory} />
+<div class="root">
+  <CategoryTab
+    onClick={category => (selectedCategory = category)}
+    {categories}
+    {selectedCategory} />
 
-{#if displayName}
-  <div class="instance-name">{componentInstance._instanceName}</div>
-{/if}
-
-<div class="component-props-container">
-  {#if selectedCategory.value === 'design'}
-    <DesignView {panelDefinition} {componentInstance} {onStyleChanged} />
-  {:else if selectedCategory.value === 'settings'}
-    <SettingsView
-      {componentInstance}
-      {componentDefinition}
-      {panelDefinition}
-      displayNameField={displayName}
-      onChange={store.setComponentProp}
-      onScreenPropChange={store.setPageOrScreenProp}
-      screenOrPageInstance={$store.currentView !== 'component' && $store.currentPreviewItem} />
+  {#if displayName}
+    <div class="instance-name">{componentInstance._instanceName}</div>
   {/if}
+
+  <div class="component-props-container">
+    {#if selectedCategory.value === 'design'}
+      <DesignView {panelDefinition} {componentInstance} {onStyleChanged} />
+    {:else if selectedCategory.value === 'settings'}
+      <SettingsView
+        {componentInstance}
+        {componentDefinition}
+        {panelDefinition}
+        displayNameField={displayName}
+        onChange={store.setComponentProp}
+        onScreenPropChange={store.setPageOrScreenProp}
+        screenOrPageInstance={$store.currentView !== 'component' && $store.currentPreviewItem} />
+    {/if}
+  </div>
 </div>
 
 <style>
+  .root {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
   .title > div:nth-child(1) {
     grid-column-start: name;
     color: var(--ink);
@@ -98,6 +108,7 @@
   }
 
   .component-props-container {
+    margin-top: 16px;
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
@@ -107,7 +118,8 @@
   }
 
   .instance-name {
-    font-size: var(--font-size-xs);
+    margin-top: 20px;
+    font-size: 14px;
     font-weight: 500;
     color: var(--grey-7);
   }
