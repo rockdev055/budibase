@@ -14,12 +14,12 @@
   let modal
 
   function showModal() {
-    dropdown.hide()
+    // dropdown.hide()
     modal.show()
   }
 
   function showDelete() {
-    dropdown.hide()
+    // dropdown.hide()
     confirmDeleteDialog.show()
   }
 
@@ -30,10 +30,8 @@
   }
 </script>
 
-<div bind:this={anchor} on:click={dropdown.show}>
-  <i class="ri-more-line" />
-</div>
-<DropdownMenu bind:this={dropdown} {anchor} align="left">
+<div on:click={showModal}><i class="ri-more-line" /></div>
+<!-- <DropdownMenu bind:this={dropdown} {anchor} align="left">
   <ul>
     <li data-cy="edit-row" on:click={showModal}>
       <Icon name="edit" />
@@ -44,7 +42,7 @@
       <span>Delete</span>
     </li>
   </ul>
-</DropdownMenu>
+</DropdownMenu> -->
 <ConfirmDialog
   bind:this={confirmDeleteDialog}
   body={`Are you sure you wish to delete this row? Your data will be deleted and this action cannot be undone.`}
