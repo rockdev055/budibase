@@ -1,130 +1,98 @@
 <script>
-  import { goto, params } from "@sveltech/routify"
-  import { onMount } from "svelte"
   import { fade } from "svelte/transition"
-  import fsort from "fast-sort"
-  import getOr from "lodash/fp/getOr"
-  import { store, backendUiStore } from "builderStore"
-  import api from "builderStore/api"
-  import { Button, Icon } from "@budibase/bbui"
-  import ActionButton from "components/common/ActionButton.svelte"
-  import AttachmentList from "./AttachmentList.svelte"
-  import TablePagination from "./TablePagination.svelte"
-  import CreateEditRowModal from "./modals/CreateEditRowModal.svelte"
-  import RowPopover from "./buttons/CreateRowButton.svelte"
-  import ColumnPopover from "./buttons/CreateColumnButton.svelte"
-  import ViewPopover from "./buttons/CreateViewButton.svelte"
-  import ColumnHeaderPopover from "./popovers/ColumnPopover.svelte"
-  import EditRowPopover from "./popovers/RowPopover.svelte"
-  import CalculationPopover from "./buttons/CalculateButton.svelte"
+  import { goto, params } from "@sveltech/routify"
   import Spinner from "components/common/Spinner.svelte"
+  import AgGrid from "@budibase/svelte-ag-grid"
+  import { getRenderer, editRowRenderer } from "./cells/cellRenderers"
+  import TableLoadingOverlay from "./TableLoadingOverlay"
+  import TableHeader from "./TableHeader"
+  import "@budibase/svelte-ag-grid/dist/index.css"
 
-  const ITEMS_PER_PAGE = 10
-
-  export let schema = []
+  export let schema = {}
   export let data = []
   export let title
   export let allowEditing = false
   export let loading = false
 
-  let currentPage = 0
+  export let theme = "alpine"
 
-  $: columns = schema ? Object.keys(schema) : []
-  $: sort = $backendUiStore.sort
-  $: sorted = sort ? fsort(data)[sort.direction](sort.column) : data
-  $: paginatedData =
-    sorted && sorted.length
-      ? sorted.slice(
-          currentPage * ITEMS_PER_PAGE,
-          currentPage * ITEMS_PER_PAGE + ITEMS_PER_PAGE
-        )
-      : []
-  $: tableId = data?.length ? data[0].tableId : null
+  let columnDefs = []
+
+  let options = {
+    defaultColDef: {
+      flex: 1,
+      filter: true,
+    },
+    rowSelection: true,
+    rowMultiSelectWithClick: true,
+    suppressRowClickSelection: false,
+    paginationAutoPageSize: true,
+    pagination: true,
+    enableRangeSelection: true,
+    popupParent: document.body,
+    components: {
+      customLoadingOverlay: TableLoadingOverlay,
+    },
+    loadingOverlayComponent: "customLoadingOverlay",
+  }
+
+  $: {
+    let result = []
+    if (allowEditing) {
+      result.push({
+        pinned: "left",
+        headerName: "Edit",
+        sortable: false,
+        resizable: false,
+        suppressMovable: true,
+        suppressMenu: true,
+        minWidth: 75,
+        width: 75,
+        cellRenderer: editRowRenderer,
+      })
+    }
+
+    for (let key in schema) {
+      result.push({
+        headerComponent: TableHeader,
+        headerComponentParams: {
+          field: schema[key],
+          editable: allowEditing,
+        },
+        headerName: key,
+        field: key,
+        sortable: true,
+        cellRenderer: getRenderer(schema[key], true),
+        cellRendererParams: {
+          selectRelationship,
+        },
+        autoHeight: true,
+        resizable: true,
+        minWidth: 200,
+      })
+    }
+
+    columnDefs = result
+  }
 
   function selectRelationship(row, fieldName) {
     if (!row?.[fieldName]?.length) {
       return
     }
     $goto(
-      `/${$params.application}/backend/table/${tableId}/relationship/${row._id}/${fieldName}`
+      `/${$params.application}/data/table/${row.tableId}/relationship/${row._id}/${fieldName}`
     )
   }
 </script>
 
 <section>
   <div class="table-controls">
-    <h2 class="title">
-      <span>{title}</span>
-      {#if loading}
-        <div transition:fade>
-          <Spinner size="10" />
-        </div>
-      {/if}
-    </h2>
+    <h2 class="title"><span>{title}</span></h2>
     <div class="popovers">
       <slot />
     </div>
   </div>
-  <table class="bb-table">
-    <thead>
-      <tr>
-        {#if allowEditing}
-          <th class="edit-header">
-            <div>Edit</div>
-          </th>
-        {/if}
-        {#each columns as header}
-          <th>
-            {#if allowEditing}
-              <ColumnHeaderPopover field={schema[header]} />
-            {:else}
-              <div class="header">{header}</div>
-            {/if}
-          </th>
-        {/each}
-      </tr>
-    </thead>
-    <tbody>
-      {#if paginatedData.length === 0}
-        {#if allowEditing}
-          <td class="no-border">No data.</td>
-        {/if}
-        {#each columns as header, idx}
-          <td class="no-border">
-            {#if idx === 0 && !allowEditing}No data.{/if}
-          </td>
-        {/each}
-      {/if}
-      {#each paginatedData as row}
-        <tr>
-          {#if allowEditing}
-            <td>
-              <EditRowPopover {row} />
-            </td>
-          {/if}
-          {#each columns as header}
-            <td>
-              {#if schema[header].type === 'link'}
-                <div
-                  class:link={row[header] && row[header].length}
-                  on:click={() => selectRelationship(row, header)}>
-                  {row[header] ? row[header].length : 0}
-                  related row(s)
-                </div>
-              {:else if schema[header].type === 'attachment'}
-                <AttachmentList files={row[header] || []} />
-              {:else}{getOr('', header, row)}{/if}
-            </td>
-          {/each}
-        </tr>
-      {/each}
-    </tbody>
-  </table>
-  <TablePagination
-    {data}
-    bind:currentPage
-    pageItemCount={paginatedData.length}
-    {ITEMS_PER_PAGE} />
+  <AgGrid {theme} {options} {data} {columnDefs} {loading} />
 </section>
 
 <style>
@@ -138,66 +106,9 @@
     justify-content: flex-start;
     align-items: center;
   }
+
   .title > span {
     margin-right: var(--spacing-xs);
-  }
-
-  table {
-    border: 1px solid var(--grey-4);
-    background: #fff;
-    border-collapse: collapse;
-    margin-top: 0;
-  }
-
-  thead {
-    background: var(--grey-3);
-    border: 1px solid var(--grey-4);
-  }
-
-  thead th {
-    color: var(--ink);
-    font-weight: 500;
-    font-size: 14px;
-    text-rendering: optimizeLegibility;
-    transition: 0.5s all;
-    vertical-align: middle;
-    height: 48px;
-    padding-top: 0;
-    padding-bottom: 0;
-  }
-
-  thead th:hover {
-    color: var(--blue);
-    cursor: pointer;
-  }
-
-  .header {
-    text-transform: capitalize;
-  }
-
-  td {
-    max-width: 200px;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    border: 1px solid var(--grey-4);
-    white-space: nowrap;
-    box-sizing: border-box;
-    padding: var(--spacing-l) var(--spacing-m);
-    font-size: var(--font-size-xs);
-  }
-
-  td.no-border {
-    border: none;
-  }
-
-  tbody tr {
-    border-bottom: 1px solid var(--grey-4);
-    transition: 0.3s background-color;
-    color: var(--ink);
-  }
-
-  tbody tr:hover {
-    background: var(--grey-1);
   }
 
   .table-controls {
@@ -213,21 +124,73 @@
     margin-bottom: var(--spacing-xl);
   }
 
-  .edit-header {
-    width: 60px;
+  :global(.ag-menu) {
+    border: var(--border-dark) !important;
   }
 
-  .edit-header:hover {
-    cursor: default;
+  :global(.ag-popup-child) {
+    border-radius: var(--border-radius-m) !important;
+    box-shadow: none !important;
+  }
+
+  :global(.ag-header-cell-text) {
+    font-family: Inter;
+    font-weight: 600;
     color: var(--ink);
   }
 
-  .link {
-    text-decoration: underline;
+  :global(.ag-filter) {
+    padding: var(--spacing-s);
+    outline: none;
+    box-sizing: border-box;
+    color: var(--ink);
+    border-radius: var(--border-radius-m);
+    background: #fff;
+    font-family: var(--font-sans) !important;
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
   }
 
-  .link:hover {
-    color: var(--grey-6);
-    cursor: pointer;
+  :global(.ag-menu) {
+    border: none;
+  }
+
+  :global(.ag-simple-filter-body-wrapper > *) {
+    margin-bottom: var(--spacing-m) !important;
+  }
+
+  :global(.ag-select) {
+    height: inherit !important;
+  }
+
+  :global(.ag-menu input) {
+    color: var(--ink) !important;
+    font-size: var(--font-size-s);
+    border-radius: var(--border-radius-s) !important;
+    border: none;
+    background-color: var(--grey-2) !important;
+    padding: var(--spacing-m);
+    margin: 0;
+    outline: none;
+    font-family: var(--font-sans);
+    border: var(--border-transparent) !important;
+    transition: 0.2s all;
+  }
+  :global(.ag-menu input:focus) {
+    border: var(--border-blue) !important;
+  }
+
+  :global(.ag-picker-field-display) {
+    color: var(--ink) !important;
+    font-size: var(--font-size-s) !important;
+    border-radius: var(--border-radius-s) !important;
+    background-color: var(--grey-2) !important;
+    font-family: var(--font-sans);
+    border: var(--border-transparent) !important;
+  }
+
+  :global(.ag-picker-field-wrapper) {
+    background: var(--grey-2) !important;
+    border: var(--border-transparent) !important;
+    padding: var(--spacing-xs);
   }
 </style>
