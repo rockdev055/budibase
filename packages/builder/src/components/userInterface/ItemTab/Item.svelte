@@ -12,16 +12,19 @@
 <style>
   .item-item {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     cursor: pointer;
-    justify-content: flex-start;
+    padding: 12px 16px 16px 16px;
+    height: 80px;
+    justify-content: center;
     align-items: center;
+    background-color: var(--grey-1);
     border-radius: 5px;
-    color: var(--grey-7);
   }
 
   .item-item:hover {
-    color: var(--ink);
+    background: var(--grey-2);
+    transition: all 0.3s;
   }
 
   .item-icon {
@@ -35,13 +38,13 @@
   }
 
   .item-name {
-    font-size: var(--font-size-xs);
-    font-weight: 500;
+    font-size: 14px;
+    font-weight: 400;
     text-align: center;
   }
 
   i {
-    font-size: 16px;
-    margin-right: 8px;
+    font-size: 24px;
+    color: var(--grey-7);
   }
 </style>

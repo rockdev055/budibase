@@ -2,6 +2,7 @@
   import { store, automationStore, backendUiStore } from "builderStore"
   import { Button } from "@budibase/bbui"
   import SettingsLink from "components/settings/Link.svelte"
+  import FeedbackNavLink from "components/userInterface/Feedback/FeedbackNavLink.svelte"
   import { get } from "builderStore/api"
   import { isActive, goto, layout } from "@sveltech/routify"
   import { PreviewIcon } from "components/common/Icons/"
@@ -30,10 +31,10 @@
   // e.g. if one of your screens is selected on front end, then
   // you browse to backend, when you click frontend, you will be
   // brought back to the same screen
-  const topItemNavigate = (path) => () => {
-    const activeTopNav = $layout.children.find((c) => $isActive(c.path))
+  const topItemNavigate = path => () => {
+    const activeTopNav = $layout.children.find(c => $isActive(c.path))
     if (!activeTopNav) return
-    store.update((state) => {
+    store.update(state => {
       if (!state.previousTopNavPath) state.previousTopNavPath = {}
       state.previousTopNavPath[
         activeTopNav.path
@@ -65,27 +66,24 @@
       {/each}
     </div>
     <div class="toprightnav">
+      <FeedbackNavLink />
       <SettingsLink />
-      <div class="topnavitemright">
-        <a target="_blank" href="https://docs.budibase.com">
-          <i class="ri-question-line" />
-        </a>
-      </div>
-      <div class="topnavitemright">
-        <a
-          target="_blank"
-          href="https://github.com/Budibase/budibase/discussions">
-          <i class="ri-discuss-line" />
-        </a>
-      </div>
-      <Button
-        secondary
+      <span
+        class:active={false}
+        class="topnavitemright"
         on:click={() => {
           document.cookie = 'budibase:token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;'
           window.open(`/${application}`)
         }}>
-        Preview
-      </Button>
+        <PreviewIcon />
+      </span>
+      <span class="topnavitemright">
+        <a
+          target="_blank"
+          href="https://github.com/Budibase/budibase/discussions">
+          <i class="ri-question-fill help" />
+        </a>
+      </span>
     </div>
   </div>
   <div class="beta">
@@ -124,7 +122,7 @@
     flex: 0 0 auto;
     height: 60px;
     background: #fff;
-    padding: 0 20px;
+    padding: 0px 20px 0 20px;
     display: flex;
     box-sizing: border-box;
     justify-content: space-between;
@@ -170,19 +168,20 @@
     font-weight: 500;
   }
 
-  .topnavitemright a {
+  .topnavitemright {
     cursor: pointer;
     color: var(--grey-7);
-    margin: 0 12px 0 0;
+    margin: 0 20px 0 0;
+    font-weight: 500;
+    font-size: 1rem;
+    height: 100%;
     display: flex;
-    flex-direction: row;
-    justify-content: center;
+    flex: 1;
     align-items: center;
-    height: 24px;
-    width: 24px;
+    box-sizing: border-box;
   }
 
-  .topnavitemright a:hover {
+  .topnavitemright:hover {
     color: var(--ink);
     font-weight: 500;
   }
@@ -208,12 +207,9 @@
     text-transform: capitalize;
   }
 
-  i {
-    font-size: 18px;
+  .help {
+    font-size: 24px;
     color: var(--grey-7);
-  }
-  i:hover {
-    color: var(--ink);
   }
 
   .beta {

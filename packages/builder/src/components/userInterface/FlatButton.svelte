@@ -3,7 +3,7 @@
   export let value = ""
   export let text = ""
   export let icon = ""
-  export let onClick = (value) => {}
+  export let onClick = value => {}
   export let selected = false
 
   $: useIcon = !!icon
@@ -22,22 +22,23 @@
 <style>
   .flatbutton {
     cursor: pointer;
-    height: 32px;
+    max-height: 36px;
+    padding: 8px 2px;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    background: white;
+    background: #ffffff;
     color: var(--grey-7);
-    border-radius: var(--border-radius-m);
-    font-size: var(--font-size-xs);
-    font-weight: 500;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 400;
     transition: all 0.3s;
     text-rendering: optimizeLegibility;
   }
 
   .selected {
-    background: var(--grey-2);
+    background: var(--grey-3);
     color: var(--ink);
   }
 
