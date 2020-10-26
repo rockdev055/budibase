@@ -3,6 +3,7 @@ const authenticated = require("../middleware/authenticated")
 const compress = require("koa-compress")
 const zlib = require("zlib")
 const { budibaseAppsDir } = require("../utilities/budibaseDir")
+const { isDev } = require("../utilities")
 const {
   authRoutes,
   pageRoutes,
@@ -21,7 +22,6 @@ const {
   apiKeysRoutes,
   templatesRoutes,
   analyticsRoutes,
-  webhookRoutes,
 } = require("./routes")
 
 const router = new Router()
@@ -46,10 +46,7 @@ router
       jwtSecret: env.JWT_SECRET,
       useAppRootPath: true,
     }
-    ctx.isDev =
-      process.env.NODE_ENV !== "production" &&
-      process.env.NODE_ENV !== "jest" &&
-      process.env.NODE_ENV !== "cypress"
+    ctx.isDev = isDev()
     await next()
   })
   .use("/health", ctx => (ctx.status = 200))
@@ -90,9 +87,6 @@ router.use(instanceRoutes.allowedMethods())
 
 router.use(automationRoutes.routes())
 router.use(automationRoutes.allowedMethods())
-
-router.use(webhookRoutes.routes())
-router.use(webhookRoutes.allowedMethods())
 
 router.use(deployRoutes.routes())
 router.use(deployRoutes.allowedMethods())

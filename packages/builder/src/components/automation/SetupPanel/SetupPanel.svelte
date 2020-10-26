@@ -2,13 +2,11 @@
   import { backendUiStore, automationStore } from "builderStore"
   import { notifier } from "builderStore/store/notifications"
   import AutomationBlockSetup from "./AutomationBlockSetup.svelte"
-  import { Button, Input, Label, Modal } from "@budibase/bbui"
-  import CreateWebookModal from "../Shared/CreateWebhookModal.svelte"
+  import { Button, Input, Label } from "@budibase/bbui"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
 
   let selectedTab = "SETUP"
   let confirmDeleteDialog
-  let webhookModal
 
   $: instanceId = $backendUiStore.selectedDatabase._id
   $: automation = $automationStore.selectedAutomation?.automation
@@ -62,9 +60,7 @@
   </header>
   <div class="content">
     {#if $automationStore.selectedBlock}
-      <AutomationBlockSetup
-        bind:block={$automationStore.selectedBlock}
-        {webhookModal} />
+      <AutomationBlockSetup bind:block={$automationStore.selectedBlock} />
     {:else if $automationStore.selectedAutomation}
       <div class="block-label">Automation <b>{automation.name}</b></div>
       <Button secondary wide on:click={testAutomation}>Test Automation</Button>
@@ -106,9 +102,6 @@
   body={`Are you sure you wish to delete the automation '${name}'?`}
   okText="Delete Automation"
   onOk={deleteAutomation} />
-<Modal bind:this={webhookModal} width="30%">
-  <CreateWebookModal />
-</Modal>
 
 <style>
   section {
