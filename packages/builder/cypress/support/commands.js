@@ -149,7 +149,7 @@ Cypress.Commands.add("addButtonComponent", () => {
 })
 
 Cypress.Commands.add("navigateToFrontend", () => {
-  cy.contains("design").click()
+  cy.contains("frontend").click()
 })
 
 Cypress.Commands.add("createScreen", (screenName, route) => {
