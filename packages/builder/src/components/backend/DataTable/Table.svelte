@@ -1,10 +1,25 @@
 <script>
-  import { fade } from "svelte/transition"
   import { goto, params } from "@sveltech/routify"
+  import { onMount } from "svelte"
+  import { fade } from "svelte/transition"
+  import fsort from "fast-sort"
+  import getOr from "lodash/fp/getOr"
+  import { store, backendUiStore } from "builderStore"
+  import api from "builderStore/api"
+  import { Button, Icon } from "@budibase/bbui"
+  import ActionButton from "components/common/ActionButton.svelte"
+  import AttachmentList from "./AttachmentList.svelte"
+  import TablePagination from "./TablePagination.svelte"
+  import CreateEditRowModal from "./modals/CreateEditRowModal.svelte"
+  import RowPopover from "./buttons/CreateRowButton.svelte"
+  import ColumnPopover from "./buttons/CreateColumnButton.svelte"
+  import ViewPopover from "./buttons/CreateViewButton.svelte"
+  import ColumnHeaderPopover from "./popovers/ColumnPopover.svelte"
+  import EditRowPopover from "./popovers/RowPopover.svelte"
+  import CalculationPopover from "./buttons/CalculateButton.svelte"
   import Spinner from "components/common/Spinner.svelte"
-  import AgGrid from "@budibase/svelte-ag-grid"
-  import { getRenderer, editRowRenderer } from "./cells/cellRenderers";
-  import TableHeader from "./TableHeader"
+
+  const ITEMS_PER_PAGE = 10
 
   export let schema = []
   export let data = []
@@ -12,162 +27,216 @@
   export let allowEditing = false
   export let loading = false
 
-  export let theme = "alpine"
+  let currentPage = 0
 
-  let columnDefs = []
-
-  let options = {
-    defaultColDef: {
-      flex: 1,
-      filter: true,
-    },
-    rowSelection: true,
-    rowMultiSelectWithClick: true,
-    suppressRowClickSelection: false,
-    paginationAutoPageSize: true,
-    pagination: true,
-    enableRangeSelection: true,
-    popupParent: document.body,
-  }
-
-  // TODO: refactor
-  $: {
-    let result = []
-    if (allowEditing) {
-      result.push({
-        pinned: "left",
-        headerName: "Edit",
-        sortable: false,
-        resizable: false,
-        suppressMovable: true,
-        suppressMenu: true,
-        minWidth: 75,
-        width: 75,
-        cellRenderer: editRowRenderer
-      })
-    }
-    columnDefs = [...result, ...Object.keys(schema || {}).map(key => ({
-      headerComponent: TableHeader,
-      headerComponentParams: {
-        field: schema[key]
-      },
-      headerName: key,
-      field: key,
-      sortable: true,
-      cellRenderer: getRenderer(schema[key], true),
-      cellRendererParams: {
-        selectRelationship
-      },
-      autoHeight: true,
-      resizable: true,
-      minWidth: 200,
-    }))]
-  }
+  $: columns = schema ? Object.keys(schema) : []
+  $: sort = $backendUiStore.sort
+  $: sorted = sort ? fsort(data)[sort.direction](sort.column) : data
+  $: paginatedData =
+    sorted && sorted.length
+      ? sorted.slice(
+          currentPage * ITEMS_PER_PAGE,
+          currentPage * ITEMS_PER_PAGE + ITEMS_PER_PAGE
+        )
+      : []
+  $: tableId = data?.length ? data[0].tableId : null
 
   function selectRelationship(row, fieldName) {
     if (!row?.[fieldName]?.length) {
       return
     }
     $goto(
-      `/${$params.application}/data/table/${row.tableId}/relationship/${row._id}/${fieldName}`
+      `/${$params.application}/data/table/${tableId}/relationship/${row._id}/${fieldName}`
     )
   }
 </script>
 
-<section>
-  <div class="table-controls">
-    <h2 class="title">
-      <span>{title}</span>
-      {#if loading}
-        <div transition:fade>
-          <Spinner size="10" />
-        </div>
-      {/if}
-    </h2>
-    <div class="popovers">
-      <slot />
-    </div>
+<div class="table-container">
+  <div class="title">
+    <h1>{title}</h1>
+    {#if loading}
+      <div transition:fade>
+        <Spinner size="10" />
+      </div>
+    {/if}
   </div>
-  <AgGrid 
-    {theme}
-    {options}
+  <div class="popovers">
+    <slot />
+  </div>
+  <table class="bb-table">
+    <thead>
+      <tr>
+        {#if allowEditing}
+          <th class="edit-header">
+            <div>Edit</div>
+          </th>
+        {/if}
+        {#each columns as header}
+          <th>
+            {#if allowEditing}
+              <ColumnHeaderPopover field={schema[header]} />
+            {:else}
+              <div class="header">{header}</div>
+            {/if}
+          </th>
+        {/each}
+      </tr>
+    </thead>
+    <tbody>
+      {#if paginatedData.length === 0}
+        {#if allowEditing}
+          <td class="no-border">No data.</td>
+        {/if}
+        {#each columns as header, idx}
+          <td class="no-border">
+            {#if idx === 0 && !allowEditing}No data.{/if}
+          </td>
+        {/each}
+      {/if}
+      {#each paginatedData as row}
+        <tr>
+          {#if allowEditing}
+            <td>
+              <EditRowPopover {row} />
+            </td>
+          {/if}
+          {#each columns as header}
+            <td>
+              {#if schema[header].type === 'link'}
+                <div
+                  class:link={row[header] && row[header].length}
+                  on:click={() => selectRelationship(row, header)}>
+                  {row[header] ? row[header].length : 0}
+                  related row(s)
+                </div>
+              {:else if schema[header].type === 'attachment'}
+                <AttachmentList files={row[header] || []} />
+              {:else}{getOr('', header, row)}{/if}
+            </td>
+          {/each}
+        </tr>
+      {/each}
+    </tbody>
+  </table>
+  <TablePagination
     {data}
-    {columnDefs}
-  />
-</section>
+    bind:currentPage
+    pageItemCount={paginatedData.length}
+    {ITEMS_PER_PAGE} />
+</div>
 
 <style>
+  .table-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: var(--spacing-l);
+  }
+
   .title {
-    font-size: 24px;
-    font-weight: 600;
-    text-rendering: optimizeLegibility;
-    margin-top: 0;
+    height: 24px;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
   }
-
-  .title > span {
-    margin-right: var(--spacing-xs);
+  .title h1 {
+    font-size: var(--font-size-m);
+    font-weight: 500;
+    margin: 0;
   }
-
-  .table-controls {
-    width: 100%;
+  .title > div {
+    margin-left: var(--spacing-xs);
   }
 
   .popovers {
     display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: var(--spacing-l);
+  }
+  .popovers :global(button) {
+    font-weight: 500;
+  }
+  .popovers :global(button svg) {
+    margin-right: var(--spacing-xs);
   }
 
-  :global(.popovers > div) {
-    margin-right: var(--spacing-m);
-    margin-bottom: var(--spacing-xl);
-  }
-
-  :global(.ag-header-cell-text) {
-    font-family: Inter;
-    font-weight: 600;
-    color: var(--ink);
-  }
-
-  :global(.ag-filter) {
-    padding: var(--spacing-l);
-    outline: none;
-    box-sizing: border-box;
-    color: var(--ink);
-    border: var(--border-dark);
-    border-radius: var(--border-radius-m);
+  table {
+    border: 1px solid var(--grey-4);
     background: #fff;
-    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+    border-collapse: collapse;
+    margin-top: 0;
   }
 
-  :global(.ag-menu) {
+  thead {
+    background: var(--grey-3);
+    border: 1px solid var(--grey-4);
+  }
+
+  thead th {
+    color: var(--ink);
+    font-weight: 500;
+    font-size: 14px;
+    text-rendering: optimizeLegibility;
+    transition: 0.5s all;
+    vertical-align: middle;
+    height: 48px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  thead th:hover {
+    color: var(--blue);
+    cursor: pointer;
+  }
+
+  .header {
+    text-transform: capitalize;
+  }
+
+  td {
+    max-width: 200px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    border: 1px solid var(--grey-4);
+    white-space: nowrap;
+    box-sizing: border-box;
+    padding: var(--spacing-l) var(--spacing-m);
+    font-size: var(--font-size-xs);
+  }
+
+  td.no-border {
     border: none;
   }
 
-  :global(.ag-menu input) {
-    color: var(--ink) !important;
-    font-size: var(--font-size-s);
-    border-radius: var(--border-radius-s);
-    border: none;
-    background-color: var(--grey-2) !important;
-    padding: var(--spacing-m);
-    margin: 0;
-    outline: none;
-    font-family: var(--font-sans);
-    border: var(--border-transparent);
+  tbody tr {
+    border-bottom: 1px solid var(--grey-4);
+    transition: 0.3s background-color;
+    color: var(--ink);
   }
 
-  :global(.ag-picker-field-display) {
-    color: var(--ink) !important;
-    font-size: var(--font-size-s);
-    border-radius: var(--border-radius-s);
-    border: none;
-    background-color: var(--grey-2) !important;
-    padding: var(--spacing-m);
-    font-family: var(--font-sans);
-    border: var(--border-transparent);
-    transition: all 0.2s ease-in-out;
+  tbody tr:hover {
+    background: var(--grey-1);
+  }
+
+  .edit-header {
+    width: 60px;
+  }
+
+  .edit-header:hover {
+    cursor: default;
+    color: var(--ink);
+  }
+
+  .link {
+    text-decoration: underline;
+  }
+
+  .link:hover {
+    color: var(--grey-6);
+    cursor: pointer;
   }
 </style>
