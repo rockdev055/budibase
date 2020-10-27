@@ -178,10 +178,6 @@ export default {
           src: "node_modules/@budibase/bbui/dist/bbui.css",
           dest: outputpath,
         },
-        {
-          src: "node_modules/remixicon/fonts/*",
-          dest: outputpath,
-        },
       ],
     }),
 

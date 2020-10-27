@@ -79,13 +79,11 @@ Cypress.Commands.add("createTable", tableName => {
 
 Cypress.Commands.add("addColumn", (tableName, columnName, type) => {
   // Select Table
-  cy.get(".root")
-    .contains(tableName)
-    .click()
+  cy.contains(tableName).click()
   cy.contains("Create New Column").click()
 
   // Configure column
-  cy.get(".actions").within(() => {
+  cy.get(".menu-container").within(() => {
     cy.get("input")
       .first()
       .type(columnName)
@@ -151,7 +149,7 @@ Cypress.Commands.add("addButtonComponent", () => {
 })
 
 Cypress.Commands.add("navigateToFrontend", () => {
-  cy.contains("design").click()
+  cy.contains("frontend").click()
 })
 
 Cypress.Commands.add("createScreen", (screenName, route) => {
