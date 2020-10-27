@@ -1,7 +1,7 @@
 module.exports.definition = {
   description: "Send an email",
   tagline: "Send email to {{inputs.to}}",
-  icon: "ri-mail-open-line",
+  icon: "ri-mail-open-fill",
   name: "Send Email",
   type: "ACTION",
   stepId: "SEND_EMAIL",
