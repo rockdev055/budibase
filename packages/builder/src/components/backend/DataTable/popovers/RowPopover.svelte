@@ -1,10 +1,11 @@
 <script>
   import { backendUiStore } from "builderStore"
-  import { DropdownMenu, Icon, Modal } from "@budibase/bbui"
+  import { DropdownMenu, Modal } from "@budibase/bbui"
   import CreateEditRowModal from "../modals/CreateEditRowModal.svelte"
   import * as api from "../api"
   import { notifier } from "builderStore/store/notifications"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
+  import { DropdownContainer, DropdownItem } from "components/common/Dropdowns"
 
   export let row
 
@@ -14,10 +15,12 @@
   let modal
 
   function showModal() {
+    dropdown.hide()
     modal.show()
   }
 
   function showDelete() {
+    dropdown.hide()
     confirmDeleteDialog.show()
   }
 
@@ -28,7 +31,18 @@
   }
 </script>
 
-<div on:click={showModal}><i class="ri-more-line" /></div>
+<div bind:this={anchor} on:click={dropdown.show}>
+  <i class="ri-more-line" />
+</div>
+<DropdownMenu bind:this={dropdown} {anchor} align="left">
+  <DropdownContainer>
+    <DropdownItem icon="ri-edit-line" title="Edit" on:click={showModal} />
+    <DropdownItem
+      icon="ri-delete-bin-line"
+      title="Delete"
+      on:click={showDelete} />
+  </DropdownContainer>
+</DropdownMenu>
 <ConfirmDialog
   bind:this={confirmDeleteDialog}
   body={`Are you sure you wish to delete this row? Your data will be deleted and this action cannot be undone.`}
