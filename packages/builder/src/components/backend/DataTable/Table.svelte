@@ -1,13 +1,22 @@
 <script>
   import { goto, params } from "@sveltech/routify"
+  import { onMount } from "svelte"
   import { fade } from "svelte/transition"
   import fsort from "fast-sort"
   import getOr from "lodash/fp/getOr"
-  import { backendUiStore } from "builderStore"
+  import { store, backendUiStore } from "builderStore"
+  import api from "builderStore/api"
+  import { Button, Icon } from "@budibase/bbui"
+  import ActionButton from "components/common/ActionButton.svelte"
   import AttachmentList from "./AttachmentList.svelte"
   import TablePagination from "./TablePagination.svelte"
+  import CreateEditRowModal from "./modals/CreateEditRowModal.svelte"
+  import RowPopover from "./buttons/CreateRowButton.svelte"
+  import ColumnPopover from "./buttons/CreateColumnButton.svelte"
+  import ViewPopover from "./buttons/CreateViewButton.svelte"
   import ColumnHeaderPopover from "./popovers/ColumnPopover.svelte"
   import EditRowPopover from "./popovers/RowPopover.svelte"
+  import CalculationPopover from "./buttons/CalculateButton.svelte"
   import Spinner from "components/common/Spinner.svelte"
 
   const ITEMS_PER_PAGE = 10
@@ -37,22 +46,24 @@
       return
     }
     $goto(
-      `/${$params.application}/data/table/${tableId}/relationship/${row._id}/${fieldName}`
+      `/${$params.application}/backend/table/${tableId}/relationship/${row._id}/${fieldName}`
     )
   }
 </script>
 
-<div class="table-container">
-  <div class="title">
-    <h1>{title}</h1>
-    {#if loading}
-      <div transition:fade>
-        <Spinner size="10" />
-      </div>
-    {/if}
-  </div>
-  <div class="popovers">
-    <slot />
+<section>
+  <div class="table-controls">
+    <h2 class="title">
+      <span>{title}</span>
+      {#if loading}
+        <div transition:fade>
+          <Spinner size="10" />
+        </div>
+      {/if}
+    </h2>
+    <div class="popovers">
+      <slot />
+    </div>
   </div>
   <table class="bb-table">
     <thead>
@@ -114,44 +125,20 @@
     bind:currentPage
     pageItemCount={paginatedData.length}
     {ITEMS_PER_PAGE} />
-</div>
+</section>
 
 <style>
-  .table-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: stretch;
-    gap: var(--spacing-l);
-  }
-
   .title {
-    height: 24px;
+    font-size: 24px;
+    font-weight: 600;
+    text-rendering: optimizeLegibility;
+    margin-top: 0;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
   }
-  .title h1 {
-    font-size: var(--font-size-m);
-    font-weight: 500;
-    margin: 0;
-  }
-  .title > div {
-    margin-left: var(--spacing-xs);
-  }
-
-  .popovers {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    gap: var(--spacing-l);
-  }
-  .popovers :global(button) {
-    font-weight: 500;
-  }
-  .popovers :global(button svg) {
+  .title > span {
     margin-right: var(--spacing-xs);
   }
 
@@ -211,6 +198,19 @@
 
   tbody tr:hover {
     background: var(--grey-1);
+  }
+
+  .table-controls {
+    width: 100%;
+  }
+
+  .popovers {
+    display: flex;
+  }
+
+  :global(.popovers > div) {
+    margin-right: var(--spacing-m);
+    margin-bottom: var(--spacing-xl);
   }
 
   .edit-header {

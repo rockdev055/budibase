@@ -1,14 +1,12 @@
 <script>
   import { backendUiStore } from "builderStore"
   import { Input, Select, Label } from "@budibase/bbui"
-  import BindableInput from "../../userInterface/BindableInput.svelte"
+  import BindableInput from "../../../userInterface/BindableInput.svelte"
 
   export let value
   export let bindings
 
-  $: table = $backendUiStore.tables.find(
-    (table) => table._id === value?.tableId
-  )
+  $: table = $backendUiStore.tables.find(table => table._id === value?.tableId)
   $: schemaFields = Object.entries(table?.schema ?? {})
 
   // Ensure any nullish tableId values get set to empty string so
@@ -21,7 +19,7 @@
 </script>
 
 <div class="block-field">
-  <Select bind:value={value.tableId} extraThin secondary>
+  <Select bind:value={value.tableId} thin secondary>
     <option value="">Choose an option</option>
     {#each $backendUiStore.tables as table}
       <option value={table._id}>{table.name}</option>
@@ -33,7 +31,7 @@
   <div class="schema-fields">
     {#each schemaFields as [field, schema]}
       {#if schemaHasOptions(schema)}
-        <Select label={field} extraThin secondary bind:value={value[field]}>
+        <Select label={field} thin secondary bind:value={value[field]}>
           <option value="">Choose an option</option>
           {#each schema.constraints.inclusion as option}
             <option value={option}>{option}</option>
@@ -41,7 +39,7 @@
         </Select>
       {:else if schema.type === 'string' || schema.type === 'number'}
         <BindableInput
-          extraThin
+          thin
           bind:value={value[field]}
           label={field}
           type="string"

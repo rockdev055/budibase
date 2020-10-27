@@ -2,15 +2,14 @@
   import { Heading, Body, Button, Dropzone } from "@budibase/bbui"
   import { FILE_TYPES } from "./fileTypes"
 
-  const BYTES_IN_MB = 1000000
+  const BYTES_IN_KB = 1000
 
   export let files = []
 
   function handleFileTooLarge(fileSizeLimit) {
     alert(
-      `Files cannot exceed ${
-        fileSizeLimit / BYTES_IN_MB
-      }MB. Please try again with smaller files.`
+      `Files cannot exceed ${fileSizeLimit /
+        BYTES_IN_MB}MB. Please try again with smaller files.`
     )
   }
 

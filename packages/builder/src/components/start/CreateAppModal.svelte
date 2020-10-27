@@ -7,8 +7,9 @@
   import Spinner from "components/common/Spinner.svelte"
   import { API, Info, User } from "./Steps"
   import Indicator from "./Indicator.svelte"
-  import { Button } from "@budibase/bbui"
+  import { Input, TextArea, Button } from "@budibase/bbui"
   import { goto } from "@sveltech/routify"
+  import { AppsIcon, InfoIcon, CloseIcon } from "components/common/Icons/"
   import { fade } from "svelte/transition"
   import { post } from "builderStore/api"
   import analytics from "analytics"
@@ -22,7 +23,7 @@
   let isApiKeyValid
   let lastApiKey
   let fetchApiKeyPromise
-  const validateApiKey = async (apiKey) => {
+  const validateApiKey = async apiKey => {
     if (!apiKey) return false
 
     // make sure we only fetch once, unless API Key is changed
@@ -121,7 +122,9 @@
       const fullSchema = Object.assign({}, ...validationSchemas)
 
       // Check full form schema
-      const formIsValid = await object().shape(fullSchema).isValid(values)
+      const formIsValid = await object()
+        .shape(fullSchema)
+        .isValid(values)
       fullFormIsValid = formIsValid
     }
   }
