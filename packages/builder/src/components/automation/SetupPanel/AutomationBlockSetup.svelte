@@ -1,6 +1,6 @@
 <script>
-  import TableSelector from "./TableSelector.svelte"
-  import RowSelector from "./RowSelector.svelte"
+  import TableSelector from "./ParamInputs/TableSelector.svelte"
+  import RowSelector from "./ParamInputs/RowSelector.svelte"
   import { Input, TextArea, Select, Label } from "@budibase/bbui"
   import { automationStore } from "builderStore"
   import BindableInput from "../../userInterface/BindableInput.svelte"
@@ -44,34 +44,36 @@
   }
 </script>
 
-<div class="block-label">{block.name}</div>
-{#each inputs as [key, value]}
-  <div class="block-field">
-    <Label extraSmall grey>{value.title}</Label>
-    {#if value.type === 'string' && value.enum}
-      <Select bind:value={block.inputs[key]} extraThin secondary>
-        <option value="">Choose an option</option>
-        {#each value.enum as option, idx}
-          <option value={option}>
-            {value.pretty ? value.pretty[idx] : option}
-          </option>
-        {/each}
-      </Select>
-    {:else if value.customType === 'password'}
-      <Input type="password" extraThin bind:value={block.inputs[key]} />
-    {:else if value.customType === 'table'}
-      <TableSelector bind:value={block.inputs[key]} />
-    {:else if value.customType === 'row'}
-      <RowSelector bind:value={block.inputs[key]} {bindings} />
-    {:else if value.type === 'string' || value.type === 'number'}
-      <BindableInput
-        type="string"
-        extraThin
-        bind:value={block.inputs[key]}
-        {bindings} />
-    {/if}
-  </div>
-{/each}
+<div class="container" data-cy="automation-block-setup">
+  <div class="block-label">{block.name}</div>
+  {#each inputs as [key, value]}
+    <div class="bb-margin-xl block-field">
+      <Label extraSmall grey>{value.title}</Label>
+      {#if value.type === 'string' && value.enum}
+        <Select bind:value={block.inputs[key]} thin secondary>
+          <option value="">Choose an option</option>
+          {#each value.enum as option, idx}
+            <option value={option}>
+              {value.pretty ? value.pretty[idx] : option}
+            </option>
+          {/each}
+        </Select>
+      {:else if value.customType === 'password'}
+        <Input type="password" thin bind:value={block.inputs[key]} />
+      {:else if value.customType === 'table'}
+        <TableSelector bind:value={block.inputs[key]} />
+      {:else if value.customType === 'row'}
+        <RowSelector bind:value={block.inputs[key]} {bindings} />
+      {:else if value.type === 'string' || value.type === 'number'}
+        <BindableInput
+          type="string"
+          thin
+          bind:value={block.inputs[key]}
+          {bindings} />
+      {/if}
+    </div>
+  {/each}
+</div>
 
 <style>
   .block-field {
@@ -80,7 +82,7 @@
 
   .block-label {
     font-weight: 500;
-    font-size: var(--font-size-xs);
+    font-size: 14px;
     color: var(--grey-7);
   }
 

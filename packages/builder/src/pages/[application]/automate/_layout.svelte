@@ -1,7 +1,6 @@
 <script>
   import { automationStore } from "builderStore"
-  import AutomationPanel from "components/automation/AutomationPanel/AutomationPanel.svelte"
-  import SetupPanel from "components/automation/SetupPanel/SetupPanel.svelte"
+  import { AutomationPanel, SetupPanel } from "components/automation"
 </script>
 
 <!-- routify:options index=3 -->
@@ -13,39 +12,28 @@
     <slot />
   </div>
   {#if $automationStore.selectedAutomation}
-    <div class="nav setup">
+    <div class="nav">
       <SetupPanel />
     </div>
   {/if}
 </div>
 
 <style>
+  .content {
+    position: relative;
+  }
+
   .root {
     height: calc(100% - 60px);
     display: grid;
-    grid-template-columns: 260px minmax(510px, 1fr) 260px;
-    background: var(--grey-2);
+    grid-template-columns: 300px minmax(510px, 1fr) 300px;
+    background: var(--grey-1);
+    line-height: 1;
   }
 
   .nav {
     overflow-y: auto;
     background: var(--white);
-    padding: var(--spacing-l) var(--spacing-xl);
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: stretch;
-    gap: var(--spacing-l);
-  }
-
-  .content {
-    position: relative;
-    padding: var(--spacing-l) 40px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: stretch;
-    gap: var(--spacing-l);
-    overflow: hidden;
+    padding: var(--spacing-xl) var(--spacing-xl);
   }
 </style>
