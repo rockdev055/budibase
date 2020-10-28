@@ -1,6 +1,7 @@
 <script>
   import api from "builderStore/api"
   import Table from "./Table.svelte"
+  import { onMount } from "svelte"
   import { backendUiStore } from "builderStore"
 
   export let tableId

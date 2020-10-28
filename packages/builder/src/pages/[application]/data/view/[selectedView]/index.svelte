@@ -11,8 +11,7 @@
 
 <style>
   i {
-    font-size: var(--font-size-m);
+    font-size: var(--font-size-xl);
     color: var(--grey-4);
-    margin-top: 2px;
   }
 </style>
