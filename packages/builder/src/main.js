@@ -10,8 +10,6 @@ import "/assets/Inter-ExtraBold"
 import "/assets/Inter-Black"
 import "/_builder/assets/budibase-logo.png"
 import "/_builder/assets/budibase-logo-only.png"
-import "remixicon/fonts/remixicon.css"
-
 import App from "./App.svelte"
 
 /* eslint-disable */
