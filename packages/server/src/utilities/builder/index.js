@@ -30,7 +30,10 @@ module.exports.getPackageForBuilder = async (config, application) => {
 
   return {
     pages,
+
     application,
+
+    clientId: env.CLIENT_ID,
   }
 }
 

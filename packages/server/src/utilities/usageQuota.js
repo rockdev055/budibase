@@ -1,4 +1,4 @@
-const env = require("../environment")
+const environment = require("../environment")
 const { apiKeyTable } = require("../db/dynamoClient")
 
 const DEFAULT_USAGE = {
@@ -63,7 +63,7 @@ exports.getAPIKey = async appId => {
  */
 exports.update = async (apiKey, property, usage) => {
   // don't try validate in builder
-  if (!env.CLOUD) {
+  if (!environment.CLOUD) {
     return
   }
   try {
