@@ -1,6 +1,6 @@
 const rowController = require("../../api/controllers/row")
 const automationUtils = require("../automationUtils")
-const env = require("../../environment")
+const environment = require("../../environment")
 const usage = require("../../utilities/usageQuota")
 
 module.exports.definition = {
@@ -80,7 +80,7 @@ module.exports.run = async function({ inputs, instanceId, apiKey }) {
   }
 
   try {
-    if (env.CLOUD) {
+    if (environment.CLOUD) {
       await usage.update(apiKey, usage.Properties.ROW, 1)
     }
     await rowController.save(ctx)

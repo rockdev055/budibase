@@ -10,6 +10,7 @@ const {
   userRoutes,
   deployRoutes,
   instanceRoutes,
+  clientRoutes,
   applicationRoutes,
   rowRoutes,
   tableRoutes,
@@ -106,6 +107,9 @@ router.use(applicationRoutes.allowedMethods())
 
 router.use(componentRoutes.routes())
 router.use(componentRoutes.allowedMethods())
+
+router.use(clientRoutes.routes())
+router.use(clientRoutes.allowedMethods())
 
 router.use(accesslevelRoutes.routes())
 router.use(accesslevelRoutes.allowedMethods())

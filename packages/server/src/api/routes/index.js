@@ -2,6 +2,7 @@ const authRoutes = require("./auth")
 const pageRoutes = require("./pages")
 const userRoutes = require("./user")
 const instanceRoutes = require("./instance")
+const clientRoutes = require("./client")
 const applicationRoutes = require("./application")
 const tableRoutes = require("./table")
 const rowRoutes = require("./row")
@@ -22,6 +23,7 @@ module.exports = {
   pageRoutes,
   userRoutes,
   instanceRoutes,
+  clientRoutes,
   applicationRoutes,
   rowRoutes,
   tableRoutes,

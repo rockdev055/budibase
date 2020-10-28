@@ -1,26 +1,44 @@
 const jwt = require("jsonwebtoken")
 const CouchDB = require("../../db")
+const ClientDb = require("../../db/clientDb")
 const bcrypt = require("../../utilities/bcrypt")
-const env = require("../../environment")
+const environment = require("../../environment")
 const { getAPIKey } = require("../../utilities/usageQuota")
 const { generateUserID } = require("../../db/utils")
 
 exports.authenticate = async ctx => {
-  const instanceId = ctx.user.instanceId
-  if (!instanceId) ctx.throw(400, "No instanceId")
+  if (!ctx.user.appId) ctx.throw(400, "No appId")
 
   const { username, password } = ctx.request.body
 
   if (!username) ctx.throw(400, "Username Required.")
-  if (!password) ctx.throw(400, "Password Required.")
+  if (!password) ctx.throw(400, "Password Required")
+
+  const masterDb = new CouchDB("client_app_lookup")
+
+  const { clientId } = await masterDb.get(ctx.user.appId)
+
+  if (!clientId) {
+    ctx.throw(400, "ClientId not supplied")
+  }
+  // find the instance that the user is associated with
+  const db = new CouchDB(ClientDb.name(clientId))
+  const app = await db.get(ctx.user.appId)
+  const instanceId = app.userInstanceMap[username]
+
+  if (!instanceId)
+    ctx.throw(
+      500,
+      "User is not associated with an instance of app",
+      ctx.user.appId
+    )
 
   // Check the user exists in the instance DB by username
-  const db = new CouchDB(instanceId)
-  const app = await db.get(instanceId)
+  const instanceDb = new CouchDB(instanceId)
 
   let dbUser
   try {
-    dbUser = await db.get(generateUserID(username))
+    dbUser = await instanceDb.get(generateUserID(username))
   } catch (_) {
     // do not want to throw a 404 - as this could be
     // used to determine valid usernames
@@ -37,7 +55,7 @@ exports.authenticate = async ctx => {
       instanceId,
     }
     // if in cloud add the user api key
-    if (env.CLOUD) {
+    if (environment.CLOUD) {
       const { apiKey } = await getAPIKey(ctx.user.appId)
       payload.apiKey = apiKey
     }
