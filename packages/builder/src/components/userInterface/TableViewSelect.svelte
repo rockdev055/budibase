@@ -103,7 +103,7 @@
   .dropdownbutton {
     background-color: var(--grey-2);
     border: var(--border-transparent);
-    padding: var(--spacing-s) var(--spacing-m);
+    padding: var(--spacing-m);
     border-radius: var(--border-radius-m);
     display: flex;
     flex-direction: row;

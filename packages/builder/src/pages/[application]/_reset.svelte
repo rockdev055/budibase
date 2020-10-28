@@ -67,27 +67,23 @@
     </div>
     <div class="toprightnav">
       <FeedbackNavLink />
-      <div class="topnavitemright">
-        <a target="_blank" href="https://docs.budibase.com">
-          <i class="ri-question-line" />
-        </a>
-      </div>
-      <div class="topnavitemright">
-        <a
-          target="_blank"
-          href="https://github.com/Budibase/budibase/discussions">
-          <i class="ri-discuss-line" />
-        </a>
-      </div>
       <SettingsLink />
-      <Button
-        secondary
+      <span
+        class:active={false}
+        class="topnavitemright"
         on:click={() => {
           document.cookie = 'budibase:token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;'
           window.open(`/${application}`)
         }}>
-        Preview
-      </Button>
+        <PreviewIcon />
+      </span>
+      <span class="topnavitemright">
+        <a
+          target="_blank"
+          href="https://github.com/Budibase/budibase/discussions">
+          <i class="ri-question-fill help" />
+        </a>
+      </span>
     </div>
   </div>
   <div class="beta">
@@ -126,7 +122,7 @@
     flex: 0 0 auto;
     height: 60px;
     background: #fff;
-    padding: 0 20px;
+    padding: 0px 20px 0 20px;
     display: flex;
     box-sizing: border-box;
     justify-content: space-between;
@@ -172,19 +168,20 @@
     font-weight: 500;
   }
 
-  .topnavitemright a {
+  .topnavitemright {
     cursor: pointer;
     color: var(--grey-7);
-    margin: 0 12px 0 0;
+    margin: 0 20px 0 0;
+    font-weight: 500;
+    font-size: 1rem;
+    height: 100%;
     display: flex;
-    flex-direction: row;
-    justify-content: center;
+    flex: 1;
     align-items: center;
-    height: 24px;
-    width: 24px;
+    box-sizing: border-box;
   }
 
-  .topnavitemright a:hover {
+  .topnavitemright:hover {
     color: var(--ink);
     font-weight: 500;
   }
@@ -210,12 +207,9 @@
     text-transform: capitalize;
   }
 
-  i {
-    font-size: 18px;
+  .help {
+    font-size: 24px;
     color: var(--grey-7);
-  }
-  i:hover {
-    color: var(--ink);
   }
 
   .beta {

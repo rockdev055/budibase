@@ -51,7 +51,7 @@ Cypress.Commands.add("createApp", name => {
         .click()
         .type("test")
       cy.contains("Submit").click()
-      cy.get("[data-cy=new-table]", {
+      cy.contains("Create New Table", {
         timeout: 20000,
       }).should("be.visible")
     })
@@ -65,7 +65,7 @@ Cypress.Commands.add("createTestTableWithData", () => {
 
 Cypress.Commands.add("createTable", tableName => {
   // Enter table name
-  cy.get("[data-cy=new-table]").click()
+  cy.contains("Create New Table").click()
   cy.get(".modal").within(() => {
     cy.get("input")
       .first()
@@ -79,11 +79,13 @@ Cypress.Commands.add("createTable", tableName => {
 
 Cypress.Commands.add("addColumn", (tableName, columnName, type) => {
   // Select Table
-  cy.contains(".nav-item", tableName).click()
+  cy.get(".root")
+    .contains(tableName)
+    .click()
   cy.contains("Create New Column").click()
 
   // Configure column
-  cy.get(".menu-container").within(() => {
+  cy.get(".actions").within(() => {
     cy.get("input")
       .first()
       .type(columnName)
@@ -153,7 +155,7 @@ Cypress.Commands.add("navigateToFrontend", () => {
 })
 
 Cypress.Commands.add("createScreen", (screenName, route) => {
-  cy.get("[data-cy=new-screen]").click()
+  cy.contains("Create New Screen").click()
   cy.get(".modal").within(() => {
     cy.get("input")
       .eq(0)
