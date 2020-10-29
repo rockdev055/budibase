@@ -3,6 +3,10 @@
   import { goto, leftover } from "@sveltech/routify"
   import { onMount } from "svelte"
 
+  async function selectTable(table) {
+    backendUiStore.actions.tables.select(table)
+  }
+
   onMount(async () => {
     // navigate to first table in list, if not already selected
     // and this is the final url (i.e. no selectedTable)
@@ -16,4 +20,13 @@
   })
 </script>
 
-<slot />
+<div class="root">
+  <slot />
+</div>
+
+<style>
+  .root {
+    height: 100%;
+    position: relative;
+  }
+</style>

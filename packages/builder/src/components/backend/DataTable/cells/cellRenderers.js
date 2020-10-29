@@ -31,9 +31,6 @@ export function deleteRowRenderer(params) {
 
 export function editRowRenderer(params) {
   const container = document.createElement("div")
-  container.style.height = "100%"
-  container.style.display = "flex"
-  container.style.alignItems = "center"
 
   new EditRow({
     target: container,
@@ -49,9 +46,6 @@ export function editRowRenderer(params) {
 function attachmentRenderer(options, constraints, editable) {
   return params => {
     const container = document.createElement("div")
-    container.style.height = "100%"
-    container.style.display = "flex"
-    container.style.alignItems = "center"
 
     const attachmentInstance = new AttachmentList({
       target: container,
@@ -70,7 +64,6 @@ function linkedRowRenderer() {
     let container = document.createElement("div")
     container.style.display = "grid"
     container.style.height = "100%"
-    container.style.alignItems = "center"
 
     new RelationshipDisplay({
       target: container,

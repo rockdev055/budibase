@@ -2,9 +2,7 @@ import { walkProps } from "./storeUtils"
 import { get_capitalised_name } from "../helpers"
 
 export default function(component, state) {
-  const capitalised = get_capitalised_name(
-    component.name || component._component
-  )
+  const capitalised = get_capitalised_name(component)
 
   const matchingComponents = []
 

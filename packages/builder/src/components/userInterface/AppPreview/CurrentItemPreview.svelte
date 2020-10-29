@@ -2,7 +2,7 @@
   import { store, backendUiStore } from "builderStore"
   import { map, join } from "lodash/fp"
   import iframeTemplate from "./iframeTemplate"
-  import { pipe } from "../../../helpers"
+  import { pipe } from "components/common/core"
 
   let iframe
   let styles = ""

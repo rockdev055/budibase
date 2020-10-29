@@ -1,4 +1,5 @@
 const CouchDB = require("../../db")
+const clientDb = require("../../db/clientDb")
 const bcrypt = require("../../utilities/bcrypt")
 const { generateUserID, getUserParams } = require("../../db/utils")
 const {
@@ -7,7 +8,7 @@ const {
 } = require("../../utilities/accessLevels")
 
 exports.fetch = async function(ctx) {
-  const database = new CouchDB(ctx.user.appId)
+  const database = new CouchDB(ctx.user.instanceId)
   const data = await database.allDocs(
     getUserParams(null, {
       include_docs: true,
@@ -17,14 +18,15 @@ exports.fetch = async function(ctx) {
 }
 
 exports.create = async function(ctx) {
-  const db = new CouchDB(ctx.user.appId)
+  const database = new CouchDB(ctx.user.instanceId)
+  const appId = (await database.get("_design/database")).metadata.applicationId
   const { username, password, name, accessLevelId } = ctx.request.body
 
   if (!username || !password) {
     ctx.throw(400, "Username and Password Required.")
   }
 
-  const accessLevel = await checkAccessLevel(db, accessLevelId)
+  const accessLevel = await checkAccessLevel(database, accessLevelId)
 
   if (!accessLevel) ctx.throw(400, "Invalid Access Level")
 
@@ -37,12 +39,18 @@ exports.create = async function(ctx) {
     accessLevelId,
   }
 
-  const response = await db.post(user)
+  const response = await database.post(user)
 
-  const app = await db.get(ctx.user.appId)
+  const masterDb = new CouchDB("client_app_lookup")
+  const { clientId } = await masterDb.get(appId)
+
+  // the clientDB needs to store a map of users against the app
+  const db = new CouchDB(clientDb.name(clientId))
+  const app = await db.get(appId)
+
   app.userInstanceMap = {
     ...app.userInstanceMap,
-    [username]: ctx.user.appId,
+    [username]: ctx.user.instanceId,
   }
   await db.put(app)
 
@@ -57,7 +65,7 @@ exports.create = async function(ctx) {
 }
 
 exports.update = async function(ctx) {
-  const db = new CouchDB(ctx.user.appId)
+  const db = new CouchDB(ctx.user.instanceId)
   const user = ctx.request.body
   const dbUser = db.get(ctx.request.body._id)
   const newData = { ...dbUser, ...user }
@@ -71,14 +79,14 @@ exports.update = async function(ctx) {
 }
 
 exports.destroy = async function(ctx) {
-  const database = new CouchDB(ctx.user.appId)
+  const database = new CouchDB(ctx.user.instanceId)
   await database.destroy(generateUserID(ctx.params.username))
   ctx.message = `User ${ctx.params.username} deleted.`
   ctx.status = 200
 }
 
 exports.find = async function(ctx) {
-  const database = new CouchDB(ctx.user.appId)
+  const database = new CouchDB(ctx.user.instanceId)
   const user = await database.get(generateUserID(ctx.params.username))
   ctx.body = {
     username: user.username,

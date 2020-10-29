@@ -13,7 +13,6 @@ const CouchDB = require("../../db")
 const setBuilderToken = require("../../utilities/builder/setBuilderToken")
 const fileProcessor = require("../../utilities/fileProcessor")
 const { AuthTypes } = require("../../constants")
-const env = require("../../environment")
 
 // this was the version before we started versioning the component library
 const COMP_LIB_BASE_APP_VERSION = "0.2.5"
@@ -39,7 +38,7 @@ exports.uploadFile = async function(ctx) {
     "attachments"
   )
 
-  if (env.CLOUD) {
+  if (process.env.CLOUD) {
     // remote upload
     const s3 = new AWS.S3({
       params: {
@@ -65,11 +64,11 @@ exports.uploadFile = async function(ctx) {
   ctx.body = await processLocalFileUploads({
     files,
     outputPath: attachmentsPath,
-    appId: ctx.user.appId,
+    instanceId: ctx.user.instanceId,
   })
 }
 
-async function processLocalFileUploads({ files, outputPath, appId }) {
+async function processLocalFileUploads({ files, outputPath, instanceId }) {
   // create attachments dir if it doesnt exist
   !fs.existsSync(outputPath) && fs.mkdirSync(outputPath, { recursive: true })
 
@@ -98,7 +97,7 @@ async function processLocalFileUploads({ files, outputPath, appId }) {
   // local document used to track which files need to be uploaded
   // db.get throws an error if the document doesn't exist
   // need to use a promise to default
-  const db = new CouchDB(appId)
+  const db = new CouchDB(instanceId)
   await db
     .get("_local/fileuploads")
     .then(data => {
@@ -130,7 +129,7 @@ exports.performLocalFileProcessing = async function(ctx) {
     ctx.body = await processLocalFileUploads({
       files,
       outputPath: processedFileOutputPath,
-      appId: ctx.user.appId,
+      instanceId: ctx.user.instanceId,
     })
   } catch (err) {
     ctx.throw(500, err)
@@ -151,7 +150,7 @@ exports.serveApp = async function(ctx) {
 
   const appId = ctx.user.appId
 
-  if (env.CLOUD) {
+  if (process.env.CLOUD) {
     const S3_URL = `https://${appId}.app.budi.live/assets/${appId}/${mainOrAuth}/${ctx.file ||
       "index.production.html"}`
 
@@ -169,7 +168,7 @@ exports.serveAttachment = async function(ctx) {
   const attachmentsPath = resolve(budibaseAppsDir(), appId, "attachments")
 
   // Serve from CloudFront
-  if (env.CLOUD) {
+  if (process.env.CLOUD) {
     const S3_URL = `https://cdn.app.budi.live/assets/${appId}/attachments/${ctx.file}`
     const response = await fetch(S3_URL)
     const body = await response.text()
@@ -215,7 +214,7 @@ exports.serveComponentLibrary = async function(ctx) {
     )
   }
 
-  if (env.CLOUD) {
+  if (process.env.CLOUD) {
     let componentLib = "componentlibrary"
     if (ctx.user.version) {
       componentLib += `-${ctx.user.version}`

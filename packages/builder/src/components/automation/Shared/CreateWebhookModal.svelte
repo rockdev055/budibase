@@ -3,8 +3,12 @@
   import WebhookDisplay from "./WebhookDisplay.svelte"
   import { ModalContent } from "@budibase/bbui"
   import { onMount, onDestroy } from "svelte"
+  import { cloneDeep } from "lodash/fp"
+  import analytics from "analytics"
 
   const POLL_RATE_MS = 2500
+  const DEFAULT_SCHEMA_OUTPUT = "Any input allowed"
+  let name
   let interval
   let finished = false
   let schemaURL
@@ -84,7 +88,8 @@
     text-decoration: none;
   }
   p {
-    margin: 0;
+    margin-top: 0;
+    padding-top: 0;
     text-align: justify;
   }
   .finished-text {

@@ -1,9 +1,13 @@
 <script>
-  import { Modal, Button } from "@budibase/bbui"
+  import { backendUiStore } from "builderStore"
+  import { DropdownMenu, Icon, Modal, Button } from "@budibase/bbui"
   import CreateEditRowModal from "../modals/CreateEditRowModal.svelte"
 
   export let row
 
+  let anchor
+  let dropdown
+  let confirmDeleteDialog
   let modal
 
   function showModal(e) {
@@ -12,7 +16,7 @@
   }
 </script>
 
-<Button data-cy="edit-row" translucent small on:click={showModal}>Edit</Button>
+<Button translucent small on:click={showModal}>Edit</Button>
 <Modal bind:this={modal}>
   <CreateEditRowModal {row} />
 </Modal>

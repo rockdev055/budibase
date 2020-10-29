@@ -92,7 +92,7 @@
 		]
 	},
 	"input": {
-		"name": "Textfield",
+		"name": "Input",
 		"bindable": "value",
 		"description": "An HTML input",
 		"props": {
@@ -222,7 +222,6 @@
 		}
 	},
 	"datagrid": {
-		"name": "Grid",
 		"description": "a datagrid component with functionality to add, remove and edit rows.",
 		"data": true,
 		"props": {
@@ -251,13 +250,11 @@
 		}
 	},
 	"dataform": {
-		"name": "Form",
 		"description": "an HTML table that fetches data from a table or view and displays it.",
 		"data": true,
 		"props": {}
 	},
 	"dataformwide": {
-		"name": "Form Wide",
 		"description": "an HTML table that fetches data from a table or view and displays it.",
 		"data": true,
 		"props": {}
@@ -278,7 +275,6 @@
 		}
 	},
 	"list": {
-		"name": "Repeater",
 		"description": "A configurable data list that attaches to your backend tables.",
 		"context": "datasource",
 		"children": true,
@@ -300,7 +296,6 @@
 		}
 	},
 	"rowdetail": {
-		"name": "Row Detail",
 		"description": "Loads a row, using an ID in the url",
 		"context": "table",
 		"children": true,
@@ -311,7 +306,6 @@
 		}
 	},
 	"newrow": {
-		"name": "New Row",
 		"description": "Prepares a new row for creation",
 		"context": "table",
 		"children": true,
@@ -679,7 +673,6 @@
 		}
 	},
 	"datepicker": {
-		"name": "Date Picker",
 		"description": "Date Picker",
 		"bindable": "value",
 		"props": {
@@ -711,7 +704,6 @@
 		}
 	},
 	"link": {
-		"name": "Link",
 		"description": "an HTML anchor <a> tag",
 		"props": {
 			"url": "string",
@@ -804,14 +796,14 @@
 		"tags": []
 	},
 	"thead": {
-		"name": "Table Head",
+		"name": "TableHead",
 		"description": "an HTML <thead> tab",
 		"props": {
 			"className": "string"
 		}
 	},
 	"tbody": {
-		"name": "Table Body",
+		"name": "TableBody",
 		"description": "an HTML <tbody> tab",
 		"props": {
 			"className": "string"

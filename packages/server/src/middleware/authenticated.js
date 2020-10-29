@@ -7,7 +7,7 @@ const {
   BUILDER_LEVEL_ID,
   ANON_LEVEL_ID,
 } = require("../utilities/accessLevels")
-const env = require("../environment")
+const environment = require("../environment")
 const { AuthTypes } = require("../constants")
 
 module.exports = async (ctx, next) => {
@@ -21,7 +21,7 @@ module.exports = async (ctx, next) => {
 
   let token
   // if running locally in the builder itself
-  if (!env.CLOUD && !appToken) {
+  if (!environment.CLOUD && !appToken) {
     token = builderToken
     ctx.auth.authenticated = AuthTypes.BUILDER
   } else {
@@ -32,7 +32,7 @@ module.exports = async (ctx, next) => {
   if (!token) {
     ctx.auth.authenticated = false
 
-    let appId = env.CLOUD ? ctx.subdomains[1] : ctx.params.appId
+    let appId = process.env.CLOUD ? ctx.subdomains[1] : ctx.params.appId
 
     // if appId can't be determined from path param or subdomain
     if (!appId && ctx.request.headers.referer) {
@@ -53,9 +53,9 @@ module.exports = async (ctx, next) => {
     ctx.auth.apiKey = jwtPayload.apiKey
     ctx.user = {
       ...jwtPayload,
-      appId: jwtPayload.appId,
+      instanceId: jwtPayload.instanceId,
       accessLevel: await getAccessLevel(
-        jwtPayload.appId,
+        jwtPayload.instanceId,
         jwtPayload.accessLevelId
       ),
     }
@@ -70,10 +70,10 @@ module.exports = async (ctx, next) => {
  * Return the full access level object either from constants
  * or the database based on the access level ID passed.
  *
- * @param {*} appId - appId of the user
+ * @param {*} instanceId - instanceId of the user
  * @param {*} accessLevelId - the id of the users access level
  */
-const getAccessLevel = async (appId, accessLevelId) => {
+const getAccessLevel = async (instanceId, accessLevelId) => {
   if (
     accessLevelId === POWERUSER_LEVEL_ID ||
     accessLevelId === ADMIN_LEVEL_ID ||
@@ -92,7 +92,7 @@ const getAccessLevel = async (appId, accessLevelId) => {
       levelId: accessLevelId,
     },
     user: {
-      appId,
+      instanceId,
     },
   }
   await accessLevelController.find(findAccessContext)

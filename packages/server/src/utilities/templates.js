@@ -33,7 +33,11 @@ exports.downloadTemplate = async function(type, name) {
   return join(budibaseAppsDir(), "templates", type, name)
 }
 
-exports.exportTemplateFromApp = async function({ templateName, appId }) {
+exports.exportTemplateFromApp = async function({
+  appId,
+  templateName,
+  instanceId,
+}) {
   // Copy frontend files
   const appToExport = join(os.homedir(), ".budibase", appId, "pages")
   const templatesDir = join(os.homedir(), ".budibase", "templates")
@@ -48,7 +52,7 @@ exports.exportTemplateFromApp = async function({ templateName, appId }) {
   )
 
   // perform couch dump
-  const instanceDb = new CouchDB(appId)
+  const instanceDb = new CouchDB(instanceId)
 
   await instanceDb.dump(writeStream)
   return templateOutputPath

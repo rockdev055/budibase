@@ -10,6 +10,7 @@ const {
 } = require("fs-extra")
 const { join, resolve } = require("../centralPath")
 const { dirname } = require("path")
+const env = require("../../environment")
 
 const buildPage = require("./buildPage")
 const getPages = require("./getPages")
@@ -29,7 +30,10 @@ module.exports.getPackageForBuilder = async (config, application) => {
 
   return {
     pages,
+
     application,
+
+    clientId: env.CLIENT_ID,
   }
 }
 

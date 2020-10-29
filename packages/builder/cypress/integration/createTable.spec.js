@@ -8,7 +8,7 @@ context("Create a Table", () => {
     cy.createTable("dog")
 
     // Check if Table exists
-    cy.get(".table-title h1").should("have.text", "dog")
+    cy.get(".title span").should("have.text", "dog")
   })
 
   it("adds a new column to the table", () => {
@@ -26,7 +26,9 @@ context("Create a Table", () => {
       .trigger("mouseover")
       .find(".ri-pencil-line")
       .click({ force: true })
-    cy.get(".actions input").first().type("updated")
+    cy.get(".actions input")
+      .first()
+      .type("updated")
     // Unset table display column
     cy.contains("display column").click()
     cy.contains("Save Column").click()
@@ -34,8 +36,7 @@ context("Create a Table", () => {
   })
 
   it("edits a row", () => {
-    cy.contains("button", "Edit").click({ force: true })
-    cy.wait(1000)
+    cy.get("button").contains("Edit").click()
     cy.get(".modal input").type("Updated")
     cy.contains("Save").click()
     cy.contains("RoverUpdated").should("have.text", "RoverUpdated")
@@ -49,10 +50,10 @@ context("Create a Table", () => {
   })
 
   it("deletes a column", () => {
-    cy.contains("header", "name")
-      .trigger("mouseover")
-      .find(".ri-pencil-line")
-      .click({ force: true })
+    cy
+    .contains("header", "name")
+    .trigger("mouseover")
+    .find(".ri-pencil-line").click({ force: true })
     cy.contains("Delete").click()
     cy.wait(50)
     cy.get(".buttons").contains("Delete").click()
@@ -60,7 +61,9 @@ context("Create a Table", () => {
   })
 
   it("deletes a table", () => {
-    cy.contains(".nav-item", "dog").get(".actions").invoke("show").click()
+    cy.contains("div", "dog")
+      .get(".ri-more-line")
+      .click()
     cy.get("[data-cy=delete-table]").click()
     cy.contains("Delete Table").click()
     cy.contains("dog").should("not.exist")

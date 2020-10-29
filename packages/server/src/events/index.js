@@ -11,10 +11,10 @@ const EventEmitter = require("events").EventEmitter
  * This is specifically quite important for mustache used in automations.
  */
 class BudibaseEmitter extends EventEmitter {
-  emitRow(eventName, appId, row, table = null) {
+  emitRow(eventName, instanceId, row, table = null) {
     let event = {
       row,
-      appId,
+      instanceId,
       tableId: row.tableId,
     }
     if (table) {
@@ -27,14 +27,14 @@ class BudibaseEmitter extends EventEmitter {
     this.emit(eventName, event)
   }
 
-  emitTable(eventName, appId, table = null) {
+  emitTable(eventName, instanceId, table = null) {
     const tableId = table._id
     let event = {
       table: {
         ...table,
         tableId: tableId,
       },
-      appId,
+      instanceId,
       tableId: tableId,
     }
     event.id = tableId
