@@ -10,6 +10,7 @@ const { join, resolve } = require("../centralPath")
 const sqrl = require("squirrelly")
 const { convertCssToFiles } = require("./convertCssToFiles")
 const publicPath = require("./publicPath")
+const deleteCodeMeta = require("./deleteCodeMeta")
 
 module.exports = async (config, appId, pageName, pkg) => {
   const appPath = appPackageFolder(config, appId)
@@ -120,6 +121,8 @@ const savePageJson = async (appPath, pageName, pkg) => {
   if (pkg.page._screens) {
     delete pkg.page._screens
   }
+
+  deleteCodeMeta(pkg.page.props)
 
   await writeJSON(pageFile, pkg.page, {
     spaces: 2,
