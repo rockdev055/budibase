@@ -1,5 +1,5 @@
 const rowController = require("../../api/controllers/row")
-const env = require("../../environment")
+const environment = require("../../environment")
 const usage = require("../../utilities/usageQuota")
 
 module.exports.definition = {
@@ -50,7 +50,7 @@ module.exports.definition = {
   },
 }
 
-module.exports.run = async function({ inputs, appId, apiKey }) {
+module.exports.run = async function({ inputs, instanceId, apiKey }) {
   // TODO: better logging of when actions are missed due to missing parameters
   if (inputs.id == null || inputs.revision == null) {
     return
@@ -61,11 +61,11 @@ module.exports.run = async function({ inputs, appId, apiKey }) {
       rowId: inputs.id,
       revId: inputs.revision,
     },
-    user: { appId },
+    user: { instanceId },
   }
 
   try {
-    if (env.CLOUD) {
+    if (environment.CLOUD) {
       await usage.update(apiKey, usage.Properties.ROW, -1)
     }
     await rowController.destroy(ctx)

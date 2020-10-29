@@ -28,11 +28,12 @@ exports.downloadTemplate = async function(ctx) {
 }
 
 exports.exportTemplateFromApp = async function(ctx) {
-  const { appId } = ctx.user
+  const { appId, instanceId } = ctx.user
   const { templateName } = ctx.request.body
 
   await exportTemplateFromApp({
     appId,
+    instanceId,
     templateName,
   })
 

@@ -1,6 +1,6 @@
 const accessLevels = require("../../utilities/accessLevels")
 const userController = require("../../api/controllers/user")
-const env = require("../../environment")
+const environment = require("../../environment")
 const usage = require("../../utilities/usageQuota")
 
 module.exports.definition = {
@@ -58,11 +58,11 @@ module.exports.definition = {
   },
 }
 
-module.exports.run = async function({ inputs, appId, apiKey }) {
+module.exports.run = async function({ inputs, instanceId, apiKey }) {
   const { username, password, accessLevelId } = inputs
   const ctx = {
     user: {
-      appId: appId,
+      instanceId: instanceId,
     },
     request: {
       body: { username, password, accessLevelId },
@@ -70,7 +70,7 @@ module.exports.run = async function({ inputs, appId, apiKey }) {
   }
 
   try {
-    if (env.CLOUD) {
+    if (environment.CLOUD) {
       await usage.update(apiKey, usage.Properties.USER, 1)
     }
     await userController.create(ctx)

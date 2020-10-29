@@ -13,12 +13,12 @@ exports.IncludeDocs = {
 /**
  * Creates the link view for the instance, this will overwrite the existing one, but this should only
  * be called if it is found that the view does not exist.
- * @param {string} appId The instance to which the view should be added.
+ * @param {string} instanceId The instance to which the view should be added.
  * @returns {Promise<void>} The view now exists, please note that the next view of this query will actually build it,
  * so it may be slow.
  */
-exports.createLinkView = async appId => {
-  const db = new CouchDB(appId)
+exports.createLinkView = async instanceId => {
+  const db = new CouchDB(instanceId)
   const designDoc = await db.get("_design/database")
   const view = {
     map: function(doc) {
@@ -47,7 +47,7 @@ exports.createLinkView = async appId => {
 
 /**
  * Gets the linking documents, not the linked documents themselves.
- * @param {string} appId The instance in which we are searching for linked rows.
+ * @param {string} instanceId The instance in which we are searching for linked rows.
  * @param {string} tableId The table which we are searching for linked rows against.
  * @param {string|null} fieldName The name of column/field which is being altered, only looking for
  * linking documents that are related to it. If this is not specified then the table level will be assumed.
@@ -60,12 +60,12 @@ exports.createLinkView = async appId => {
  * (if any).
  */
 exports.getLinkDocuments = async function({
-  appId,
+  instanceId,
   tableId,
   rowId,
   includeDocs,
 }) {
-  const db = new CouchDB(appId)
+  const db = new CouchDB(instanceId)
   let params
   if (rowId != null) {
     params = { key: [tableId, rowId] }
@@ -85,7 +85,7 @@ exports.getLinkDocuments = async function({
   } catch (err) {
     // check if the view doesn't exist, it should for all new instances
     if (err != null && err.name === "not_found") {
-      await exports.createLinkView(appId)
+      await exports.createLinkView(instanceId)
       return exports.getLinkDocuments(arguments[0])
     } else {
       Sentry.captureException(err)
