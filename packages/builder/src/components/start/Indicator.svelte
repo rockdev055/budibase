@@ -29,7 +29,7 @@
           1.41607 3.46441 1.55132 3.52467C1.68657 3.58493 1.80829 3.67182
           1.90923 3.78014L4.98762 6.85706L10.0933 0.35187C10.1024 0.340482
           10.1122 0.329679 10.1227 0.319527H10.1212Z"
-          fill="var(--background)" />
+          fill="white" />
       </svg>
     {:else}{step}{/if}
   </div>
@@ -42,7 +42,7 @@
     top: -30px;
     width: 1px;
     height: 30px;
-    background: var(--grey-5);
+    background: #bdbdbd;
   }
   .container:first-child::before {
     display: none;
@@ -54,28 +54,27 @@
     place-items: center;
   }
   .container.active {
-    box-shadow: inset 3px 0 0 0 var(--blue);
+    box-shadow: inset 3px 0 0 0 #4285f4;
   }
   .circle.active {
-    background: var(--blue);
+    background: #4285f4;
     color: white;
     border: none;
   }
   .circle.done {
-    background: var(--grey-5);
+    background: #bdbdbd;
     color: white;
     border: none;
   }
   .circle {
-    color: var(--grey-5);
+    color: #bdbdbd;
     font-size: 14px;
-    font-weight: 500;
     display: grid;
     place-items: center;
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    border: 1px solid var(--grey-5);
+    border: 1px solid #bdbdbd;
     box-sizing: border-box;
   }
 </style>

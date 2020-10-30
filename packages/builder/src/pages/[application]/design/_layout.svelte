@@ -7,15 +7,15 @@
   import { last } from "lodash/fp"
   import FrontendNavigatePane from "components/userInterface/FrontendNavigatePane.svelte"
 
-  $: instances = $store.appInstances
+  $: instance = $store.appInstance
 
   async function selectDatabase(database) {
     backendUiStore.actions.database.select(database)
   }
 
   onMount(async () => {
-    if ($store.appInstances.length > 0 && !$backendUiStore.database) {
-      await selectDatabase($store.appInstances[0])
+    if ($store.appInstance && !$backendUiStore.database) {
+      await selectDatabase($store.appInstance)
     }
   })
 
@@ -65,7 +65,7 @@
 
   .ui-nav {
     grid-column: 1;
-    background-color: var(--background);
+    background-color: var(--white);
     display: flex;
     flex-direction: column;
     gap: var(--spacing-l);
@@ -84,14 +84,14 @@
     padding: var(--spacing-l) 40px var(--spacing-xl) 40px;
   }
   .preview-content {
-    background: var(--background);
+    background: #fff;
     box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
     flex: 1 1 auto;
   }
 
   .components-pane {
     grid-column: 3;
-    background-color: var(--background);
+    background-color: var(--white);
     overflow-y: auto;
     display: flex;
     flex-direction: column;

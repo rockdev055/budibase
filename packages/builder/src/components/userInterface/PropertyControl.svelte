@@ -95,12 +95,9 @@
       name={key} />
   </div>
   {#if bindable && control === Input && !key.startsWith('_')}
-    <div
-      class="icon"
-      data-cy={`${key}-binding-button`}
-      on:click={dropdown.show}>
+    <button data-cy={`${key}-binding-button`} on:click={dropdown.show}>
       <Icon name="edit" />
-    </div>
+    </button>
   {/if}
 </div>
 {#if control == Input}
@@ -142,25 +139,17 @@
     padding-left: 2px;
     overflow: hidden;
   }
-
-  .icon {
-    right: 2px;
-    top: 2px;
-    bottom: 2px;
+  button {
     position: absolute;
-    align-items: center;
-    display: flex;
-    box-sizing: border-box;
-    padding-left: var(--spacing-xs);
-    border-left: 1px solid var(--grey-4);
-    background-color: var(--grey-2);
-    border-top-right-radius: var(--border-radius-m);
-    border-bottom-right-radius: var(--border-radius-m);
-    color: var(--grey-7);
-    font-size: 16px;
-  }
-  .icon:hover {
-    color: var(--ink);
     cursor: pointer;
+    background: none;
+    border: none;
+    height: 90%;
+    width: 2rem;
+    background: var(--grey-2);
+    right: 4px;
+    --spacing-s: 0;
+    border-left: 0.5px solid var(--grey-3);
+    outline-color: var(--blue);
   }
 </style>
