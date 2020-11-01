@@ -120,7 +120,7 @@
     position: absolute;
     bottom: 0;
     width: 100%;
-    background: var(--background);
+    background: var(--white);
   }
 
   .deployment {
