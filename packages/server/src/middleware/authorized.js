@@ -5,7 +5,7 @@ const {
   BUILDER_LEVEL_ID,
   BUILDER,
 } = require("../utilities/accessLevels")
-const env = require("../environment")
+const environment = require("../environment")
 const { apiKeyTable } = require("../db/dynamoClient")
 const { AuthTypes } = require("../constants")
 
@@ -13,10 +13,14 @@ const LOCAL_PASS = new RegExp(["webhooks/trigger", "webhooks/schema"].join("|"))
 
 module.exports = (permName, getItemId) => async (ctx, next) => {
   // webhooks can pass locally
-  if (!env.CLOUD && LOCAL_PASS.test(ctx.request.url)) {
+  if (!environment.CLOUD && LOCAL_PASS.test(ctx.request.url)) {
     return next()
   }
-  if (env.CLOUD && ctx.headers["x-api-key"] && ctx.headers["x-instanceid"]) {
+  if (
+    environment.CLOUD &&
+    ctx.headers["x-api-key"] &&
+    ctx.headers["x-instanceid"]
+  ) {
     // api key header passed by external webhook
     const apiKeyInfo = await apiKeyTable.get({
       primary: ctx.headers["x-api-key"],
@@ -28,7 +32,7 @@ module.exports = (permName, getItemId) => async (ctx, next) => {
         apiKey: ctx.headers["x-api-key"],
       }
       ctx.user = {
-        appId: ctx.headers["x-instanceid"],
+        instanceId: ctx.headers["x-instanceid"],
       }
       return next()
     }
@@ -37,7 +41,7 @@ module.exports = (permName, getItemId) => async (ctx, next) => {
   }
 
   // don't expose builder endpoints in the cloud
-  if (env.CLOUD && permName === BUILDER) return
+  if (environment.CLOUD && permName === BUILDER) return
 
   if (!ctx.auth.authenticated) {
     ctx.throw(403, "Session not authenticated")

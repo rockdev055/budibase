@@ -22,7 +22,7 @@ exports.WebhookType = {
 }
 
 exports.fetch = async ctx => {
-  const db = new CouchDB(ctx.user.appId)
+  const db = new CouchDB(ctx.user.instanceId)
   const response = await db.allDocs(
     getWebhookParams(null, {
       include_docs: true,
@@ -32,7 +32,7 @@ exports.fetch = async ctx => {
 }
 
 exports.save = async ctx => {
-  const db = new CouchDB(ctx.user.appId)
+  const db = new CouchDB(ctx.user.instanceId)
   const webhook = ctx.request.body
   webhook.appId = ctx.user.appId
 
@@ -53,7 +53,7 @@ exports.save = async ctx => {
 }
 
 exports.destroy = async ctx => {
-  const db = new CouchDB(ctx.user.appId)
+  const db = new CouchDB(ctx.user.instanceId)
   ctx.body = await db.remove(ctx.params.id, ctx.params.rev)
 }
 
@@ -91,7 +91,7 @@ exports.trigger = async ctx => {
     await triggers.externalTrigger(target, {
       body: ctx.request.body,
       ...ctx.request.body,
-      appId: ctx.params.instance,
+      instanceId: ctx.params.instance,
     })
   }
   ctx.status = 200

@@ -53,13 +53,13 @@ module.exports.definition = {
   },
 }
 
-module.exports.run = async function({ inputs, appId }) {
+module.exports.run = async function({ inputs, instanceId }) {
   if (inputs.rowId == null || inputs.row == null) {
     return
   }
 
   inputs.row = await automationUtils.cleanUpRowById(
-    appId,
+    instanceId,
     inputs.rowId,
     inputs.row
   )
@@ -78,7 +78,7 @@ module.exports.run = async function({ inputs, appId }) {
     request: {
       body: inputs.row,
     },
-    user: { appId },
+    user: { instanceId },
   }
 
   try {

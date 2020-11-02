@@ -12,7 +12,6 @@ const DocumentTypes = {
   APP: "app",
   ACCESS_LEVEL: "ac",
   WEBHOOK: "wh",
-  INSTANCE: "inst",
 }
 
 exports.DocumentTypes = DocumentTypes

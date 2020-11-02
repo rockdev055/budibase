@@ -30,7 +30,7 @@ app.context.auth = {}
 app.use(api.routes())
 
 if (electron.app && electron.app.isPackaged) {
-  env._set("NODE_ENV", "production")
+  process.env.NODE_ENV = "production"
   Sentry.init()
 
   app.on("error", (err, ctx) => {

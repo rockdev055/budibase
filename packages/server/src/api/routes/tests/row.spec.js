@@ -1,5 +1,7 @@
 const { 
   createApplication,
+  createClientDatabase,
+  createInstance, 
   createTable,
   supertest,
   defaultHeaders,
@@ -8,24 +10,24 @@ const {
 describe("/rows", () => {
   let request
   let server
-  let appId
+  let instance
   let table
   let row
   let app
 
   beforeAll(async () => {
     ({ request, server } = await supertest())
-
+    await createClientDatabase(request)
+    app = await createApplication(request)
   });
 
-  afterAll(() => {
-    server.close()
+  afterAll(async () => {
+    server.close();
   })
 
   beforeEach(async () => {
-    app = await createApplication(request)
-    appId = app.instance._id
-    table = await createTable(request, appId)
+    instance = await createInstance(request, app._id)
+    table = await createTable(request, app._id, instance._id)
     row = {
       name: "Test Contact",
       description: "original description",
@@ -38,14 +40,14 @@ describe("/rows", () => {
     await request
       .post(`/api/${r ? r.tableId : row.tableId}/rows`)
       .send(r || row)
-      .set(defaultHeaders(appId))
+      .set(defaultHeaders(app._id, instance._id))
       .expect('Content-Type', /json/)
       .expect(200)
 
   const loadRow = async id => 
     await request
       .get(`/api/${table._id}/rows/${id}`)
-      .set(defaultHeaders(appId))
+      .set(defaultHeaders(app._id, instance._id))
       .expect('Content-Type', /json/)
       .expect(200)
 
@@ -72,7 +74,7 @@ describe("/rows", () => {
           tableId: table._id,
           name: "Updated Name",
         })
-        .set(defaultHeaders(appId))
+        .set(defaultHeaders(app._id, instance._id))
         .expect('Content-Type', /json/)
         .expect(200)
       
@@ -86,7 +88,7 @@ describe("/rows", () => {
 
       const res = await request
         .get(`/api/${table._id}/rows/${existing._id}`)
-        .set(defaultHeaders(appId))
+        .set(defaultHeaders(app._id, instance._id))
         .expect('Content-Type', /json/)
         .expect(200)
 
@@ -109,7 +111,7 @@ describe("/rows", () => {
 
       const res = await request
         .get(`/api/${table._id}/rows`)
-        .set(defaultHeaders(appId))
+        .set(defaultHeaders(app._id, instance._id))
         .expect('Content-Type', /json/)
         .expect(200)
 
@@ -131,7 +133,7 @@ describe("/rows", () => {
 
       const res = await request
         .post(`/api/rows/search`)
-        .set(defaultHeaders(appId))
+        .set(defaultHeaders(app._id, instance._id))
         .send({
           keys: rowIds
         })
@@ -146,7 +148,7 @@ describe("/rows", () => {
       await createRow()
       await request
         .get(`/api/${table._id}/rows/not-a-valid-id`)
-        .set(defaultHeaders(appId))
+        .set(defaultHeaders(app._id, instance._id))
         .expect('Content-Type', /json/)
         .expect(404)
     })
@@ -158,7 +160,7 @@ describe("/rows", () => {
       const number = {type:"number", constraints: { type: "number", presence: false }}
       const datetime = {type:"datetime", constraints: { type: "string", presence: false, datetime: {earliest:"", latest: ""}  }}
 
-      table = await createTable(request, appId, {
+      table = await createTable(request, app._id, instance._id, {
         name: "TestTable2",
         type: "table",
         key: "name",
@@ -254,7 +256,7 @@ describe("/rows", () => {
           tableId: table._id,
           name: "Updated Name",
         })
-        .set(defaultHeaders(appId))
+        .set(defaultHeaders(app._id, instance._id))
         .expect('Content-Type', /json/)
         .expect(200)
       
@@ -275,7 +277,7 @@ describe("/rows", () => {
       const result = await request
         .post(`/api/${table._id}/rows/validate`)
         .send({ name: "ivan" })
-        .set(defaultHeaders(appId))
+        .set(defaultHeaders(app._id, instance._id))
         .expect('Content-Type', /json/)
         .expect(200)
       
@@ -287,7 +289,7 @@ describe("/rows", () => {
       const result = await request
         .post(`/api/${table._id}/rows/validate`)
         .send({ name: 1 })
-        .set(defaultHeaders(appId))
+        .set(defaultHeaders(app._id, instance._id))
         .expect('Content-Type', /json/)
         .expect(200)
       
