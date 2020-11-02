@@ -18,9 +18,9 @@
 
 <div class="container" bind:this={anchor}>
   <Input {...inputProps} bind:value />
-  <div class="icon" on:click={popover.show}>
+  <button on:click={popover.show}>
     <Icon name="edit" />
-  </div>
+  </button>
 </div>
 <GenericBindingPopover
   {anchor}
@@ -34,24 +34,25 @@
     position: relative;
   }
 
-  .icon {
-    right: 2px;
-    top: 2px;
-    bottom: 2px;
+  button {
     position: absolute;
-    align-items: center;
-    display: flex;
-    box-sizing: border-box;
-    padding-left: var(--spacing-xs);
-    border-left: 1px solid var(--grey-4);
-    background-color: var(--grey-2);
-    border-top-right-radius: var(--border-radius-m);
-    border-bottom-right-radius: var(--border-radius-m);
-    color: var(--grey-7);
-    font-size: 16px;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    height: 24px;
+    width: 24px;
+    background: var(--grey-4);
+    right: var(--spacing-s);
+    bottom: 5px;
   }
-  .icon:hover {
-    color: var(--ink);
+  button:hover {
+    background: var(--grey-5);
     cursor: pointer;
+  }
+  button :global(svg) {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%) !important;
   }
 </style>

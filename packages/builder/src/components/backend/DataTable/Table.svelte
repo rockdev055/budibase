@@ -47,16 +47,14 @@
     if (allowEditing) {
       result = [
         {
-          checkboxSelection: true,
-          lockPosition: true,
-          headerName: "Edit",
           pinned: "left",
+          headerName: "Edit",
           sortable: false,
           resizable: false,
           suppressMovable: true,
           suppressMenu: true,
-          minWidth: 114,
-          width: 114,
+          minWidth: 84,
+          width: 84,
           cellRenderer: editRowRenderer,
         },
       ]
@@ -65,6 +63,7 @@
     Object.keys(schema || {}).forEach((key, idx) => {
       result.push({
         headerCheckboxSelection: false,
+        checkboxSelection: idx === 0 && allowEditing,
         headerComponent: TableHeader,
         headerComponentParams: {
           field: schema[key],
@@ -175,18 +174,12 @@
     height: auto;
     flex: 1 1 auto;
   }
-  :global(.grid-wrapper) {
-    --ag-modal-overlay-background-color: transparent;
-    --ag-border-color: var(--grey-3);
+
+  :global(.ag-theme-alpine) {
+    --ag-border-color: var(--grey-4);
     --ag-header-background-color: var(--grey-1);
     --ag-odd-row-background-color: var(--grey-1);
     --ag-row-border-color: var(--grey-3);
-    --ag-background-color: var(--background);
-    --ag-foreground-color: var(--ink);
-  }
-  :global(.ag-overlay-loading-center) {
-    box-shadow: 0 0 8px 4px rgba(0, 0, 0, 0.05) !important;
-    border-color: var(--grey-2);
   }
 
   :global(.ag-menu) {
@@ -214,6 +207,7 @@
     box-sizing: border-box;
     color: var(--ink);
     border-radius: var(--border-radius-m);
+    background: #fff;
     font-family: var(--font-sans) !important;
     box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
   }

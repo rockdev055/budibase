@@ -63,7 +63,7 @@
   .content {
     padding: 10px;
     display: block;
-    color: white;
+    color: var(--white);
     font-weight: 500;
   }
 </style>

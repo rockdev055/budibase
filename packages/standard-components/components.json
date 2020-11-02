@@ -552,26 +552,21 @@
 			"datasource": "tables",
 			"nameLabel": "string",
 			"valueLabel": "string",
-			"color": {
-				"type": "string",
-				"default": "#4285f4"
-			},
-			"height": {
-				"type": "number",
-				"default": "400"
-			},
+			"betweenBarsPadding": "number",
+			"gradient": "string",
+			"color": "string",
+			"hasSingleBarHighlight": "bool",
+			"height": "number",
 			"width": "number",
-			"horizontal": "bool",
-			"dataLabels": {
-				"type": "bool",
-				"default": true
-			},
-			"animate": {
-				"type": "bool",
-				"default": true
-			},
+			"isAnimated": "bool",
+			"isHorizontal": "bool",
+			"labelNumberFormat": "number",
+			"locale": "string",
 			"xAxisLabel": "string",
-			"yAxisLabel": "string"
+			"yAxisLabel": "string",
+			"useLegend": "bool",
+			"xTicks": "number",
+			"yTicks": "number"
 		}
 	},
 	"line": {

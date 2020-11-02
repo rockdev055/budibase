@@ -18,11 +18,9 @@
 <div class="container" bind:this={iconContainer} on:click={popover.show}>
   <i class="ri-feedback-line" class:highlight={$store.highlightFeedbackIcon} />
 </div>
-<div class="iframe">
-  <Popover bind:this={popover} anchor={iconContainer} align="right">
-    <FeedbackIframe on:finished={popover.hide} />
-  </Popover>
-</div>
+<Popover bind:this={popover} anchor={iconContainer} align="right">
+  <FeedbackIframe on:finished={popover.hide} />
+</Popover>
 
 <style>
   i {
@@ -49,9 +47,5 @@
   }
   .container:hover i {
     color: var(--ink);
-  }
-
-  .iframe :global(.menu-container) {
-    background-color: white;
   }
 </style>

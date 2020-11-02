@@ -21,7 +21,6 @@
     align-items: center;
     font-family: var(--font-sans);
     font-weight: 500;
-    color: var(--ink);
   }
 
   .loading-overlay > * {
