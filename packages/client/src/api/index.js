@@ -1,12 +1,11 @@
 import { authenticate } from "./authenticate"
-import { getAppIdFromPath } from "../render/getAppId"
+// import appStore from "../state/store"
 
 const apiCall = method => async ({ url, body }) => {
   const response = await fetch(url, {
     method: method,
     headers: {
       "Content-Type": "application/json",
-      "x-budibase-app-id": getAppIdFromPath(),
     },
     body: body && JSON.stringify(body),
     credentials: "same-origin",
@@ -37,8 +36,9 @@ const del = apiCall("DELETE")
 
 const ERROR_MEMBER = "##error"
 const error = message => {
+  const err = { [ERROR_MEMBER]: message }
   // appStore.update(s => s["##error_message"], message)
-  return { [ERROR_MEMBER]: message }
+  return err
 }
 
 const isSuccess = obj => !obj || !obj[ERROR_MEMBER]
@@ -81,9 +81,6 @@ const makeRowRequestBody = (parameters, state) => {
 
   // then override with supplied parameters
   for (let fieldName in parameters.fields) {
-    if (!parameters.fields.hasOwnProperty(fieldName)) {
-      continue
-    }
     const field = parameters.fields[fieldName]
 
     // ensure fields sent are of the correct type

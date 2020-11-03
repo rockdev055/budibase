@@ -1,17 +1,15 @@
-import { store } from "./index"
-import { get as svelteGet } from "svelte/store"
-
 const apiCall = method => async (
   url,
   body,
   headers = { "Content-Type": "application/json" }
 ) => {
-  headers["x-budibase-app-id"] = svelteGet(store).appId
-  return await fetch(url, {
+  const response = await fetch(url, {
     method: method,
     body: body && JSON.stringify(body),
     headers,
   })
+
+  return response
 }
 
 export const post = apiCall("POST")

@@ -61,7 +61,7 @@ exports.fetchAppPackage = async function(ctx) {
   const db = new CouchDB(ctx.params.appId)
   const application = await db.get(ctx.params.appId)
   ctx.body = await getPackageForBuilder(ctx.config, application)
-  await setBuilderToken(ctx, ctx.params.appId, application.version)
+  setBuilderToken(ctx, ctx.params.appId, application.version)
 }
 
 exports.create = async function(ctx) {
@@ -70,6 +70,7 @@ exports.create = async function(ctx) {
   const newApplication = {
     _id: appId,
     type: "app",
+    userInstanceMap: {},
     version: packageJson.version,
     componentLibraries: ["@budibase/standard-components"],
     name: ctx.request.body.name,
