@@ -27,19 +27,15 @@ exports.defaultHeaders = appId => {
   const builderUser = {
     userId: "BUILDER",
     accessLevelId: BUILDER_LEVEL_ID,
+    appId,
   }
 
   const builderToken = jwt.sign(builderUser, env.JWT_SECRET)
 
-  const headers = {
+  return {
     Accept: "application/json",
-    Cookie: [`budibase:builder:local=${builderToken}`],
+    Cookie: [`builder:token=${builderToken}`],
   }
-  if (appId) {
-    headers["x-budibase-app-id"] = appId
-  }
-
-  return headers
 }
 
 exports.createTable = async (request, appId, table) => {
@@ -213,10 +209,7 @@ const createUserWithPermissions = async (
 
   const loginResult = await request
     .post(`/api/authenticate`)
-    .set({
-      Cookie: `budibase:${appId}:local=${anonToken}`,
-      "x-budibase-app-id": appId,
-    })
+    .set({ Cookie: `budibase:token=${anonToken}` })
     .send({ username, password })
 
   // returning necessary request headers
