@@ -72,7 +72,7 @@
 
     let temp = runtimeToReadableBinding(bindableProperties, value)
 
-    return value == null && props.defaultValue !== undefined
+    return !value && props.defaultValue !== undefined
       ? props.defaultValue
       : temp
   }
