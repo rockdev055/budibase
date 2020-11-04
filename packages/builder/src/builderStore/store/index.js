@@ -11,7 +11,9 @@ import {
   getBuiltin,
 } from "components/userInterface/pagesParsing/createProps"
 import { fetchComponentLibDefinitions } from "../loadComponentLibraries"
+import { buildCodeForScreens } from "../buildCodeForScreens"
 import { generate_screen_css } from "../generate_css"
+import { insertCodeMetadata } from "../insertCodeMetadata"
 import analytics from "analytics"
 import { uuid } from "../uuid"
 import {
@@ -58,12 +60,15 @@ export const getStore = () => {
   store.setCurrentPage = setCurrentPage(store)
   store.createLink = createLink(store)
   store.createScreen = createScreen(store)
+  store.addStylesheet = addStylesheet(store)
+  store.removeStylesheet = removeStylesheet(store)
   store.savePage = savePage(store)
   store.addChildComponent = addChildComponent(store)
   store.selectComponent = selectComponent(store)
   store.setComponentProp = setComponentProp(store)
   store.setPageOrScreenProp = setPageOrScreenProp(store)
   store.setComponentStyle = setComponentStyle(store)
+  store.setComponentCode = setComponentCode(store)
   store.setScreenType = setScreenType(store)
   store.getPathToComponent = getPathToComponent(store)
   store.addTemplatedComponent = addTemplatedComponent(store)
@@ -77,18 +82,23 @@ export const getStore = () => {
 export default getStore
 
 const setPackage = (store, initial) => async pkg => {
-  const screens = await api.get("/api/screens").then(r => r.json())
+  const [main_screens, unauth_screens] = await Promise.all([
+    api
+      .get(`/_builder/api/${pkg.application._id}/pages/main/screens`)
+      .then(r => r.json()),
+    api
+      .get(`/_builder/api/${pkg.application._id}/pages/unauthenticated/screens`)
+      .then(r => r.json()),
+  ])
 
-  const mainScreens = screens.filter(screen => screen._id.includes(pkg.pages.main._id)),
-    unauthScreens = screens.filter(screen => screen._id.includes(pkg.pages.unauthenticated._id))
   pkg.pages = {
     main: {
       ...pkg.pages.main,
-      _screens: mainScreens,
+      _screens: Object.values(main_screens),
     },
     unauthenticated: {
       ...pkg.pages.unauthenticated,
-      _screens: unauthScreens,
+      _screens: Object.values(unauth_screens),
     },
   }
 
@@ -102,7 +112,7 @@ const setPackage = (store, initial) => async pkg => {
         regenerateCssForScreen(screen)
       }
 
-      await api.post(`/api/pages/${page._id}`, {
+      await api.post(`/_builder/api/${pkg.application._id}/pages/${name}`, {
         page: {
           componentLibraries: pkg.application.componentLibraries,
           ...page,
@@ -110,8 +120,8 @@ const setPackage = (store, initial) => async pkg => {
         screens: page._screens,
       })
     }
-    await generateInitialPageCss("main")
-    await generateInitialPageCss("unauthenticated")
+    generateInitialPageCss("main")
+    generateInitialPageCss("unauthenticated")
     pkg.justCreated = false
   }
 
@@ -123,8 +133,8 @@ const setPackage = (store, initial) => async pkg => {
   initial.pages = pkg.pages
   initial.hasAppPackage = true
   initial.screens = [
-    ...Object.values(mainScreens),
-    ...Object.values(unauthScreens),
+    ...Object.values(main_screens),
+    ...Object.values(unauth_screens),
   ]
   initial.builtins = [getBuiltin("##builtin/screenslot")]
   initial.appInstance = pkg.application.instance
@@ -134,36 +144,40 @@ const setPackage = (store, initial) => async pkg => {
   return initial
 }
 
-const saveScreen = store => async screen => {
-  const storeContents = get(store)
-  const pageName = storeContents.currentPageName || "main"
-  const currentPage = storeContents.pages[pageName]
-  const currentPageScreens = currentPage._screens
+const saveScreen = store => screen => {
+  store.update(state => {
+    return _saveScreen(store, state, screen)
+  })
+}
 
-  let savePromise
+const _saveScreen = async (store, s, screen) => {
+  const pageName = s.currentPageName || "main"
+  const currentPageScreens = s.pages[pageName]._screens
+
   await api
-      .post(`/api/${currentPage._id}/screens`, screen)
-      .then(() => {
-        if (currentPageScreens.includes(screen)) return
+    .post(`/_builder/api/${s.appId}/pages/${pageName}/screen`, screen)
+    .then(() => {
+      if (currentPageScreens.includes(screen)) return
 
-        const screens = [...currentPageScreens, screen]
+      const screens = [...currentPageScreens, screen]
 
-        // TODO: should carry out all server updates to screen in a single call
-        store.update(state => {
-          state.pages[pageName]._screens = screens
-          state.screens = screens
-          state.currentPreviewItem = screen
-          const safeProps = makePropsSafe(
-              state.components[screen.props._component],
-              screen.props
-          )
-          state.currentComponentInfo = safeProps
-          screen.props = safeProps
-          savePromise = _savePage(state)
-          return state
-        })
+      store.update(innerState => {
+        innerState.pages[pageName]._screens = screens
+        innerState.screens = screens
+        innerState.currentPreviewItem = screen
+        const safeProps = makePropsSafe(
+          innerState.components[screen.props._component],
+          screen.props
+        )
+        innerState.currentComponentInfo = safeProps
+        screen.props = safeProps
+
+        _savePage(innerState)
+        return innerState
       })
-  await savePromise
+    })
+
+  return s
 }
 
 const createScreen = store => async screen => {
@@ -173,7 +187,7 @@ const createScreen = store => async screen => {
     state.currentComponentInfo = screen.props
     state.currentFrontEndType = "screen"
     regenerateCssForCurrentScreen(state)
-    savePromise = saveScreen(store)(screen)
+    savePromise = _saveScreen(store, state, screen)
     return state
   })
   await savePromise
@@ -244,6 +258,7 @@ const setCurrentScreen = store => screenName => {
     )
     screen.props = safeProps
     s.currentComponentInfo = safeProps
+    setCurrentPageFunctions(s)
     return s
   })
 }
@@ -280,6 +295,24 @@ const savePage = store => async page => {
   })
 }
 
+const addStylesheet = store => stylesheet => {
+  store.update(s => {
+    s.pages.stylesheets.push(stylesheet)
+    _savePage(s)
+    return s
+  })
+}
+
+const removeStylesheet = store => stylesheet => {
+  store.update(state => {
+    state.pages.stylesheets = state.pages.stylesheets.filter(
+      s => s !== stylesheet
+    )
+    _savePage(state)
+    return state
+  })
+}
+
 const setCurrentPage = store => pageName => {
   store.update(state => {
     const current_screens = state.pages[pageName]._screens
@@ -305,6 +338,7 @@ const setCurrentPage = store => pageName => {
       screen._css = generate_screen_css([screen.props])
     }
 
+    setCurrentPageFunctions(state)
     return state
   })
 }
@@ -390,6 +424,7 @@ const addTemplatedComponent = store => props => {
     )
     regenerateCssForCurrentScreen(state)
 
+    setCurrentPageFunctions(state)
     _saveCurrentPreviewItem(state)
 
     return state
@@ -439,6 +474,25 @@ const setComponentStyle = store => (type, name, value) => {
     return state
   })
 }
+
+const setComponentCode = store => code => {
+  store.update(state => {
+    state.currentComponentInfo._code = code
+
+    setCurrentPageFunctions(state)
+    // save without messing with the store
+    _saveScreenApi(state.currentPreviewItem, state)
+
+    return state
+  })
+}
+
+const setCurrentPageFunctions = s => {
+  s.currentPageFunctions = buildPageCode(s.screens, s.pages[s.currentPageName])
+  insertCodeMetadata(s.currentPreviewItem.props)
+}
+
+const buildPageCode = (screens, page) => buildCodeForScreens([page, ...screens])
 
 const setScreenType = store => type => {
   store.update(state => {
