@@ -1,12 +1,11 @@
 <script>
   import OptionSelect from "./OptionSelect.svelte"
   import { backendUiStore } from "builderStore"
-  import MultiOptionSelect from "./MultiOptionSelect.svelte"
+  import { onMount } from "svelte"
 
   export let componentInstance = {}
   export let value = ""
-  export let onChange = () => {}
-  export let multiselect = false
+  export let onChange = (val = {})
 
   const tables = $backendUiStore.tables
 
@@ -25,8 +24,4 @@
   }
 </script>
 
-{#if multiselect}
-  <MultiOptionSelect {value} {onChange} {options} />
-{:else}
-  <OptionSelect {value} {onChange} {options} />
-{/if}
+<OptionSelect {value} {onChange} {options} />
