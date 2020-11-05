@@ -1,5 +1,5 @@
 const CouchDB = require("../../db")
-const { getPackageForBuilder, buildPage } = require("../../utilities/builder")
+const { compileStaticAssetsForPage } = require("../../utilities/builder")
 const env = require("../../environment")
 const { copy, existsSync, readFile, writeFile } = require("fs-extra")
 const { budibaseAppsDir } = require("../../utilities/budibaseDir")
@@ -12,10 +12,21 @@ const chmodr = require("chmodr")
 const packageJson = require("../../../package.json")
 const { createLinkView } = require("../../db/linkedRows")
 const { downloadTemplate } = require("../../utilities/templates")
-const { generateAppID, DocumentTypes, SEPARATOR } = require("../../db/utils")
+const {
+  generateAppID,
+  DocumentTypes,
+  SEPARATOR,
+  getPageParams,
+  generatePageID,
+  generateScreenID,
+} = require("../../db/utils")
 const {
   downloadExtractComponentLibraries,
 } = require("../../utilities/createAppPackage")
+const { MAIN, UNAUTHENTICATED, PageTypes } = require("../../constants/pages")
+const { HOME_SCREEN } = require("../../constants/screens")
+const { cloneDeep } = require("lodash/fp")
+
 const APP_PREFIX = DocumentTypes.APP + SEPARATOR
 
 async function createInstance(template) {
@@ -60,13 +71,33 @@ exports.fetch = async function(ctx) {
 exports.fetchAppPackage = async function(ctx) {
   const db = new CouchDB(ctx.params.appId)
   const application = await db.get(ctx.params.appId)
-  ctx.body = await getPackageForBuilder(ctx.config, application)
+
+  let pages = await db.allDocs(
+    getPageParams(null, {
+      include_docs: true,
+    })
+  )
+  pages = pages.rows.map(row => row.doc)
+
+  const mainPage = pages.filter(page => page.name === PageTypes.MAIN)[0]
+  const unauthPage = pages.filter(
+    page => page.name === PageTypes.UNAUTHENTICATED
+  )[0]
+  ctx.body = {
+    application,
+    pages: {
+      main: mainPage,
+      unauthenticated: unauthPage,
+    },
+  }
+
   await setBuilderToken(ctx, ctx.params.appId, application.version)
 }
 
 exports.create = async function(ctx) {
   const instance = await createInstance(ctx.request.body.template)
   const appId = instance._id
+  const version = packageJson.version
   const newApplication = {
     _id: appId,
     type: "app",
@@ -84,6 +115,7 @@ exports.create = async function(ctx) {
     await downloadExtractComponentLibraries(newAppFolder)
   }
 
+  await setBuilderToken(ctx, appId, version)
   ctx.status = 200
   ctx.body = newApplication
   ctx.message = `Application ${ctx.request.body.name} created successfully`
@@ -110,6 +142,7 @@ exports.delete = async function(ctx) {
   const result = await db.destroy()
 
   // remove top level directory
+  // TODO: look into why this isn't a callback
   await fs.rmdir(join(budibaseAppsDir(), ctx.params.appId), {
     recursive: true,
   })
@@ -131,15 +164,17 @@ const createEmptyAppPackage = async (ctx, app) => {
   const appsFolder = budibaseAppsDir()
   const newAppFolder = resolve(appsFolder, app._id)
 
+  const db = new CouchDB(app._id)
+
   if (existsSync(newAppFolder)) {
     ctx.throw(400, "App folder already exists for this application")
   }
 
-  await fs.ensureDir(join(newAppFolder, "pages", "main", "screens"), 0o777)
-  await fs.ensureDir(
-    join(newAppFolder, "pages", "unauthenticated", "screens"),
-    0o777
-  )
+  // await fs.ensureDir(join(newAppFolder, "pages", "main", "screens"), 0o777)
+  // await fs.ensureDir(
+  //   join(newAppFolder, "pages", "unauthenticated", "screens"),
+  //   0o777
+  // )
 
   await copy(templateFolder, newAppFolder)
 
@@ -163,45 +198,65 @@ const createEmptyAppPackage = async (ctx, app) => {
       app.template.key,
       "pages"
     )
+    // TODO: write the template page JSON to couch
+    // iterate over the pages and write them to the db
     await copy(templatePageDefinitions, join(appsFolder, app._id, "pages"))
   }
 
-  const mainJson = await updateJsonFile(
-    join(appsFolder, app._id, "pages", "main", "page.json"),
-    app
-  )
+  // const mainJson = await updateJsonFile(
+  //   join(appsFolder, app._id, "pages", "main", "page.json"),
+  //   app
+  // )
+  //
+  // mainJson._id = generatePageID()
+  // await db.put(mainJson)
 
-  await buildPage(ctx.config, app._id, "main", {
-    page: mainJson,
-    screens: await loadScreens(newAppFolder, "main"),
+  // const unauthenticatedJson = await updateJsonFile(
+  //   join(appsFolder, app._id, "pages", "unauthenticated", "page.json"),
+  //   app
+  // )
+
+  // Write to couch
+  // unauthenticatedJson._id = generatePageID()
+  // await db.put(unauthenticatedJson)
+
+  const mainPage = cloneDeep(MAIN)
+  mainPage._id = generatePageID()
+  mainPage.title = app.name
+  const unauthPage = cloneDeep(UNAUTHENTICATED)
+  unauthPage._id = generatePageID()
+  // TODO: fix - handlebars etc
+  unauthPage.title = app.name
+  unauthPage.props._children[0]._children.title = `Log in to ${app.name}`
+  const homeScreen = cloneDeep(HOME_SCREEN)
+  homeScreen._id = generateScreenID(mainPage._id)
+  await db.bulkDocs([mainPage, unauthPage, homeScreen])
+
+  await compileStaticAssetsForPage(app._id, "main", {
+    page: mainPage,
+    screens: [homeScreen],
   })
-
-  const unauthenticatedJson = await updateJsonFile(
-    join(appsFolder, app._id, "pages", "unauthenticated", "page.json"),
-    app
-  )
-
-  await buildPage(ctx.config, app._id, "unauthenticated", {
-    page: unauthenticatedJson,
-    screens: await loadScreens(newAppFolder, "unauthenticated"),
+  await compileStaticAssetsForPage(app._id, "unauthenticated", {
+    page: unauthPage,
+    screens: [],
   })
 
   return newAppFolder
 }
 
-const loadScreens = async (appFolder, page) => {
-  const screensFolder = join(appFolder, "pages", page, "screens")
-
-  const screenFiles = (await fs.readdir(screensFolder)).filter(s =>
-    s.endsWith(".json")
-  )
-
-  let screens = []
-  for (let file of screenFiles) {
-    screens.push(await fs.readJSON(join(screensFolder, file)))
-  }
-  return screens
-}
+// const loadScreens = async (appFolder, page) => {
+//   const screensFolder = join(appFolder, "pages", page, "screens")
+//
+//   const screenFiles = (await fs.readdir(screensFolder)).filter(s =>
+//     s.endsWith(".json")
+//   )
+//
+//   let screens = []
+//   for (let file of screenFiles) {
+//     screens.push(await fs.readJSON(join(screensFolder, file)))
+//   }
+//   return screens
+// }
 
 const updateJsonFile = async (filePath, app) => {
   const json = await readFile(filePath, "utf8")
