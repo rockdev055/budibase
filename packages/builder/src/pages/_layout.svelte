@@ -28,12 +28,12 @@
       <Link
         icon={CommunityIcon}
         title="Community"
-        href="https://github.com/Budibase/budibase/discussions" />
+        href="https://forum.budibase.com/" />
 
       <Link
         icon={BugIcon}
         title="Raise an issue"
-        href="https://github.com/Budibase/budibase/issues/new/choose" />
+        href="https://github.com/Budibase/budibase" />
     </div>
   </div>
 

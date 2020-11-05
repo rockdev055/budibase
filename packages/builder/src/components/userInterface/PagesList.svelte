@@ -2,8 +2,8 @@
   import { params, goto } from "@sveltech/routify"
   import { store } from "builderStore"
 
-  const getPage = (state, name) => {
-    const props = state.pages[name]
+  const getPage = (s, name) => {
+    const props = s.pages[name]
     return { name, props }
   }
 
@@ -19,10 +19,10 @@
   ]
 
   if (!$store.currentPageName)
-    store.actions.pages.select($params.page ? $params.page : "main")
+    store.setCurrentPage($params.page ? $params.page : "main")
 
   const changePage = id => {
-    store.actions.pages.select(id)
+    store.setCurrentPage(id)
     $goto(`./${id}/page-layout`)
   }
 </script>

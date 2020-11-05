@@ -71,9 +71,9 @@
     draftScreen.props._component = baseComponent
     draftScreen.route = route
 
-    await store.actions.screens.create(draftScreen)
+    await store.createScreen(draftScreen)
     if (createLink) {
-      await store.actions.components.links.save(route, name)
+      await store.createLink(route, name)
     }
 
     if (templateIndex !== undefined) {

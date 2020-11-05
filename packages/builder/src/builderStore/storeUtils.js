@@ -3,7 +3,6 @@ import {
   getBuiltin,
 } from "components/userInterface/pagesParsing/createProps"
 import api from "./api"
-import { store } from "builderStore"
 import { generate_screen_css } from "./generate_css"
 import { uuid } from "./uuid"
 import getNewComponentName from "./getNewComponentName"
@@ -31,41 +30,40 @@ export const getParent = (rootProps, child) => {
   return parent
 }
 
-// export const saveCurrentPreviewItem = s =>
-//   s.currentFrontEndType === "page"
-//     ? savePage(s)
-//     : store.actions.screens.save(s.currentPreviewItem)
+export const saveCurrentPreviewItem = s =>
+  s.currentFrontEndType === "page"
+    ? savePage(s)
+    : saveScreenApi(s.currentPreviewItem, s)
 
-export const savePage = async state => {
-  const pageName = state.currentPageName || "main"
-  const page = state.pages[pageName]
-
-  const response = await api
-    .post(`/api/pages/${page._id}`, {
-      page: { componentLibraries: state.pages.componentLibraries, ...page },
-      screens: page._screens,
-    })
-    .then(response => response.json())
-  store.update(innerState => {
-    innerState.pages[pageName]._rev = response.rev
-    return innerState
+export const savePage = async s => {
+  const pageName = s.currentPageName || "main"
+  const page = s.pages[pageName]
+  await api.post(`/_builder/api/${s.appId}/pages/${pageName}`, {
+    page: { componentLibraries: s.pages.componentLibraries, ...page },
+    uiFunctions: s.currentPageFunctions,
+    screens: page._screens,
   })
-  return state
 }
 
-// export const saveScreenApi = async (screen, state) => {
-//   const currentPage = state.pages[state.currentPageName]
-//   const response = await api.post(`/api/screens/${currentPage._id}`, screen)
-//   const json = await response.json()
+export const saveScreenApi = (screen, s) => {
+  api
+    .post(`/_builder/api/${s.appId}/pages/${s.currentPageName}/screen`, screen)
+    .then(() => savePage(s))
+}
 
-//   store.update(innerState => {
-//     // TODO: need to update pages in here
-//     // innerState.pages[pageName]._rev = response.rev
-//     return innerState
-//   })
+export const renameCurrentScreen = (newname, state) => {
+  const oldname = state.currentPreviewItem.props._instanceName
+  state.currentPreviewItem.props._instanceName = newname
 
-//   await savePage(state)
-// }
+  api.patch(
+    `/_builder/api/${state.appId}/pages/${state.currentPageName}/screen`,
+    {
+      oldname,
+      newname,
+    }
+  )
+  return state
+}
 
 export const walkProps = (props, action, cancelToken = null) => {
   cancelToken = cancelToken || { cancelled: false }
@@ -92,10 +90,10 @@ export const regenerateCssForCurrentScreen = state => {
   return state
 }
 
-export const generateNewIdsForComponent = (component, state, changeName = true) =>
-  walkProps(component, prop => {
-    prop._id = uuid()
-    if (changeName) prop._instanceName = getNewComponentName(prop, state)
+export const generateNewIdsForComponent = (c, state, changeName = true) =>
+  walkProps(c, p => {
+    p._id = uuid()
+    if (changeName) p._instanceName = getNewComponentName(p._component, state)
   })
 
 export const getComponentDefinition = (state, name) =>
