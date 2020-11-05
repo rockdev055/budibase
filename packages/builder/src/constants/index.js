@@ -1,15 +1,19 @@
 export const DEFAULT_PAGES_OBJECT = {
   main: {
-    props: {
-      _component: "@budibase/standard-components/container",
-    },
+    _props: {},
     _screens: {},
+    index: {
+      _component: "./components/indexHtml",
+    },
+    appBody: "bbapp.main.json",
   },
   unauthenticated: {
-    props: {
-      _component: "@budibase/standard-components/container",
-    },
+    _props: {},
     _screens: {},
+    index: {
+      _component: "./components/indexHtml",
+    },
+    appBody: "bbapp.unauthenticated.json",
   },
   componentLibraries: [],
   stylesheets: [],

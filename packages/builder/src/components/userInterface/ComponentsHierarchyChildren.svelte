@@ -35,19 +35,15 @@
 
   const capitalise = s => s.substring(0, 1).toUpperCase() + s.substring(1)
   const get_name = s => (!s ? "" : last(s.split("/")))
-  const get_capitalised_name = name =>
-    pipe(
-      name,
-      [get_name, capitalise]
-    )
+  const get_capitalised_name = name => pipe(name, [get_name, capitalise])
   const isScreenslot = name => name === "##builtin/screenslot"
 
   const selectComponent = component => {
     // Set current component
-    store.actions.components.select(component)
+    store.selectComponent(component)
 
     // Get ID path
-    const path = store.actions.components.findRoute(component)
+    const path = store.getPathToComponent(component)
 
     // Go to correct URL
     $goto(`./:page/:screen/${path}`)
@@ -100,8 +96,8 @@
 
   const drop = () => {
     if ($dragDropStore.targetComponent !== $dragDropStore.componentToDrop) {
-      store.actions.components.copy($dragDropStore.componentToDrop, true)
-      store.actions.components.paste(
+      store.storeComponentForCopy($dragDropStore.componentToDrop, true)
+      store.pasteComponent(
         $dragDropStore.targetComponent,
         $dragDropStore.dropPosition
       )

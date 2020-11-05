@@ -16,11 +16,11 @@
 
     if (!validScreen) {
       // Go to main layout if URL set to invalid screen
-      store.actions.pages.select("main")
+      store.setCurrentPage("main")
       $goto("../../main")
     } else {
       // Otherwise proceed to set screen
-      store.actions.screens.select(currentScreenName)
+      store.setCurrentScreen(currentScreenName)
 
       // There are leftover stuff, like IDs, so navigate the components and find the ID and select it.
       if ($leftover) {
@@ -35,7 +35,7 @@
     }
   } else {
     // It's a page, so set the screentype to page.
-    store.actions.selectPageOrScreen("page")
+    store.setScreenType("page")
 
     // There are leftover stuff, like IDs, so navigate the components and find the ID and select it.
     if ($leftover) {
@@ -64,7 +64,7 @@
     })
 
     // Select Component!
-    if (componentToSelect) store.actions.components.select(componentToSelect)
+    if (componentToSelect) store.selectComponent(componentToSelect)
   }
 </script>
 
