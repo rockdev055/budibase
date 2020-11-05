@@ -9,6 +9,9 @@ const packageJson = require("../../package.json")
 
 const streamPipeline = promisify(stream.pipeline)
 
+exports.appPackageFolder = (config, appname) =>
+  resolve(cwd(), config.latestPackagesFolder, appname)
+
 exports.downloadExtractComponentLibraries = async appFolder => {
   const LIBRARIES = ["standard-components"]
 

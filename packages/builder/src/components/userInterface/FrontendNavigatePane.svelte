@@ -1,5 +1,5 @@
 <script>
-  import { store, currentScreens } from "builderStore"
+  import { store } from "builderStore"
   import ComponentsHierarchy from "components/userInterface/ComponentsHierarchy.svelte"
   import PageLayout from "components/userInterface/PageLayout.svelte"
   import PagesList from "components/userInterface/PagesList.svelte"
@@ -16,7 +16,7 @@
 <PagesList />
 <div class="nav-items-container">
   <PageLayout layout={$store.pages[$store.currentPageName]} />
-  <ComponentsHierarchy screens={$currentScreens} />
+  <ComponentsHierarchy screens={$store.screens} />
 </div>
 <Modal bind:this={modal}>
   <NewScreenModal />

@@ -4,7 +4,7 @@
   import { getComponentDefinition } from "builderStore/storeUtils"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
   import { last } from "lodash/fp"
-  import { getParent } from "builderStore/storeUtils"
+  import { getParent, saveCurrentPreviewItem } from "builderStore/storeUtils"
   import { DropdownMenu } from "@budibase/bbui"
   import { DropdownContainer, DropdownItem } from "components/common/Dropdowns"
 
@@ -25,50 +25,50 @@
   }
 
   const selectComponent = component => {
-    store.actions.components.select(component)
-    const path = store.actions.components.findRoute(component)
+    store.selectComponent(component)
+    const path = store.getPathToComponent(component)
     $goto(`./:page/:screen/${path}`)
   }
 
   const moveUpComponent = () => {
-    store.update(state => {
-      const parent = getParent(state.currentPreviewItem.props, component)
+    store.update(s => {
+      const parent = getParent(s.currentPreviewItem.props, component)
 
       if (parent) {
         const currentIndex = parent._children.indexOf(component)
-        if (currentIndex === 0) return state
+        if (currentIndex === 0) return s
 
         const newChildren = parent._children.filter(c => c !== component)
         newChildren.splice(currentIndex - 1, 0, component)
         parent._children = newChildren
       }
-      state.currentComponentInfo = component
-      store.actions.preview.saveSelected()
+      s.currentComponentInfo = component
+      saveCurrentPreviewItem(s)
 
-      return state
+      return s
     })
   }
 
   const moveDownComponent = () => {
-    store.update(state => {
-      const parent = getParent(state.currentPreviewItem.props, component)
+    store.update(s => {
+      const parent = getParent(s.currentPreviewItem.props, component)
 
       if (parent) {
         const currentIndex = parent._children.indexOf(component)
-        if (currentIndex === parent._children.length - 1) return state
+        if (currentIndex === parent._children.length - 1) return s
 
         const newChildren = parent._children.filter(c => c !== component)
         newChildren.splice(currentIndex + 1, 0, component)
         parent._children = newChildren
       }
-      state.currentComponentInfo = component
-      store.actions.preview.saveSelected()
+      s.currentComponentInfo = component
+      saveCurrentPreviewItem(s)
 
-      return state
+      return s
     })
   }
 
-  const duplicateComponent = () => {
+  const copyComponent = () => {
     storeComponentForCopy(false)
     pasteComponent("below")
   }
@@ -82,26 +82,24 @@
         selectComponent(parent)
       }
 
-      store.actions.preview.saveSelected()
+      saveCurrentPreviewItem(state)
       return state
     })
   }
 
   const storeComponentForCopy = (cut = false) => {
     // lives in store - also used by drag drop
-    store.actions.components.copy(component, cut)
+    store.storeComponentForCopy(component, cut)
   }
 
   const pasteComponent = mode => {
     // lives in store - also used by drag drop
-    store.actions.components.paste(component, mode)
+    store.pasteComponent(component, mode)
   }
 </script>
 
 <div bind:this={anchor} on:click|stopPropagation>
-  <div class="icon" on:click={dropdown.show}>
-    <i class="ri-more-line" />
-  </div>
+  <div class="icon" on:click={dropdown.show}><i class="ri-more-line" /></div>
   <DropdownMenu bind:this={dropdown} width="170px" {anchor} align="left">
     <DropdownContainer on:click={hideDropdown}>
       <DropdownItem
@@ -119,7 +117,7 @@
       <DropdownItem
         icon="ri-repeat-one-line"
         title="Duplicate"
-        on:click={duplicateComponent} />
+        on:click={copyComponent} />
       <DropdownItem
         icon="ri-scissors-cut-line"
         title="Cut"

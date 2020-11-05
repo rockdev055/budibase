@@ -1,7 +1,7 @@
 <script>
   import { DataList } from "@budibase/bbui"
   import { createEventDispatcher } from "svelte"
-  import { allScreens } from "builderStore"
+  import { store } from "builderStore"
 
   const dispatch = createEventDispatcher()
 
@@ -13,7 +13,7 @@
 
   const getUrls = () => {
     return [
-      ...$allScreens
+      ...$store.screens
         .filter(
           screen =>
             screen.props._component.endsWith("/rowdetail") ||
