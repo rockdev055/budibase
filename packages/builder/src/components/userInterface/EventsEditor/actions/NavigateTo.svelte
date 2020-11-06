@@ -1,6 +1,6 @@
 <script>
   import { DataList, Label } from "@budibase/bbui"
-  import { allScreens } from "builderStore"
+  import { store } from "builderStore"
 
   export let parameters
 </script>
@@ -9,7 +9,7 @@
   <Label size="m" color="dark">Screen</Label>
   <DataList secondary bind:value={parameters.url}>
     <option value="" />
-    {#each $allScreens as screen}
+    {#each $store.screens as screen}
       <option value={screen.route}>{screen.props._instanceName}</option>
     {/each}
   </DataList>

@@ -1,3 +1,5 @@
+const { resolve } = require("./centralPath")
+const { cwd } = require("process")
 const stream = require("stream")
 const fetch = require("node-fetch")
 const tar = require("tar-fs")
@@ -6,6 +8,9 @@ const { promisify } = require("util")
 const packageJson = require("../../package.json")
 
 const streamPipeline = promisify(stream.pipeline)
+
+exports.appPackageFolder = (config, appname) =>
+  resolve(cwd(), config.latestPackagesFolder, appname)
 
 exports.downloadExtractComponentLibraries = async appFolder => {
   const LIBRARIES = ["standard-components"]

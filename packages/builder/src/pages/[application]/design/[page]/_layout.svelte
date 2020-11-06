@@ -2,7 +2,7 @@
   import { params } from "@sveltech/routify"
   import { store } from "builderStore"
 
-  store.actions.pages.select($params.page)
+  store.setCurrentPage($params.page)
 </script>
 
 <slot />
