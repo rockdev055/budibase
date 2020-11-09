@@ -1,18 +1,30 @@
 import setBindableComponentProp from "./setBindableComponentProp"
 import { attachChildren } from "../render/attachChildren"
 import store from "../state/store"
-import { baseApiCall } from "../api/index"
+
+export const trimSlash = str => str.replace(/^\/+|\/+$/g, "")
 
 export const bbFactory = ({
   componentLibraries,
   onScreenSlotRendered,
   runEventActions,
 }) => {
+  const apiCall = method => (url, body) => {
+    return fetch(url, {
+      method: method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: body && JSON.stringify(body),
+      credentials: "same-origin",
+    })
+  }
+
   const api = {
-    post: (url, body) => baseApiCall("POST", url, body),
-    get: (url, body) => baseApiCall("GET", url, body),
-    patch: (url, body) => baseApiCall("PATCH", url, body),
-    delete: (url, body) => baseApiCall("DELETE", url, body),
+    post: apiCall("POST"),
+    get: apiCall("GET"),
+    patch: apiCall("PATCH"),
+    delete: apiCall("DELETE"),
   }
 
   return (treeNode, setupState) => {
