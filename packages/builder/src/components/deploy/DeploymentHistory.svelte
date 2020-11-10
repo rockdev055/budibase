@@ -44,7 +44,6 @@
   }
 
   onMount(() => {
-    fetchDeployments()
     poll = setInterval(fetchDeployments, POLL_INTERVAL)
   })
 
@@ -56,12 +55,10 @@
     <header>
       <h4>Deployment History</h4>
       <div class="deploy-div">
-        {#if deployments.some(deployment => deployment.status === 'SUCCESS')}
-          <a target="_blank" href={`https://${appId}.app.budi.live/${appId}`}>
-            View Your Deployed App →
-          </a>
-          <Button primary on:click={() => modal.show()}>View webhooks</Button>
-        {/if}
+        <a target="_blank" href={`https://${appId}.app.budi.live/${appId}`}>
+          View Your Deployed App →
+        </a>
+        <Button primary on:click={() => modal.show()}>View webhooks</Button>
       </div>
     </header>
     <div class="deployment-list">
