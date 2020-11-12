@@ -9,9 +9,6 @@ function confirmAppId(possibleAppId) {
 }
 
 function tryGetFromCookie({ cookies }) {
-  if (!cookies) {
-    return undefined
-  }
   const cookie = cookies
     .split(COOKIE_SEPARATOR)
     .find(cookie => cookie.trim().startsWith("budibase:currentapp"))
@@ -45,3 +42,5 @@ export const getAppId = cookies => {
   }
   return appId
 }
+
+export const getAppIdFromPath = getAppId

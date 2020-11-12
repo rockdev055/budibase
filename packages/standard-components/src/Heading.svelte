@@ -1,4 +1,5 @@
 <script>
+  import { buildStyle } from "./buildStyle.js"
   export let className = ""
   export let type
   export let text = ""
