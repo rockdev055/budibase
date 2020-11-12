@@ -1,6 +1,4 @@
 <script>
-  import { authStore } from "../../component-sdk"
-
   export let onLoad
   export let logoUrl
   export let _bb
@@ -20,8 +18,14 @@
   }
 
   const logOut = () => {
-    authStore.actions.logOut()
-    location.reload()
+    // TODO: not the best way to clear cookie, try to find better way
+    const appId = location.pathname.split("/")[1]
+    if (appId) {
+      for (let environment of ["local", "cloud"]) {
+        document.cookie = `budibase:${appId}:${environment}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`
+      }
+    }
+    location.href = `/${appId}`
   }
 </script>
 

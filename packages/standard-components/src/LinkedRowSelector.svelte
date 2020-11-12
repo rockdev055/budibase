@@ -1,6 +1,6 @@
 <script>
   import { Label, Multiselect } from "@budibase/bbui"
-  import { fetchTableDefinition, fetchTableData } from "../../component-sdk"
+  import api from "./api"
   import { capitalise } from "./helpers"
 
   export let schema = {}
@@ -16,16 +16,22 @@
   $: fetchRows(linkedTableId)
   $: fetchTable(linkedTableId)
 
-  async function fetchTable(id) {
-    if (id != null) {
-      linkedTable = await fetchTableDefinition(id)
+  async function fetchTable() {
+    if (linkedTableId == null) {
+      return
     }
+    const FETCH_TABLE_URL = `/api/tables/${linkedTableId}`
+    const response = await api.get(FETCH_TABLE_URL)
+    linkedTable = await response.json()
   }
 
-  async function fetchRows(id) {
-    if (id != null) {
-      allRows = await fetchTableData(id)
+  async function fetchRows(linkedTableId) {
+    if (linkedTableId == null) {
+      return
     }
+    const FETCH_ROWS_URL = `/api/${linkedTableId}/rows`
+    const response = await api.get(FETCH_ROWS_URL)
+    allRows = await response.json()
   }
 
   function getPrettyName(row) {

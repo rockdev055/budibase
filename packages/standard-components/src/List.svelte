@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte"
-  import { fetchDatasource } from "../../component-sdk"
+  import fetchData from "./fetchData.js"
   import { isEmpty } from "lodash/fp"
 
   export let _bb
@@ -11,7 +11,7 @@
 
   onMount(async () => {
     if (!isEmpty(datasource)) {
-      const data = await fetchDatasource(datasource)
+      const data = await fetchData(datasource, $store)
       _bb.attachChildren(target, {
         hydrate: false,
         context: data,
