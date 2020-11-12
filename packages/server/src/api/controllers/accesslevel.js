@@ -2,8 +2,9 @@ const CouchDB = require("../../db")
 const {
   generateAdminPermissions,
   generatePowerUserPermissions,
-  BUILTIN_LEVELS,
-} = require("../../utilities/security/accessLevels")
+  POWERUSER_LEVEL_ID,
+  ADMIN_LEVEL_ID,
+} = require("../../utilities/accessLevels")
 const {
   generateAccessLevelID,
   getAccessLevelParams,
@@ -20,11 +21,13 @@ exports.fetch = async function(ctx) {
 
   const staticAccessLevels = [
     {
-      ...BUILTIN_LEVELS.admin,
+      _id: ADMIN_LEVEL_ID,
+      name: "Admin",
       permissions: await generateAdminPermissions(ctx.user.appId),
     },
     {
-      ...BUILTIN_LEVELS.power,
+      _id: POWERUSER_LEVEL_ID,
+      name: "Power User",
       permissions: await generatePowerUserPermissions(ctx.user.appId),
     },
   ]

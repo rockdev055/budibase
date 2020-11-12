@@ -2,8 +2,9 @@ const CouchDB = require("../../db")
 const bcrypt = require("../../utilities/bcrypt")
 const { generateUserID, getUserParams } = require("../../db/utils")
 const {
-  BUILTIN_LEVELS_IDS,
-} = require("../../utilities/security/accessLevels")
+  POWERUSER_LEVEL_ID,
+  ADMIN_LEVEL_ID,
+} = require("../../utilities/accessLevels")
 
 exports.fetch = async function(ctx) {
   const database = new CouchDB(ctx.user.appId)
@@ -88,7 +89,10 @@ exports.find = async function(ctx) {
 
 const checkAccessLevel = async (db, accessLevelId) => {
   if (!accessLevelId) return
-  if (BUILTIN_LEVELS_IDS.indexOf(accessLevelId) !== -1) {
+  if (
+    accessLevelId === POWERUSER_LEVEL_ID ||
+    accessLevelId === ADMIN_LEVEL_ID
+  ) {
     return {
       _id: accessLevelId,
       name: accessLevelId,

@@ -1,14 +1,17 @@
-const { BUILTIN_LEVELS } = require("../utilities/security/accessLevels")
-const { PermissionTypes } = require("../utilities/security/permissions")
+const {
+  adminPermissions,
+  ADMIN_LEVEL_ID,
+  POWERUSER_LEVEL_ID,
+  BUILDER_LEVEL_ID,
+  BUILDER,
+} = require("../utilities/accessLevels")
 const env = require("../environment")
 const { apiKeyTable } = require("../db/dynamoClient")
 const { AuthTypes } = require("../constants")
 
-const ADMIN_PERMS = [BUILTIN_LEVELS.admin._id, BUILTIN_LEVELS.builder._id]
-
 const LOCAL_PASS = new RegExp(["webhooks/trigger", "webhooks/schema"].join("|"))
 
-module.exports = (permType, permLevel = null) => async (ctx, next) => {
+module.exports = (permName, getItemId) => async (ctx, next) => {
   // webhooks can pass locally
   if (!env.CLOUD && LOCAL_PASS.test(ctx.request.url)) {
     return next()
@@ -34,7 +37,7 @@ module.exports = (permType, permLevel = null) => async (ctx, next) => {
   }
 
   // don't expose builder endpoints in the cloud
-  if (env.CLOUD && permType === PermissionTypes.BUILDER) return
+  if (env.CLOUD && permName === BUILDER) return
 
   if (!ctx.auth.authenticated) {
     ctx.throw(403, "Session not authenticated")
@@ -44,18 +47,41 @@ module.exports = (permType, permLevel = null) => async (ctx, next) => {
     ctx.throw(403, "User not found")
   }
 
-  if (ADMIN_PERMS.indexOf(ctx.user.accessLevel._id) !== -1) {
+  if (ctx.user.accessLevel._id === ADMIN_LEVEL_ID) {
     return next()
   }
 
-  if (permType === PermissionTypes.BUILDER) {
+  if (ctx.user.accessLevel._id === BUILDER_LEVEL_ID) {
+    return next()
+  }
+
+  if (permName === BUILDER) {
     ctx.throw(403, "Not Authorized")
     return
   }
 
-  // TODO: Replace the old permissions system here, check whether
-  // user has permission to use endpoint they are trying to access
-  return next()
+  const permissionId = ({ name, itemId }) => name + (itemId ? `-${itemId}` : "")
 
-  //ctx.throw(403, "Not Authorized")
+  const thisPermissionId = permissionId({
+    name: permName,
+    itemId: getItemId && getItemId(ctx),
+  })
+
+  // power user has everything, except the admin specific perms
+  if (
+    ctx.user.accessLevel._id === POWERUSER_LEVEL_ID &&
+    !adminPermissions.map(permissionId).includes(thisPermissionId)
+  ) {
+    return next()
+  }
+
+  if (
+    ctx.user.accessLevel.permissions
+      .map(permissionId)
+      .includes(thisPermissionId)
+  ) {
+    return next()
+  }
+
+  ctx.throw(403, "Not Authorized")
 }

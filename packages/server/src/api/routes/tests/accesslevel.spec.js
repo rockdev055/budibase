@@ -8,11 +8,11 @@ const {
 const {
   generateAdminPermissions,
   generatePowerUserPermissions,
-  BUILTIN_LEVELS,
+  POWERUSER_LEVEL_ID,
+  ADMIN_LEVEL_ID,
   READ_TABLE,
   WRITE_TABLE,
-} = require("../../../utilities/security/accessLevels")
-const { BUILTIN_PERMISSION_NAMES } = require("../../../utilities/security/permissions")
+} = require("../../../utilities/accessLevels")
 
 describe("/accesslevels", () => {
   let server
@@ -59,7 +59,7 @@ describe("/accesslevels", () => {
     it("should list custom levels, plus 2 default levels", async () => {
       const createRes = await request
         .post(`/api/accesslevels`)
-        .send({ name: "user", permissions: [BUILTIN_PERMISSION_NAMES.READ_ONLY] })
+        .send({ name: "user", permissions: [ { itemId: table._id, name: READ_TABLE }] })
         .set(defaultHeaders(appId))
         .expect('Content-Type', /json/)
         .expect(200)
@@ -74,11 +74,11 @@ describe("/accesslevels", () => {
 
       expect(res.body.length).toBe(3)
 
-      const adminLevel = res.body.find(r => r._id === BUILTIN_LEVELS.admin._id)
+      const adminLevel = res.body.find(r => r._id === ADMIN_LEVEL_ID)
       expect(adminLevel).toBeDefined()
       expect(adminLevel.permissions).toEqual(await generateAdminPermissions(appId))
 
-      const powerUserLevel = res.body.find(r => r._id === BUILTIN_LEVELS.power._id)
+      const powerUserLevel = res.body.find(r => r._id === POWERUSER_LEVEL_ID)
       expect(powerUserLevel).toBeDefined()
       expect(powerUserLevel.permissions).toEqual(await generatePowerUserPermissions(appId))
 
@@ -92,7 +92,7 @@ describe("/accesslevels", () => {
     it("should delete custom access level", async () => {
       const createRes = await request
         .post(`/api/accesslevels`)
-        .send({ name: "user", permissions: [BUILTIN_PERMISSION_NAMES.READ_ONLY] })
+        .send({ name: "user", permissions: [ { itemId: table._id, name: READ_TABLE } ] })
         .set(defaultHeaders(appId))
         .expect('Content-Type', /json/)
         .expect(200)
@@ -115,7 +115,7 @@ describe("/accesslevels", () => {
     it("should add given permissions", async () => {
       const createRes = await request
         .post(`/api/accesslevels`)
-        .send({ name: "user", permissions: [BUILTIN_PERMISSION_NAMES.READ_ONLY] })
+        .send({ name: "user", permissions: [ { itemId: table._id, name: READ_TABLE }] })
         .set(defaultHeaders(appId))
         .expect('Content-Type', /json/)
         .expect(200)
