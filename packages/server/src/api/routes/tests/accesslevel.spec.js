@@ -6,13 +6,9 @@ const {
   defaultHeaders
 } = require("./couchTestUtils")
 const {
-  generateAdminPermissions,
-  generatePowerUserPermissions,
-  POWERUSER_LEVEL_ID,
-  ADMIN_LEVEL_ID,
-  READ_TABLE,
-  WRITE_TABLE,
-} = require("../../../utilities/accessLevels")
+  BUILTIN_LEVELS,
+} = require("../../../utilities/security/accessLevels")
+const { BUILTIN_PERMISSION_NAMES } = require("../../../utilities/security/permissions")
 
 describe("/accesslevels", () => {
   let server
@@ -59,7 +55,7 @@ describe("/accesslevels", () => {
     it("should list custom levels, plus 2 default levels", async () => {
       const createRes = await request
         .post(`/api/accesslevels`)
-        .send({ name: "user", permissions: [ { itemId: table._id, name: READ_TABLE }] })
+        .send({ name: "user", permissions: [BUILTIN_PERMISSION_NAMES.READ_ONLY] })
         .set(defaultHeaders(appId))
         .expect('Content-Type', /json/)
         .expect(200)
@@ -74,16 +70,16 @@ describe("/accesslevels", () => {
 
       expect(res.body.length).toBe(3)
 
-      const adminLevel = res.body.find(r => r._id === ADMIN_LEVEL_ID)
+      const adminLevel = res.body.find(r => r._id === BUILTIN_LEVELS.admin._id)
       expect(adminLevel).toBeDefined()
-      expect(adminLevel.permissions).toEqual(await generateAdminPermissions(appId))
+      expect(adminLevel.permissions).toEqual([BUILTIN_PERMISSION_NAMES.ADMIN])
 
-      const powerUserLevel = res.body.find(r => r._id === POWERUSER_LEVEL_ID)
+      const powerUserLevel = res.body.find(r => r._id === BUILTIN_LEVELS.power._id)
       expect(powerUserLevel).toBeDefined()
-      expect(powerUserLevel.permissions).toEqual(await generatePowerUserPermissions(appId))
+      expect(powerUserLevel.permissions).toEqual([BUILTIN_PERMISSION_NAMES.POWER])
 
       const customLevelFetched = res.body.find(r => r._id === customLevel._id)
-      expect(customLevelFetched.permissions).toEqual(customLevel.permissions)
+      expect(customLevelFetched.permissions).toEqual([BUILTIN_PERMISSION_NAMES.READ_ONLY])
     })
     
   });
@@ -92,7 +88,7 @@ describe("/accesslevels", () => {
     it("should delete custom access level", async () => {
       const createRes = await request
         .post(`/api/accesslevels`)
-        .send({ name: "user", permissions: [ { itemId: table._id, name: READ_TABLE } ] })
+        .send({ name: "user", permissions: [BUILTIN_PERMISSION_NAMES.READ_ONLY] })
         .set(defaultHeaders(appId))
         .expect('Content-Type', /json/)
         .expect(200)
@@ -115,7 +111,7 @@ describe("/accesslevels", () => {
     it("should add given permissions", async () => {
       const createRes = await request
         .post(`/api/accesslevels`)
-        .send({ name: "user", permissions: [ { itemId: table._id, name: READ_TABLE }] })
+        .send({ name: "user", permissions: [BUILTIN_PERMISSION_NAMES.READ_ONLY] })
         .set(defaultHeaders(appId))
         .expect('Content-Type', /json/)
         .expect(200)
@@ -126,7 +122,7 @@ describe("/accesslevels", () => {
         .patch(`/api/accesslevels/${customLevel._id}`)
         .send({
           _rev: customLevel._rev,
-          addedPermissions:  [ { itemId: table._id, name: WRITE_TABLE } ] 
+          addedPermissions:  [ BUILTIN_PERMISSION_NAMES.WRITE ]
         })
         .set(defaultHeaders(appId))
         .expect('Content-Type', /json/)
@@ -138,8 +134,8 @@ describe("/accesslevels", () => {
         .expect(200) 
 
       expect(finalRes.body.permissions.length).toBe(2)
-      expect(finalRes.body.permissions.some(p => p.name === WRITE_TABLE)).toBe(true)
-      expect(finalRes.body.permissions.some(p => p.name === READ_TABLE)).toBe(true)
+      expect(finalRes.body.permissions.indexOf(BUILTIN_PERMISSION_NAMES.WRITE)).not.toBe(-1)
+      expect(finalRes.body.permissions.indexOf(BUILTIN_PERMISSION_NAMES.READ_ONLY)).not.toBe(-1)
     })
 
     it("should remove given permissions", async () => {
@@ -147,9 +143,9 @@ describe("/accesslevels", () => {
         .post(`/api/accesslevels`)
         .send({ 
           name: "user", 
-          permissions: [ 
-            { itemId: table._id, name: READ_TABLE },
-            { itemId: table._id, name: WRITE_TABLE },
+          permissions: [
+            BUILTIN_PERMISSION_NAMES.READ_ONLY,
+            BUILTIN_PERMISSION_NAMES.WRITE,
           ] 
         })
         .set(defaultHeaders(appId))
@@ -162,7 +158,7 @@ describe("/accesslevels", () => {
         .patch(`/api/accesslevels/${customLevel._id}`)
         .send({
           _rev: customLevel._rev,
-          removedPermissions:  [ { itemId: table._id, name: WRITE_TABLE }] 
+          removedPermissions:  [BUILTIN_PERMISSION_NAMES.WRITE]
         })
         .set(defaultHeaders(appId))
         .expect('Content-Type', /json/)
@@ -174,7 +170,7 @@ describe("/accesslevels", () => {
         .expect(200) 
 
       expect(finalRes.body.permissions.length).toBe(1)
-      expect(finalRes.body.permissions.some(p => p.name === READ_TABLE)).toBe(true)
+      expect(finalRes.body.permissions.indexOf(BUILTIN_PERMISSION_NAMES.READ_ONLY)).not.toBe(-1)
     })
   })
 });
