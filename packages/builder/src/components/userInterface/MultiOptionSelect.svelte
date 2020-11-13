@@ -7,6 +7,8 @@
   export let onChange = () => {}
 
   let boundValue = getValidOptions(value, options)
+  $: setValue(boundValue)
+  $: sanitiseOptions(options)
 
   function getValidOptions(selectedOptions, allOptions) {
     // Fix the hardcoded default string value
@@ -16,14 +18,17 @@
     return selectedOptions.filter(val => allOptions.indexOf(val) !== -1)
   }
 
-  function setValue(value) {
-    boundValue = getValidOptions(value.detail, options)
-    onChange(boundValue)
+  function setValue(val) {
+    onChange(val)
+  }
+
+  function sanitiseOptions(options) {
+    boundValue = getValidOptions(value, options)
   }
 </script>
 
 <div>
-  <Multiselect extraThin secondary value={boundValue} on:change={setValue}>
+  <Multiselect extraThin secondary bind:value={boundValue}>
     {#each options as option}
       <option value={option}>{option}</option>
     {/each}

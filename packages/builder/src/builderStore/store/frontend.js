@@ -193,8 +193,8 @@ export const getFrontendStore = () => {
             )
             state.currentComponentInfo = safeProps
             screen.props = safeProps
+            savePromise = store.actions.pages.save()
           }
-          savePromise = store.actions.pages.save()
 
           return state
         })
@@ -223,7 +223,7 @@ export const getFrontendStore = () => {
             // TODO: Should be done server side
             state.pages[pageName]._screens = state.pages[
               pageName
-            ]._screens.filter(scr => scr._id !== screenToDelete._id)
+            ]._screens.filter(scr => scr.name !== screenToDelete.name)
             deletePromise = api.delete(
               `/api/screens/${screenToDelete._id}/${screenToDelete._rev}`
             )
@@ -277,20 +277,18 @@ export const getFrontendStore = () => {
         const pageToSave = page || storeContents.pages[pageName]
 
         // TODO: revisit. This sends down a very weird payload
-        const response = await api.post(`/api/pages/${pageToSave._id}`, {
-          page: {
-            componentLibraries: storeContents.pages.componentLibraries,
-            ...pageToSave,
-          },
-          screens: pageToSave._screens,
-        })
-
-        const json = await response.json()
-
-        if (!json.ok) throw new Error("Error updating page")
+        const response = await api
+          .post(`/api/pages/${pageToSave._id}`, {
+            page: {
+              componentLibraries: storeContents.pages.componentLibraries,
+              ...pageToSave,
+            },
+            screens: pageToSave._screens,
+          })
+          .then(response => response.json())
 
         store.update(state => {
-          state.pages[pageName]._rev = json.rev
+          state.pages[pageName]._rev = response.rev
           return state
         })
       },
@@ -306,6 +304,7 @@ export const getFrontendStore = () => {
           return state
         })
       },
+      // addChildComponent
       create: (componentToAdd, presetProps) => {
         store.update(state => {
           function findSlot(component_array) {

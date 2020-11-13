@@ -39,13 +39,9 @@
       class="category"
       on:click={() => onCategoryChosen(category, idx)}
       class:active={idx === selectedIndex}>
-      {#if category.icon}
-        <i class={category.icon} />
-      {/if}
+      {#if category.icon}<i class={category.icon} />{/if}
       <span>{category.name}</span>
-      {#if category.isCategory}
-        <i class="ri-arrow-down-s-line arrow" />
-      {/if}
+      {#if category.isCategory}<i class="ri-arrow-down-s-line arrow" />{/if}
     </div>
   {/each}
 </div>
@@ -72,6 +68,7 @@
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
+    z-index: 1;
     min-height: 24px;
     flex-wrap: wrap;
     gap: var(--spacing-l);
