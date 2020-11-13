@@ -22,7 +22,6 @@ const {
   templatesRoutes,
   analyticsRoutes,
   webhookRoutes,
-  routingRoutes,
 } = require("./routes")
 
 const router = new Router()
@@ -121,9 +120,6 @@ router.use(analyticsRoutes.allowedMethods())
 
 router.use(staticRoutes.routes())
 router.use(staticRoutes.allowedMethods())
-
-router.use(routingRoutes.routes())
-router.use(routingRoutes.allowedMethods())
 
 router.redirect("/", "/_builder")
 

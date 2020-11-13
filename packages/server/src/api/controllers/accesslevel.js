@@ -1,8 +1,10 @@
 const CouchDB = require("../../db")
-const { BUILTIN_LEVELS } = require("../../utilities/security/accessLevels")
 const {
-  BUILTIN_PERMISSION_NAMES,
-} = require("../../utilities/security/permissions")
+  generateAdminPermissions,
+  generatePowerUserPermissions,
+  POWERUSER_LEVEL_ID,
+  ADMIN_LEVEL_ID,
+} = require("../../utilities/accessLevels")
 const {
   generateAccessLevelID,
   getAccessLevelParams,
@@ -19,12 +21,14 @@ exports.fetch = async function(ctx) {
 
   const staticAccessLevels = [
     {
-      ...BUILTIN_LEVELS.admin,
-      permissions: [BUILTIN_PERMISSION_NAMES.ADMIN],
+      _id: ADMIN_LEVEL_ID,
+      name: "Admin",
+      permissions: await generateAdminPermissions(ctx.user.appId),
     },
     {
-      ...BUILTIN_LEVELS.power,
-      permissions: [BUILTIN_PERMISSION_NAMES.POWER],
+      _id: POWERUSER_LEVEL_ID,
+      name: "Power User",
+      permissions: await generatePowerUserPermissions(ctx.user.appId),
     },
   ]
 
@@ -58,13 +62,22 @@ exports.patch = async function(ctx) {
 
   if (removedPermissions) {
     level.permissions = level.permissions.filter(
-      permission => removedPermissions.indexOf(permission) === -1
+      p =>
+        !removedPermissions.some(
+          rem => rem.name === p.name && rem.itemId === p.itemId
+        )
     )
   }
 
   if (addedPermissions) {
     level.permissions = [
-      ...new Set([...addedPermissions, ...level.permissions]),
+      ...level.permissions.filter(
+        p =>
+          !addedPermissions.some(
+            add => add.name === p.name && add.itemId === p.itemId
+          )
+      ),
+      ...addedPermissions,
     ]
   }
 

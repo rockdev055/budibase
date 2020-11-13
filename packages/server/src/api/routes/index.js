@@ -15,7 +15,6 @@ const deployRoutes = require("./deploy")
 const apiKeysRoutes = require("./apikeys")
 const templatesRoutes = require("./templates")
 const analyticsRoutes = require("./analytics")
-const routingRoutes = require("./routing")
 
 module.exports = {
   deployRoutes,
@@ -35,5 +34,4 @@ module.exports = {
   templatesRoutes,
   analyticsRoutes,
   webhookRoutes,
-  routingRoutes,
 }
