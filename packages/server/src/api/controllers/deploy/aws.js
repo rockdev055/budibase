@@ -2,10 +2,45 @@ const fs = require("fs")
 const { join } = require("../../../utilities/centralPath")
 const AWS = require("aws-sdk")
 const fetch = require("node-fetch")
+const uuid = require("uuid")
 const sanitize = require("sanitize-s3-objectkey")
 const { budibaseAppsDir } = require("../../../utilities/budibaseDir")
 const PouchDB = require("../../../db")
 const env = require("../../../environment")
+
+async function invalidateCDN(cfDistribution, appId) {
+  const cf = new AWS.CloudFront({})
+  const resp = await cf
+    .createInvalidation({
+      DistributionId: cfDistribution,
+      InvalidationBatch: {
+        CallerReference: `${appId}-${uuid.v4()}`,
+        Paths: {
+          Quantity: 1,
+          Items: [`/assets/${appId}/*`],
+        },
+      },
+    })
+    .promise()
+  return resp.Invalidation.Id
+}
+
+exports.isInvalidationComplete = async function(
+  distributionId,
+  invalidationId
+) {
+  if (distributionId == null || invalidationId == null) {
+    return false
+  }
+  const cf = new AWS.CloudFront({})
+  const resp = await cf
+    .getInvalidation({
+      DistributionId: distributionId,
+      Id: invalidationId,
+    })
+    .promise()
+  return resp.Invalidation.Status === "Completed"
+}
 
 /**
  * Finalises the deployment, updating the quota for the user API key
@@ -127,7 +162,12 @@ async function prepareUploadForS3({ s3Key, metadata, s3, file }) {
 
 exports.prepareUploadForS3 = prepareUploadForS3
 
-exports.uploadAppAssets = async function({ appId, bucket, accountId }) {
+exports.uploadAppAssets = async function({
+  appId,
+  bucket,
+  cfDistribution,
+  accountId,
+}) {
   const s3 = new AWS.S3({
     params: {
       Bucket: bucket,
@@ -184,7 +224,8 @@ exports.uploadAppAssets = async function({ appId, bucket, accountId }) {
   db.put(fileUploads)
 
   try {
-    return await Promise.all(uploads)
+    await Promise.all(uploads)
+    return await invalidateCDN(cfDistribution, appId)
   } catch (err) {
     console.error("Error uploading budibase app assets to s3", err)
     throw err

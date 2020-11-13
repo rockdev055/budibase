@@ -49,8 +49,8 @@
       baseComponent = draftScreen.props._component
     }
 
-    if (draftScreen.routing) {
-      route = draftScreen.routing.route
+    if (draftScreen.route) {
+      route = draftScreen.route
     }
   }
 
@@ -69,8 +69,7 @@
 
     draftScreen.props._instanceName = name
     draftScreen.props._component = baseComponent
-    // TODO: need to fix this up correctly
-    draftScreen.routing = { route, accessLevelId: "ADMIN" }
+    draftScreen.route = route
 
     await store.actions.screens.create(draftScreen)
     if (createLink) {
@@ -89,7 +88,7 @@
 
   const routeNameExists = route => {
     return $allScreens.some(
-      screen => screen.routing.route.toLowerCase() === route.toLowerCase()
+      screen => screen.route.toLowerCase() === route.toLowerCase()
     )
   }
 
