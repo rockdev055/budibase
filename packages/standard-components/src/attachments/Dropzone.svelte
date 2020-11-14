@@ -1,6 +1,6 @@
 <script>
-  import { Dropzone } from "@budibase/bbui"
-  import { uploadAttachment } from "@budibase/component-sdk"
+  import { Heading, Body, Button, Dropzone } from "@budibase/bbui"
+  import { FILE_TYPES } from "./fileTypes"
 
   const BYTES_IN_MB = 1000000
 
@@ -15,10 +15,20 @@
 
   async function processFiles(fileList) {
     let data = new FormData()
-    for (let i = 0; i < fileList.length; i++) {
+    for (var i = 0; i < fileList.length; i++) {
       data.append("file", fileList[i])
     }
-    return await uploadAttachment(data)
+
+    const response = await fetch("/api/attachments/upload", {
+      method: "POST",
+      body: data,
+      headers: {
+        Accept: "application/json",
+      },
+    })
+
+    const processedFiles = await response.json()
+    return processedFiles
   }
 </script>
 

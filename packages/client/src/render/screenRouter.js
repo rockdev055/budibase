@@ -1,6 +1,6 @@
 import regexparam from "regexparam"
 import appStore from "../state/store"
-import { getAppId } from "@budibase/component-sdk"
+import { getAppId } from "./getAppId"
 
 export const screenRouter = ({ screens, onScreenSelected, window }) => {
   function sanitize(url) {
@@ -27,7 +27,7 @@ export const screenRouter = ({ screens, onScreenSelected, window }) => {
 
   const makeRootedPath = url => {
     if (isRunningLocally()) {
-      const appId = getAppId()
+      const appId = getAppId(window.document.cookie)
       if (url) {
         url = sanitize(url)
         if (!url.startsWith("/")) {

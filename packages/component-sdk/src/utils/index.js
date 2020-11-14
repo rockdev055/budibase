@@ -1,1 +1,0 @@
-export { getAppId } from "./getAppId"
