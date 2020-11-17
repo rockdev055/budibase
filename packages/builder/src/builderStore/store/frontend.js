@@ -50,7 +50,6 @@ export const getFrontendStore = () => {
         return state
       })
       const screens = await api.get("/api/screens").then(r => r.json())
-      const routing = await api.get("/api/routing").then(r => r.json())
 
       const mainScreens = screens.filter(screen =>
           screen._id.includes(pkg.pages.main._id)
@@ -217,9 +216,9 @@ export const getFrontendStore = () => {
           if (pageName == null) {
             pageName = state.pages.main.name
           }
-          for (let screenToDelete of Array.isArray(screensToDelete)
-            ? screensToDelete
-            : [screensToDelete]) {
+          for (let screenToDelete of Array.isArray(screenToDelete)
+            ? screenToDelete
+            : [screenToDelete]) {
             // Remove screen from current page as well
             // TODO: Should be done server side
             state.pages[pageName]._screens = state.pages[

@@ -2,11 +2,7 @@ const Router = require("@koa/router")
 const controller = require("../controllers/automation")
 const authorized = require("../../middleware/authorized")
 const joiValidator = require("../../middleware/joi-validator")
-const {
-  BUILDER,
-  PermissionLevels,
-  PermissionTypes,
-} = require("../../utilities/security/permissions")
+const { BUILDER, EXECUTE_AUTOMATION } = require("../../utilities/accessLevels")
 const Joi = require("joi")
 
 const router = Router()
@@ -79,7 +75,7 @@ router
   )
   .post(
     "/api/automations/:id/trigger",
-    authorized(PermissionTypes.AUTOMATION, PermissionLevels.EXECUTE),
+    authorized(EXECUTE_AUTOMATION),
     controller.trigger
   )
   .delete("/api/automations/:id/:rev", authorized(BUILDER), controller.destroy)
