@@ -1,6 +1,5 @@
 <script>
   import { onMount } from "svelte"
-  import { fetchTableDefinition } from "@budibase/component-sdk"
 
   export let _bb
   export let table
@@ -13,9 +12,15 @@
 
   let target
 
+  async function fetchTable(id) {
+    const FETCH_TABLE_URL = `/api/tables/${id}`
+    const response = await _bb.api.get(FETCH_TABLE_URL)
+    return await response.json()
+  }
+
   onMount(async () => {
     if (table && typeof table === "string") {
-      const tableObj = await fetchTableDefinition(table)
+      const tableObj = await fetchTable(table)
       row.tableId = table
       row._table = tableObj
       _bb.attachChildren(target, {

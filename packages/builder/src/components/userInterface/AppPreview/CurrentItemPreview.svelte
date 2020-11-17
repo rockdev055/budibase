@@ -17,7 +17,7 @@
   }
 
   const getComponentTypeName = component => {
-    let [componentName] = component._component.match(/[a-zA-Z]*$/)
+    let [componentName] = component._component.match(/[a-z]*$/)
     return componentName || "element"
   }
 

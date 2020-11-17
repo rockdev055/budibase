@@ -44,11 +44,9 @@ export default `<html>
           if (selectedComponentStyle) document.head.removeChild(selectedComponentStyle)
         } catch(_) { }
 
-        console.log(data.selectedComponentType)
-        
         selectedComponentStyle = document.createElement('style');
         document.head.appendChild(selectedComponentStyle)
-        var selectedCss = '[data-bb-id="' + data.selectedComponentType + '-' + data.selectedComponentId + '"]'  + '{border:2px solid #0055ff !important;}'
+        var selectedCss = '.' + data.selectedComponentType + '-' + data.selectedComponentId + '{ border: 2px solid #0055ff;  }'
         selectedComponentStyle.appendChild(document.createTextNode(selectedCss))
 
         styles = document.createElement('style')
