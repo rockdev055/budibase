@@ -1,4 +1,6 @@
 <script>
+  import { buildStyle } from "./buildStyle"
+
   export let className = ""
   export let url = ""
   export let description = ""
@@ -6,6 +8,8 @@
   export let width
 
   export let _bb
+
+  $: style = buildStyle({ height, width })
 </script>
 
-<img {height} {width} class={className} src={url} alt={description} />
+<img class={className} {style} src={url} alt={description} />
