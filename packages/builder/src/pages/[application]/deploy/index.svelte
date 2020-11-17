@@ -17,16 +17,19 @@
   $: appId = $store.appId
 
   async function deployApp() {
+    loading = true
     const DEPLOY_URL = `/api/deploy`
 
     try {
-      notifier.info(`Deployment started. Please wait.`)
+      notifier.info("Starting Deployment..")
       const response = await api.post(DEPLOY_URL)
       const json = await response.json()
       if (response.status !== 200) {
         throw new Error()
       }
 
+      notifier.info(`Deployment started. Please wait.`)
+      loading = false
       analytics.captureEvent("Deployed App", {
         appId,
       })
@@ -40,6 +43,7 @@
       })
       analytics.captureException(err)
       notifier.danger("Deployment unsuccessful. Please try again later.")
+      loading = false
     }
   }
 </script>
@@ -47,7 +51,13 @@
 <section>
   <div>
     <h4>It's time to shine!</h4>
-    <Button secondary medium on:click={deployApp}>Deploy App</Button>
+    <Button secondary medium on:click={deployApp}>
+      Deploy App
+      {#if loading}
+        <Spacer extraSmall />
+        <Spinner size="10" />
+      {/if}
+    </Button>
   </div>
   <img
     src="/_builder/assets/deploy-rocket.jpg"

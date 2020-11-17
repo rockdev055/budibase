@@ -1,6 +1,6 @@
 const { existsSync, readFile, writeFile, ensureDir } = require("fs-extra")
 const { join, resolve } = require("./centralPath")
-const handlebars = require("handlebars")
+const Sqrl = require("squirrelly")
 const uuid = require("uuid")
 
 module.exports = async opts => {
@@ -31,8 +31,7 @@ const createDevEnvFile = async opts => {
       }
     )
     opts.cookieKey1 = opts.cookieKey1 || uuid.v4()
-    const envTemplate = handlebars.compile(template)
-    const config = envTemplate(opts)
+    const config = Sqrl.Render(template, opts)
     await writeFile(destConfigFile, config, { flag: "w+" })
   }
 }

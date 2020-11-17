@@ -1,5 +1,3 @@
-const { BUILTIN_LEVEL_IDS } = require("../utilities/security/accessLevels")
-
 exports.HOME_SCREEN = {
   description: "",
   url: "",
@@ -100,9 +98,6 @@ exports.HOME_SCREEN = {
     ],
     _instanceName: "Home",
   },
-  routing: {
-    route: "/",
-    accessLevelId: BUILTIN_LEVEL_IDS.BASIC,
-  },
+  route: "/",
   name: "d834fea2-1b3e-4320-ab34-f9009f5ecc59",
 }

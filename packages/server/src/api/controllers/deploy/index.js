@@ -4,6 +4,7 @@ const {
   uploadAppAssets,
   verifyDeployment,
   updateDeploymentQuota,
+  isInvalidationComplete,
 } = require("./aws")
 const { DocumentTypes, SEPARATOR, UNICODE_MAX } = require("../../../db/utils")
 const newid = require("../../../db/newid")
@@ -19,10 +20,12 @@ const DeploymentStatus = {
 }
 
 // checks that deployments are in a good state, any pending will be updated
-async function checkAllDeployments(deployments) {
+async function checkAllDeployments(deployments, user) {
   let updated = false
   function update(deployment, status) {
     deployment.status = status
+    delete deployment.invalidationId
+    delete deployment.cfDistribution
     updated = true
   }
 
@@ -33,6 +36,37 @@ async function checkAllDeployments(deployments) {
       Date.now() - deployment.updatedAt > MAX_PENDING_TIME_MS
     ) {
       update(deployment, DeploymentStatus.FAILURE)
+    }
+    // if pending but not past failure point need to update them
+    else if (deployment.status === DeploymentStatus.PENDING) {
+      let complete = false
+      try {
+        complete = await isInvalidationComplete(
+          deployment.cfDistribution,
+          deployment.invalidationId
+        )
+      } catch (err) {
+        // system may have restarted, need to re-verify
+        if (
+          err !== undefined &&
+          err.code === "InvalidClientTokenId" &&
+          deployment.quota
+        ) {
+          await verifyDeployment({
+            ...user,
+            quota: deployment.quota,
+          })
+          complete = await isInvalidationComplete(
+            deployment.cfDistribution,
+            deployment.invalidationId
+          )
+        } else {
+          throw err
+        }
+      }
+      if (complete) {
+        update(deployment, DeploymentStatus.SUCCESS)
+      }
     }
   }
   return { updated, deployments }
@@ -123,7 +157,7 @@ async function deployApp({ appId, deploymentId }) {
 
     console.log(`Uploading assets for appID ${appId} assets to s3..`)
 
-    await uploadAppAssets({
+    const invalidationId = await uploadAppAssets({
       appId,
       ...verification,
     })
@@ -140,9 +174,10 @@ async function deployApp({ appId, deploymentId }) {
     await storeLocalDeploymentHistory({
       _id: deploymentId,
       appId,
+      invalidationId,
       cfDistribution: verification.cfDistribution,
       quota: verification.quota,
-      status: DeploymentStatus.SUCCESS,
+      status: DeploymentStatus.PENDING,
     })
   } catch (err) {
     await storeLocalDeploymentHistory({
@@ -191,7 +226,7 @@ exports.deployApp = async function(ctx) {
     status: DeploymentStatus.PENDING,
   })
 
-  deployApp({
+  await deployApp({
     ...ctx.user,
     deploymentId: deployment._id,
   })
