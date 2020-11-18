@@ -1,28 +1,23 @@
 <script>
   import { onMount } from "svelte"
-  import {
-    fetchDatasource,
-    styleable,
-    DataProvider,
-  } from "@budibase/component-sdk"
+  import fetchData from "./fetchData.js"
   import { isEmpty } from "lodash/fp"
 
+  export let _bb
   export let datasource = []
-  export let styles
 
-  let rows = []
+  let target
+  let store = _bb.store
 
   onMount(async () => {
     if (!isEmpty(datasource)) {
-      rows = await fetchDatasource(datasource)
+      const data = await fetchData(datasource, $store)
+      _bb.attachChildren(target, {
+        hydrate: false,
+        context: data,
+      })
     }
   })
 </script>
 
-<div use:styleable={styles}>
-  {#each rows as row}
-    <DataProvider {row}>
-      <slot />
-    </DataProvider>
-  {/each}
-</div>
+<section bind:this={target} />
