@@ -1,63 +1,50 @@
 <script>
-  import { getContext } from "svelte"
-
-  const { styleable } = getContext("app")
+  import { cssVars, createClasses } from "./cssVars"
 
   export let className = ""
+  export let onLoad
   export let type = "div"
-  export let styles
+  export let _bb
+
+  let containerElement
+  let hasLoaded
+  let currentChildren
+
+  $: {
+    if (containerElement) {
+      _bb.attachChildren(containerElement)
+      if (!hasLoaded) {
+        _bb.call("onLoad")
+        hasLoaded = true
+      }
+    }
+  }
 </script>
 
 {#if type === 'div'}
-  <div use:styleable={styles}>
-    <slot />
-  </div>
+  <div bind:this={containerElement} />
 {:else if type === 'header'}
-  <header use:styleable={styles}>
-    <slot />
-  </header>
+  <header bind:this={containerElement} />
 {:else if type === 'main'}
-  <main use:styleable={styles}>
-    <slot />
-  </main>
+  <main bind:this={containerElement} />
 {:else if type === 'footer'}
-  <footer use:styleable={styles}>
-    <slot />
-  </footer>
+  <footer bind:this={containerElement} />
 {:else if type === 'aside'}
-  <aside use:styleable={styles}>
-    <slot />
-  </aside>
+  <aside bind:this={containerElement} />
 {:else if type === 'summary'}
-  <summary use:styleable={styles}>
-    <slot />
-  </summary>
+  <summary bind:this={containerElement} />
 {:else if type === 'details'}
-  <details use:styleable={styles}>
-    <slot />
-  </details>
+  <details bind:this={containerElement} />
 {:else if type === 'article'}
-  <article use:styleable={styles}>
-    <slot />
-  </article>
+  <article bind:this={containerElement} />
 {:else if type === 'nav'}
-  <nav use:styleable={styles}>
-    <slot />
-  </nav>
+  <nav bind:this={containerElement} />
 {:else if type === 'mark'}
-  <mark use:styleable={styles}>
-    <slot />
-  </mark>
+  <mark bind:this={containerElement} />
 {:else if type === 'figure'}
-  <figure use:styleable={styles}>
-    <slot />
-  </figure>
+  <figure bind:this={containerElement} />
 {:else if type === 'figcaption'}
-  <figcaption use:styleable={styles}>
-    <slot />
-  </figcaption>
+  <figcaption bind:this={containerElement} />
 {:else if type === 'paragraph'}
-  <p use:styleable={styles}>
-    <slot />
-  </p>
+  <p bind:this={containerElement} />
 {/if}
