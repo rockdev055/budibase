@@ -16,7 +16,7 @@
     store.actions.screens.delete(screen, $store.currentPageName)
     // update the page if required
     store.update(state => {
-      if (state.currentPreviewItem._id === screen._id) {
+      if (state.currentPreviewItem.name === screen.name) {
         store.actions.pages.select($store.currentPageName)
         notifier.success(`Screen ${screen.name} deleted successfully.`)
         $goto(`./:page/page-layout`)

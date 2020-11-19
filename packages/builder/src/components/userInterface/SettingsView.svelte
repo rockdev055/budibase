@@ -50,8 +50,8 @@
   const isDuplicateName = name => {
     let duplicate = false
 
-    const lookForDuplicate = rootProps => {
-      walkProps(rootProps, (inst, cancel) => {
+    const lookForDuplicate = rootPops => {
+      walkProps(rootPops, (inst, cancel) => {
         if (inst._instanceName === name && inst._id !== componentInstance._id) {
           duplicate = true
           cancel()
@@ -62,7 +62,7 @@
     lookForDuplicate($store.pages[$store.currentPageName].props)
     if (duplicate) return true
 
-    // if viewing screen, check current screen for duplicate
+    // if viwing screen, check current screen for duplicate
     if ($store.currentFrontEndType === "screen") {
       lookForDuplicate($store.currentPreviewItem.props)
     } else {
