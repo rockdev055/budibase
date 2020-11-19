@@ -50,7 +50,6 @@ export const getFrontendStore = () => {
         return state
       })
       const screens = await api.get("/api/screens").then(r => r.json())
-      const routing = await api.get("/api/routing").then(r => r.json())
 
       const mainScreens = screens.filter(screen =>
           screen._id.includes(pkg.pages.main._id)
@@ -124,9 +123,9 @@ export const getFrontendStore = () => {
       })
     },
     screens: {
-      select: screenId => {
+      select: screenName => {
         store.update(state => {
-          const screen = get(allScreens).find(screen => screen._id === screenId)
+          const screen = getExactComponent(get(allScreens), screenName, true)
           state.currentPreviewItem = screen
           state.currentFrontEndType = "screen"
           state.currentView = "detail"
@@ -378,7 +377,7 @@ export const getFrontendStore = () => {
               component._id
             )
             parent._children = parent._children.filter(
-              child => child._id !== component._id
+              c => c._id !== component._id
             )
             store.actions.components.select(parent)
           }

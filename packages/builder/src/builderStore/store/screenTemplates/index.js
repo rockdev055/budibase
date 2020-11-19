@@ -24,7 +24,7 @@ const createTemplateOverride = (frontendState, create) => () => {
   }
   screen.props._id = uuid()
   screen.name = screen.props._id
-  screen.routing.route = screen.routing.route.toLowerCase()
+  screen.route = screen.route.toLowerCase()
   return screen
 }
 
