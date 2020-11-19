@@ -1,27 +1,12 @@
 <script>
-  import { onMount } from "svelte"
   import { store, currentScreens } from "builderStore"
-  import api from "builderStore/api"
-  import ComponentNavigationTree from "components/userInterface/ComponentNavigationTree/index.svelte"
+  import ComponentsHierarchy from "components/userInterface/ComponentsHierarchy.svelte"
   import PageLayout from "components/userInterface/PageLayout.svelte"
   import PagesList from "components/userInterface/PagesList.svelte"
   import NewScreenModal from "components/userInterface/NewScreenModal.svelte"
   import { Modal } from "@budibase/bbui"
 
   let modal
-
-  let routes = {}
-
-  async function fetchRoutes() {
-    const response = await api.get("/api/routing")
-    const json = await response.json()
-
-    routes = json.routes
-  }
-
-  onMount(() => {
-    fetchRoutes()
-  })
 </script>
 
 <div class="title">
@@ -31,7 +16,7 @@
 <PagesList />
 <div class="nav-items-container">
   <PageLayout layout={$store.pages[$store.currentPageName]} />
-  <ComponentNavigationTree {routes} />
+  <ComponentsHierarchy screens={$currentScreens} />
 </div>
 <Modal bind:this={modal}>
   <NewScreenModal />

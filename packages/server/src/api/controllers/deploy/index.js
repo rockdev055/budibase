@@ -21,15 +21,18 @@ const DeploymentStatus = {
 // checks that deployments are in a good state, any pending will be updated
 async function checkAllDeployments(deployments) {
   let updated = false
+  function update(deployment, status) {
+    deployment.status = status
+    updated = true
+  }
+
   for (let deployment of Object.values(deployments.history)) {
     // check that no deployments have crashed etc and are now stuck
     if (
       deployment.status === DeploymentStatus.PENDING &&
       Date.now() - deployment.updatedAt > MAX_PENDING_TIME_MS
     ) {
-      deployment.status = status
-      deployment.err = "Timed out"
-      updated = true
+      update(deployment, DeploymentStatus.FAILURE)
     }
   }
   return { updated, deployments }

@@ -5,7 +5,8 @@ import {
   getBuiltin,
   makePropsSafe,
 } from "components/userInterface/pagesParsing/createProps"
-import { allScreens, backendUiStore, selectedPage } from "builderStore"
+import { getExactComponent } from "components/userInterface/pagesParsing/searchComponents"
+import { allScreens, backendUiStore } from "builderStore"
 import { generate_screen_css } from "../generate_css"
 import { fetchComponentLibDefinitions } from "../loadComponentLibraries"
 import api from "../api"
@@ -111,9 +112,10 @@ export const getFrontendStore = () => {
       store.update(state => {
         state.currentFrontEndType = type
 
-        const page = get(selectedPage)
-
-        const pageOrScreen = type === "page" ? page : page._screens[0]
+        const pageOrScreen =
+          type === "page"
+            ? state.pages[state.currentPageName]
+            : state.pages[state.currentPageName]._screens[0]
 
         state.currentComponentInfo = pageOrScreen ? pageOrScreen.props : null
         state.currentPreviewItem = pageOrScreen
@@ -122,9 +124,9 @@ export const getFrontendStore = () => {
       })
     },
     screens: {
-      select: screenId => {
+      select: screenName => {
         store.update(state => {
-          const screen = get(allScreens).find(screen => screen._id === screenId)
+          const screen = getExactComponent(get(allScreens), screenName, true)
           state.currentPreviewItem = screen
           state.currentFrontEndType = "screen"
           state.currentView = "detail"
@@ -157,25 +159,32 @@ export const getFrontendStore = () => {
         await savePromise
       },
       save: async screen => {
-        const page = get(selectedPage)
-        const currentPageScreens = page._screens
+        const storeContents = get(store)
+        const pageName = storeContents.currentPageName || "main"
+        const currentPage = storeContents.pages[pageName]
+        const currentPageScreens = currentPage._screens
 
         const creatingNewScreen = screen._id === undefined
 
         let savePromise
-        const response = await api.post(`/api/screens/${page._id}`, screen)
+        const response = await api.post(
+          `/api/screens/${currentPage._id}`,
+          screen
+        )
         const json = await response.json()
         screen._rev = json.rev
         screen._id = json.id
-        const foundScreen = page._screens.findIndex(el => el._id === screen._id)
+        const foundScreen = currentPageScreens.findIndex(
+          el => el._id === screen._id
+        )
         if (foundScreen !== -1) {
-          page._screens.splice(foundScreen, 1)
+          currentPageScreens.splice(foundScreen, 1)
         }
-        page._screens.push(screen)
+        currentPageScreens.push(screen)
 
         // TODO: should carry out all server updates to screen in a single call
         store.update(state => {
-          page._screens = currentPageScreens
+          state.pages[pageName]._screens = currentPageScreens
 
           if (creatingNewScreen) {
             state.currentPreviewItem = screen
@@ -185,8 +194,8 @@ export const getFrontendStore = () => {
             )
             state.currentComponentInfo = safeProps
             screen.props = safeProps
+            savePromise = store.actions.pages.save()
           }
-          savePromise = store.actions.pages.save()
 
           return state
         })
@@ -201,21 +210,21 @@ export const getFrontendStore = () => {
           store.actions.screens.regenerateCss(currentPreviewItem)
         }
       },
-      delete: async screens => {
+      delete: async (screensToDelete, pageName) => {
         let deletePromise
 
-        const screensToDelete = Array.isArray(screens) ? screens : [screens]
-
         store.update(state => {
-          const currentPage = get(selectedPage)
-
-          for (let screenToDelete of screensToDelete) {
+          if (pageName == null) {
+            pageName = state.pages.main.name
+          }
+          for (let screenToDelete of Array.isArray(screensToDelete)
+            ? screensToDelete
+            : [screensToDelete]) {
             // Remove screen from current page as well
             // TODO: Should be done server side
-            currentPage._screens = currentPage._screens.filter(
-              scr => scr._id !== screenToDelete._id
-            )
-
+            state.pages[pageName]._screens = state.pages[
+              pageName
+            ]._screens.filter(scr => scr.name !== screenToDelete.name)
             deletePromise = api.delete(
               `/api/screens/${screenToDelete._id}/${screenToDelete._rev}`
             )
@@ -269,20 +278,18 @@ export const getFrontendStore = () => {
         const pageToSave = page || storeContents.pages[pageName]
 
         // TODO: revisit. This sends down a very weird payload
-        const response = await api.post(`/api/pages/${pageToSave._id}`, {
-          page: {
-            componentLibraries: storeContents.pages.componentLibraries,
-            ...pageToSave,
-          },
-          screens: pageToSave._screens,
-        })
-
-        const json = await response.json()
-
-        if (!json.ok) throw new Error("Error updating page")
+        const response = await api
+          .post(`/api/pages/${pageToSave._id}`, {
+            page: {
+              componentLibraries: storeContents.pages.componentLibraries,
+              ...pageToSave,
+            },
+            screens: pageToSave._screens,
+          })
+          .then(response => response.json())
 
         store.update(state => {
-          state.pages[pageName]._rev = json.rev
+          state.pages[pageName]._rev = response.rev
           return state
         })
       },
@@ -298,16 +305,18 @@ export const getFrontendStore = () => {
           return state
         })
       },
+      // addChildComponent
       create: (componentToAdd, presetProps) => {
         store.update(state => {
           function findSlot(component_array) {
-            for (let component of component_array) {
-              if (component._component === "##builtin/screenslot") {
+            for (let i = 0; i < component_array.length; i += 1) {
+              if (component_array[i]._component === "##builtin/screenslot") {
                 return true
               }
 
-              if (component._children) findSlot(component)
+              if (component_array[i]._children) findSlot(component_array[i])
             }
+
             return false
           }
 
@@ -368,7 +377,7 @@ export const getFrontendStore = () => {
               component._id
             )
             parent._children = parent._children.filter(
-              child => child._id !== component._id
+              c => c._id !== component._id
             )
             store.actions.components.select(parent)
           }
