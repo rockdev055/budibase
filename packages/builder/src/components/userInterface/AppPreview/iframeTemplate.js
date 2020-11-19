@@ -11,7 +11,7 @@ export default `<html>
       *, *:before, *:after {
         box-sizing: border-box;
       }
-      [data-bb-id="container-screenslot-placeholder"] {
+      .container-screenslot-placeholder {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -23,7 +23,7 @@ export default `<html>
         background-color: rgba(0, 0, 0, 0.05);
         flex: 1 1 auto;
       }
-      [data-bb-id="container-screenslot-placeholder"] span {
+      .container-screenslot-placeholder span {
         display: block;
         margin-bottom: 10px;
       }
@@ -46,7 +46,7 @@ export default `<html>
 
         selectedComponentStyle = document.createElement('style');
         document.head.appendChild(selectedComponentStyle)
-        var selectedCss = '[data-bb-id="' + data.selectedComponentType + '-' + data.selectedComponentId + '"]'  + '{border:2px solid #0055ff !important;}'
+        var selectedCss = '.' + data.selectedComponentType + '-' + data.selectedComponentId + '{ border: 2px solid #0055ff;  }'
         selectedComponentStyle.appendChild(document.createTextNode(selectedCss))
 
         styles = document.createElement('style')
@@ -55,7 +55,7 @@ export default `<html>
 
         window["##BUDIBASE_FRONTEND_DEFINITION##"] = data.frontendDefinition;
         if (window.loadBudibase) {
-          loadBudibase()
+          loadBudibase({ window, localStorage })
         }
       }
       let styles
