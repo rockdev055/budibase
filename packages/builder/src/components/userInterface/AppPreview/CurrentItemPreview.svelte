@@ -17,7 +17,7 @@
   }
 
   const getComponentTypeName = component => {
-    let [componentName] = component._component.match(/[a-zA-Z]*$/)
+    let [componentName] = component._component.match(/[a-z]*$/)
     return componentName || "element"
   }
 
@@ -65,7 +65,10 @@
               _id: "90a52cd0-f215-46c1-b29b-e28f9e7edf72",
               _component: "@budibase/standard-components/heading",
               _styles: {
-                normal: {},
+                normal: {
+                  width: "500px",
+                  padding: "8px",
+                },
                 hover: {},
                 active: {},
                 selected: {},
@@ -83,7 +86,10 @@
               _component: "@budibase/standard-components/text",
               _styles: {
                 normal: {
+                  "max-width": "",
                   "text-align": "left",
+                  width: "500px",
+                  padding: "8px",
                 },
                 hover: {},
                 active: {},
@@ -101,7 +107,10 @@
               _component: "@budibase/standard-components/text",
               _styles: {
                 normal: {
+                  "max-width": "",
                   "text-align": "left",
+                  width: "500px",
+                  padding: "8px",
                 },
                 hover: {},
                 active: {},
