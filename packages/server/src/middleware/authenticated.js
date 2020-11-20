@@ -1,9 +1,7 @@
 const jwt = require("jsonwebtoken")
 const STATUS_CODES = require("../utilities/statusCodes")
-const {
-  getAccessLevel,
-  BUILTIN_LEVELS,
-} = require("../utilities/security/accessLevels")
+const { getAccessLevel, BUILTIN_LEVELS } = require("../utilities/security/accessLevels")
+const env = require("../environment")
 const { AuthTypes } = require("../constants")
 const { getAppId, getCookieName, setCookie, isClient } = require("../utilities")
 
@@ -23,10 +21,12 @@ module.exports = async (ctx, next) => {
     appId = cookieAppId
   }
 
-  let token = ctx.cookies.get(getCookieName(appId))
-  let authType = AuthTypes.APP
-  if (!token && !isClient(ctx)) {
-    authType = AuthTypes.BUILDER
+  let token
+  if (isClient(ctx)) {
+    ctx.auth.authenticated = AuthTypes.APP
+    token = ctx.cookies.get(getCookieName(appId))
+  } else {
+    ctx.auth.authenticated = AuthTypes.BUILDER
     token = ctx.cookies.get(getCookieName())
   }
 
@@ -42,7 +42,6 @@ module.exports = async (ctx, next) => {
   }
 
   try {
-    ctx.auth.authenticated = authType
     const jwtPayload = jwt.verify(token, ctx.config.jwtSecret)
     ctx.appId = appId
     ctx.auth.apiKey = jwtPayload.apiKey
