@@ -140,6 +140,12 @@
   }
 </script>
 
+<svelte:head>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+</svelte:head>
+
 <div class="container" style="--grid-height: {height}px">
   {#if dataLoaded}
     {#if canAddDelete}
