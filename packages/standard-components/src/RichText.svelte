@@ -1,12 +1,20 @@
 <script>
-  import { getContext } from "svelte"
   import { RichText } from "@budibase/bbui"
 
-  const { styleable } = getContext("sdk")
+  export let _bb
 
-  export let value = ""
+  export let content = ""
+
+  const updateValue = content => {
+    if (_bb) {
+      _bb.setBinding("value", content)
+    }
+  }
+
+  $: updateValue(content)
 
   // Need to determine what options we want to expose.
+
   let options = {
     modules: {
       toolbar: [
@@ -23,6 +31,4 @@
   }
 </script>
 
-<div use:styleable={styles}>
-  <RichText bind:content={value} {options} />
-</div>
+<RichText bind:content {options} />

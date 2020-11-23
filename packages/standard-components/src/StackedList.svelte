@@ -1,9 +1,4 @@
 <script>
-  import { getContext } from "svelte"
-
-  const { styleable } = getContext("sdk")
-  const styles = getContext("style")
-
   export let imageUrl = ""
   export let heading = ""
   export let text1 = ""
@@ -14,7 +9,7 @@
   $: showImage = !!imageUrl
 </script>
 
-<div class="container" use:styleable={styles}>
+<div class="container">
   <a href={destinationUrl}>
     <div class="content">
       {#if showImage}
