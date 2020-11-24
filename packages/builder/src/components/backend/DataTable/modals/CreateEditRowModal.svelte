@@ -1,6 +1,5 @@
 <script>
   import { backendUiStore } from "builderStore"
-  import { TableNames } from "constants"
   import { notifier } from "builderStore/store/notifications"
   import RowFieldControl from "../RowFieldControl.svelte"
   import * as api from "../api"
@@ -22,10 +21,9 @@
       { ...row, tableId: table._id },
       table._id
     )
-
     if (rowResponse.errors) {
-      errors = Object.entries(rowResponse.errors)
-        .map(([key, error]) => ({ dataPath: key, message: error }))
+      errors = Object.keys(rowResponse.errors)
+        .map(k => ({ dataPath: k, message: rowResponse.errors[k] }))
         .flat()
       // Prevent modal closing if there were errors
       return false
@@ -40,9 +38,6 @@
   confirmText={creating ? 'Create Row' : 'Save Row'}
   onConfirm={saveRow}>
   <ErrorsBox {errors} />
-  {#if creating && table._id === TableNames.USERS}
-      <RowFieldControl meta={{ name: "password", type: "password" }} bind:value={row.password} />
-  {/if}
   {#each tableSchema as [key, meta]}
     <div>
       <RowFieldControl {meta} bind:value={row[key]} />
