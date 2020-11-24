@@ -1,14 +1,13 @@
 <script>
-  import { getContext } from "svelte"
-
-  const { authStore, styleable } = getContext("sdk")
-  const styles = getContext("style")
+  import Button from "./Button.svelte"
 
   export let buttonText = "Log In"
   export let logo = ""
   export let title = ""
   export let buttonClass = ""
   export let inputClass = ""
+
+  export let _bb
 
   let username = ""
   let password = ""
@@ -24,12 +23,23 @@
 
   const login = async () => {
     loading = true
-    await authStore.actions.logIn({ username, password })
-    loading = false
+    const response = await _bb.api.post("/api/authenticate", {
+      username,
+      password,
+    })
+    if (response.status === 200) {
+      const json = await response.json()
+      localStorage.setItem("budibase:token", json.token)
+      // TODO: possibly do something with the user information in the response?
+      location.reload()
+    } else {
+      loading = false
+      error = true
+    }
   }
 </script>
 
-<div class="root" use:styleable={$styles}>
+<div class="root">
   <div class="content">
     {#if logo}
       <div class="logo-container"><img src={logo} alt="logo" /></div>

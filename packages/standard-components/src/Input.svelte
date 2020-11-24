@@ -1,21 +1,22 @@
 <script>
-  import { getContext } from "svelte"
-
-  const { styleable } = getContext("sdk")
-  const styles = getContext("style")
-
+  export let id = ""
   export let value = ""
   export let className = ""
   export let type = "text"
+  export let label = ""
+  export let checked = false
+
+  export let _bb
+
+  let actualValue = ""
 
   const onchange = ev => {
-    value = ev.target.value
+    if (_bb) {
+      const val = type === "checkbox" ? ev.target.checked : ev.target.value
+      _bb.setBinding("value", val)
+    }
   }
 </script>
 
-<input
-  class={className}
-  {type}
-  {value}
-  on:change={onchange}
-  use:styleable={$styles} />
+<label for={id}>{label}</label>
+<input {id} class={className} {type} {value} {checked} on:change={onchange} />

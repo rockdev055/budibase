@@ -1,20 +1,37 @@
 <script>
-  import { getContext } from "svelte"
-
-  const { authStore, linkable, styleable } = getContext("sdk")
-  const styles = getContext("style")
-
+  export let onLoad
   export let logoUrl
+  export let _bb
   export let title
 
+  let itemContainer
+  let hasLoaded
+
+  $: {
+    if (itemContainer) {
+      _bb.attachChildren(itemContainer)
+      if (!hasLoaded) {
+        _bb.call("onLoad")
+        hasLoaded = true
+      }
+    }
+  }
+
   const logOut = () => {
-    authStore.actions.logOut()
+    // TODO: not the best way to clear cookie, try to find better way
+    const appId = location.pathname.split("/")[1]
+    if (appId) {
+      for (let environment of ["local", "cloud"]) {
+        document.cookie = `budibase:${appId}:${environment}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`
+      }
+    }
+    location.href = `/${appId}`
   }
 </script>
 
-<div class="nav" use:styleable={$styles}>
+<div class="nav">
   <div class="nav__top">
-    <a href="/" use:linkable>
+    <a href="/">
       {#if logoUrl}
         <img class="logo" alt="logo" src={logoUrl} height="48" />
       {/if}
@@ -24,9 +41,7 @@
       <div on:click={logOut}>Log out</div>
     </div>
   </div>
-  <div class="nav__menu">
-    <slot />
-  </div>
+  <div class="nav__menu" bind:this={itemContainer} />
 </div>
 
 <style>
