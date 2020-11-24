@@ -69,10 +69,15 @@
       <ThemeEditor />
       <FeedbackNavLink />
       <div class="topnavitemright">
+        <a target="_blank" href="https://docs.budibase.com">
+          <i class="ri-question-line" />
+        </a>
+      </div>
+      <div class="topnavitemright">
         <a
           target="_blank"
           href="https://github.com/Budibase/budibase/discussions">
-          <i class="ri-question-line" />
+          <i class="ri-discuss-line" />
         </a>
       </div>
       <SettingsLink />
