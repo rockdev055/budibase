@@ -51,7 +51,7 @@
     const screens = screenTemplates($store, [table])
       .filter(template => defaultScreens.includes(template.id))
       .map(template => template.create())
-    store.actions.layouts.select("main")
+    store.actions.pages.select("main")
     for (let screen of screens) {
       // Record the table that created this screen so we can link it later
       screen.autoTableId = table._id

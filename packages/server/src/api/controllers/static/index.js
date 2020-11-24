@@ -17,15 +17,9 @@ const setBuilderToken = require("../../../utilities/builder/setBuilderToken")
 const fileProcessor = require("../../../utilities/fileProcessor")
 const { AuthTypes } = require("../../../constants")
 const env = require("../../../environment")
-const { generateAssetCss } = require("../../../utilities/builder/generateCss")
 
 // this was the version before we started versioning the component library
 const COMP_LIB_BASE_APP_VERSION = "0.2.5"
-
-exports.generateCss = async function(ctx) {
-  const structure = ctx.request.body
-  ctx.body = generateAssetCss(structure)
-}
 
 exports.serveBuilder = async function(ctx) {
   let builderPath = resolve(__dirname, "../../../../builder")
@@ -148,11 +142,15 @@ exports.performLocalFileProcessing = async function(ctx) {
 
 exports.serveApp = async function(ctx) {
   const App = require("./templates/BudibaseApp.svelte").default
+
   const db = new CouchDB(ctx.params.appId)
+
   const appInfo = await db.get(ctx.params.appId)
 
   const { head, html, css } = App.render({
     title: appInfo.name,
+    pageName:
+      ctx.auth.authenticated === AuthTypes.APP ? "main" : "unauthenticated",
     production: env.CLOUD,
     appId: ctx.params.appId,
   })

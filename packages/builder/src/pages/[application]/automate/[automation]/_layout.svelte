@@ -1,4 +1,4 @@
 <script>
   import { params } from "@sveltech/routify"
-  store.actions.layouts.select($params.page)
+  store.actions.pages.select($params.page)
 </script>

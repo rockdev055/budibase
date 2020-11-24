@@ -1,11 +1,37 @@
 <script>
-  import { getContext } from "svelte"
+  import { onMount } from "svelte"
 
-  const { DataProvider } = getContext("sdk")
-
+  export let _bb
   export let table
+
+  let row = {}
+
+  $: {
+    row.tableId = table
+  }
+
+  let target
+
+  async function fetchTable(id) {
+    const FETCH_TABLE_URL = `/api/tables/${id}`
+    const response = await _bb.api.get(FETCH_TABLE_URL)
+    return await response.json()
+  }
+
+  onMount(async () => {
+    if (table && typeof table === "string") {
+      const tableObj = await fetchTable(table)
+      row.tableId = table
+      row._table = tableObj
+      _bb.attachChildren(target, {
+        context: row,
+      })
+    } else {
+      _bb.attachChildren(target, {
+        context: {},
+      })
+    }
+  })
 </script>
 
-<DataProvider row={{ tableId: table }}>
-  <slot />
-</DataProvider>
+<section bind:this={target} />

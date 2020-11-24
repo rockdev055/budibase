@@ -1,6 +1,6 @@
 <script>
   import { goto } from "@sveltech/routify"
-  import { store, currentAssetName } from "builderStore"
+  import { store } from "builderStore"
   import components from "./temporaryPanelStructure.js"
   import { DropdownMenu } from "@budibase/bbui"
   import { DropdownContainer, DropdownItem } from "components/common/Dropdowns"
@@ -52,7 +52,7 @@
   align="left">
   <DropdownContainer>
     {#each categories[selectedIndex].children as item}
-      {#if !item.showOnAsset || item.showOnAsset.includes($currentAssetName)}
+      {#if !item.showOnPages || item.showOnPages.includes($store.currentPageName)}
         <DropdownItem
           icon={item.icon}
           title={item.name}

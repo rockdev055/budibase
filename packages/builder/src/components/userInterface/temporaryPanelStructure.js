@@ -1185,7 +1185,6 @@ export default {
             settings: [{ label: "Logo URL", key: "logoUrl", control: Input }],
           },
         },
-        // TODO: need to deal with this
         {
           name: "Login",
           _component: "@budibase/standard-components/login",
@@ -1193,7 +1192,7 @@ export default {
             "A component that automatically generates a login screen for your app.",
           icon: "ri-login-box-line",
           children: [],
-          showOnAsset: ["login-screen"],
+          showOnPages: ["unauthenticated"],
           properties: {
             design: { ...all },
             settings: [
