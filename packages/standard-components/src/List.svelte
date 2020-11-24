@@ -1,25 +1,23 @@
 <script>
-  import { getContext, onMount } from "svelte"
+  import { onMount } from "svelte"
+  import fetchData from "./fetchData.js"
   import { isEmpty } from "lodash/fp"
 
-  const { API, styleable, DataProvider } = getContext("sdk")
-  const component = getContext("component")
-
+  export let _bb
   export let datasource = []
 
-  let rows = []
+  let target
+  let store = _bb.store
 
   onMount(async () => {
     if (!isEmpty(datasource)) {
-      rows = await API.fetchDatasource(datasource, $component.dataContext)
+      const data = await fetchData(datasource, $store)
+      _bb.attachChildren(target, {
+        hydrate: false,
+        context: data,
+      })
     }
   })
 </script>
 
-<div use:styleable={$component.styles}>
-  {#each rows as row}
-    <DataProvider {row}>
-      <slot />
-    </DataProvider>
-  {/each}
-</div>
+<section bind:this={target} />

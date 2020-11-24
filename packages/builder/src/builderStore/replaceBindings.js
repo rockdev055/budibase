@@ -12,7 +12,10 @@ export function readableToRuntimeBinding(bindableProperties, textWithBindings) {
         return boundValue === `{{ ${readableBinding} }}`
       })
       if (binding) {
-        result = result.replace(boundValue, `{{ ${binding.runtimeBinding} }}`)
+        result = textWithBindings.replace(
+          boundValue,
+          `{{ ${binding.runtimeBinding} }}`
+        )
       }
     })
   return result
