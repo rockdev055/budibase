@@ -1,7 +1,6 @@
 <script>
   import { goto } from "@sveltech/routify"
   import { backendUiStore } from "builderStore"
-  import { TableNames } from "constants"
   import ListItem from "./ListItem.svelte"
   import CreateTableModal from "./modals/CreateTableModal.svelte"
   import EditTablePopover from "./popovers/EditTablePopover.svelte"
@@ -43,7 +42,7 @@
     {#each $backendUiStore.tables as table, idx}
       <NavItem
         border={idx > 0}
-        icon={`ri-${table._id === TableNames.USERS ? 'user' : 'table'}-line`}
+        icon="ri-table-line"
         text={table.name}
         selected={selectedView === `all_${table._id}`}
         on:click={() => selectTable(table)}>

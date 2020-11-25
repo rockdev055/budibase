@@ -6,9 +6,7 @@ const {
   generateRowID,
   DocumentTypes,
   SEPARATOR,
-  ViewNames,
 } = require("../../db/utils")
-const usersController = require("./user")
 const { cloneDeep } = require("lodash")
 
 const TABLE_VIEW_BEGINS_WITH = `all${SEPARATOR}${DocumentTypes.TABLE}${SEPARATOR}`
@@ -119,16 +117,6 @@ exports.save = async function(ctx) {
     tableId: row.tableId,
     table,
   })
-
-  // Creation of a new user goes to the user controller
-  if (!existingRow && row.tableId === ViewNames.USERS) {
-    try {
-      await usersController.create(ctx)
-    } catch (err) {
-      ctx.body = { errors: [err.message] }
-    }
-    return
-  }
 
   if (existingRow) {
     const response = await db.put(row)
@@ -327,8 +315,8 @@ exports.fetchEnrichedRow = async function(ctx) {
   ctx.status = 200
 }
 
-function coerceRowValues(record, table) {
-  const row = cloneDeep(record)
+function coerceRowValues(rec, table) {
+  const row = cloneDeep(rec)
   for (let [key, value] of Object.entries(row)) {
     const field = table.schema[key]
     if (!field) continue
