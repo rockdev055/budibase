@@ -31,12 +31,6 @@ export const currentScreens = derived(store, $store => {
     : Object.values(currentScreens)
 })
 
-export const selectedPage = derived(store, $store => {
-  if (!$store.pages) return null
-
-  return $store.pages[$store.currentPageName || "main"]
-})
-
 export const initialise = async () => {
   try {
     await analytics.activate()
