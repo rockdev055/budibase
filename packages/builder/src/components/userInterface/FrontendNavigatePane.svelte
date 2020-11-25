@@ -1,37 +1,26 @@
 <script>
-  import { onMount } from "svelte"
-  import { store, currentAsset } from "builderStore"
-  import api from "builderStore/api"
-  import ComponentNavigationTree from "components/userInterface/ComponentNavigationTree/index.svelte"
-  import Layout from "components/userInterface/Layout.svelte"
-  import LayoutsList from "components/userInterface/LayoutsList.svelte"
+  import { store, currentScreens } from "builderStore"
+  import ComponentsHierarchy from "components/userInterface/ComponentsHierarchy.svelte"
+  import PageLayout from "components/userInterface/PageLayout.svelte"
+  import PagesList from "components/userInterface/PagesList.svelte"
   import NewScreenModal from "components/userInterface/NewScreenModal.svelte"
   import { Modal } from "@budibase/bbui"
 
   let modal
-
-  let routes = {}
-
-  onMount(() => {
-    store.actions.routing.fetch()
-  })
 </script>
 
 <div class="title">
   <h1>Screens</h1>
   <i on:click={modal.show} data-cy="new-screen" class="ri-add-circle-fill" />
 </div>
-<LayoutsList />
-
-{#if $store.currentFrontEndType === "layout" && $currentAsset}
+<PagesList />
 <div class="nav-items-container">
-  <Layout layout={$currentAsset} />
-  <ComponentNavigationTree />
+  <PageLayout layout={$store.pages[$store.currentPageName]} />
+  <ComponentsHierarchy screens={$currentScreens} />
 </div>
 <Modal bind:this={modal}>
   <NewScreenModal />
 </Modal>
-{/if}
 
 <style>
   .title {

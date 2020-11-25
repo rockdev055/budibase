@@ -1,6 +1,6 @@
 <script>
   import { goto } from "@sveltech/routify"
-  import { store, allScreens } from "builderStore"
+  import { store } from "builderStore"
   import { notifier } from "builderStore/store/notifications"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
   import { DropdownMenu } from "@budibase/bbui"
@@ -13,9 +13,16 @@
   let anchor
 
   const deleteScreen = () => {
-    const screenToDelete = $allScreens.find(scr => scr._id === screen)
-    store.actions.screens.delete(screenToDelete)
-    store.actions.routing.fetch()
+    store.actions.screens.delete(screen, $store.currentPageName)
+    // update the page if required
+    store.update(state => {
+      if (state.currentPreviewItem.name === screen.name) {
+        store.actions.pages.select($store.currentPageName)
+        notifier.success(`Screen ${screen.name} deleted successfully.`)
+        $goto(`./:page/page-layout`)
+      }
+      return state
+    })
   }
 </script>
 
@@ -35,7 +42,7 @@
 <ConfirmDialog
   bind:this={confirmDeleteDialog}
   title="Confirm Deletion"
-  body={'Are you sure you wish to delete this screen?'}
+  body={`Are you sure you wish to delete the screen '${screen.props._instanceName}' ?`}
   okText="Delete Screen"
   onOk={deleteScreen} />
 

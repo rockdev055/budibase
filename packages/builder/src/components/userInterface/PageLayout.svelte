@@ -1,6 +1,6 @@
 <script>
   import { goto } from "@sveltech/routify"
-  import ComponentTree from "./ComponentNavigationTree/ComponentTree.svelte"
+  import ComponentsHierarchyChildren from "./ComponentsHierarchyChildren.svelte"
   import NavItem from "components/common/NavItem.svelte"
   import { last } from "lodash/fp"
   import { store } from "builderStore"
@@ -22,8 +22,8 @@
   }
 
   const setCurrentScreenToLayout = () => {
-    store.actions.selectAssetType("layout")
-    $goto("./layout")
+    store.actions.selectPageOrScreen("page")
+    $goto("./:page/page-layout")
   }
 </script>
 
@@ -37,7 +37,8 @@
   on:click={setCurrentScreenToLayout} />
 
 {#if $store.currentPreviewItem?.name === _layout.title && _layout.component.props._children}
-  <ComponentTree
+  <ComponentsHierarchyChildren
+    thisComponent={_layout.component.props}
     components={_layout.component.props._children}
     currentComponent={$store.currentComponentInfo}
     {dragDropStore} />

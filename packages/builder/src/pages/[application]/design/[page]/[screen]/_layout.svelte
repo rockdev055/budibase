@@ -1,4 +1,5 @@
 <script>
+  import { onMount } from "svelte"
   import { params, leftover, goto } from "@sveltech/routify"
   import { store, allScreens } from "builderStore"
 
@@ -6,14 +7,16 @@
   const componentIds = $leftover.split("/").filter(id => id !== "")
 
   // It's a screen, set it to that screen
-  if ($params.screen !== "layout") {
+  if ($params.screen !== "page-layout") {
     const currentScreenName = decodeURI($params.screen)
     const validScreen =
-      $allScreens.findIndex(screen => screen._id === currentScreenName) !== -1
+      $allScreens.findIndex(
+        screen => screen.props._instanceName === currentScreenName
+      ) !== -1
 
     if (!validScreen) {
       // Go to main layout if URL set to invalid screen
-      store.actions.layouts.select("main")
+      store.actions.pages.select("main")
       $goto("../../main")
     } else {
       // Otherwise proceed to set screen
@@ -22,22 +25,21 @@
       // There are leftover stuff, like IDs, so navigate the components and find the ID and select it.
       if ($leftover) {
         // Get the correct screen children.
-        const screenChildren = allScreens.find(
+        const screenChildren = $store.pages[$params.page]._screens.find(
           screen =>
-            screen._id === $params.screen ||
-            screen._id === decodeURIComponent($params.screen)
+            screen.props._instanceName === $params.screen ||
+            screen.props._instanceName === decodeURIComponent($params.screen)
         ).props._children
         findComponent(componentIds, screenChildren)
       }
     }
   } else {
-    // It's a layout, so set the screen type to layout
-    store.actions.selectAssetType("layout")
+    // It's a page, so set the screentype to page.
+    store.actions.selectPageOrScreen("page")
 
     // There are leftover stuff, like IDs, so navigate the components and find the ID and select it.
-    const layout = store.actions.layouts.find($params.layout)
     if ($leftover) {
-      findComponent(componentIds, layout.props._children)
+      findComponent(componentIds, $store.pages[$params.page].props._children)
     }
   }
 
