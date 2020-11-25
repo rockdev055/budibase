@@ -28,7 +28,7 @@ module.exports.definition = {
         accessLevelId: {
           type: "string",
           title: "Access Level",
-          enum: accessLevels.BUILTIN_LEVEL_ID_ARRAY,
+          enum: accessLevels.BUILTIN_LEVEL_IDS,
           pretty: accessLevels.BUILTIN_LEVEL_NAME_ARRAY,
         },
       },
