@@ -1,12 +1,22 @@
 <script>
-  import { getContext } from "svelte"
+  export let id = ""
+  export let value = ""
+  export let className = ""
+  export let type = "text"
+  export let label = ""
+  export let checked = false
 
-  const { styleable, setBindableValue } = getContext("sdk")
-  const component = getContext("component")
+  export let _bb
 
-  // Keep bindable value up to date
-  let value
-  $: setBindableValue(value, $component.id)
+  let actualValue = ""
+
+  const onchange = ev => {
+    if (_bb) {
+      const val = type === "checkbox" ? ev.target.checked : ev.target.value
+      _bb.setBinding("value", val)
+    }
+  }
 </script>
 
-<input bind:value on:change={onchange} use:styleable={$component.styles} />
+<label for={id}>{label}</label>
+<input {id} class={className} {type} {value} {checked} on:change={onchange} />
