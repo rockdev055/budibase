@@ -26,6 +26,7 @@ const {
 const { MAIN, UNAUTHENTICATED, PageTypes } = require("../../constants/pages")
 const { HOME_SCREEN } = require("../../constants/screens")
 const { cloneDeep } = require("lodash/fp")
+const { USERS_TABLE_SCHEMA } = require("../../constants")
 
 const APP_PREFIX = DocumentTypes.APP + SEPARATOR
 
@@ -67,6 +68,9 @@ async function createInstance(template) {
     if (!ok) {
       throw "Error loading database dump from template."
     }
+  } else {
+    // create the users table
+    await db.put(USERS_TABLE_SCHEMA)
   }
 
   return { _id: appId }
@@ -79,7 +83,10 @@ exports.fetch = async function(ctx) {
   if (apps.length === 0) {
     ctx.body = []
   } else {
-    ctx.body = await Promise.all(apps)
+    const response = await Promise.allSettled(apps)
+    ctx.body = response
+      .filter(result => result.status === "fulfilled")
+      .map(({ value }) => value)
   }
 }
 

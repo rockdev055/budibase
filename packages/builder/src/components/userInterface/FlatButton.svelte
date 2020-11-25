@@ -1,8 +1,9 @@
 <script>
+  import { buildStyle } from "../../helpers.js"
   export let value = ""
   export let text = ""
   export let icon = ""
-  export let onClick = () => {}
+  export let onClick = value => {}
   export let selected = false
 
   $: useIcon = !!icon
