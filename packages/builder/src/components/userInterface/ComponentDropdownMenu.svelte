@@ -15,7 +15,7 @@
   let anchor
 
   $: noChildrenAllowed =
-    !component || !getComponentDefinition($store, component._component).children
+    !component || !getComponentDefinition($store, component._component)?.children
   $: noPaste = !$store.componentToPaste
 
   const lastPartOfName = c => (c ? last(c._component.split("/")) : "")
@@ -27,7 +27,7 @@
   const selectComponent = component => {
     store.actions.components.select(component)
     const path = store.actions.components.findRoute(component)
-    $goto(`./:page/:screen/${path}`)
+    $goto(`./:screen/${path}`)
   }
 
   const moveUpComponent = () => {

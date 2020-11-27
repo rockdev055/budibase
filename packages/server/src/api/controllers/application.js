@@ -1,5 +1,5 @@
 const CouchDB = require("../../db")
-const compileStaticAssetsForPage = require("../../utilities/builder/compileStaticAssetsForPage")
+const compileStaticAssets = require("../../utilities/builder/compileStaticAssets")
 const env = require("../../environment")
 const { existsSync } = require("fs-extra")
 const { budibaseAppsDir } = require("../../utilities/budibaseDir")
@@ -14,34 +14,51 @@ const {
   generateAppID,
   DocumentTypes,
   SEPARATOR,
-  getPageParams,
+  getLayoutParams,
   getScreenParams,
-  generatePageID,
+  generateLayoutID,
   generateScreenID,
 } = require("../../db/utils")
-const { BUILTIN_LEVEL_IDS } = require("../../utilities/security/accessLevels")
+const {
+  BUILTIN_LEVEL_IDS,
+  AccessController,
+} = require("../../utilities/security/accessLevels")
 const {
   downloadExtractComponentLibraries,
 } = require("../../utilities/createAppPackage")
-const { MAIN, UNAUTHENTICATED, PageTypes } = require("../../constants/pages")
+const { BASE_LAYOUTS } = require("../../constants/layouts")
 const { HOME_SCREEN } = require("../../constants/screens")
 const { cloneDeep } = require("lodash/fp")
-const { USERS_TABLE_SCHEMA } = require("../../constants")
+const { recurseMustache } = require("../../utilities/mustache")
+const { generateAssetCss } = require("../../utilities/builder/generateCss")
 
 const APP_PREFIX = DocumentTypes.APP + SEPARATOR
 
 // utility function, need to do away with this
-async function getMainAndUnauthPage(db) {
-  let pages = await db.allDocs(
-    getPageParams(null, {
-      include_docs: true,
-    })
-  )
-  pages = pages.rows.map(row => row.doc)
+async function getLayouts(db) {
+  return (
+    await db.allDocs(
+      getLayoutParams(null, {
+        include_docs: true,
+      })
+    )
+  ).rows.map(row => row.doc)
+}
 
-  const mainPage = pages.find(page => page.name === PageTypes.MAIN)
-  const unauthPage = pages.find(page => page.name === PageTypes.UNAUTHENTICATED)
-  return { mainPage, unauthPage }
+async function getScreens(db) {
+  return (
+    await db.allDocs(
+      getScreenParams(null, {
+        include_docs: true,
+      })
+    )
+  ).rows.map(row => row.doc)
+}
+
+function getUserAccessLevelId(ctx) {
+  return !ctx.user.accessLevel || !ctx.user.accessLevel._id
+    ? BUILTIN_LEVEL_IDS.PUBLIC
+    : ctx.user.accessLevel._id
 }
 
 async function createInstance(template) {
@@ -68,9 +85,6 @@ async function createInstance(template) {
     if (!ok) {
       throw "Error loading database dump from template."
     }
-  } else {
-    // create the users table
-    await db.put(USERS_TABLE_SCHEMA)
   }
 
   return { _id: appId }
@@ -92,25 +106,16 @@ exports.fetch = async function(ctx) {
 
 exports.fetchAppDefinition = async function(ctx) {
   const db = new CouchDB(ctx.params.appId)
-  // TODO: need to get rid of pages here, they shouldn't be needed anymore
-  const { mainPage, unauthPage } = await getMainAndUnauthPage(db)
-  const userAccessLevelId =
-    !ctx.user.accessLevel || !ctx.user.accessLevel._id
-      ? BUILTIN_LEVEL_IDS.PUBLIC
-      : ctx.user.accessLevel._id
-  const correctPage =
-    userAccessLevelId === BUILTIN_LEVEL_IDS.PUBLIC ? unauthPage : mainPage
-  const screens = (
-    await db.allDocs(
-      getScreenParams(correctPage._id, {
-        include_docs: true,
-      })
-    )
-  ).rows.map(row => row.doc)
-  // TODO: need to handle access control here, limit screens to user access level
+  const layouts = await getLayouts(db)
+  const userAccessLevelId = getUserAccessLevelId(ctx)
+  const accessController = new AccessController(ctx.params.appId)
+  const screens = accessController.checkScreensAccess(
+    await getScreens(db),
+    userAccessLevelId
+  )
   ctx.body = {
-    page: correctPage,
-    screens: screens,
+    layouts,
+    screens,
     libraries: ["@budibase/standard-components"],
   }
 }
@@ -118,16 +123,19 @@ exports.fetchAppDefinition = async function(ctx) {
 exports.fetchAppPackage = async function(ctx) {
   const db = new CouchDB(ctx.params.appId)
   const application = await db.get(ctx.params.appId)
+  const [layouts, screens] = await Promise.all([getLayouts(db), getScreens(db)])
 
-  const { mainPage, unauthPage } = await getMainAndUnauthPage(db)
+  for (let layout of layouts) {
+    layout._css = generateAssetCss([layout.props])
+  }
+  for (let screen of screens) {
+    screen._css = generateAssetCss([screen.props])
+  }
   ctx.body = {
     application,
-    pages: {
-      main: mainPage,
-      unauthenticated: unauthPage,
-    },
+    screens,
+    layouts,
   }
-
   await setBuilderToken(ctx, ctx.params.appId, application.version)
 }
 
@@ -200,27 +208,23 @@ const createEmptyAppPackage = async (ctx, app) => {
 
   fs.mkdirpSync(newAppFolder)
 
-  const mainPage = cloneDeep(MAIN)
-  mainPage._id = generatePageID()
-  mainPage.title = app.name
-
-  const unauthPage = cloneDeep(UNAUTHENTICATED)
-  unauthPage._id = generatePageID()
-  unauthPage.title = app.name
-  unauthPage.props._children[0].title = `Log in to ${app.name}`
+  let screensAndLayouts = []
+  for (let layout of BASE_LAYOUTS) {
+    const cloned = cloneDeep(layout)
+    cloned._id = generateLayoutID()
+    cloned.title = app.name
+    screensAndLayouts.push(recurseMustache(cloned, app))
+  }
 
   const homeScreen = cloneDeep(HOME_SCREEN)
-  homeScreen._id = generateScreenID(mainPage._id)
-  await db.bulkDocs([mainPage, unauthPage, homeScreen])
+  homeScreen._id = generateScreenID()
+  screensAndLayouts.push(homeScreen)
 
-  await compileStaticAssetsForPage(app._id, "main", {
-    page: mainPage,
-    screens: [homeScreen],
-  })
-  await compileStaticAssetsForPage(app._id, "unauthenticated", {
-    page: unauthPage,
-    screens: [],
-  })
-
+  await db.bulkDocs(screensAndLayouts)
+  // at the end add CSS to all the structures
+  for (let asset of screensAndLayouts) {
+    asset._css = generateAssetCss([asset.props])
+  }
+  await compileStaticAssets(app._id, screensAndLayouts)
   return newAppFolder
 }
