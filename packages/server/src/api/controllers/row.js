@@ -6,9 +6,10 @@ const {
   generateRowID,
   DocumentTypes,
   SEPARATOR,
+  ViewNames,
 } = require("../../db/utils")
+const usersController = require("./user")
 const { cloneDeep } = require("lodash")
-const { integrations } = require("../../integrations")
 
 const TABLE_VIEW_BEGINS_WITH = `all${SEPARATOR}${DocumentTypes.TABLE}${SEPARATOR}`
 
@@ -119,6 +120,16 @@ exports.save = async function(ctx) {
     table,
   })
 
+  // Creation of a new user goes to the user controller
+  if (!existingRow && row.tableId === ViewNames.USERS) {
+    try {
+      await usersController.create(ctx)
+    } catch (err) {
+      ctx.body = { errors: [err.message] }
+    }
+    return
+  }
+
   if (existingRow) {
     const response = await db.put(row)
     row._rev = response.rev
@@ -146,7 +157,7 @@ exports.fetchView = async function(ctx) {
   const viewName = ctx.params.viewName
 
   // if this is a table view being looked for just transfer to that
-  if (viewName.startsWith(TABLE_VIEW_BEGINS_WITH)) {
+  if (viewName.indexOf(TABLE_VIEW_BEGINS_WITH) === 0) {
     ctx.params.tableId = viewName.substring(4)
     await exports.fetchTableRows(ctx)
     return
@@ -187,15 +198,6 @@ exports.fetchView = async function(ctx) {
 exports.fetchTableRows = async function(ctx) {
   const appId = ctx.user.appId
   const db = new CouchDB(appId)
-
-  const table = await db.get(ctx.params.tableId)
-
-  if (table.integration && table.integration.type) {
-    const Integration = integrations[table.integration.type]
-    ctx.body = await new Integration(table.integration).query()
-    return
-  }
-
   const response = await db.allDocs(
     getRowParams(ctx.params.tableId, null, {
       include_docs: true,
@@ -325,8 +327,8 @@ exports.fetchEnrichedRow = async function(ctx) {
   ctx.status = 200
 }
 
-function coerceRowValues(rec, table) {
-  const row = cloneDeep(rec)
+function coerceRowValues(record, table) {
+  const row = cloneDeep(record)
   for (let [key, value] of Object.entries(row)) {
     const field = table.schema[key]
     if (!field) continue
