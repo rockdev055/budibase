@@ -19,16 +19,14 @@ export default function(component, state) {
     })
   }
 
-  // check layouts first
-  for (let layout of state.layouts) {
-    findMatches(layout.props)
-  }
+  // check page first
+  findMatches(state.pages[state.currentPageName].props)
 
   // if viewing screen, check current screen for duplicate
   if (state.currentFrontEndType === "screen") {
     findMatches(state.currentPreviewItem.props)
   } else {
-    // viewing a layout - need to find against all screens
+    // viewing master page - need to find against all screens
     for (let screen of get(allScreens)) {
       findMatches(screen.props)
     }

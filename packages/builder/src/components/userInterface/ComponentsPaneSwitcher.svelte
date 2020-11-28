@@ -18,7 +18,7 @@
 </script>
 
 <div class="root">
-  {#if $store.currentFrontEndType === "layout" || $allScreens.length}
+  {#if $store.currentFrontEndType === 'page' || $allScreens.length}
     <div class="switcher">
       <button
         class:selected={selected === COMPONENT_SELECTION_TAB}

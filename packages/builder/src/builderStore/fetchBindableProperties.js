@@ -24,7 +24,7 @@ import { cloneDeep, difference } from "lodash/fp"
  * @returns {Array.<BindableProperty>}
  */
 export default function({ componentInstanceId, screen, components, tables }) {
-  const result = walk({
+  const walkResult = walk({
     // cloning so we are free to mutate props (e.g. by adding _contexts)
     instance: cloneDeep(screen.props),
     targetId: componentInstanceId,
@@ -33,10 +33,13 @@ export default function({ componentInstanceId, screen, components, tables }) {
   })
 
   return [
-    ...result.bindableInstances
-      .filter(isInstanceInSharedContext(result))
-      .map(componentInstanceToBindable),
-    ...(result.target?._contexts.map(contextToBindables(tables)).flat() ?? []),
+    ...walkResult.bindableInstances
+      .filter(isInstanceInSharedContext(walkResult))
+      .map(componentInstanceToBindable(walkResult)),
+
+    ...(walkResult.target?._contexts
+      .map(contextToBindables(tables, walkResult))
+      .flat() ?? []),
   ]
 }
 
@@ -50,18 +53,26 @@ const isInstanceInSharedContext = walkResult => i =>
 
 // turns a component instance prop into binding expressions
 // used by the UI
-const componentInstanceToBindable = i => {
+const componentInstanceToBindable = walkResult => i => {
+  const lastContext =
+    i.instance._contexts.length &&
+    i.instance._contexts[i.instance._contexts.length - 1]
+  const contextParentPath = lastContext
+    ? getParentPath(walkResult, lastContext)
+    : ""
+
   return {
     type: "instance",
     instance: i.instance,
     // how the binding expression persists, and is used in the app at runtime
-    runtimeBinding: `${i.instance._id}`,
+    runtimeBinding: `${contextParentPath}${i.instance._id}.${i.prop}`,
     // how the binding exressions looks to the user of the builder
     readableBinding: `${i.instance._instanceName}`,
   }
 }
 
-const contextToBindables = tables => context => {
+const contextToBindables = (tables, walkResult) => context => {
+  const contextParentPath = getParentPath(walkResult, context)
   const tableId = context.table?.tableId ?? context.table
   const table = tables.find(table => table._id === tableId)
   let schema =
@@ -87,7 +98,7 @@ const contextToBindables = tables => context => {
       fieldSchema,
       instance: context.instance,
       // how the binding expression persists, and is used in the app at runtime
-      runtimeBinding: `${context.instance._id}.${runtimeBoundKey}`,
+      runtimeBinding: `${contextParentPath}data.${runtimeBoundKey}`,
       // how the binding expressions looks to the user of the builder
       readableBinding: `${context.instance._instanceName}.${table.name}.${key}`,
       // table / view info
@@ -104,6 +115,20 @@ const contextToBindables = tables => context => {
         newBindable(["_id", stringType]),
         newBindable(["_rev", stringType]),
       ])
+  )
+}
+
+const getParentPath = (walkResult, context) => {
+  // describes the number of "parent" in the path
+  // clone array first so original array is not mtated
+  const contextParentNumber = [...walkResult.target._contexts]
+    .reverse()
+    .indexOf(context)
+
+  return (
+    new Array(contextParentNumber).fill("parent").join(".") +
+    // trailing . if has parents
+    (contextParentNumber ? "." : "")
   )
 }
 
