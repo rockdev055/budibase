@@ -20,14 +20,31 @@ exports.fetch = async ctx => {
   )
 }
 
+exports.find = async ctx => {
+  const appId = ctx.user.appId
+  const db = new CouchDB(appId)
+
+  const screens = await db.allDocs(
+    getScreenParams(ctx.params.pageId, {
+      include_docs: true,
+    })
+  )
+
+  ctx.body = await new AccessController(appId).checkScreensAccess(
+    screens,
+    ctx.user.accessLevel._id
+  )
+}
+
 exports.save = async ctx => {
   const appId = ctx.user.appId
   const db = new CouchDB(appId)
-  let screen = ctx.request.body
+  const screen = ctx.request.body
 
   if (!screen._id) {
-    screen._id = generateScreenID()
+    screen._id = generateScreenID(ctx.params.pageId)
   }
+  delete screen._css
   const response = await db.put(screen)
 
   ctx.message = `Screen ${screen.name} saved.`
@@ -36,7 +53,7 @@ exports.save = async ctx => {
 
 exports.destroy = async ctx => {
   const db = new CouchDB(ctx.user.appId)
-  await db.remove(ctx.params.screenId, ctx.params.screenRev)
+  await db.remove(ctx.params.screenId, ctx.params.revId)
   ctx.message = "Screen deleted successfully"
   ctx.status = 200
 }

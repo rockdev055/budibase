@@ -20,7 +20,7 @@ export default `<html>
         }
 
         // Extract data from message
-        const { selectedComponentId, layout, screen } = JSON.parse(event.data)
+        const { selectedComponentId, page, screen } = JSON.parse(event.data)
         
         // Update selected component style
         if (selectedComponentStyle) {
@@ -32,9 +32,11 @@ export default `<html>
         selectedComponentStyle.appendChild(document.createTextNode(selectedCss))
 
         // Set some flags so the app knows we're in the builder
-        window["##BUDIBASE_IN_BUILDER##"] = true;
-        window["##BUDIBASE_PREVIEW_LAYOUT##"] = layout;
-        window["##BUDIBASE_PREVIEW_SCREEN##"] = screen;
+        window["##BUDIBASE_IN_BUILDER##"] = true
+        window["##BUDIBASE_PREVIEW_PAGE##"] = page
+        window["##BUDIBASE_PREVIEW_SCREEN##"] = screen
+        window["##BUDIBASE_SELECTED_COMPONENT_ID##"] = selectedComponentId
+        window["##BUDIBASE_PREVIEW_ID##"] = Math.random()
         
         // Initialise app
         if (window.loadBudibase) {
