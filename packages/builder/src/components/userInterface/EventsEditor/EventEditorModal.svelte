@@ -1,11 +1,11 @@
 <script>
   import { TextButton, Body, DropdownMenu, ModalContent } from "@budibase/bbui"
   import { AddIcon, ArrowDownIcon } from "components/common/Icons/"
+  import { EVENT_TYPE_MEMBER_NAME } from "../../../../../client/src/state/eventHandlers"
   import actionTypes from "./actions"
   import { createEventDispatcher } from "svelte"
 
   const dispatch = createEventDispatcher()
-  const eventTypeKey = "##eventHandlerType"
 
   export let event
 
@@ -18,7 +18,8 @@
   $: actions = event || []
   $: selectedActionComponent =
     selectedAction &&
-    actionTypes.find(t => t.name === selectedAction[eventTypeKey]).component
+    actionTypes.find(t => t.name === selectedAction[EVENT_TYPE_MEMBER_NAME])
+      .component
 
   const updateEventHandler = (updatedHandler, index) => {
     actions[index] = updatedHandler
@@ -32,7 +33,7 @@
   const addAction = actionType => () => {
     const newAction = {
       parameters: {},
-      [eventTypeKey]: actionType.name,
+      [EVENT_TYPE_MEMBER_NAME]: actionType.name,
     }
     actions.push(newAction)
     selectedAction = newAction
@@ -78,7 +79,7 @@
       {#each actions as action, index}
         <div class="action-container">
           <div class="action-header" on:click={selectAction(action)}>
-            <Body small lh>{index + 1}. {action[eventTypeKey]}</Body>
+            <Body small lh>{index + 1}. {action[EVENT_TYPE_MEMBER_NAME]}</Body>
             <div class="row-expander" class:rotate={action !== selectedAction}>
               <ArrowDownIcon />
             </div>
