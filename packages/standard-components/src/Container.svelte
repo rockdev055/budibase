@@ -4,6 +4,7 @@
   const { styleable } = getContext("sdk")
   const component = getContext("component")
 
+  export let className = ""
   export let type = "div"
 </script>
 

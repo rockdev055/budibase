@@ -5,6 +5,7 @@
   const component = getContext("component")
 
   export let logoUrl
+  export let title
 
   const logOut = () => {
     authStore.actions.logOut()
@@ -17,6 +18,7 @@
       {#if logoUrl}
         <img class="logo" alt="logo" src={logoUrl} height="48" />
       {/if}
+      {#if title}<span>{title}</span>{/if}
     </a>
     <div class="nav__controls">
       <div on:click={logOut}>Log out</div>

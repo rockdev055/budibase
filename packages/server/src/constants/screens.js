@@ -19,6 +19,8 @@ exports.HOME_SCREEN = {
       selected: {},
     },
     _code: "",
+    className: "",
+    onLoad: [],
     type: "div",
     _children: [
       {
@@ -33,6 +35,7 @@ exports.HOME_SCREEN = {
           selected: {},
         },
         _code: "",
+        className: "",
         text: "Welcome to your Budibase App 👋",
         type: "h2",
         _appId: "inst_cf8ace4_69efc0d72e6f443db2d4c902c14d9394",
@@ -58,6 +61,8 @@ exports.HOME_SCREEN = {
           selected: {},
         },
         _code: "",
+        className: "",
+        onLoad: [],
         type: "div",
         _appId: "inst_app_2cc_ca3383f896034e9295345c05f7dfca0c",
         _instanceName: "Video Container",
@@ -99,5 +104,31 @@ exports.HOME_SCREEN = {
     route: "/",
     accessLevelId: BUILTIN_LEVEL_IDS.BASIC,
   },
-  name: "d834fea2-1b3e-4320-ab34-f9009f5ecc59",
+  name: "home-screen",
+}
+
+exports.LOGIN_SCREEN = {
+  description: "",
+  url: "",
+  props: {
+    _id: "781e497e-2e7c-11eb-adc1-0242ac120002",
+    _component: "@budibase/standard-components/login",
+    _styles: {
+      normal: {},
+      hover: {},
+      active: {},
+      selected: {},
+    },
+    _code: "",
+    className: "",
+    onLoad: [],
+    type: "div",
+    _children: [],
+    _instanceName: "Login",
+  },
+  routing: {
+    route: "/",
+    accessLevelId: BUILTIN_LEVEL_IDS.PUBLIC,
+  },
+  name: "login-screen",
 }

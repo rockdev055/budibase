@@ -4,7 +4,7 @@
   import * as ComponentLibrary from "@budibase/standard-components"
   import Router from "./Router.svelte"
   import { enrichProps } from "../utils/componentProps"
-  import { bindingStore, builderStore } from "../store"
+  import { bindingStore } from "../store"
 
   export let definition = {}
 
@@ -32,20 +32,12 @@
     const name = split?.[split.length - 1]
     return name === "screenslot" ? Router : ComponentLibrary[name]
   }
-
-  // Returns a unique key to let svelte know when to remount components.
-  // If a component is selected we want to remount it every time any props
-  // change.
-  const getChildKey = childId => {
-    const selected = childId === $builderStore.selectedComponentId
-    return selected ? `${childId}-${$builderStore.previewId}` : childId
-  }
 </script>
 
 {#if constructor}
   <svelte:component this={constructor} {...enrichedProps}>
     {#if children && children.length}
-      {#each children as child (getChildKey(child._id))}
+      {#each children as child (child._id)}
         <svelte:self definition={child} />
       {/each}
     {/if}
