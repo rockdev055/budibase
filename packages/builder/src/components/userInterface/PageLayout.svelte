@@ -22,8 +22,8 @@
   }
 
   const setCurrentScreenToLayout = () => {
-    store.actions.selectAssetType("layout")
-    $goto("./layout")
+    store.actions.selectPageOrScreen("page")
+    $goto("./:page/page-layout")
   }
 </script>
 

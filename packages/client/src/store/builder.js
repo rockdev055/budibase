@@ -3,8 +3,10 @@ import { writable } from "svelte/store"
 const createBuilderStore = () => {
   const initialState = {
     inBuilder: false,
-    layout: null,
+    page: null,
     screen: null,
+    selectedComponentId: null,
+    previewId: null,
   }
   return writable(initialState)
 }

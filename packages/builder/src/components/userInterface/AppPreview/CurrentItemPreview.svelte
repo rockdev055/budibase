@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte"
-  import { store, currentAsset } from "builderStore"
+  import { store } from "builderStore"
   import iframeTemplate from "./iframeTemplate"
   import { Screen } from "builderStore/store/screenTemplates/utils/Screen"
 
@@ -16,33 +16,43 @@
     .json()
 
   // Extract data to pass to the iframe
-  $: layout = $currentAsset
+  $: page = $store.pages[$store.currentPageName]
   $: screen =
-    $store.currentFrontEndType === "layout"
+    $store.currentFrontEndType === "page"
       ? screenPlaceholder
       : $store.currentPreviewItem
   $: selectedComponentId = $store.currentComponentInfo?._id ?? ""
-  $: previewData = {
-    layout,
-    screen,
-    selectedComponentId,
-  }
+
+  // Saving pages and screens to the DB causes them to have _revs.
+  // These revisions change every time a save happens and causes
+  // these reactive statements to fire, even though the actual
+  // definition hasn't changed.
+  // By deleting all _rev properties we can avoid this and increase
+  // performance.
+  $: json = JSON.stringify({ page, screen, selectedComponentId })
+  $: strippedJson = json.replaceAll(/"_rev":\s*"[^"]+"/g, `"_rev":""`)
 
   // Update the iframe with the builder info to render the correct preview
-  const refreshContent = () => {
+  const refreshContent = message => {
     if (iframe) {
-      iframe.contentWindow.postMessage(JSON.stringify(previewData))
+      iframe.contentWindow.postMessage(message)
     }
   }
 
   // Refresh the preview when required
-  $: refreshContent(previewData)
+  $: refreshContent(strippedJson)
 
   // Initialise the app when mounted
   onMount(() => {
-    iframe.contentWindow.addEventListener("bb-ready", refreshContent, {
-      once: true,
-    })
+    iframe.contentWindow.addEventListener(
+      "bb-ready",
+      () => {
+        refreshContent(strippedJson)
+      },
+      {
+        once: true,
+      }
+    )
   })
 </script>
 

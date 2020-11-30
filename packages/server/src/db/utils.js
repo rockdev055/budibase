@@ -13,13 +13,14 @@ const DocumentTypes = {
   ACCESS_LEVEL: "ac",
   WEBHOOK: "wh",
   INSTANCE: "inst",
-  LAYOUT: "layout",
+  PAGE: "page",
   SCREEN: "screen",
 }
 
 const ViewNames = {
   LINK: "by_link",
   ROUTING: "screen_routes",
+  USERS: "ta_users",
 }
 
 exports.ViewNames = ViewNames
@@ -80,13 +81,12 @@ exports.generateTableID = () => {
 exports.getRowParams = (tableId = null, rowId = null, otherProps = {}) => {
   if (tableId == null) {
     return getDocParams(DocumentTypes.ROW, null, otherProps)
-  } else {
-    const endOfKey =
-      rowId == null
-        ? `${tableId}${SEPARATOR}`
-        : `${tableId}${SEPARATOR}${rowId}`
-    return getDocParams(DocumentTypes.ROW, endOfKey, otherProps)
   }
+
+  const endOfKey =
+    rowId == null ? `${tableId}${SEPARATOR}` : `${tableId}${SEPARATOR}${rowId}`
+
+  return getDocParams(DocumentTypes.ROW, endOfKey, otherProps)
 }
 
 /**
@@ -101,8 +101,12 @@ exports.generateRowID = tableId => {
 /**
  * Gets parameters for retrieving users, this is a utility function for the getDocParams function.
  */
-exports.getUserParams = (username = null, otherProps = {}) => {
-  return getDocParams(DocumentTypes.USER, username, otherProps)
+exports.getUserParams = (username = "", otherProps = {}) => {
+  return getDocParams(
+    DocumentTypes.ROW,
+    `${ViewNames.USERS}${SEPARATOR}${DocumentTypes.USER}${SEPARATOR}${username}`,
+    otherProps
+  )
 }
 
 /**
@@ -111,7 +115,7 @@ exports.getUserParams = (username = null, otherProps = {}) => {
  * @returns {string} The new user ID which the user doc can be stored under.
  */
 exports.generateUserID = username => {
-  return `${DocumentTypes.USER}${SEPARATOR}${username}`
+  return `${DocumentTypes.ROW}${SEPARATOR}${ViewNames.USERS}${SEPARATOR}${DocumentTypes.USER}${SEPARATOR}${username}`
 }
 
 /**
@@ -180,41 +184,41 @@ exports.getAccessLevelParams = (accessLevelId = null, otherProps = {}) => {
 }
 
 /**
- * Generates a new layout ID.
- * @returns {string} The new layout ID which the layout doc can be stored under.
+ * Generates a new webhook ID.
+ * @returns {string} The new webhook ID which the webhook doc can be stored under.
  */
-exports.generateLayoutID = () => {
-  return `${DocumentTypes.LAYOUT}${SEPARATOR}${newid()}`
+exports.generateWebhookID = () => {
+  return `${DocumentTypes.WEBHOOK}${SEPARATOR}${newid()}`
 }
 
 /**
- * Gets parameters for retrieving layout, this is a utility function for the getDocParams function.
+ * Generates a new page ID.
+ * @returns {string} The new page ID which the page doc can be stored under.
  */
-exports.getLayoutParams = (layoutId = null, otherProps = {}) => {
-  return getDocParams(DocumentTypes.LAYOUT, layoutId, otherProps)
+exports.generatePageID = () => {
+  return `${DocumentTypes.PAGE}${SEPARATOR}${newid()}`
+}
+
+/**
+ * Gets parameters for retrieving pages, this is a utility function for the getDocParams function.
+ */
+exports.getPageParams = (pageId = null, otherProps = {}) => {
+  return getDocParams(DocumentTypes.PAGE, pageId, otherProps)
 }
 
 /**
  * Generates a new screen ID.
  * @returns {string} The new screen ID which the screen doc can be stored under.
  */
-exports.generateScreenID = () => {
-  return `${DocumentTypes.SCREEN}${SEPARATOR}${newid()}`
+exports.generateScreenID = pageId => {
+  return `${DocumentTypes.SCREEN}${SEPARATOR}${pageId}${SEPARATOR}${newid()}`
 }
 
 /**
- * Gets parameters for retrieving screens, this is a utility function for the getDocParams function.
+ * Gets parameters for retrieving screens for a particular page, this is a utility function for the getDocParams function.
  */
-exports.getScreenParams = (screenId = null, otherProps = {}) => {
-  return getDocParams(DocumentTypes.SCREEN, screenId, otherProps)
-}
-
-/**
- * Generates a new webhook ID.
- * @returns {string} The new webhook ID which the webhook doc can be stored under.
- */
-exports.generateWebhookID = () => {
-  return `${DocumentTypes.WEBHOOK}${SEPARATOR}${newid()}`
+exports.getScreenParams = (pageId = null, otherProps = {}) => {
+  return getDocParams(DocumentTypes.SCREEN, pageId, otherProps)
 }
 
 /**
