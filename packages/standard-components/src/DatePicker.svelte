@@ -1,21 +1,18 @@
 <script>
+  import Flatpickr from "svelte-flatpickr"
   import { DatePicker } from "@budibase/bbui"
-  import { getContext } from "svelte"
-
-  const { styleable, setBindableValue } = getContext("sdk")
-  const component = getContext("component")
 
   export let placeholder
+  export let value
 
-  let value
-  $: setBindableValue(value, $component.id)
+  export let _bb
 
   function handleChange(event) {
-    const [fullDate] = event.detail
-    value = fullDate
+    const [fullDate, dateStr, instance] = event.detail
+    if (_bb) {
+      _bb.setBinding("value", fullDate)
+    }
   }
 </script>
 
-<div use:styleable={$component.styles}>
-  <DatePicker {placeholder} on:change={handleChange} {value} />
-</div>
+<DatePicker {placeholder} on:change={handleChange} {value} />

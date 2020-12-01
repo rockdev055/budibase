@@ -31,13 +31,15 @@ const MAIN = {
           selected: {},
         },
         _code: "",
+        className: "",
+        onLoad: [],
         type: "div",
         _appId: "inst_app_80b_f158d4057d2c4bedb0042d42fda8abaf",
         _instanceName: "Header",
         _children: [
           {
             _id: "49e0e519-9e5e-4127-885a-ee6a0a49e2c1",
-            _component: "@budibase/standard-components/navigation",
+            _component: "@budibase/standard-components/Navigation",
             _styles: {
               normal: {
                 "max-width": "1400px",
@@ -56,6 +58,12 @@ const MAIN = {
             _code: "",
             logoUrl:
               "https://d33wubrfki0l68.cloudfront.net/aac32159d7207b5085e74a7ef67afbb7027786c5/2b1fd/img/logo/bb-emblem.svg",
+            title: "",
+            backgroundColor: "",
+            color: "",
+            borderWidth: "",
+            borderColor: "",
+            borderStyle: "",
             _appId: "inst_cf8ace4_69efc0d72e6f443db2d4c902c14d9394",
             _instanceName: "Navigation",
             _children: [
@@ -80,6 +88,11 @@ const MAIN = {
                 url: "/",
                 openInNewTab: false,
                 text: "Home",
+                color: "",
+                hoverColor: "",
+                underline: false,
+                fontSize: "",
+                fontFamily: "initial",
                 _appId: "inst_cf8ace4_69efc0d72e6f443db2d4c902c14d9394",
                 _instanceName: "Home Link",
                 _children: [],
@@ -130,6 +143,8 @@ const MAIN = {
       selected: {},
     },
     _code: "",
+    className: "",
+    onLoad: [],
   },
 }
 
@@ -166,7 +181,13 @@ const UNAUTHENTICATED = {
           selected: {},
         },
         _code: "",
+        loginRedirect: "",
+        usernameLabel: "Username",
+        passwordLabel: "Password",
+        loginButtonLabel: "Login",
+        buttonClass: "",
         _instanceName: "Login",
+        inputClass: "",
         _children: [],
         title: "Log in to {{ name }}",
         buttonText: "Log In",
@@ -192,6 +213,8 @@ const UNAUTHENTICATED = {
       selected: {},
     },
     _code: "",
+    className: "",
+    onLoad: [],
   },
 }
 
