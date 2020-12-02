@@ -2,7 +2,6 @@
   import { isEmpty } from "lodash/fp"
   import PropertyControl from "./PropertyControl.svelte"
   import Input from "./PropertyPanelControls/Input.svelte"
-  import { goto } from "@sveltech/routify"
   import { excludeProps } from "./propertyCategories.js"
   import { store, allScreens } from "builderStore"
   import { walkProps } from "builderStore/storeUtils"
@@ -13,13 +12,13 @@
   export let onChange = () => {}
   export let onScreenPropChange = () => {}
   export let displayNameField = false
-  export let screenOrPageInstance
+  export let assetInstance
 
-  let pageScreenProps = ["title", "favicon", "description", "route"]
+  let assetProps = ["title", "favicon", "description", "route"]
   let duplicateName = false
 
   const propExistsOnComponentDef = prop =>
-    pageScreenProps.includes(prop) || prop in componentDefinition.props
+    assetProps.includes(prop) || prop in componentDefinition.props
 
   function handleChange(key, data) {
     data.target ? onChange(key, data.target.value) : onChange(key, data)
@@ -30,7 +29,7 @@
     { key: "route", label: "Route", control: Input },
   ]
 
-  const pageDefinition = [
+  const layoutDefinition = [
     { key: "title", label: "Title", control: Input },
     { key: "favicon", label: "Favicon", control: Input },
   ]
@@ -44,8 +43,8 @@
     )
   }
 
-  $: isPage = screenOrPageInstance && screenOrPageInstance.favicon
-  $: screenOrPageDefinition = isPage ? pageDefinition : screenDefinition
+  $: isLayout = assetInstance && assetInstance.favicon
+  $: assetDefinition = isLayout ? layoutDefinition : screenDefinition
 
   const isDuplicateName = name => {
     let duplicate = false
@@ -58,15 +57,15 @@
         }
       })
     }
-    // check page first
-    lookForDuplicate($store.pages[$store.currentPageName].props)
-    if (duplicate) return true
-
+    // check against layouts
+    for (let layout of $store.layouts) {
+      lookForDuplicate(layout.props)
+    }
     // if viewing screen, check current screen for duplicate
     if ($store.currentFrontEndType === "screen") {
       lookForDuplicate($store.currentPreviewItem.props)
     } else {
-      // viewing master page - need to dedupe against all screens
+      // need to dedupe against all screens
       for (let screen of $allScreens) {
         lookForDuplicate(screen.props)
       }
@@ -86,14 +85,14 @@
 </script>
 
 <div class="settings-view-container">
-  {#if screenOrPageInstance}
-    {#each screenOrPageDefinition as def}
+  {#if assetInstance}
+    {#each assetDefinition as def}
       <PropertyControl
         bindable={false}
         control={def.control}
         label={def.label}
         key={def.key}
-        value={screenOrPageInstance[def.key]}
+        value={assetInstance[def.key]}
         onChange={onScreenPropChange}
         props={{ ...excludeProps(def, ['control', 'label']) }} />
     {/each}

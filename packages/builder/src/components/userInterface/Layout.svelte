@@ -1,9 +1,10 @@
 <script>
   import { goto } from "@sveltech/routify"
+  import { FrontendTypes } from "constants"
   import ComponentTree from "./ComponentNavigationTree/ComponentTree.svelte"
   import NavItem from "components/common/NavItem.svelte"
   import { last } from "lodash/fp"
-  import { store } from "builderStore"
+  import { store, currentAsset } from "builderStore"
   import { writable } from "svelte/store"
 
   export let layout
@@ -13,32 +14,29 @@
 
   const dragDropStore = writable({})
 
-  const lastPartOfName = c =>
-    c && last(c.name ? c.name.split("/") : c._component.split("/"))
-
-  $: _layout = {
-    component: layout,
-    title: lastPartOfName(layout),
-  }
+  $: console.log({ 
+    $currentAsset, layout
+  })
 
   const setCurrentScreenToLayout = () => {
-    store.actions.selectPageOrScreen("page")
-    $goto("./:page/page-layout")
+    store.actions.selectAssetType(FrontendTypes.LAYOUT)
+    $goto("./layouts")
   }
 </script>
 
 <NavItem
   border={false}
   icon="ri-layout-3-line"
-  text="Master Screen"
+  text={layout.name}
   withArrow
-  selected={$store.currentComponentInfo?._id === _layout.component.props._id}
-  opened={$store.currentPreviewItem?.name === _layout.title}
+  selected={$store.currentComponentInfo?._id === layout.props._id}
+  opened={$currentAsset._id === layout._id}
   on:click={setCurrentScreenToLayout} />
 
-{#if $store.currentPreviewItem?.name === _layout.title && _layout.component.props._children}
+{#if $currentAsset._id === layout._id && layout.props._children}
   <ComponentTree
-    components={_layout.component.props._children}
+    layout
+    components={layout.props._children}
     currentComponent={$store.currentComponentInfo}
     {dragDropStore} />
 {/if}
