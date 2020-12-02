@@ -51,14 +51,14 @@
     const screens = screenTemplates($store, [table])
       .filter(template => defaultScreens.includes(template.id))
       .map(template => template.create())
-    store.actions.pages.select("main")
+    store.actions.layouts.select("main")
     for (let screen of screens) {
       // Record the table that created this screen so we can link it later
       screen.autoTableId = table._id
       await store.actions.screens.create(screen)
     }
 
-    // Create autolink to newly created list page
+    // Create autolink to newly created list screen
     const listScreen = screens.find(screen =>
       screen.props._instanceName.endsWith("List")
     )

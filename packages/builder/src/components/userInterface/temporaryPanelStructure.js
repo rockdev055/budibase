@@ -1167,7 +1167,7 @@ export default {
           _component: "##builtin/screenslot",
           name: "Screen Slot",
           description:
-            "This component is a placeholder for the rendering of a screen within a page.",
+            "This component is a placeholder for the rendering of a screen within a layout.",
           icon: "ri-crop-2-line",
           properties: { design: { ...all } },
           commonProps: {},
@@ -1185,6 +1185,7 @@ export default {
             settings: [{ label: "Logo URL", key: "logoUrl", control: Input }],
           },
         },
+        // TODO: need to deal with this
         {
           name: "Login",
           _component: "@budibase/standard-components/login",
@@ -1192,7 +1193,7 @@ export default {
             "A component that automatically generates a login screen for your app.",
           icon: "ri-login-box-line",
           children: [],
-          showOnPages: ["unauthenticated"],
+          showOnAsset: ["login-screen"],
           properties: {
             design: { ...all },
             settings: [

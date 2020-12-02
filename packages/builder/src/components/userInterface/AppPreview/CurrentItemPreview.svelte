@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte"
-  import { store } from "builderStore"
+  import { store, currentAsset } from "builderStore"
   import iframeTemplate from "./iframeTemplate"
   import { Screen } from "builderStore/store/screenTemplates/utils/Screen"
 
@@ -16,12 +16,17 @@
     .json()
 
   // Extract data to pass to the iframe
-  $: page = $store.pages[$store.currentPageName]
+  $: layout = $currentAsset
   $: screen =
-    $store.currentFrontEndType === "page"
+    $store.currentFrontEndType === "layout"
       ? screenPlaceholder
       : $store.currentPreviewItem
   $: selectedComponentId = $store.currentComponentInfo?._id ?? ""
+  $: previewData = {
+    layout,
+    screen,
+    selectedComponentId,
+  }
 
   // Saving pages and screens to the DB causes them to have _revs.
   // These revisions change every time a save happens and causes
@@ -29,7 +34,7 @@
   // definition hasn't changed.
   // By deleting all _rev properties we can avoid this and increase
   // performance.
-  $: json = JSON.stringify({ page, screen, selectedComponentId })
+  $: json = JSON.stringify(previewData)
   $: strippedJson = json.replaceAll(/"_rev":\s*"[^"]+"/g, `"_rev":""`)
 
   // Update the iframe with the builder info to render the correct preview
