@@ -1,7 +1,4 @@
-const {
-  BUILTIN_ROLE_IDS,
-  getUserPermissionIds,
-} = require("../utilities/security/roles")
+const { BUILTIN_ROLE_IDS } = require("../utilities/security/roles")
 const {
   PermissionTypes,
   doesHavePermission,
@@ -51,7 +48,7 @@ module.exports = (permType, permLevel = null) => async (ctx, next) => {
   }
 
   const role = ctx.user.role
-  const permissions = await getUserPermissionIds(ctx.appId, role._id)
+  const permissions = ctx.user.permissions
   if (ADMIN_ROLES.indexOf(role._id) !== -1) {
     return next()
   }

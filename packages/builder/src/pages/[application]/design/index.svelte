@@ -1,6 +1,6 @@
 <script>
   import { goto } from "@sveltech/routify"
-  $goto("../main")
+  $goto("../screens")
 </script>
 
 <!-- routify:options index=false -->

@@ -1,4 +1,5 @@
 const { BUILTIN_ROLE_IDS } = require("../security/roles")
+const { BUILTIN_PERMISSION_NAMES } = require("../security/permissions")
 const env = require("../../environment")
 const CouchDB = require("../../db")
 const jwt = require("jsonwebtoken")
@@ -10,6 +11,7 @@ module.exports = async (ctx, appId, version) => {
   const builderUser = {
     userId: "BUILDER",
     roleId: BUILTIN_ROLE_IDS.BUILDER,
+    permissions: [BUILTIN_PERMISSION_NAMES.ADMIN],
     version,
   }
   if (env.BUDIBASE_API_KEY) {
