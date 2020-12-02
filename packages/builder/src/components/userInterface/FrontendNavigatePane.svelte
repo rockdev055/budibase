@@ -1,34 +1,16 @@
 <script>
   import { onMount } from "svelte"
-  import { goto } from "@sveltech/routify"
-  import { store, currentAsset } from "builderStore"
-  import { FrontendTypes } from "constants"
+  import { store, currentScreens } from "builderStore"
   import api from "builderStore/api"
   import ComponentNavigationTree from "components/userInterface/ComponentNavigationTree/index.svelte"
-  import Layout from "components/userInterface/Layout.svelte"
-  import LayoutsList from "components/userInterface/LayoutsList.svelte"
+  import PageLayout from "components/userInterface/PageLayout.svelte"
+  import PagesList from "components/userInterface/PagesList.svelte"
   import NewScreenModal from "components/userInterface/NewScreenModal.svelte"
-  import { Modal, Switcher } from "@budibase/bbui"
-
-  const tabs = [
-    {
-      title: "Screens",
-      key: "screens",
-    },
-    {
-      title: "Layouts",
-      key: "layouts",
-    },
-  ]
+  import { Modal } from "@budibase/bbui"
 
   let modal
-  let routes = {}
-  let tab = "screens"
 
-  function reroute({ detail }) {
-    if (!detail) return
-    $goto(`./${detail.heading.key}`)
-  }
+  let routes = {}
 
   onMount(() => {
     store.actions.routing.fetch()
@@ -36,38 +18,17 @@
 </script>
 
 <div class="title">
-  <Switcher headings={tabs} bind:value={tab} on:change={reroute}>
-    {#if tab === 'screens'}
-      <i
-        on:click={modal.show}
-        data-cy="new-screen"
-        class="ri-add-circle-fill" />
-      <!-- <LayoutsList /> -->
-      {#if $currentAsset}
-        <div class="nav-items-container">
-          <!-- <Layout layout={$currentAsset} /> -->
-          <ComponentNavigationTree />
-        </div>
-      {/if}
-      <Modal bind:this={modal}>
-        <NewScreenModal />
-      </Modal>
-    {:else if tab === 'layouts'}
-      <Layout />
-    {/if}
-
-  </Switcher>
+  <h1>Screens</h1>
+  <i on:click={modal.show} data-cy="new-screen" class="ri-add-circle-fill" />
 </div>
-
-<!-- {#if $store.currentFrontEndType === FrontendTypes.LAYOUT && $currentAsset} -->
-<!-- <div class="nav-items-container"> -->
-<!-- <Layout layout={$currentAsset} /> -->
-<!-- <ComponentNavigationTree /> -->
-<!-- </div> -->
-<!-- <Modal bind:this={modal}> -->
-<!-- <NewScreenModal /> -->
-<!-- </Modal> -->
-<!-- {/if} -->
+<PagesList />
+<div class="nav-items-container">
+  <PageLayout layout={$store.pages[$store.currentPageName]} />
+  <ComponentNavigationTree />
+</div>
+<Modal bind:this={modal}>
+  <NewScreenModal />
+</Modal>
 
 <style>
   .title {
