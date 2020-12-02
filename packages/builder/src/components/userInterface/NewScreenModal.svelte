@@ -85,7 +85,7 @@
       })
     }
 
-    $goto(`./${name}`)
+    $goto(`./:page/${name}`)
   }
 
   const routeNameExists = route => {
