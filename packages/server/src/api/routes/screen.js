@@ -14,7 +14,7 @@ function generateSaveValidation() {
     name: Joi.string().required(),
     routing: Joi.object({
       route: Joi.string().required(),
-      roleId: Joi.string().required().allow(""),
+      accessLevelId: Joi.string().required().allow(""),
     }).required().unknown(true),
     props: Joi.object({
       _id: Joi.string().required(),

@@ -20,9 +20,9 @@ const {
   generateScreenID,
 } = require("../../db/utils")
 const {
-  BUILTIN_ROLE_IDS,
+  BUILTIN_LEVEL_IDS,
   AccessController,
-} = require("../../utilities/security/roles")
+} = require("../../utilities/security/accessLevels")
 const {
   downloadExtractComponentLibraries,
 } = require("../../utilities/createAppPackage")
@@ -56,10 +56,10 @@ async function getScreens(db) {
   ).rows.map(row => row.doc)
 }
 
-function getUserRoleId(ctx) {
-  return !ctx.user.role || !ctx.user.role._id
-    ? BUILTIN_ROLE_IDS.PUBLIC
-    : ctx.user.role._id
+function getUserAccessLevelId(ctx) {
+  return !ctx.user.accessLevel || !ctx.user.accessLevel._id
+    ? BUILTIN_LEVEL_IDS.PUBLIC
+    : ctx.user.accessLevel._id
 }
 
 async function createInstance(template) {
@@ -111,11 +111,11 @@ exports.fetch = async function(ctx) {
 exports.fetchAppDefinition = async function(ctx) {
   const db = new CouchDB(ctx.params.appId)
   const layouts = await getLayouts(db)
-  const userRoleId = getUserRoleId(ctx)
+  const userAccessLevelId = getUserAccessLevelId(ctx)
   const accessController = new AccessController(ctx.params.appId)
   const screens = accessController.checkScreensAccess(
     await getScreens(db),
-    userRoleId
+    userAccessLevelId
   )
   ctx.body = {
     layouts,

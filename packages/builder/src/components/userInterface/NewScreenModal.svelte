@@ -70,7 +70,7 @@
     draftScreen.props._instanceName = name
     draftScreen.props._component = baseComponent
     // TODO: need to fix this up correctly
-    draftScreen.routing = { route, roleId: "ADMIN" }
+    draftScreen.routing = { route, accessLevelId: "ADMIN" }
 
     await store.actions.screens.create(draftScreen)
     if (createLink) {

@@ -10,7 +10,7 @@ const staticRoutes = require("./static")
 const componentRoutes = require("./component")
 const automationRoutes = require("./automation")
 const webhookRoutes = require("./webhook")
-const roleRoutes = require("./role")
+const accesslevelRoutes = require("./accesslevel")
 const deployRoutes = require("./deploy")
 const apiKeysRoutes = require("./apikeys")
 const templatesRoutes = require("./templates")
@@ -26,7 +26,7 @@ exports.mainRoutes = [
   automationRoutes,
   viewRoutes,
   componentRoutes,
-  roleRoutes,
+  accesslevelRoutes,
   apiKeysRoutes,
   templatesRoutes,
   analyticsRoutes,

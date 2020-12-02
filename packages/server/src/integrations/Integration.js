@@ -1,3 +1,4 @@
 class Integration {
-  constructor() {}
+  constructor() {
+  }
 }
