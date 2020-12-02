@@ -13,7 +13,7 @@ import {
 } from "builderStore"
 import { fetchComponentLibDefinitions } from "../loadComponentLibraries"
 import api from "../api"
-import { FrontendTypes } from "../../constants"
+import { DEFAULT_LAYOUTS, FrontendTypes } from "../../constants"
 import getNewComponentName from "../getNewComponentName"
 import analytics from "analytics"
 import {
@@ -27,7 +27,7 @@ const INITIAL_FRONTEND_STATE = {
   apps: [],
   name: "",
   description: "",
-  layouts: [],
+  layouts: DEFAULT_LAYOUTS,
   screens: [],
   mainUi: {},
   unauthenticatedUi: {},
@@ -198,17 +198,16 @@ export const getFrontendStore = () => {
     preview: {
       saveSelected: async () => {
         const state = get(store)
-        const selectedAsset = get(currentAsset)
         if (state.currentFrontEndType !== FrontendTypes.LAYOUT) {
-          await store.actions.screens.save(selectedAsset)
+          await store.actions.screens.save(currentAsset)
         }
-        await store.actions.layouts.save(selectedAsset)
+        await store.actions.layouts.save(currentAsset)
       },
     },
     layouts: {
-      select: async layoutId => {
+      select: async layoutName => {
         store.update(state => {
-          const layout = store.actions.layouts.find(layoutId)
+          const layout = store.actions.layouts.find(layoutName)
 
           state.currentFrontEndType = FrontendTypes.LAYOUT
           state.currentView = "detail"
@@ -237,10 +236,9 @@ export const getFrontendStore = () => {
         await Promise.all(cssPromises)
       },
       save: async layout => {
-        const layoutToSave = cloneDeep(layout)
-        delete layoutToSave._css
-
-        const response = await api.post(`/api/layouts`, layoutToSave)
+        const response = await api.post(`/api/layouts`, {
+          ...layout,
+        })
 
         const json = await response.json()
 
@@ -248,7 +246,7 @@ export const getFrontendStore = () => {
 
         store.update(state => {
           const layoutToUpdate = state.layouts.find(
-            stateLayout => stateLayout._id === layout._id
+            stateLayouts => stateLayouts._id === layout._id
           )
           if (layoutToUpdate) {
             layoutToUpdate._rev = json.rev
@@ -256,12 +254,17 @@ export const getFrontendStore = () => {
           return state
         })
       },
-      find: layoutId => {
-        if (!layoutId) {
+      find: layoutName => {
+        if (!layoutName) {
           return get(mainLayout)
         }
         const storeContents = get(store)
-        return storeContents.layouts.find(layout => layout._id === layoutId)
+        // TODO: only use ID
+        return storeContents.layouts.find(
+          layout =>
+            layout.name.toLowerCase() === layoutName.toLowerCase() ||
+            layout._id === layoutName
+        )
       },
     },
     components: {

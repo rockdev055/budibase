@@ -1,10 +1,7 @@
 <script>
   import { onMount, getContext } from "svelte"
 
-  const { API, screenStore, routeStore, DataProvider, styleable } = getContext(
-    "sdk"
-  )
-  const component = getContext("component")
+  const { API, screenStore, routeStore, DataProvider } = getContext("sdk")
 
   export let table
 
@@ -38,9 +35,7 @@
 </script>
 
 {#if row}
-  <div use:styleable={$component.styles}>
-    <DataProvider {row}>
-      <slot />
-    </DataProvider>
-  </div>
+  <DataProvider {row}>
+    <slot />
+  </DataProvider>
 {/if}

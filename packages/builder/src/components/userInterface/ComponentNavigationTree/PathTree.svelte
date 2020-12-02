@@ -4,11 +4,11 @@
   import { store } from "builderStore"
   import instantiateStore from "./dragDropStore"
 
-  import ComponentTree from "./ComponentTree.svelte"
+  import ComponentsTree from "./ComponentTree.svelte"
   import NavItem from "components/common/NavItem.svelte"
   import ScreenDropdownMenu from "./ScreenDropdownMenu.svelte"
 
-  const dragDropStore = instantiateStore();
+  const dragDropStore = instantiateStore()
 
   export let route
   export let path
@@ -39,14 +39,13 @@
       text={url === '/' ? 'Home' : url}
       withArrow={route.subpaths}
       on:click={() => changeScreen(screenId)}>
-      <ScreenDropdownMenu {screenId} />
+      <ScreenDropdownMenu screen={screenId} />
     </NavItem>
     {#if selectedScreen?._id === screenId}
-      <ComponentTree
+      <ComponentsTree
         components={selectedScreen.props._children}
         currentComponent={$store.currentComponentInfo}
-        {dragDropStore}
-      />
+        {dragDropStore} />
     {/if}
   {/each}
 {/each}

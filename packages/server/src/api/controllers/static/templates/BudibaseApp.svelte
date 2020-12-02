@@ -48,8 +48,9 @@
 </svelte:head>
 
 <body id="app">
+  <script src={publicPath('clientFrontendDefinition.js')}>
+  </script>
   <script src={publicPath('budibase-client.js')}>
-
   </script>
   <script>
     loadBudibase()

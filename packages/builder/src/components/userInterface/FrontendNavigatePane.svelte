@@ -1,6 +1,5 @@
 <script>
   import { onMount } from "svelte"
-  import { goto } from "@sveltech/routify"
   import { store, currentAsset } from "builderStore"
   import { FrontendTypes } from "constants"
   import api from "builderStore/api"
@@ -13,22 +12,17 @@
   const tabs = [
     {
       title: "Screens",
-      key: "screens",
+      key: "SCREENS",
     },
     {
       title: "Layouts",
-      key: "layouts",
+      key: "LAYOUTS",
     },
   ]
 
   let modal
   let routes = {}
-  let tab = "screens"
-
-  function reroute({ detail }) {
-    if (!detail) return
-    $goto(`./${detail.heading.key}`)
-  }
+  let tab = "SCREENS"
 
   onMount(() => {
     store.actions.routing.fetch()
@@ -36,8 +30,8 @@
 </script>
 
 <div class="title">
-  <Switcher headings={tabs} bind:value={tab} on:change={reroute}>
-    {#if tab === 'screens'}
+  <Switcher headings={tabs} bind:value={tab}>
+    {#if tab === 'SCREENS'}
       <i
         on:click={modal.show}
         data-cy="new-screen"
@@ -52,10 +46,8 @@
       <Modal bind:this={modal}>
         <NewScreenModal />
       </Modal>
-    {:else if tab === 'layouts'}
-      {#each $store.layouts as layout}
-        <Layout {layout} />
-      {/each}
+    {:else if tab === 'LAYOUTS'}
+      <Layout />
     {/if}
   </Switcher>
 </div>
@@ -70,7 +62,6 @@
 <!-- </Modal> -->
 
 <!-- {/if} -->
-
 <style>
   .title {
     display: flex;

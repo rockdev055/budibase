@@ -8,6 +8,12 @@
   const currentScreenId = decodeURI($params.screen)
   const validScreen = $allScreens.some(screen => screen._id === currentScreenId)
 
+  console.log({
+    validScreen,
+    currentScreenId,
+    componentIds,
+  })
+
   if (!validScreen) {
     // Go to main layout if URL set to invalid screen
     console.error("Invalid screen", $params.screen)
@@ -22,7 +28,7 @@
     if ($leftover) {
       console.log("leftover", $params.screen)
       // Get the correct screen children.
-      const screenChildren = $allScreens.find(
+      const screenChildren = allScreens.find(
         screen =>
           screen._id === $params.screen ||
           screen._id === decodeURIComponent($params.screen)
