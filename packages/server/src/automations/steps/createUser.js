@@ -1,4 +1,4 @@
-const roles = require("../../utilities/security/roles")
+const accessLevels = require("../../utilities/security/accessLevels")
 const userController = require("../../api/controllers/user")
 const env = require("../../environment")
 const usage = require("../../utilities/usageQuota")
@@ -11,7 +11,7 @@ module.exports.definition = {
   type: "ACTION",
   stepId: "CREATE_USER",
   inputs: {
-    roleId: roles.BUILTIN_ROLE_IDS.POWER,
+    accessLevelId: accessLevels.BUILTIN_LEVEL_IDS.POWER,
   },
   schema: {
     inputs: {
@@ -25,14 +25,14 @@ module.exports.definition = {
           customType: "password",
           title: "Password",
         },
-        roleId: {
+        accessLevelId: {
           type: "string",
-          title: "Role",
-          enum: roles.BUILTIN_ROLE_ID_ARRAY,
-          pretty: roles.BUILTIN_ROLE_NAME_ARRAY,
+          title: "Access Level",
+          enum: accessLevels.BUILTIN_LEVEL_ID_ARRAY,
+          pretty: accessLevels.BUILTIN_LEVEL_NAME_ARRAY,
         },
       },
-      required: ["username", "password", "roleId"],
+      required: ["username", "password", "accessLevelId"],
     },
     outputs: {
       properties: {
@@ -59,13 +59,13 @@ module.exports.definition = {
 }
 
 module.exports.run = async function({ inputs, appId, apiKey }) {
-  const { username, password, roleId } = inputs
+  const { username, password, accessLevelId } = inputs
   const ctx = {
     user: {
       appId: appId,
     },
     request: {
-      body: { username, password, roleId },
+      body: { username, password, accessLevelId },
     },
   }
 

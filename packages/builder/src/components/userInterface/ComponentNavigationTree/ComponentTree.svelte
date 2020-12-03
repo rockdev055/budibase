@@ -6,11 +6,11 @@
   import ComponentDropdownMenu from "../ComponentDropdownMenu.svelte"
   import NavItem from "components/common/NavItem.svelte"
 
-  export let layout
   export let components = []
   export let currentComponent
   export let onSelect = () => {}
   export let level = 0
+
   export let dragDropStore
 
   const isScreenslot = name => name === "##builtin/screenslot"
@@ -23,11 +23,7 @@
     const path = store.actions.components.findRoute(component)
 
     // Go to correct URL
-    if (layout) {
-      $goto(`./layouts/${path}`)
-    } else {
-      $goto(`./screens/${path}`)
-    }
+    $goto(`./:page/:screen/${path}`)
   }
 
   const dragstart = component => e => {
@@ -83,7 +79,6 @@
 
       {#if component._children}
         <svelte:self
-          {layout}
           components={component._children}
           {currentComponent}
           {onSelect}

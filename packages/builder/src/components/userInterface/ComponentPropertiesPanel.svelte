@@ -58,7 +58,7 @@
     return components
   }
 
-  function setAssetProps(name, value) {
+  function setPageOrScreenProp(name, value) {
     store.update(state => {
       if (name === "_instanceName" && state.currentFrontEndType === "screen") {
         state.currentPreviewItem.props[name] = value
@@ -94,8 +94,8 @@
       {panelDefinition}
       displayNameField={displayName}
       onChange={store.actions.components.updateProp}
-      onScreenPropChange={setAssetProps}
-      assetInstance={$store.currentView !== 'component' && $store.currentPreviewItem} />
+      onScreenPropChange={setPageOrScreenProp}
+      screenOrPageInstance={$store.currentView !== 'component' && $store.currentPreviewItem} />
   {/if}
 </div>
 

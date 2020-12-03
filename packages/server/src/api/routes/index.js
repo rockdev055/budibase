@@ -1,5 +1,5 @@
 const authRoutes = require("./auth")
-const layoutRoutes = require("./layout")
+const pageRoutes = require("./pages")
 const screenRoutes = require("./screen")
 const userRoutes = require("./user")
 const applicationRoutes = require("./application")
@@ -10,7 +10,7 @@ const staticRoutes = require("./static")
 const componentRoutes = require("./component")
 const automationRoutes = require("./automation")
 const webhookRoutes = require("./webhook")
-const roleRoutes = require("./role")
+const accesslevelRoutes = require("./accesslevel")
 const deployRoutes = require("./deploy")
 const apiKeysRoutes = require("./apikeys")
 const templatesRoutes = require("./templates")
@@ -19,14 +19,14 @@ const routingRoutes = require("./routing")
 
 exports.mainRoutes = [
   deployRoutes,
-  layoutRoutes,
+  pageRoutes,
   screenRoutes,
   userRoutes,
   applicationRoutes,
   automationRoutes,
   viewRoutes,
   componentRoutes,
-  roleRoutes,
+  accesslevelRoutes,
   apiKeysRoutes,
   templatesRoutes,
   analyticsRoutes,

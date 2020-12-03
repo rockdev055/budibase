@@ -21,7 +21,7 @@
     placeholder="Password"
     type="password"
     error={blurred.password && validationErrors.password} />
-  <Select label="Role" secondary name="roleId">
+  <Select label="Access Level" secondary name="accessLevelId">
     <option value="ADMIN">Admin</option>
     <option value="POWER_USER">Power User</option>
   </Select>
