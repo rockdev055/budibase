@@ -359,11 +359,6 @@ const TYPE_TRANSFORM_MAP = {
     [null]: "",
     [undefined]: undefined,
   },
-  longform: {
-    "": "",
-    [null]: "",
-    [undefined]: undefined,
-  },
   number: {
     "": null,
     [null]: null,

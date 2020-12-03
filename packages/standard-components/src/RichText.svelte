@@ -24,5 +24,5 @@
 </script>
 
 <div use:styleable={$component.styles}>
-  <RichText bind:value {options} />
+  <RichText bind:content={value} {options} />
 </div>
