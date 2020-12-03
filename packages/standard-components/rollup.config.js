@@ -2,7 +2,6 @@ import commonjs from "@rollup/plugin-commonjs"
 import resolve from "@rollup/plugin-node-resolve"
 import svelte from "rollup-plugin-svelte"
 import postcss from "rollup-plugin-postcss"
-import json from "@rollup/plugin-json"
 import { terser } from "rollup-plugin-terser"
 
 const production = !process.env.ROLLUP_WATCH
@@ -26,9 +25,8 @@ export default {
     }),
     resolve({
       browser: true,
-      skip: externals
+      skip: externals,
     }),
     commonjs(),
-    json()
   ],
 }
