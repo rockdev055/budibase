@@ -15,7 +15,6 @@ const {
 const CouchDB = require("../../../db")
 const setBuilderToken = require("../../../utilities/builder/setBuilderToken")
 const fileProcessor = require("../../../utilities/fileProcessor")
-const { AuthTypes } = require("../../../constants")
 const env = require("../../../environment")
 const { generateAssetCss } = require("../../../utilities/builder/generateCss")
 const compileStaticAssets = require("../../../utilities/builder/compileStaticAssets")
@@ -190,15 +189,7 @@ exports.serveAttachment = async function(ctx) {
 
 exports.serveAppAsset = async function(ctx) {
   // default to homedir
-  const mainOrAuth =
-    ctx.auth.authenticated === AuthTypes.APP ? "main" : "unauthenticated"
-
-  const appPath = resolve(
-    budibaseAppsDir(),
-    ctx.user.appId,
-    "public",
-    mainOrAuth
-  )
+  const appPath = resolve(budibaseAppsDir(), ctx.user.appId, "public")
 
   await send(ctx, ctx.file, { root: ctx.devPath || appPath })
 }
