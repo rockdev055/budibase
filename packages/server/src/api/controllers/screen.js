@@ -1,6 +1,6 @@
 const CouchDB = require("../../db")
 const { getScreenParams, generateScreenID } = require("../../db/utils")
-const { AccessController } = require("../../utilities/security/roles")
+const { AccessController } = require("../../utilities/security/accessLevels")
 
 exports.fetch = async ctx => {
   const appId = ctx.user.appId
@@ -16,7 +16,7 @@ exports.fetch = async ctx => {
 
   ctx.body = await new AccessController(appId).checkScreensAccess(
     screens,
-    ctx.user.role._id
+    ctx.user.accessLevel._id
   )
 }
 
@@ -32,7 +32,7 @@ exports.find = async ctx => {
 
   ctx.body = await new AccessController(appId).checkScreensAccess(
     screens,
-    ctx.user.role._id
+    ctx.user.accessLevel._id
   )
 }
 

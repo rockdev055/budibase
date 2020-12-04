@@ -1,7 +1,4 @@
-const {
-  BUILTIN_ROLE_IDS,
-  getUserPermissionIds,
-} = require("../utilities/security/roles")
+const { BUILTIN_LEVEL_IDS } = require("../utilities/security/accessLevels")
 const {
   PermissionTypes,
   doesHavePermission,
@@ -10,7 +7,7 @@ const env = require("../environment")
 const { apiKeyTable } = require("../db/dynamoClient")
 const { AuthTypes } = require("../constants")
 
-const ADMIN_ROLES = [BUILTIN_ROLE_IDS.ADMIN, BUILTIN_ROLE_IDS.BUILDER]
+const ADMIN_ACCESS = [BUILTIN_LEVEL_IDS.ADMIN, BUILTIN_LEVEL_IDS.BUILDER]
 
 const LOCAL_PASS = new RegExp(["webhooks/trigger", "webhooks/schema"].join("|"))
 
@@ -50,9 +47,9 @@ module.exports = (permType, permLevel = null) => async (ctx, next) => {
     ctx.throw(403, "User not found")
   }
 
-  const role = ctx.user.role
-  const permissions = await getUserPermissionIds(ctx.appId, role._id)
-  if (ADMIN_ROLES.indexOf(role._id) !== -1) {
+  const accessLevel = ctx.user.accessLevel
+  const permissions = ctx.user.permissions
+  if (ADMIN_ACCESS.indexOf(accessLevel._id) !== -1) {
     return next()
   }
 
