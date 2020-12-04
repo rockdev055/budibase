@@ -1,8 +1,6 @@
 const CouchDB = require("../../../db")
 const supertest = require("supertest")
-const {
-  BUILTIN_LEVEL_IDS,
-} = require("../../../utilities/security/accessLevels")
+const { BUILTIN_ROLE_IDS } = require("../../../utilities/security/roles")
 const {
   BUILTIN_PERMISSION_NAMES,
 } = require("../../../utilities/security/permissions")
@@ -26,7 +24,7 @@ exports.supertest = async () => {
 exports.defaultHeaders = appId => {
   const builderUser = {
     userId: "BUILDER",
-    accessLevelId: BUILTIN_LEVEL_IDS.BUILDER,
+    roleId: BUILTIN_ROLE_IDS.BUILDER,
   }
 
   const builderToken = jwt.sign(builderUser, env.JWT_SECRET)
@@ -118,7 +116,7 @@ exports.clearApplications = async request => {
 exports.createUser = async (
   request,
   appId,
-  email = "babs",
+  username = "babs",
   password = "babs_password"
 ) => {
   const res = await request
@@ -126,9 +124,9 @@ exports.createUser = async (
     .set(exports.defaultHeaders(appId))
     .send({
       name: "Bill",
-      email,
+      username,
       password,
-      accessLevelId: BUILTIN_LEVEL_IDS.POWER,
+      roleId: BUILTIN_ROLE_IDS.POWER,
     })
   return res.body
 }
@@ -174,22 +172,23 @@ const createUserWithPermissions = async (
   request,
   appId,
   permissions,
-  email
+  username
 ) => {
-  const password = `password_${email}`
+  const password = `password_${username}`
   await request
     .post(`/api/users`)
     .set(exports.defaultHeaders(appId))
     .send({
-      email,
+      name: username,
+      username,
       password,
-      accessLevelId: BUILTIN_LEVEL_IDS.POWER,
+      roleId: BUILTIN_ROLE_IDS.POWER,
       permissions,
     })
 
   const anonUser = {
     userId: "ANON",
-    accessLevelId: BUILTIN_LEVEL_IDS.PUBLIC,
+    roleId: BUILTIN_ROLE_IDS.PUBLIC,
     appId: appId,
     version: packageJson.version,
   }
@@ -202,7 +201,7 @@ const createUserWithPermissions = async (
       Cookie: `budibase:${appId}:local=${anonToken}`,
       "x-budibase-app-id": appId,
     })
-    .send({ email, password })
+    .send({ username, password })
 
   // returning necessary request headers
   return {

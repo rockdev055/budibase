@@ -52,15 +52,11 @@
       applicationName: string().required("Your application must have a name."),
     },
     {
-      email: string()
-        .email()
-        .required("Your application needs a first user."),
+      username: string().required("Your application needs a first user."),
       password: string().required(
         "Please enter a password for your first user."
       ),
-      accessLevelId: string().required(
-        "You need to select an access level for your user."
-      ),
+      roleId: string().required("You need to select a role for your user."),
     },
   ]
 
@@ -81,9 +77,7 @@
 
   if (hasKey) {
     validationSchemas.shift()
-    validationSchemas = validationSchemas
     steps.shift()
-    steps = steps
   }
 
   // Handles form navigation
@@ -157,18 +151,18 @@
       const pkg = await applicationPkg.json()
       if (applicationPkg.ok) {
         backendUiStore.actions.reset()
-        pkg.justCreated = true
         await store.actions.initialise(pkg)
-        automationStore.actions.fetch()
+        await automationStore.actions.fetch()
       } else {
         throw new Error(pkg)
       }
 
       // Create user
       const user = {
-        email: $createAppStore.values.email,
+        name: $createAppStore.values.username,
+        username: $createAppStore.values.username,
         password: $createAppStore.values.password,
-        accessLevelId: $createAppStore.values.accessLevelId,
+        roleId: $createAppStore.values.roleId,
       }
       const userResp = await api.post(`/api/users`, user)
       const json = await userResp.json()

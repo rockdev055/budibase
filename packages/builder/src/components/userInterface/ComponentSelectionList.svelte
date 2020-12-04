@@ -1,6 +1,6 @@
 <script>
-  import { goto } from "@sveltech/routify"
-  import { store } from "builderStore"
+  import { goto, url } from "@sveltech/routify"
+  import { store, currentAssetName } from "builderStore"
   import components from "./temporaryPanelStructure.js"
   import { DropdownMenu } from "@budibase/bbui"
   import { DropdownContainer, DropdownItem } from "components/common/Dropdowns"
@@ -27,7 +27,7 @@
   const onComponentChosen = component => {
     store.actions.components.create(component._component, component.presetProps)
     const path = store.actions.components.findRoute($store.currentComponentInfo)
-    $goto(`./:page/:screen/${path}`)
+    $goto(`./${$store.currentFrontEndType}s/${$store.currentAssetId}/${path}`)
     close()
   }
 </script>
@@ -39,9 +39,13 @@
       class="category"
       on:click={() => onCategoryChosen(category, idx)}
       class:active={idx === selectedIndex}>
-      {#if category.icon}<i class={category.icon} />{/if}
+      {#if category.icon}
+        <i class={category.icon} />
+      {/if}
       <span>{category.name}</span>
-      {#if category.isCategory}<i class="ri-arrow-down-s-line arrow" />{/if}
+      {#if category.isCategory}
+        <i class="ri-arrow-down-s-line arrow" />
+      {/if}
     </div>
   {/each}
 </div>
@@ -52,7 +56,7 @@
   align="left">
   <DropdownContainer>
     {#each categories[selectedIndex].children as item}
-      {#if !item.showOnPages || item.showOnPages.includes($store.currentPageName)}
+      {#if !item.showOnAsset || item.showOnAsset.includes($currentAssetName)}
         <DropdownItem
           icon={item.icon}
           title={item.name}

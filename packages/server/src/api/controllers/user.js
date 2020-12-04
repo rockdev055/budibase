@@ -1,9 +1,7 @@
 const CouchDB = require("../../db")
 const bcrypt = require("../../utilities/bcrypt")
 const { generateUserID, getUserParams, ViewNames } = require("../../db/utils")
-const {
-  BUILTIN_LEVEL_ID_ARRAY,
-} = require("../../utilities/security/accessLevels")
+const { BUILTIN_ROLE_ID_ARRAY } = require("../../utilities/security/roles")
 const {
   BUILTIN_PERMISSION_NAMES,
 } = require("../../utilities/security/permissions")
@@ -20,23 +18,23 @@ exports.fetch = async function(ctx) {
 
 exports.create = async function(ctx) {
   const db = new CouchDB(ctx.user.appId)
-  const { email, password, name, accessLevelId, permissions } = ctx.request.body
+  const { username, password, name, roleId, permissions } = ctx.request.body
 
-  if (!email || !password) {
-    ctx.throw(400, "email and Password Required.")
+  if (!username || !password) {
+    ctx.throw(400, "Username and Password Required.")
   }
 
-  const accessLevel = await checkAccessLevel(db, accessLevelId)
+  const role = await checkRole(db, roleId)
 
-  if (!accessLevel) ctx.throw(400, "Invalid Access Level")
+  if (!role) ctx.throw(400, "Invalid Role")
 
   const user = {
-    _id: generateUserID(email),
-    email,
+    _id: generateUserID(username),
+    username,
     password: await bcrypt.hash(password),
-    name,
+    name: name || username,
     type: "user",
-    accessLevelId,
+    roleId,
     permissions: permissions || [BUILTIN_PERMISSION_NAMES.POWER],
     tableId: ViewNames.USERS,
   }
@@ -48,7 +46,7 @@ exports.create = async function(ctx) {
     ctx.userId = response._id
     ctx.body = {
       _rev: response.rev,
-      email,
+      username,
       name,
     }
   } catch (err) {
@@ -70,35 +68,35 @@ exports.update = async function(ctx) {
   user._rev = response.rev
 
   ctx.status = 200
-  ctx.message = `User ${ctx.request.body.email} updated successfully.`
+  ctx.message = `User ${ctx.request.body.username} updated successfully.`
   ctx.body = response
 }
 
 exports.destroy = async function(ctx) {
   const database = new CouchDB(ctx.user.appId)
-  await database.destroy(generateUserID(ctx.params.email))
-  ctx.message = `User ${ctx.params.email} deleted.`
+  await database.destroy(generateUserID(ctx.params.username))
+  ctx.message = `User ${ctx.params.username} deleted.`
   ctx.status = 200
 }
 
 exports.find = async function(ctx) {
   const database = new CouchDB(ctx.user.appId)
-  const user = await database.get(generateUserID(ctx.params.email))
+  const user = await database.get(generateUserID(ctx.params.username))
   ctx.body = {
-    email: user.email,
+    username: user.username,
     name: user.name,
     _rev: user._rev,
   }
 }
 
-const checkAccessLevel = async (db, accessLevelId) => {
-  if (!accessLevelId) return
-  if (BUILTIN_LEVEL_ID_ARRAY.indexOf(accessLevelId) !== -1) {
+const checkRole = async (db, roleId) => {
+  if (!roleId) return
+  if (BUILTIN_ROLE_ID_ARRAY.indexOf(roleId) !== -1) {
     return {
-      _id: accessLevelId,
-      name: accessLevelId,
+      _id: roleId,
+      name: roleId,
       permissions: [],
     }
   }
-  return await db.get(accessLevelId)
+  return await db.get(roleId)
 }
