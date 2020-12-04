@@ -9,16 +9,6 @@ export const FIELDS = {
       presence: false,
     },
   },
-  LONGFORM: {
-    name: "Long Form Text",
-    icon: "ri-file-text-line",
-    type: "longform",
-    constraints: {
-      type: "string",
-      length: {},
-      presence: false,
-    },
-  },
   OPTIONS: {
     name: "Options",
     icon: "ri-list-check-2",
