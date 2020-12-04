@@ -5,7 +5,6 @@ export class Screen extends BaseStructure {
     super(true)
     this._json = {
       props: {
-        layoutId: "layout_private_master",
         _id: "",
         _component: "",
         _styles: {
@@ -19,7 +18,7 @@ export class Screen extends BaseStructure {
       },
       routing: {
         route: "",
-        roleId: "",
+        accessLevelId: "",
       },
       name: "screen-id",
     }

@@ -1,8 +1,8 @@
 const { getRoutingInfo } = require("../../utilities/routing")
 const {
-  getUserRoleHierarchy,
-  BUILTIN_ROLE_IDS,
-} = require("../../utilities/security/roles")
+  getUserAccessLevelHierarchy,
+  BUILTIN_LEVEL_IDS,
+} = require("../../utilities/security/accessLevels")
 
 const URL_SEPARATOR = "/"
 
@@ -33,15 +33,15 @@ Routing.prototype.getScreensProp = function(fullpath) {
   return this.json[topLevel].subpaths[fullpath].screens
 }
 
-Routing.prototype.addScreenId = function(fullpath, roleId, screenId) {
-  this.getScreensProp(fullpath)[roleId] = screenId
+Routing.prototype.addScreenId = function(fullpath, accessLevel, screenId) {
+  this.getScreensProp(fullpath)[accessLevel] = screenId
 }
 
 /**
  * Gets the full routing structure by querying the routing view and processing the result into the tree.
  * @param {string} appId The application to produce the routing structure for.
  * @returns {Promise<object>} The routing structure, this is the full structure designed for use in the builder,
- * if the client routing is required then the updateRoutingStructureForUserRole should be used.
+ * if the client routing is required then the updateRoutingStructureForUserLevel should be used.
  */
 async function getRoutingStructure(appId) {
   const screenRoutes = await getRoutingInfo(appId)
@@ -49,8 +49,8 @@ async function getRoutingStructure(appId) {
 
   for (let screenRoute of screenRoutes) {
     let fullpath = screenRoute.routing.route
-    const roleId = screenRoute.routing.roleId
-    routing.addScreenId(fullpath, roleId, screenRoute.id)
+    const accessLevel = screenRoute.routing.accessLevelId
+    routing.addScreenId(fullpath, accessLevel, screenRoute.id)
   }
 
   return { routes: routing.json }
@@ -62,26 +62,29 @@ exports.fetch = async ctx => {
 
 exports.clientFetch = async ctx => {
   const routing = await getRoutingStructure(ctx.appId)
-  let roleId = ctx.user.role._id
+  let accessLevelId = ctx.user.accessLevel._id
   // builder is a special case, always return the full routing structure
-  if (roleId === BUILTIN_ROLE_IDS.BUILDER) {
-    roleId = BUILTIN_ROLE_IDS.ADMIN
+  if (accessLevelId === BUILTIN_LEVEL_IDS.BUILDER) {
+    accessLevelId = BUILTIN_LEVEL_IDS.ADMIN
   }
-  const roleIds = await getUserRoleHierarchy(ctx.appId, roleId)
+  const accessLevelIds = await getUserAccessLevelHierarchy(
+    ctx.appId,
+    accessLevelId
+  )
   for (let topLevel of Object.values(routing.routes)) {
     for (let subpathKey of Object.keys(topLevel.subpaths)) {
       let found = false
       const subpath = topLevel.subpaths[subpathKey]
-      const roleOptions = Object.keys(subpath.screens)
-      if (roleOptions.length === 1 && !roleOptions[0]) {
-        subpath.screenId = subpath.screens[roleOptions[0]]
-        subpath.roleId = BUILTIN_ROLE_IDS.BASIC
+      const accessLevelOptions = Object.keys(subpath.screens)
+      if (accessLevelOptions.length === 1 && !accessLevelOptions[0]) {
+        subpath.screenId = subpath.screens[accessLevelOptions[0]]
+        subpath.accessLevelId = BUILTIN_LEVEL_IDS.BASIC
         found = true
       } else {
-        for (let roleId of roleIds) {
-          if (roleOptions.indexOf(roleId) !== -1) {
-            subpath.screenId = subpath.screens[roleId]
-            subpath.roleId = roleId
+        for (let levelId of accessLevelIds) {
+          if (accessLevelOptions.indexOf(levelId) !== -1) {
+            subpath.screenId = subpath.screens[levelId]
+            subpath.accessLevelId = levelId
             found = true
             break
           }

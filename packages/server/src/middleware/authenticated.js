@@ -1,6 +1,9 @@
 const jwt = require("jsonwebtoken")
 const STATUS_CODES = require("../utilities/statusCodes")
-const { getRole, BUILTIN_ROLES } = require("../utilities/security/roles")
+const {
+  getAccessLevel,
+  BUILTIN_LEVELS,
+} = require("../utilities/security/accessLevels")
 const { AuthTypes } = require("../constants")
 const { getAppId, getCookieName, setCookie, isClient } = require("../utilities")
 
@@ -32,7 +35,7 @@ module.exports = async (ctx, next) => {
     ctx.appId = appId
     ctx.user = {
       appId,
-      role: BUILTIN_ROLES.PUBLIC,
+      accessLevel: BUILTIN_LEVELS.PUBLIC,
     }
     await next()
     return
@@ -46,7 +49,7 @@ module.exports = async (ctx, next) => {
     ctx.user = {
       ...jwtPayload,
       appId: appId,
-      role: await getRole(appId, jwtPayload.roleId),
+      accessLevel: await getAccessLevel(appId, jwtPayload.accessLevelId),
     }
   } catch (err) {
     ctx.throw(err.status || STATUS_CODES.FORBIDDEN, err.text)
