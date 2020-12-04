@@ -1,6 +1,5 @@
 <script>
   import { store, allScreens } from "builderStore"
-  import { FrontendTypes } from "constants"
   import ComponentPropertiesPanel from "./ComponentPropertiesPanel.svelte"
   import ComponentSelectionList from "./ComponentSelectionList.svelte"
 
@@ -19,7 +18,7 @@
 </script>
 
 <div class="root">
-  {#if $store.currentFrontEndType === FrontendTypes.LAYOUT || $allScreens.length}
+  {#if $store.currentFrontEndType === 'page' || $allScreens.length}
     <div class="switcher">
       <button
         class:selected={selected === COMPONENT_SELECTION_TAB}
