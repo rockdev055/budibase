@@ -15,13 +15,7 @@ exports.fetch = async function(ctx) {
   )
   const customRoles = body.rows.map(row => row.doc)
 
-  // exclude internal roles like builder
-  const staticRoles = [
-    BUILTIN_ROLES.ADMIN,
-    BUILTIN_ROLES.POWER,
-    BUILTIN_ROLES.BASIC,
-    BUILTIN_ROLES.PUBLIC,
-  ]
+  const staticRoles = [BUILTIN_ROLES.ADMIN, BUILTIN_ROLES.POWER]
   ctx.body = [...staticRoles, ...customRoles]
 }
 
@@ -31,13 +25,9 @@ exports.find = async function(ctx) {
 
 exports.save = async function(ctx) {
   const db = new CouchDB(ctx.user.appId)
-  let { _id, name, inherits, permissionId } = ctx.request.body
-  if (!_id) {
-    _id = generateRoleID()
-  }
-  const role = new Role(_id, name)
-    .addPermission(permissionId)
-    .addInheritance(inherits)
+
+  let id = ctx.request.body._id || generateRoleID()
+  const role = new Role(id, ctx.request.body.name, ctx.request.body.inherits)
   if (ctx.request.body._rev) {
     role._rev = ctx.request.body._rev
   }
