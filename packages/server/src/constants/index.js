@@ -1,4 +1,4 @@
-const { BUILTIN_LEVEL_IDS } = require("../utilities/security/accessLevels")
+const { BUILTIN_ROLE_IDS } = require("../utilities/security/roles")
 
 const AuthTypes = {
   APP: "app",
@@ -12,31 +12,30 @@ const USERS_TABLE_SCHEMA = {
   views: {},
   name: "Users",
   schema: {
-    email: {
+    username: {
       type: "string",
       constraints: {
         type: "string",
-        email: true,
         length: {
           maximum: "",
         },
         presence: true,
       },
-      fieldName: "email",
-      name: "email",
+      fieldName: "username",
+      name: "username",
     },
-    accessLevelId: {
-      fieldName: "accessLevelId",
-      name: "accessLevelId",
+    roleId: {
+      fieldName: "roleId",
+      name: "roleId",
       type: "options",
       constraints: {
         type: "string",
         presence: false,
-        inclusion: Object.keys(BUILTIN_LEVEL_IDS),
+        inclusion: Object.keys(BUILTIN_ROLE_IDS),
       },
     },
   },
-  primaryDisplay: "email",
+  primaryDisplay: "username",
 }
 
 exports.AuthTypes = AuthTypes

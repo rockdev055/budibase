@@ -10,7 +10,7 @@ const DocumentTypes = {
   AUTOMATION: "au",
   LINK: "li",
   APP: "app",
-  ACCESS_LEVEL: "ac",
+  ROLE: "role",
   WEBHOOK: "wh",
   INSTANCE: "inst",
   PAGE: "page",
@@ -101,21 +101,21 @@ exports.generateRowID = tableId => {
 /**
  * Gets parameters for retrieving users, this is a utility function for the getDocParams function.
  */
-exports.getUserParams = (email = "", otherProps = {}) => {
+exports.getUserParams = (username = "", otherProps = {}) => {
   return getDocParams(
     DocumentTypes.ROW,
-    `${ViewNames.USERS}${SEPARATOR}${DocumentTypes.USER}${SEPARATOR}${email}`,
+    `${ViewNames.USERS}${SEPARATOR}${DocumentTypes.USER}${SEPARATOR}${username}`,
     otherProps
   )
 }
 
 /**
  * Generates a new user ID based on the passed in username.
- * @param {string} email The email which the ID is going to be built up of.
+ * @param {string} username The username which the ID is going to be built up of.
  * @returns {string} The new user ID which the user doc can be stored under.
  */
-exports.generateUserID = email => {
-  return `${DocumentTypes.ROW}${SEPARATOR}${ViewNames.USERS}${SEPARATOR}${DocumentTypes.USER}${SEPARATOR}${email}`
+exports.generateUserID = username => {
+  return `${DocumentTypes.ROW}${SEPARATOR}${ViewNames.USERS}${SEPARATOR}${DocumentTypes.USER}${SEPARATOR}${username}`
 }
 
 /**
@@ -169,18 +169,18 @@ exports.getAppParams = (appId = null, otherProps = {}) => {
 }
 
 /**
- * Generates a new access level ID.
- * @returns {string} The new access level ID which the access level doc can be stored under.
+ * Generates a new role ID.
+ * @returns {string} The new role ID which the role doc can be stored under.
  */
-exports.generateAccessLevelID = () => {
-  return `${DocumentTypes.ACCESS_LEVEL}${SEPARATOR}${newid()}`
+exports.generateRoleID = () => {
+  return `${DocumentTypes.ROLE}${SEPARATOR}${newid()}`
 }
 
 /**
- * Gets parameters for retrieving an access level, this is a utility function for the getDocParams function.
+ * Gets parameters for retrieving a role, this is a utility function for the getDocParams function.
  */
-exports.getAccessLevelParams = (accessLevelId = null, otherProps = {}) => {
-  return getDocParams(DocumentTypes.ACCESS_LEVEL, accessLevelId, otherProps)
+exports.getRoleParams = (roleId = null, otherProps = {}) => {
+  return getDocParams(DocumentTypes.ROLE, roleId, otherProps)
 }
 
 /**
