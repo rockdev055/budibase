@@ -1,12 +1,13 @@
 const CouchDB = require("pouchdb")
 const PouchDB = require("../../../db")
-
+const {
+  uploadAppAssets,
+  verifyDeployment,
+  updateDeploymentQuota,
+} = require("./aws")
+const { DocumentTypes, SEPARATOR, UNICODE_MAX } = require("../../../db/utils")
+const newid = require("../../../db/newid")
 const env = require("../../../environment")
-const deployment = env.SELF_HOSTED
-  ? require("./selfDeploy")
-  : require("./awsDeploy")
-const { deploy, preDeployment, postDeployment } = deployment
-const Deployment = require("./Deployment")
 
 // the max time we can wait for an invalidation to complete before considering it failed
 const MAX_PENDING_TIME_MS = 30 * 60000
@@ -43,9 +44,7 @@ function replicate(local, remote) {
   })
 }
 
-async function replicateCouch(deployment) {
-  const appId = deployment.getAppId()
-  const { session } = deployment.getVerification()
+async function replicateCouch({ appId, session }) {
   const localDb = new PouchDB(appId)
   const remoteDb = new CouchDB(`${env.DEPLOYMENT_DB_URL}/${appId}`, {
     fetch: function(url, opts) {
@@ -57,10 +56,33 @@ async function replicateCouch(deployment) {
   return replicate(localDb, remoteDb)
 }
 
-async function storeLocalDeploymentHistory(deployment) {
-  const appId = deployment.getAppId()
-  const deploymentJSON = deployment.getJSON()
+async function getCurrentInstanceQuota(appId) {
   const db = new PouchDB(appId)
+
+  const rows = await db.allDocs({
+    startkey: DocumentTypes.ROW + SEPARATOR,
+    endkey: DocumentTypes.ROW + SEPARATOR + UNICODE_MAX,
+  })
+
+  const users = await db.allDocs({
+    startkey: DocumentTypes.USER + SEPARATOR,
+    endkey: DocumentTypes.USER + SEPARATOR + UNICODE_MAX,
+  })
+
+  const existingRows = rows.rows.length
+  const existingUsers = users.rows.length
+
+  const designDoc = await db.get("_design/database")
+
+  return {
+    rows: existingRows,
+    users: existingUsers,
+    views: Object.keys(designDoc.views).length,
+  }
+}
+
+async function storeLocalDeploymentHistory(deployment) {
+  const db = new PouchDB(deployment.appId)
 
   let deploymentDoc
   try {
@@ -69,7 +91,7 @@ async function storeLocalDeploymentHistory(deployment) {
     deploymentDoc = { _id: "_local/deployments", history: {} }
   }
 
-  const deploymentId = deploymentJSON._id
+  const deploymentId = deployment._id || newid()
 
   // first time deployment
   if (!deploymentDoc.history[deploymentId])
@@ -77,36 +99,55 @@ async function storeLocalDeploymentHistory(deployment) {
 
   deploymentDoc.history[deploymentId] = {
     ...deploymentDoc.history[deploymentId],
-    ...deploymentJSON,
+    ...deployment,
     updatedAt: Date.now(),
   }
 
   await db.put(deploymentDoc)
-  deployment.fromJSON(deploymentDoc.history[deploymentId])
-  return deployment
+  return {
+    _id: deploymentId,
+    ...deploymentDoc.history[deploymentId],
+  }
 }
 
-async function deployApp(deployment) {
-  const appId = deployment.getAppId()
+async function deployApp({ appId, deploymentId }) {
   try {
-    await deployment.init()
-    deployment.setVerification(await preDeployment(deployment))
+    const instanceQuota = await getCurrentInstanceQuota(appId)
+    const verification = await verifyDeployment({
+      appId,
+      quota: instanceQuota,
+    })
 
-    console.log(`Uploading assets for appID ${appId}..`)
+    console.log(`Uploading assets for appID ${appId} assets to s3..`)
 
-    await deploy(deployment)
+    await uploadAppAssets({
+      appId,
+      ...verification,
+    })
 
     // replicate the DB to the couchDB cluster in prod
     console.log("Replicating local PouchDB to remote..")
-    await replicateCouch(deployment)
+    await replicateCouch({
+      appId,
+      session: verification.couchDbSession,
+    })
 
-    await postDeployment(deployment)
+    await updateDeploymentQuota(verification.quota)
 
-    deployment.setStatus(DeploymentStatus.SUCCESS)
-    await storeLocalDeploymentHistory(deployment)
+    await storeLocalDeploymentHistory({
+      _id: deploymentId,
+      appId,
+      cfDistribution: verification.cfDistribution,
+      quota: verification.quota,
+      status: DeploymentStatus.SUCCESS,
+    })
   } catch (err) {
-    deployment.setStatus(DeploymentStatus.FAILURE, err.message)
-    await storeLocalDeploymentHistory(deployment)
+    await storeLocalDeploymentHistory({
+      _id: deploymentId,
+      appId,
+      status: DeploymentStatus.FAILURE,
+      err: err.message,
+    })
     throw new Error(`Deployment Failed: ${err.message}`)
   }
 }
@@ -142,11 +183,15 @@ exports.deploymentProgress = async function(ctx) {
 }
 
 exports.deployApp = async function(ctx) {
-  let deployment = new Deployment(ctx.user.appId)
-  deployment.setStatus(DeploymentStatus.PENDING)
-  deployment = await storeLocalDeploymentHistory(deployment)
+  const deployment = await storeLocalDeploymentHistory({
+    appId: ctx.user.appId,
+    status: DeploymentStatus.PENDING,
+  })
 
-  await deployApp(deployment)
+  deployApp({
+    ...ctx.user,
+    deploymentId: deployment._id,
+  })
 
   ctx.body = deployment
 }
