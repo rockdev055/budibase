@@ -1,16 +1,34 @@
 <script>
   import { onMount } from "svelte"
-  import { store, currentScreens } from "builderStore"
+  import { goto, isActive, leftover, url } from "@sveltech/routify"
+  import { store, currentAsset } from "builderStore"
+  import { FrontendTypes } from "constants"
   import api from "builderStore/api"
   import ComponentNavigationTree from "components/userInterface/ComponentNavigationTree/index.svelte"
-  import PageLayout from "components/userInterface/PageLayout.svelte"
-  import PagesList from "components/userInterface/PagesList.svelte"
+  import Layout from "components/userInterface/Layout.svelte"
+  import LayoutsList from "components/userInterface/LayoutsList.svelte"
   import NewScreenModal from "components/userInterface/NewScreenModal.svelte"
-  import { Modal } from "@budibase/bbui"
+  import { Modal, Switcher, Button, Spacer } from "@budibase/bbui"
+
+  const tabs = [
+    {
+      title: "Screens",
+      key: "screens",
+    },
+    {
+      title: "Layouts",
+      key: "layouts",
+    },
+  ]
 
   let modal
-
   let routes = {}
+  let tab = "screens"
+
+  function navigate({ detail }) {
+    if (!detail) return
+    $goto(`./${detail.heading.key}`)
+  }
 
   onMount(() => {
     store.actions.routing.fetch()
@@ -18,17 +36,27 @@
 </script>
 
 <div class="title">
-  <h1>Screens</h1>
-  <i on:click={modal.show} data-cy="new-screen" class="ri-add-circle-fill" />
+  <Switcher headings={tabs} bind:value={tab} on:change={navigate}>
+    {#if tab === 'screens'}
+      <i
+        on:click={modal.show}
+        data-cy="new-screen"
+        class="ri-add-circle-fill" />
+      {#if $currentAsset}
+        <div class="nav-items-container">
+          <ComponentNavigationTree />
+        </div>
+      {/if}
+      <Modal bind:this={modal}>
+        <NewScreenModal />
+      </Modal>
+    {:else if tab === 'layouts'}
+      {#each $store.layouts as layout}
+        <Layout {layout} />
+      {/each}
+    {/if}
+  </Switcher>
 </div>
-<PagesList />
-<div class="nav-items-container">
-  <PageLayout layout={$store.pages[$store.currentPageName]} />
-  <ComponentNavigationTree />
-</div>
-<Modal bind:this={modal}>
-  <NewScreenModal />
-</Modal>
 
 <style>
   .title {
@@ -36,11 +64,6 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-  }
-  .title h1 {
-    font-size: var(--font-size-m);
-    font-weight: 500;
-    margin: 0;
   }
   .title i {
     font-size: 20px;
