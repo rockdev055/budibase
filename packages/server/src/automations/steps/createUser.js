@@ -5,7 +5,7 @@ const usage = require("../../utilities/usageQuota")
 
 module.exports.definition = {
   description: "Create a new user",
-  tagline: "Create user {{inputs.email}}",
+  tagline: "Create user {{inputs.username}}",
   icon: "ri-user-add-line",
   name: "Create User",
   type: "ACTION",
@@ -16,10 +16,9 @@ module.exports.definition = {
   schema: {
     inputs: {
       properties: {
-        email: {
+        username: {
           type: "string",
-          customType: "email",
-          title: "Email",
+          title: "Username",
         },
         password: {
           type: "string",
@@ -33,7 +32,7 @@ module.exports.definition = {
           pretty: roles.BUILTIN_ROLE_NAME_ARRAY,
         },
       },
-      required: ["email", "password", "roleId"],
+      required: ["username", "password", "roleId"],
     },
     outputs: {
       properties: {
@@ -60,13 +59,13 @@ module.exports.definition = {
 }
 
 module.exports.run = async function({ inputs, appId, apiKey }) {
-  const { email, password, roleId } = inputs
+  const { username, password, roleId } = inputs
   const ctx = {
     user: {
       appId: appId,
     },
     request: {
-      body: { email, password, roleId },
+      body: { username, password, roleId },
     },
   }
 
