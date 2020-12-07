@@ -3,20 +3,28 @@
   import { store, allScreens } from "builderStore"
   import { notifier } from "builderStore/store/notifications"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
-  import { DropdownMenu, Modal, ModalContent } from "@budibase/bbui"
+  import { DropdownMenu } from "@budibase/bbui"
   import { DropdownContainer, DropdownItem } from "components/common/Dropdowns"
 
-  export let screenId
+  export let screen
 
   let confirmDeleteDialog
   let dropdown
   let anchor
 
-  $: screen = $allScreens.find(screen => screen._id === screenId)
-
   const deleteScreen = () => {
-    store.actions.screens.delete(screen)
+    const screenToDelete = $allScreens.find(scr => scr._id === screen)
+    store.actions.screens.delete(screenToDelete)
     store.actions.routing.fetch()
+    // update the page if required
+    store.update(state => {
+      if (state.currentPreviewItem._id === screen) {
+        store.actions.pages.select($store.currentPageName)
+        notifier.success(`Screen ${screenToDelete.name} deleted successfully.`)
+        $goto(`./:page/page-layout`)
+      }
+      return state
+    })
   }
 </script>
 

@@ -151,8 +151,9 @@
       const pkg = await applicationPkg.json()
       if (applicationPkg.ok) {
         backendUiStore.actions.reset()
+        pkg.justCreated = true
         await store.actions.initialise(pkg)
-        await automationStore.actions.fetch()
+        automationStore.actions.fetch()
       } else {
         throw new Error(pkg)
       }
