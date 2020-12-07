@@ -1197,7 +1197,7 @@ export default {
           _component: "##builtin/screenslot",
           name: "Screen Slot",
           description:
-            "This component is a placeholder for the rendering of a screen within a layout.",
+            "This component is a placeholder for the rendering of a screen within a page.",
           icon: "ri-crop-2-line",
           properties: { design: { ...all } },
           commonProps: {},
@@ -1222,7 +1222,7 @@ export default {
             "A component that automatically generates a login screen for your app.",
           icon: "ri-login-box-line",
           children: [],
-          showOnAsset: ["login-screen"],
+          showOnPages: ["unauthenticated"],
           properties: {
             design: { ...all },
             settings: [

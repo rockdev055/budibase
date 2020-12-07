@@ -1,7 +1,6 @@
 <script>
   import { store, backendUiStore } from "builderStore"
   import { onMount } from "svelte"
-  import { FrontendTypes } from "constants"
   import CurrentItemPreview from "components/userInterface/AppPreview"
   import ComponentPropertiesPanel from "components/userInterface/ComponentPropertiesPanel.svelte"
   import ComponentSelectionList from "components/userInterface/ComponentSelectionList.svelte"
@@ -27,6 +26,8 @@
   const settings = () => {
     settingsView.show()
   }
+
+  const lastPartOfName = c => (c ? last(c.split("/")) : "")
 </script>
 
 <!-- routify:options index=1 -->
@@ -36,7 +37,7 @@
   </div>
 
   <div class="preview-pane">
-    {#if $store.currentAssetId && $store.currentAssetId.length > 0}
+    {#if $store.currentPageName && $store.currentPageName.length > 0}
       <ComponentSelectionList />
       <div class="preview-content">
         <CurrentItemPreview />
@@ -44,7 +45,7 @@
     {/if}
   </div>
 
-  {#if $store.currentFrontEndType === FrontendTypes.SCREEN || $store.currentFrontEndType === FrontendTypes.LAYOUT}
+  {#if $store.currentFrontEndType === 'screen' || $store.currentFrontEndType === 'page'}
     <div class="components-pane">
       <ComponentPropertiesPanel />
     </div>
