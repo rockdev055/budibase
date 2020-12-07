@@ -2,7 +2,6 @@ import { walkProps } from "./storeUtils"
 import { get_capitalised_name } from "../helpers"
 import { get } from "svelte/store"
 import { allScreens } from "builderStore"
-import { FrontendTypes } from "../constants"
 
 export default function(component, state) {
   const capitalised = get_capitalised_name(
@@ -20,16 +19,14 @@ export default function(component, state) {
     })
   }
 
-  // check layouts first
-  for (let layout of state.layouts) {
-    findMatches(layout.props)
-  }
+  // check page first
+  findMatches(state.pages[state.currentPageName].props)
 
   // if viewing screen, check current screen for duplicate
-  if (state.currentFrontEndType === FrontendTypes.SCREEN) {
+  if (state.currentFrontEndType === "screen") {
     findMatches(state.currentPreviewItem.props)
   } else {
-    // viewing a layout - need to find against all screens
+    // viewing master page - need to find against all screens
     for (let screen of get(allScreens)) {
       findMatches(screen.props)
     }

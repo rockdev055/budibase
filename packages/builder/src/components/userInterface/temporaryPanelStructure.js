@@ -427,6 +427,36 @@ export default {
             ],
           },
         },
+        {
+          _component: "@budibase/standard-components/cardstat",
+          name: "Stat",
+          description: "A card component for displaying numbers.",
+          icon: "ri-dual-sim-2-line",
+          children: [],
+          properties: {
+            design: { ...all },
+            settings: [
+              {
+                label: "Title",
+                key: "title",
+                control: Input,
+                placeholder: "Total Revenue",
+              },
+              {
+                label: "Value",
+                key: "value",
+                control: Input,
+                placeholder: "$1,981,983",
+              },
+              {
+                label: "Label",
+                key: "label",
+                control: Input,
+                placeholder: "Stripe",
+              },
+            ],
+          },
+        },
       ],
     },
     {
@@ -1167,7 +1197,7 @@ export default {
           _component: "##builtin/screenslot",
           name: "Screen Slot",
           description:
-            "This component is a placeholder for the rendering of a screen within a layout.",
+            "This component is a placeholder for the rendering of a screen within a page.",
           icon: "ri-crop-2-line",
           properties: { design: { ...all } },
           commonProps: {},
@@ -1192,7 +1222,7 @@ export default {
             "A component that automatically generates a login screen for your app.",
           icon: "ri-login-box-line",
           children: [],
-          showOnAsset: ["login-screen"],
+          showOnPages: ["unauthenticated"],
           properties: {
             design: { ...all },
             settings: [
