@@ -53,7 +53,7 @@ module.exports.definition = {
   },
 }
 
-module.exports.run = async function({ inputs, appId, emitter }) {
+module.exports.run = async function({ inputs, appId }) {
   if (inputs.rowId == null || inputs.row == null) {
     return
   }
@@ -79,7 +79,6 @@ module.exports.run = async function({ inputs, appId, emitter }) {
       body: inputs.row,
     },
     user: { appId },
-    eventEmitter: emitter,
   }
 
   try {

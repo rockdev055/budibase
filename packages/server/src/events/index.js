@@ -1,5 +1,4 @@
 const EventEmitter = require("events").EventEmitter
-const { rowEmission, tableEmission } = require("./utils")
 
 /**
  * keeping event emitter in one central location as it might be used for things other than
@@ -13,11 +12,36 @@ const { rowEmission, tableEmission } = require("./utils")
  */
 class BudibaseEmitter extends EventEmitter {
   emitRow(eventName, appId, row, table = null) {
-    rowEmission({ emitter: this, eventName, appId, row, table })
+    let event = {
+      row,
+      appId,
+      tableId: row.tableId,
+    }
+    if (table) {
+      event.table = table
+    }
+    event.id = row._id
+    if (row._rev) {
+      event.revision = row._rev
+    }
+    this.emit(eventName, event)
   }
 
   emitTable(eventName, appId, table = null) {
-    tableEmission({ emitter: this, eventName, appId, table })
+    const tableId = table._id
+    let event = {
+      table: {
+        ...table,
+        tableId: tableId,
+      },
+      appId,
+      tableId: tableId,
+    }
+    event.id = tableId
+    if (table._rev) {
+      event.revision = table._rev
+    }
+    this.emit(eventName, event)
   }
 }
 
