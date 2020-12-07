@@ -1,11 +1,10 @@
 <script>
   import { isEmpty } from "lodash/fp"
-  import { FrontendTypes } from "constants"
   import PropertyControl from "./PropertyControl.svelte"
-  import LayoutSelect from "./LayoutSelect.svelte"
   import Input from "./PropertyPanelControls/Input.svelte"
+  import { goto } from "@sveltech/routify"
   import { excludeProps } from "./propertyCategories.js"
-  import { store, allScreens, currentAsset } from "builderStore"
+  import { store, allScreens } from "builderStore"
   import { walkProps } from "builderStore/storeUtils"
 
   export let panelDefinition = []
@@ -14,13 +13,13 @@
   export let onChange = () => {}
   export let onScreenPropChange = () => {}
   export let displayNameField = false
-  export let assetInstance
+  export let screenOrPageInstance
 
-  let assetProps = ["title", "description", "route", "layoutId"]
+  let pageScreenProps = ["title", "favicon", "description", "route"]
   let duplicateName = false
 
   const propExistsOnComponentDef = prop =>
-    assetProps.includes(prop) || prop in componentDefinition.props
+    pageScreenProps.includes(prop) || prop in componentDefinition.props
 
   function handleChange(key, data) {
     data.target ? onChange(key, data.target.value) : onChange(key, data)
@@ -29,10 +28,12 @@
   const screenDefinition = [
     { key: "description", label: "Description", control: Input },
     { key: "route", label: "Route", control: Input },
-    { key: "layoutId", label: "Layout", control: LayoutSelect },
   ]
 
-  const layoutDefinition = [{ key: "title", label: "Title", control: Input }]
+  const pageDefinition = [
+    { key: "title", label: "Title", control: Input },
+    { key: "favicon", label: "Favicon", control: Input },
+  ]
 
   const canRenderControl = (key, dependsOn) => {
     let test = !isEmpty(componentInstance[dependsOn])
@@ -43,8 +44,8 @@
     )
   }
 
-  $: isLayout = assetInstance && assetInstance.favicon
-  $: assetDefinition = isLayout ? layoutDefinition : screenDefinition
+  $: isPage = screenOrPageInstance && screenOrPageInstance.favicon
+  $: screenOrPageDefinition = isPage ? pageDefinition : screenDefinition
 
   const isDuplicateName = name => {
     let duplicate = false
@@ -57,15 +58,15 @@
         }
       })
     }
-    // check against layouts
-    for (let layout of $store.layouts) {
-      lookForDuplicate(layout.props)
-    }
+    // check page first
+    lookForDuplicate($store.pages[$store.currentPageName].props)
+    if (duplicate) return true
+
     // if viewing screen, check current screen for duplicate
-    if ($store.currentFrontEndType === FrontendTypes.SCREEN) {
-      lookForDuplicate($currentAsset.props)
+    if ($store.currentFrontEndType === "screen") {
+      lookForDuplicate($store.currentPreviewItem.props)
     } else {
-      // need to dedupe against all screens
+      // viewing master page - need to dedupe against all screens
       for (let screen of $allScreens) {
         lookForDuplicate(screen.props)
       }
@@ -85,14 +86,14 @@
 </script>
 
 <div class="settings-view-container">
-  {#if assetInstance}
-    {#each assetDefinition as def}
+  {#if screenOrPageInstance}
+    {#each screenOrPageDefinition as def}
       <PropertyControl
         bindable={false}
         control={def.control}
         label={def.label}
         key={def.key}
-        value={assetInstance[def.key]}
+        value={screenOrPageInstance[def.key]}
         onChange={onScreenPropChange}
         props={{ ...excludeProps(def, ['control', 'label']) }} />
     {/each}

@@ -1,5 +1,4 @@
 const Koa = require("koa")
-const destroyable = require("server-destroy")
 const electron = require("electron")
 const koaBody = require("koa-body")
 const logger = require("koa-pino-logger")
@@ -45,22 +44,10 @@ if (electron.app && electron.app.isPackaged) {
 }
 
 const server = http.createServer(app.callback())
-destroyable(server)
 
 server.on("close", () => console.log("Server Closed"))
 
 module.exports = server.listen(env.PORT || 4001, () => {
   console.log(`Budibase running on ${JSON.stringify(server.address())}`)
   automations.init()
-})
-
-process.on("uncaughtException", err => {
-  console.error(err)
-  server.close()
-  server.destroy()
-})
-
-process.on("SIGTERM", () => {
-  server.close()
-  server.destroy()
 })

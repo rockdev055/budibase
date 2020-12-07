@@ -1,4 +1,4 @@
-const { BUILTIN_ROLE_IDS } = require("../utilities/security/roles")
+const { BUILTIN_LEVEL_IDS } = require("../utilities/security/accessLevels")
 
 const AuthTypes = {
   APP: "app",
@@ -24,14 +24,14 @@ const USERS_TABLE_SCHEMA = {
       fieldName: "username",
       name: "username",
     },
-    roleId: {
-      fieldName: "roleId",
-      name: "roleId",
+    accessLevelId: {
+      fieldName: "accessLevelId",
+      name: "accessLevelId",
       type: "options",
       constraints: {
         type: "string",
         presence: false,
-        inclusion: Object.keys(BUILTIN_ROLE_IDS),
+        inclusion: Object.keys(BUILTIN_LEVEL_IDS),
       },
     },
   },
