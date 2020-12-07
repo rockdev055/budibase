@@ -4,10 +4,8 @@
   import CreateColumnButton from "./buttons/CreateColumnButton.svelte"
   import CreateViewButton from "./buttons/CreateViewButton.svelte"
   import ExportButton from "./buttons/ExportButton.svelte"
-  import EditRolesButton from "./buttons/EditRolesButton.svelte"
   import * as api from "./api"
   import Table from "./Table.svelte"
-  import { TableNames } from "constants"
 
   let data = []
   let loading = false
@@ -37,8 +35,5 @@
     <CreateRowButton />
     <CreateViewButton />
     <ExportButton view={tableView} />
-  {/if}
-  {#if $backendUiStore.selectedTable?._id === TableNames.USERS}
-    <EditRolesButton />
   {/if}
 </Table>
