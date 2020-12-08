@@ -34,7 +34,7 @@ const createRouteStore = () => {
   }
   const setActiveRoute = route => {
     store.update(state => {
-      state.activeRoute = state.routes.find(x => x.path === route)
+      state.activeRoute = route
       return state
     })
   }

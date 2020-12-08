@@ -69,11 +69,13 @@
 </script>
 
 <div class="component-container">
-  <iframe
-    style="height: 100%; width: 100%"
-    title="componentPreview"
-    bind:this={iframe}
-    srcdoc={iframeTemplate} />
+  {#if $currentAsset}
+    <iframe
+      style="height: 100%; width: 100%"
+      title="componentPreview"
+      bind:this={iframe}
+      srcdoc={iframeTemplate} />
+  {/if}
 </div>
 
 <style>

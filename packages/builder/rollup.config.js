@@ -77,6 +77,10 @@ export default {
         { src: "src/favicon.png", dest: outputpath },
         { src: "assets", dest: outputpath },
         {
+          src: "node_modules/@budibase/client/dist/budibase-client.esm.mjs",
+          dest: outputpath,
+        },
+        {
           src: "node_modules/@budibase/bbui/dist/bbui.css",
           dest: outputpath,
         },
