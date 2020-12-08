@@ -1,12 +1,15 @@
 const CouchDB = require("../../db")
 const bcrypt = require("../../utilities/bcrypt")
 const { generateUserID, getUserParams, ViewNames } = require("../../db/utils")
-const { getRole } = require("../../utilities/security/roles")
+const { BUILTIN_ROLE_ID_ARRAY } = require("../../utilities/security/roles")
+const {
+  BUILTIN_PERMISSION_NAMES,
+} = require("../../utilities/security/permissions")
 
 exports.fetch = async function(ctx) {
   const database = new CouchDB(ctx.user.appId)
   const data = await database.allDocs(
-    getUserParams(null, {
+    getUserParams("", {
       include_docs: true,
     })
   )
@@ -15,13 +18,13 @@ exports.fetch = async function(ctx) {
 
 exports.create = async function(ctx) {
   const db = new CouchDB(ctx.user.appId)
-  const { email, password, roleId } = ctx.request.body
+  const { email, password, roleId, permissions } = ctx.request.body
 
   if (!email || !password) {
     ctx.throw(400, "email and Password Required.")
   }
 
-  const role = await getRole(ctx.user.appId, roleId)
+  const role = await checkRole(db, roleId)
 
   if (!role) ctx.throw(400, "Invalid Role")
 
@@ -31,6 +34,7 @@ exports.create = async function(ctx) {
     password: await bcrypt.hash(password),
     type: "user",
     roleId,
+    permissions: permissions || [BUILTIN_PERMISSION_NAMES.POWER],
     tableId: ViewNames.USERS,
   }
 
@@ -78,6 +82,19 @@ exports.find = async function(ctx) {
   const user = await database.get(generateUserID(ctx.params.email))
   ctx.body = {
     email: user.email,
+    name: user.name,
     _rev: user._rev,
   }
+}
+
+const checkRole = async (db, roleId) => {
+  if (!roleId) return
+  if (BUILTIN_ROLE_ID_ARRAY.indexOf(roleId) !== -1) {
+    return {
+      _id: roleId,
+      name: roleId,
+      permissions: [],
+    }
+  }
+  return await db.get(roleId)
 }

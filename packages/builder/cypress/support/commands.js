@@ -120,17 +120,17 @@ Cypress.Commands.add("createUser", (email, password, role) => {
   cy.get(".modal").within(() => {
     cy.get("input")
       .first()
-      .type(email)
+      .type(password)
     cy.get("input")
       .eq(1)
-      .type(password)
+      .type(email)
     cy.get("select")
       .first()
       .select(role)
 
     // Save
     cy.get(".buttons")
-      .contains("Create User")
+      .contains("Create Row")
       .click()
   })
 })
