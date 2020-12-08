@@ -1,19 +1,12 @@
 <script>
   import { writable } from "svelte/store"
   import { goto } from "@sveltech/routify"
-  import { store, selectedComponent, currentAsset } from "builderStore"
+  import { store } from "builderStore"
   import instantiateStore from "./dragDropStore"
 
-  import ComponentTree from "./ComponentTree.svelte"
+  import ComponentsTree from "./ComponentTree.svelte"
   import NavItem from "components/common/NavItem.svelte"
   import ScreenDropdownMenu from "./ScreenDropdownMenu.svelte"
-
-  const ROUTE_NAME_MAP = {
-    "/": {
-      BASIC: "Home",
-      PUBLIC: "Login",
-    },
-  }
 
   const dragDropStore = instantiateStore()
 
@@ -21,12 +14,12 @@
   export let path
   export let indent
 
-  $: selectedScreen = $currentAsset
+  $: selectedScreen = $store.currentPreviewItem
 
   const changeScreen = screenId => {
     // select the route
     store.actions.screens.select(screenId)
-    $goto(`./${screenId}`)
+    $goto(`./:page/${screenId}`)
   }
 </script>
 
@@ -37,21 +30,21 @@
   withArrow={route.subpaths} />
 
 {#each Object.entries(route.subpaths) as [url, subpath]}
-  {#each Object.entries(subpath.screens) as [role, screenId]}
+  {#each Object.values(subpath.screens) as screenId}
     <NavItem
       icon="ri-artboard-2-line"
       indentLevel={indent || 1}
-      selected={$store.currentAssetId === screenId}
-      opened={$store.currentAssetId === screenId}
-      text={ROUTE_NAME_MAP[url]?.[role] || url}
+      selected={$store.currentPreviewItem._id === screenId}
+      opened={$store.currentPreviewItem._id === screenId}
+      text={url === '/' ? 'Home' : url}
       withArrow={route.subpaths}
       on:click={() => changeScreen(screenId)}>
-      <ScreenDropdownMenu {screenId} />
+      <ScreenDropdownMenu screen={screenId} />
     </NavItem>
     {#if selectedScreen?._id === screenId}
-      <ComponentTree
+      <ComponentsTree
         components={selectedScreen.props._children}
-        currentComponent={$selectedComponent}
+        currentComponent={$store.currentComponentInfo}
         {dragDropStore} />
     {/if}
   {/each}
