@@ -7,15 +7,10 @@
   import { notifier } from "builderStore/store/notifications"
   import Spinner from "components/common/Spinner.svelte"
   import DeleteRowsButton from "./buttons/DeleteRowsButton.svelte"
-  import {
-    getRenderer,
-    editRowRenderer,
-    userRowRenderer,
-  } from "./cells/cellRenderers"
+  import { getRenderer, editRowRenderer } from "./cells/cellRenderers"
   import TableLoadingOverlay from "./TableLoadingOverlay"
   import TableHeader from "./TableHeader"
   import "@budibase/svelte-ag-grid/dist/index.css"
-  import { TableNames } from "constants"
 
   export let schema = {}
   export let data = []
@@ -47,14 +42,6 @@
     animateRows: true,
   }
 
-  $: isUsersTable = tableId === TableNames.USERS
-  $: {
-    if (isUsersTable) {
-      schema.email.displayFieldName = "Email"
-      schema.roleId.displayFieldName = "Role"
-    }
-  }
-
   $: {
     let result = []
     if (allowEditing) {
@@ -70,34 +57,23 @@
           suppressMenu: true,
           minWidth: 114,
           width: 114,
-          cellRenderer: isUsersTable ? userRowRenderer : editRowRenderer,
+          cellRenderer: editRowRenderer,
         },
       ]
     }
 
-    const canEditColumn = key => {
-      if (!allowEditing) {
-        return false
-      }
-      return !(isUsersTable && ["email", "roleId"].indexOf(key) !== -1)
-    }
-
-    Object.entries(schema || {}).forEach(([key, value]) => {
+    Object.keys(schema || {}).forEach((key, idx) => {
       result.push({
         headerCheckboxSelection: false,
         headerComponent: TableHeader,
         headerComponentParams: {
           field: schema[key],
-          editable: canEditColumn(key),
+          editable: allowEditing,
         },
-        headerName: value.displayFieldName || key,
+        headerName: key,
         field: key,
         sortable: true,
-        cellRenderer: getRenderer({
-          schema: schema[key],
-          editable: true,
-          isUsersTable,
-        }),
+        cellRenderer: getRenderer(schema[key], true),
         cellRendererParams: {
           selectRelationship,
         },

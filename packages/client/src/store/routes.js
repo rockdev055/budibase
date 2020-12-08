@@ -21,12 +21,6 @@ const createRouteStore = () => {
         })
       })
     })
-
-    // Sort route by paths so that the router matches correctly
-    routes.sort((a, b) => {
-      return a.path > b.path ? -1 : 1
-    })
-
     store.update(state => {
       state.routes = routes
       return state

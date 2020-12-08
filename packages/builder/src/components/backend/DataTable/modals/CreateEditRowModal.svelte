@@ -1,5 +1,6 @@
 <script>
   import { backendUiStore } from "builderStore"
+  import { TableNames } from "constants"
   import { notifier } from "builderStore/store/notifications"
   import RowFieldControl from "../RowFieldControl.svelte"
   import * as api from "../api"
@@ -39,9 +40,15 @@
   confirmText={creating ? 'Create Row' : 'Save Row'}
   onConfirm={saveRow}>
   <ErrorsBox {errors} />
+  {#if creating && table._id === TableNames.USERS}
+    <RowFieldControl
+      {creating}
+      meta={{ name: 'password', type: 'password' }}
+      bind:value={row.password} />
+  {/if}
   {#each tableSchema as [key, meta]}
     <div>
-      <RowFieldControl {meta} bind:value={row[key]} />
+      <RowFieldControl {meta} bind:value={row[key]} {creating} />
     </div>
   {/each}
 </ModalContent>
