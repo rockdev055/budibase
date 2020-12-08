@@ -17,8 +17,6 @@
   const deleteScreen = () => {
     store.actions.screens.delete(screen)
     store.actions.routing.fetch()
-    confirmDeleteDialog.hide()
-    $goto("../")
   }
 </script>
 
