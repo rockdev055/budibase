@@ -1,33 +1,16 @@
 <script>
   import { onMount } from "svelte"
-  import { goto, params, url } from "@sveltech/routify"
-  import { store, currentAsset, selectedComponent } from "builderStore"
-  import { FrontendTypes } from "constants"
+  import { store, currentScreens } from "builderStore"
+  import api from "builderStore/api"
   import ComponentNavigationTree from "components/userInterface/ComponentNavigationTree/index.svelte"
-  import Layout from "components/userInterface/Layout.svelte"
+  import PageLayout from "components/userInterface/PageLayout.svelte"
+  import PagesList from "components/userInterface/PagesList.svelte"
   import NewScreenModal from "components/userInterface/NewScreenModal.svelte"
-  import NewLayoutModal from "components/userInterface/NewLayoutModal.svelte"
-  import { Modal, Switcher } from "@budibase/bbui"
-
-  const tabs = [
-    {
-      title: "Screens",
-      key: "screen",
-    },
-    {
-      title: "Layouts",
-      key: "layout",
-    },
-  ]
+  import { Modal } from "@budibase/bbui"
 
   let modal
-  let routes = {}
-  let tab = $params.assetType
 
-  function navigate({ detail }) {
-    if (!detail) return
-    $goto(`../${detail.heading.key}`)
-  }
+  let routes = {}
 
   onMount(() => {
     store.actions.routing.fetch()
@@ -35,48 +18,32 @@
 </script>
 
 <div class="title">
-  <Switcher headings={tabs} bind:value={tab} on:change={navigate}>
-    {#if tab === FrontendTypes.SCREEN}
-      <i
-        on:click={modal.show}
-        data-cy="new-screen"
-        class="ri-add-circle-fill" />
-      {#if $currentAsset}
-        <div class="nav-items-container">
-          <ComponentNavigationTree />
-        </div>
-      {/if}
-      <Modal bind:this={modal}>
-        <NewScreenModal />
-      </Modal>
-    {:else if tab === FrontendTypes.LAYOUT}
-      <i
-        on:click={modal.show}
-        data-cy="new-layout"
-        class="ri-add-circle-fill" />
-      {#each $store.layouts as layout (layout._id)}
-        <Layout {layout} />
-      {/each}
-      <Modal bind:this={modal}>
-        <NewLayoutModal />
-      </Modal>
-    {/if}
-  </Switcher>
+  <h1>Screens</h1>
+  <i on:click={modal.show} data-cy="new-screen" class="ri-add-circle-fill" />
 </div>
+<PagesList />
+<div class="nav-items-container">
+  <PageLayout layout={$store.pages[$store.currentPageName]} />
+  <ComponentNavigationTree />
+</div>
+<Modal bind:this={modal}>
+  <NewScreenModal />
+</Modal>
 
 <style>
   .title {
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: stretch;
-    position: relative;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .title h1 {
+    font-size: var(--font-size-m);
+    font-weight: 500;
+    margin: 0;
   }
   .title i {
     font-size: 20px;
-    position: absolute;
-    top: 0;
-    right: 0;
   }
   .title i:hover {
     cursor: pointer;

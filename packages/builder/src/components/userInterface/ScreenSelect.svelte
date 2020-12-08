@@ -1,7 +1,7 @@
 <script>
   import { DataList } from "@budibase/bbui"
   import { createEventDispatcher } from "svelte"
-  import { store, allScreens, backendUiStore, currentAsset } from "builderStore"
+  import { store, allScreens, backendUiStore } from "builderStore"
   import fetchBindableProperties from "builderStore/fetchBindableProperties"
 
   const dispatch = createEventDispatcher()
@@ -27,9 +27,9 @@
     ]
 
     const bindableProperties = fetchBindableProperties({
-      componentInstanceId: $store.selectedComponentId,
+      componentInstanceId: $store.currentComponentInfo._id,
       components: $store.components,
-      screen: $currentAsset,
+      screen: $store.currentPreviewItem,
       tables: $backendUiStore.tables,
     })
 

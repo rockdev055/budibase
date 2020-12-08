@@ -1,21 +1,15 @@
-import { getBuiltin } from "components/userInterface/assetParsing/createProps"
+import { getBuiltin } from "components/userInterface/pagesParsing/createProps"
 import { uuid } from "./uuid"
 import getNewComponentName from "./getNewComponentName"
 
-/**
- * Find the parent component of the passed in child.
- * @param {Object} rootProps - props to search for the parent in
- * @param {String|Object} child - id of the child or the child itself to find the parent of
- */
-export const findParent = (rootProps, child) => {
+export const getParent = (rootProps, child) => {
   let parent
-  walkProps(rootProps, (props, breakWalk) => {
+  walkProps(rootProps, (p, breakWalk) => {
     if (
-      props._children &&
-      (props._children.includes(child) ||
-        props._children.some(c => c._id === child))
+      p._children &&
+      (p._children.includes(child) || p._children.some(c => c._id === child))
     ) {
-      parent = props
+      parent = p
       breakWalk()
     }
   })

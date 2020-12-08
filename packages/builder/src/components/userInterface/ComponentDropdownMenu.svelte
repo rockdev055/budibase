@@ -1,11 +1,10 @@
 <script>
   import { goto } from "@sveltech/routify"
-  import { get } from "svelte/store"
-  import { store, currentAsset } from "builderStore"
+  import { store } from "builderStore"
   import { getComponentDefinition } from "builderStore/storeUtils"
   import ConfirmDialog from "components/common/ConfirmDialog.svelte"
   import { last } from "lodash/fp"
-  import { findParent } from "builderStore/storeUtils"
+  import { getParent } from "builderStore/storeUtils"
   import { DropdownMenu } from "@budibase/bbui"
   import { DropdownContainer, DropdownItem } from "components/common/Dropdowns"
 
@@ -29,13 +28,12 @@
   const selectComponent = component => {
     store.actions.components.select(component)
     const path = store.actions.components.findRoute(component)
-    $goto(`./${$store.currentFrontEndType}/${path}`)
+    $goto(`./:page/:screen/${path}`)
   }
 
   const moveUpComponent = () => {
     store.update(state => {
-      const asset = get(currentAsset)
-      const parent = findParent(asset.props, component)
+      const parent = getParent(state.currentPreviewItem.props, component)
 
       if (parent) {
         const currentIndex = parent._children.indexOf(component)
@@ -45,7 +43,7 @@
         newChildren.splice(currentIndex - 1, 0, component)
         parent._children = newChildren
       }
-      state.selectedComponentId = component._id
+      state.currentComponentInfo = component
       store.actions.preview.saveSelected()
 
       return state
@@ -54,8 +52,7 @@
 
   const moveDownComponent = () => {
     store.update(state => {
-      const asset = get(currentAsset)
-      const parent = findParent(asset.props, component)
+      const parent = getParent(state.currentPreviewItem.props, component)
 
       if (parent) {
         const currentIndex = parent._children.indexOf(component)
@@ -65,7 +62,7 @@
         newChildren.splice(currentIndex + 1, 0, component)
         parent._children = newChildren
       }
-      state.selectedComponentId = component._id
+      state.currentComponentInfo = component
       store.actions.preview.saveSelected()
 
       return state
@@ -79,11 +76,10 @@
 
   const deleteComponent = () => {
     store.update(state => {
-      const asset = get(currentAsset)
-      const parent = findParent(asset.props, component)
+      const parent = getParent(state.currentPreviewItem.props, component)
 
       if (parent) {
-        parent._children = parent._children.filter(child => child !== component)
+        parent._children = parent._children.filter(c => c !== component)
         selectComponent(parent)
       }
 
