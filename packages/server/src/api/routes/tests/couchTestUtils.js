@@ -1,6 +1,9 @@
 const CouchDB = require("../../../db")
 const supertest = require("supertest")
 const { BUILTIN_ROLE_IDS } = require("../../../utilities/security/roles")
+const {
+  BUILTIN_PERMISSION_NAMES,
+} = require("../../../utilities/security/permissions")
 const packageJson = require("../../../../package")
 const jwt = require("jsonwebtoken")
 const env = require("../../../environment")
@@ -128,7 +131,49 @@ exports.createUser = async (
   return res.body
 }
 
-const createUserWithRole = async (request, appId, roleId, email) => {
+const createUserWithOnePermission = async (request, appId, permName) => {
+  let permissions = [permName]
+
+  return await createUserWithPermissions(
+    request,
+    appId,
+    permissions,
+    "onePermOnlyUser"
+  )
+}
+
+const createUserWithAdminPermissions = async (request, appId) => {
+  let permissions = [BUILTIN_PERMISSION_NAMES.ADMIN]
+
+  return await createUserWithPermissions(
+    request,
+    appId,
+    permissions,
+    "adminUser"
+  )
+}
+
+const createUserWithAllPermissionExceptOne = async (
+  request,
+  appId,
+  permName
+) => {
+  let permissions = [permName]
+
+  return await createUserWithPermissions(
+    request,
+    appId,
+    permissions,
+    "allPermsExceptOneUser"
+  )
+}
+
+const createUserWithPermissions = async (
+  request,
+  appId,
+  permissions,
+  email
+) => {
   const password = `password_${email}`
   await request
     .post(`/api/users`)
@@ -136,7 +181,8 @@ const createUserWithRole = async (request, appId, roleId, email) => {
     .send({
       email,
       password,
-      roleId,
+      roleId: BUILTIN_ROLE_IDS.POWER,
+      permissions,
     })
 
   const anonUser = {
@@ -169,29 +215,23 @@ exports.testPermissionsForEndpoint = async ({
   url,
   body,
   appId,
-  passRole,
-  failRole,
+  permName1,
+  permName2,
 }) => {
-  const passHeader = await createUserWithRole(
-    request,
-    appId,
-    passRole,
-    "passUser@budibase.com"
-  )
+  const headers = await createUserWithOnePermission(request, appId, permName1)
 
   await createRequest(request, method, url, body)
-    .set(passHeader)
+    .set(headers)
     .expect(200)
 
-  const failHeader = await createUserWithRole(
+  const noPermsHeaders = await createUserWithAllPermissionExceptOne(
     request,
     appId,
-    failRole,
-    "failUser@budibase.com"
+    permName2
   )
 
   await createRequest(request, method, url, body)
-    .set(failHeader)
+    .set(noPermsHeaders)
     .expect(403)
 }
 
@@ -202,12 +242,7 @@ exports.builderEndpointShouldBlockNormalUsers = async ({
   body,
   appId,
 }) => {
-  const headers = await createUserWithRole(
-    request,
-    appId,
-    BUILTIN_ROLE_IDS.BASIC,
-    "basicUser@budibase.com"
-  )
+  const headers = await createUserWithAdminPermissions(request, appId)
 
   await createRequest(request, method, url, body)
     .set(headers)
