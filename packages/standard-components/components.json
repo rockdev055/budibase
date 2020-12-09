@@ -234,14 +234,8 @@
 			"description": "string",
 			"linkText": "string",
 			"linkUrl": "string",
-			"linkColor": {
-				"type": "string",
-				"default": "#000"
-			},
-			"linkHoverColor": {
-				"type": "string",
-				"default": "#000"
-			},
+			"color": "string",
+			"linkHoverColor": "string",
 			"imageHeight": {
 				"type": "options",
 				"default": "20rem",
@@ -280,14 +274,8 @@
 			"subtext": "string",
 			"linkText": "string",
 			"linkUrl": "string",
-			"linkColor": {
-				"type": "string",
-				"default": "#000"
-			},
-			"linkHoverColor": {
-				"type": "string",
-				"default": "#000"
-			},
+			"color": "string",
+			"linkHoverColor": "string",
 			"imageWidth": {
 				"type": "options",
 				"default": "8rem",
