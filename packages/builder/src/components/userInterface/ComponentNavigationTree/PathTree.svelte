@@ -50,7 +50,6 @@
     </NavItem>
     {#if selectedScreen?._id === screenId}
       <ComponentTree
-        level={1}
         components={selectedScreen.props._children}
         currentComponent={$selectedComponent}
         {dragDropStore} />
