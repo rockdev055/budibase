@@ -1,20 +1,15 @@
-const {
+const { 
   createApplication,
   createTable,
   createView,
   supertest,
-  defaultHeaders,
+  defaultHeaders
 } = require("./couchTestUtils")
-const { BUILTIN_ROLE_IDS } = require("../../../utilities/security/roles")
 const {
-  BUILTIN_PERMISSION_IDS,
-} = require("../../../utilities/security/permissions")
+  BUILTIN_ROLE_IDS,
+} = require("../../../utilities/security/roles")
 
-const roleBody = {
-  name: "NewRole",
-  inherits: BUILTIN_ROLE_IDS.BASIC,
-  permissionId: BUILTIN_PERMISSION_IDS.READ_ONLY,
-}
+const roleBody = { name: "user", inherits: BUILTIN_ROLE_IDS.BASIC }
 
 describe("/roles", () => {
   let server
@@ -24,8 +19,8 @@ describe("/roles", () => {
   let view
 
   beforeAll(async () => {
-    ;({ request, server } = await supertest())
-  })
+    ({ request, server } = await supertest())
+  });
 
   afterAll(() => {
     server.close()
@@ -39,29 +34,30 @@ describe("/roles", () => {
   })
 
   describe("create", () => {
+
     it("returns a success message when role is successfully created", async () => {
       const res = await request
         .post(`/api/roles`)
         .send(roleBody)
         .set(defaultHeaders(appId))
-        .expect("Content-Type", /json/)
+        .expect('Content-Type', /json/)
         .expect(200)
 
-      expect(res.res.statusMessage).toEqual(
-        "Role 'NewRole' created successfully."
-      )
+      expect(res.res.statusMessage).toEqual("Role 'user' created successfully.")
       expect(res.body._id).toBeDefined()
       expect(res.body._rev).toBeDefined()
     })
-  })
+
+  });
 
   describe("fetch", () => {
+
     it("should list custom roles, plus 2 default roles", async () => {
       const createRes = await request
         .post(`/api/roles`)
         .send(roleBody)
         .set(defaultHeaders(appId))
-        .expect("Content-Type", /json/)
+        .expect('Content-Type', /json/)
         .expect(200)
 
       const customRole = createRes.body
@@ -69,37 +65,33 @@ describe("/roles", () => {
       const res = await request
         .get(`/api/roles`)
         .set(defaultHeaders(appId))
-        .expect("Content-Type", /json/)
+        .expect('Content-Type', /json/)
         .expect(200)
 
-      expect(res.body.length).toBe(5)
+      expect(res.body.length).toBe(3)
 
       const adminRole = res.body.find(r => r._id === BUILTIN_ROLE_IDS.ADMIN)
-      expect(adminRole).toBeDefined()
       expect(adminRole.inherits).toEqual(BUILTIN_ROLE_IDS.POWER)
-      expect(adminRole.permissionId).toEqual(BUILTIN_PERMISSION_IDS.ADMIN)
+      expect(adminRole).toBeDefined()
 
       const powerUserRole = res.body.find(r => r._id === BUILTIN_ROLE_IDS.POWER)
-      expect(powerUserRole).toBeDefined()
       expect(powerUserRole.inherits).toEqual(BUILTIN_ROLE_IDS.BASIC)
-      expect(powerUserRole.permissionId).toEqual(BUILTIN_PERMISSION_IDS.POWER)
+      expect(powerUserRole).toBeDefined()
 
       const customRoleFetched = res.body.find(r => r._id === customRole._id)
-      expect(customRoleFetched).toBeDefined()
       expect(customRoleFetched.inherits).toEqual(BUILTIN_ROLE_IDS.BASIC)
-      expect(customRoleFetched.permissionId).toEqual(
-        BUILTIN_PERMISSION_IDS.READ_ONLY
-      )
+      expect(customRoleFetched).toBeDefined()
     })
-  })
+    
+  });
 
   describe("destroy", () => {
     it("should delete custom roles", async () => {
       const createRes = await request
         .post(`/api/roles`)
-        .send({ name: "user", permissionId: BUILTIN_PERMISSION_IDS.READ_ONLY })
+        .send({ name: "user" })
         .set(defaultHeaders(appId))
-        .expect("Content-Type", /json/)
+        .expect('Content-Type', /json/)
         .expect(200)
 
       const customRole = createRes.body
@@ -115,4 +107,4 @@ describe("/roles", () => {
         .expect(404)
     })
   })
-})
+});
