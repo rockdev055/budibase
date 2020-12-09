@@ -86,16 +86,15 @@ export const getFrontendStore = () => {
       select: async screenId => {
         let promise
         store.update(state => {
-          const screens = get(allScreens)
-          let selectedScreen = screens.find(screen => screen._id === screenId)
-          if (!selectedScreen) {
-            selectedScreen = screens[0]
-          }
+          const screen = get(allScreens).find(screen => screen._id === screenId)
+          if (!screen) return state
+
           state.currentFrontEndType = FrontendTypes.SCREEN
-          state.currentAssetId = selectedScreen._id
+          state.currentAssetId = screenId
           state.currentView = "detail"
-          promise = store.actions.screens.regenerateCss(selectedScreen)
-          state.selectedComponentId = selectedScreen.props._id
+
+          promise = store.actions.screens.regenerateCss(screen)
+          state.selectedComponentId = screen.props?._id
           return state
         })
         await promise
@@ -160,6 +159,9 @@ export const getFrontendStore = () => {
                 `/api/screens/${screenToDelete._id}/${screenToDelete._rev}`
               )
             )
+            if (screenToDelete._id === state.currentAssetId) {
+              state.currentAssetId = ""
+            }
           }
           return state
         })
@@ -187,7 +189,7 @@ export const getFrontendStore = () => {
           state.currentView = "detail"
 
           state.currentAssetId = layout._id
-          state.selectedComponentId = layout.props._id
+          state.selectedComponentId = layout.props?._id
 
           return state
         })
@@ -221,7 +223,6 @@ export const getFrontendStore = () => {
           }
 
           state.currentAssetId = json._id
-          state.selectedComponentId = json.props._id
           return state
         })
       },

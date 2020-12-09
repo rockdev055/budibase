@@ -5,9 +5,9 @@
 </script>
 
 {#if hasErrors}
-  <div class="container">
+  <div class="container bb__alert bb__alert--danger">
     {#each errors as error}
-      <div class="error">{error.dataPath || ''} {error.message}</div>
+      <div class="error">{error.dataPath} {error.message}</div>
     {/each}
   </div>
 {/if}
@@ -17,8 +17,6 @@
     border-radius: var(--border-radius-m);
     margin: 0;
     padding: var(--spacing-m);
-    background-color: rgba(241, 165, 165, 0.2);
-    color: var(--red);
   }
 
   .error {

@@ -25,6 +25,7 @@ router
     authorized(PermissionTypes.TABLE, PermissionLevels.READ),
     rowController.find
   )
+  .post("/api/rows/search", rowController.search)
   .post(
     "/api/:tableId/rows",
     authorized(PermissionTypes.TABLE, PermissionLevels.WRITE),
