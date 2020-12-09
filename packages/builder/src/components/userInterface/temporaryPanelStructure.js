@@ -386,14 +386,14 @@ export default {
               {
                 label: "Link Color",
                 key: "color",
-                control: Colorpicker,
-                defaultValue: "#000"
+                control: Input,
+                placeholder: "Link Color",
               },
               {
                 label: "Hover Color",
                 key: "linkHoverColor",
-                control: Colorpicker,
-                defaultValue: "#000"
+                control: Input,
+                placeholder: "Hover Color",
               },
               {
                 label: "Card Width",

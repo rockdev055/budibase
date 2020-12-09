@@ -274,14 +274,8 @@
 			"subtext": "string",
 			"linkText": "string",
 			"linkUrl": "string",
-			"color": {
-				"type": "string",
-				"default": "#000"
-			},
-			"linkHoverColor": {
-				"type": "string",
-				"default": "#000"
-			},
+			"color": "string",
+			"linkHoverColor": "string",
 			"imageWidth": {
 				"type": "options",
 				"default": "8rem",
