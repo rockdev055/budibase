@@ -12,6 +12,8 @@
   let propGroup = null
   let currentGroup
 
+  const getProperties = name => panelDefinition[name]
+
   function onChange(category) {
     selectedCategory = category
   }
@@ -36,7 +38,7 @@
         {#each propertyGroupNames as groupName}
           <PropertyGroup
             name={groupName}
-            properties={panelDefinition[groupName]}
+            properties={getProperties(groupName)}
             styleCategory={selectedCategory}
             {onStyleChanged}
             {componentDefinition}
@@ -60,6 +62,9 @@
     width: 100%;
     height: 100%;
     gap: var(--spacing-l);
+  }
+
+  .design-view-state-categories {
   }
 
   .positioned-wrapper {
