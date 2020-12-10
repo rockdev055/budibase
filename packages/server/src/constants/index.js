@@ -32,7 +32,7 @@ const USERS_TABLE_SCHEMA = {
       constraints: {
         type: "string",
         presence: false,
-        inclusion: Object.values(BUILTIN_ROLE_IDS),
+        inclusion: Object.keys(BUILTIN_ROLE_IDS),
       },
     },
   },

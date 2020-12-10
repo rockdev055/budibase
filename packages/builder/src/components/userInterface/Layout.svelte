@@ -10,7 +10,6 @@
   import { writable } from "svelte/store"
 
   export let layout
-  export let border
 
   let confirmDeleteDialog
   let componentToDelete = ""
@@ -24,7 +23,7 @@
 </script>
 
 <NavItem
-  {border}
+  border={false}
   icon="ri-layout-3-line"
   text={layout.name}
   withArrow

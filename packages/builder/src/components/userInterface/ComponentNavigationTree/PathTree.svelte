@@ -20,7 +20,6 @@
   export let route
   export let path
   export let indent
-  export let border
 
   $: selectedScreen = $currentAsset
 
@@ -35,7 +34,6 @@
   icon="ri-folder-line"
   text={path}
   opened={true}
-  {border}
   withArrow={route.subpaths} />
 
 {#each Object.entries(route.subpaths) as [url, subpath]}
@@ -52,7 +50,6 @@
     </NavItem>
     {#if selectedScreen?._id === screenId}
       <ComponentTree
-        level={1}
         components={selectedScreen.props._children}
         currentComponent={$selectedComponent}
         {dragDropStore} />
