@@ -84,7 +84,6 @@
     overflow: hidden;
     margin: auto;
     height: 100%;
-    background-color: white;
   }
   .component-container iframe {
     border: 0;

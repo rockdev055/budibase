@@ -3,6 +3,7 @@ import { cloneDeep } from "lodash/fp"
 import {
   createProps,
   getBuiltin,
+  makePropsSafe,
 } from "components/userInterface/assetParsing/createProps"
 import {
   allScreens,
@@ -10,7 +11,6 @@ import {
   currentAsset,
   mainLayout,
   selectedComponent,
-  selectedAccessRole,
 } from "builderStore"
 import { fetchComponentLibDefinitions } from "../loadComponentLibraries"
 import api from "../api"
@@ -83,16 +83,16 @@ export const getFrontendStore = () => {
       },
     },
     screens: {
-      select: screenId => {
+      select: async screenId => {
         store.update(state => {
-          let screens = get(allScreens)
-          let screen =
-            screens.find(screen => screen._id === screenId) || screens[0]
+          const screen = get(allScreens).find(screen => screen._id === screenId)
           if (!screen) return state
+
           state.currentFrontEndType = FrontendTypes.SCREEN
-          state.currentAssetId = screen._id
+          state.currentAssetId = screenId
           state.currentView = "detail"
           state.selectedComponentId = screen.props?._id
+
           return state
         })
       },
@@ -102,7 +102,6 @@ export const getFrontendStore = () => {
           state.currentAssetId = screen._id
           state.selectedComponentId = screen.props._id
           state.currentFrontEndType = FrontendTypes.SCREEN
-          selectedAccessRole.set(screen.routing.roleId)
           return state
         })
         return screen
@@ -111,7 +110,6 @@ export const getFrontendStore = () => {
         const creatingNewScreen = screen._id === undefined
         const response = await api.post(`/api/screens`, screen)
         screen = await response.json()
-        await store.actions.routing.fetch()
 
         store.update(state => {
           const foundScreen = state.screens.findIndex(
@@ -121,13 +119,17 @@ export const getFrontendStore = () => {
             state.screens.splice(foundScreen, 1)
           }
           state.screens.push(screen)
+
+          if (creatingNewScreen) {
+            const safeProps = makePropsSafe(
+              state.components[screen.props._component],
+              screen.props
+            )
+            state.selectedComponentId = safeProps._id
+            screen.props = safeProps
+          }
           return state
         })
-
-        if (creatingNewScreen) {
-          store.actions.screens.select(screen._id)
-        }
-
         return screen
       },
       delete: async screens => {
@@ -169,40 +171,38 @@ export const getFrontendStore = () => {
       select: layoutId => {
         store.update(state => {
           const layout = store.actions.layouts.find(layoutId)
-          if (!layout) return
           state.currentFrontEndType = FrontendTypes.LAYOUT
           state.currentView = "detail"
+
           state.currentAssetId = layout._id
           state.selectedComponentId = layout.props?._id
+
           return state
         })
       },
       save: async layout => {
         const layoutToSave = cloneDeep(layout)
-        const creatingNewLayout = layoutToSave._id === undefined
+
         const response = await api.post(`/api/layouts`, layoutToSave)
-        const savedLayout = await response.json()
+
+        const json = await response.json()
 
         store.update(state => {
           const layoutIdx = state.layouts.findIndex(
-            stateLayout => stateLayout._id === savedLayout._id
+            stateLayout => stateLayout._id === json._id
           )
+
           if (layoutIdx >= 0) {
             // update existing layout
-            state.layouts.splice(layoutIdx, 1, savedLayout)
+            state.layouts.splice(layoutIdx, 1, json)
           } else {
             // save new layout
-            state.layouts.push(savedLayout)
+            state.layouts.push(json)
           }
+
+          state.currentAssetId = json._id
           return state
         })
-
-        // Select layout if creating a new one
-        if (creatingNewLayout) {
-          store.actions.layouts.select(savedLayout._id)
-        }
-
-        return savedLayout
       },
       find: layoutId => {
         if (!layoutId) {
@@ -453,6 +453,7 @@ export const getFrontendStore = () => {
 
               // Save layout
               nav._children = [...nav._children, newLink]
+              state.currentAssetId = layout._id
               promises.push(store.actions.layouts.save(layout))
             }
             return state
