@@ -10,6 +10,7 @@ const router = Router()
 function generateSaveValidation() {
   // prettier-ignore
   return joiValidator.body(Joi.object({
+    _css: Joi.string().allow(""),
     name: Joi.string().required(),
     routing: Joi.object({
       route: Joi.string().required(),

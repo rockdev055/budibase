@@ -6,7 +6,7 @@ const fetch = require("node-fetch")
 const fs = require("fs-extra")
 const uuid = require("uuid")
 const AWS = require("aws-sdk")
-const { prepareUpload } = require("../deploy/utils")
+const { prepareUploadForS3 } = require("../deploy/aws")
 const handlebars = require("handlebars")
 const {
   budibaseAppsDir,
@@ -16,9 +16,18 @@ const CouchDB = require("../../../db")
 const setBuilderToken = require("../../../utilities/builder/setBuilderToken")
 const fileProcessor = require("../../../utilities/fileProcessor")
 const env = require("../../../environment")
+const { generateAssetCss } = require("../../../utilities/builder/generateCss")
+const compileStaticAssets = require("../../../utilities/builder/compileStaticAssets")
 
 // this was the version before we started versioning the component library
 const COMP_LIB_BASE_APP_VERSION = "0.2.5"
+
+exports.generateCss = async function(ctx) {
+  const structure = ctx.request.body
+  structure._css = generateAssetCss([structure.props])
+  await compileStaticAssets(ctx.appId, structure)
+  ctx.body = { css: structure._css }
+}
 
 exports.serveBuilder = async function(ctx) {
   let builderPath = resolve(__dirname, "../../../../builder")
@@ -53,7 +62,7 @@ exports.uploadFile = async function(ctx) {
       const fileExtension = [...file.name.split(".")].pop()
       const processedFileName = `${uuid.v4()}.${fileExtension}`
 
-      return prepareUpload({
+      return prepareUploadForS3({
         file,
         s3Key: `assets/${ctx.user.appId}/attachments/${processedFileName}`,
         s3,
@@ -222,5 +231,5 @@ exports.serveComponentLibrary = async function(ctx) {
     return
   }
 
-  await send(ctx, "/awsDeploy.js", { root: componentLibraryPath })
+  await send(ctx, "/index.js", { root: componentLibraryPath })
 }

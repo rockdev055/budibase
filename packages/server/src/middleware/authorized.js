@@ -1,13 +1,10 @@
-const {
-  BUILTIN_ROLE_IDS,
-  getUserPermissionIds,
-} = require("../utilities/security/roles")
+const { BUILTIN_ROLE_IDS } = require("../utilities/security/roles")
 const {
   PermissionTypes,
   doesHavePermission,
 } = require("../utilities/security/permissions")
 const env = require("../environment")
-const { isAPIKeyValid } = require("../utilities/security/apikey")
+const { apiKeyTable } = require("../db/dynamoClient")
 const { AuthTypes } = require("../constants")
 
 const ADMIN_ROLES = [BUILTIN_ROLE_IDS.ADMIN, BUILTIN_ROLE_IDS.BUILDER]
@@ -21,7 +18,11 @@ module.exports = (permType, permLevel = null) => async (ctx, next) => {
   }
   if (env.CLOUD && ctx.headers["x-api-key"] && ctx.headers["x-instanceid"]) {
     // api key header passed by external webhook
-    if (await isAPIKeyValid(ctx.headers["x-api-key"])) {
+    const apiKeyInfo = await apiKeyTable.get({
+      primary: ctx.headers["x-api-key"],
+    })
+
+    if (apiKeyInfo) {
       ctx.auth = {
         authenticated: AuthTypes.EXTERNAL,
         apiKey: ctx.headers["x-api-key"],
@@ -47,7 +48,7 @@ module.exports = (permType, permLevel = null) => async (ctx, next) => {
   }
 
   const role = ctx.user.role
-  const permissions = await getUserPermissionIds(ctx.appId, role._id)
+  const permissions = ctx.user.permissions
   if (ADMIN_ROLES.indexOf(role._id) !== -1) {
     return next()
   }
