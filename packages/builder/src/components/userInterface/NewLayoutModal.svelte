@@ -1,15 +1,19 @@
 <script>
   import { goto } from "@sveltech/routify"
+  import api from "builderStore/api"
   import { notifier } from "builderStore/store/notifications"
-  import { store } from "builderStore"
+  import { store, backendUiStore, allScreens } from "builderStore"
   import { Input, ModalContent } from "@budibase/bbui"
+  import analytics from "analytics"
+
+  const CONTAINER = "@budibase/standard-components/container"
 
   let name = ""
 
   async function save() {
     try {
-      const layout = await store.actions.layouts.save({ name })
-      $goto(`./${layout._id}`)
+      await store.actions.layouts.save({ name })
+      $goto(`./${$store.currentAssetId}`)
       notifier.success(`Layout ${name} created successfully`)
     } catch (err) {
       notifier.danger(`Error creating layout ${name}.`)

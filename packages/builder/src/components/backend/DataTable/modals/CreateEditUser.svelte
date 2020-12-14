@@ -1,14 +1,18 @@
 <script>
+  import { onMount } from "svelte"
   import { backendUiStore } from "builderStore"
   import { notifier } from "builderStore/store/notifications"
   import RowFieldControl from "../RowFieldControl.svelte"
   import * as backendApi from "../api"
+  import builderApi from "builderStore/api"
   import { ModalContent, Select } from "@budibase/bbui"
   import ErrorsBox from "components/common/ErrorsBox.svelte"
 
   export let row = {}
 
   let errors = []
+  let roles = []
+  let rolesLoaded = false
 
   $: creating = row?._id == null
   $: table = row.tableId
@@ -52,6 +56,14 @@
     notifier.success("User saved successfully.")
     backendUiStore.actions.rows.save(rowResponse)
   }
+
+  const fetchRoles = async () => {
+    const rolesResponse = await builderApi.get("/api/roles")
+    roles = await rolesResponse.json()
+    rolesLoaded = true
+  }
+
+  onMount(fetchRoles)
 </script>
 
 <ModalContent
@@ -68,17 +80,19 @@
     bind:value={row.password} />
   <!-- Defer rendering this select until roles load, otherwise the initial
        selection is always undefined -->
-  <Select
-    thin
-    secondary
-    label="Role"
-    data-cy="roleId-select"
-    bind:value={row.roleId}>
-    <option value="">Choose an option</option>
-    {#each $backendUiStore.roles as role}
-      <option value={role._id}>{role.name}</option>
-    {/each}
-  </Select>
+  {#if rolesLoaded}
+    <Select
+      thin
+      secondary
+      label="Role"
+      data-cy="roleId-select"
+      bind:value={row.roleId}>
+      <option value="">Choose an option</option>
+      {#each roles as role}
+        <option value={role._id}>{role.name}</option>
+      {/each}
+    </Select>
+  {/if}
   {#each customSchemaKeys as [key, meta]}
     <RowFieldControl {meta} bind:value={row[key]} {creating} />
   {/each}

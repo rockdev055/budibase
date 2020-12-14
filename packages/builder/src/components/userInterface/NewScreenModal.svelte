@@ -1,11 +1,17 @@
 <script>
   import { goto } from "@sveltech/routify"
   import { store, backendUiStore, allScreens } from "builderStore"
-  import { Input, Select, ModalContent, Toggle } from "@budibase/bbui"
+  import {
+    Input,
+    Button,
+    Spacer,
+    Select,
+    ModalContent,
+    Toggle,
+  } from "@budibase/bbui"
   import getTemplates from "builderStore/store/screenTemplates"
+  import { some } from "lodash/fp"
   import analytics from "analytics"
-  import { onMount } from "svelte"
-  import api from "builderStore/api"
 
   const CONTAINER = "@budibase/standard-components/container"
 
@@ -15,13 +21,15 @@
   let templateIndex
   let draftScreen
   let createLink = true
-  let roleId = "BASIC"
 
   $: templates = getTemplates($store, $backendUiStore.tables)
+
   $: route = !route && $allScreens.length === 0 ? "*" : route
+
   $: baseComponents = Object.values($store.components)
     .filter(componentDefinition => componentDefinition.baseComponent)
     .map(c => c._component)
+
   $: {
     if (templates && templateIndex === undefined) {
       templateIndex = 0
@@ -48,10 +56,10 @@
 
   const save = async () => {
     if (!route) {
-      routeError = "URL is required"
+      routeError = "Url is required"
     } else {
-      if (routeExists(route, roleId)) {
-        routeError = "This URL is already taken for this access role"
+      if (routeNameExists(route)) {
+        routeError = "This url is already taken"
       } else {
         routeError = ""
       }
@@ -61,7 +69,8 @@
 
     draftScreen.props._instanceName = name
     draftScreen.props._component = baseComponent
-    draftScreen.routing = { route, roleId }
+    // TODO: need to fix this up correctly
+    draftScreen.routing = { route, roleId: "ADMIN" }
 
     const createdScreen = await store.actions.screens.create(draftScreen)
     if (createLink) {
@@ -76,14 +85,12 @@
       })
     }
 
-    $goto(`./${createdScreen._id}`)
+    $goto(`./screen/${createdScreen._id}`)
   }
 
-  const routeExists = (route, roleId) => {
+  const routeNameExists = route => {
     return $allScreens.some(
-      screen =>
-        screen.routing.route.toLowerCase() === route.toLowerCase() &&
-        screen.routing.roleId === roleId
+      screen => screen.routing.route.toLowerCase() === route.toLowerCase()
     )
   }
 
@@ -106,16 +113,14 @@
       {/each}
     {/if}
   </Select>
+
   <Input label="Name" bind:value={name} />
+
   <Input
     label="Url"
     error={routeError}
     bind:value={route}
     on:change={routeChanged} />
-  <Select label="Access" bind:value={roleId} secondary>
-    {#each $backendUiStore.roles as role}
-      <option value={role._id}>{role.name}</option>
-    {/each}
-  </Select>
+
   <Toggle text="Create link in navigation bar" bind:checked={createLink} />
 </ModalContent>
