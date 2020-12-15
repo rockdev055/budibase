@@ -7,15 +7,7 @@
   const { styleable } = getContext("sdk")
   const component = getContext("component")
 
-  // Only wrap this as an array to take advantage of svelte keying,
-  // to ensure the svelte-spa-router is fully remounted when route config
-  // changes
-  $: configs = [
-    {
-      routes: getRouterConfig($routeStore.routes),
-      id: $routeStore.routeSessionId,
-    },
-  ]
+  $: routerConfig = getRouterConfig($routeStore.routes)
 
   const getRouterConfig = routes => {
     let config = {}
@@ -33,11 +25,11 @@
   }
 </script>
 
-{#each configs as config (config.id)}
+{#if routerConfig}
   <div use:styleable={$component.styles}>
-    <Router on:routeLoading={onRouteLoading} routes={config.routes} />
+    <Router on:routeLoading={onRouteLoading} routes={routerConfig} />
   </div>
-{/each}
+{/if}
 
 <style>
   div {

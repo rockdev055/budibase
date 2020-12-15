@@ -1,11 +1,6 @@
 <script>
-  import { goto } from "@sveltech/routify"
-  import {
-    store,
-    currentAssetName,
-    selectedComponent,
-    currentAssetId,
-  } from "builderStore"
+  import { goto, url } from "@sveltech/routify"
+  import { store, currentAssetName, selectedComponent } from "builderStore"
   import components from "./temporaryPanelStructure.js"
   import { DropdownMenu } from "@budibase/bbui"
   import { DropdownContainer, DropdownItem } from "components/common/Dropdowns"
@@ -32,7 +27,7 @@
   const onComponentChosen = component => {
     store.actions.components.create(component._component, component.presetProps)
     const path = store.actions.components.findRoute($selectedComponent)
-    $goto(`./${$currentAssetId}/${path}`)
+    $goto(`./${$store.currentAssetId}/${path}`)
     close()
   }
 </script>
