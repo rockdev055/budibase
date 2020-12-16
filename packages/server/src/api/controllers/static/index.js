@@ -6,7 +6,7 @@ const fetch = require("node-fetch")
 const fs = require("fs-extra")
 const uuid = require("uuid")
 const AWS = require("aws-sdk")
-const { prepareUploadForS3 } = require("../deploy/aws")
+const { prepareUpload } = require("../deploy/utils")
 const handlebars = require("handlebars")
 const {
   budibaseAppsDir,
@@ -16,6 +16,22 @@ const CouchDB = require("../../../db")
 const setBuilderToken = require("../../../utilities/builder/setBuilderToken")
 const fileProcessor = require("../../../utilities/fileProcessor")
 const env = require("../../../environment")
+
+function appServerUrl(appId) {
+  if (env.SELF_HOSTED) {
+    return env.HOSTING_URL
+  } else {
+    return `https://${appId}.app.budi.live`
+  }
+}
+
+function objectStoreUrl() {
+  if (env.SELF_HOSTED) {
+    return env.MINIO_URL
+  } else {
+    return "https://cdn.app.budi.live/assets"
+  }
+}
 
 // this was the version before we started versioning the component library
 const COMP_LIB_BASE_APP_VERSION = "0.2.5"
@@ -53,7 +69,7 @@ exports.uploadFile = async function(ctx) {
       const fileExtension = [...file.name.split(".")].pop()
       const processedFileName = `${uuid.v4()}.${fileExtension}`
 
-      return prepareUploadForS3({
+      return prepareUpload({
         file,
         s3Key: `assets/${ctx.user.appId}/attachments/${processedFileName}`,
         s3,
@@ -148,6 +164,7 @@ exports.serveApp = async function(ctx) {
     title: appInfo.name,
     production: env.CLOUD,
     appId: ctx.params.appId,
+    appServerUrl: appServerUrl(ctx.params.appId),
   })
 
   const template = handlebars.compile(
@@ -166,8 +183,9 @@ exports.serveAttachment = async function(ctx) {
   const attachmentsPath = resolve(budibaseAppsDir(), appId, "attachments")
 
   // Serve from CloudFront
+  // TODO: need to replace this with link to self hosted object store
   if (env.CLOUD) {
-    const S3_URL = `https://cdn.app.budi.live/assets/${appId}/attachments/${ctx.file}`
+    const S3_URL = join(objectStoreUrl(), appId, "attachments", ctx.file)
     const response = await fetch(S3_URL)
     const body = await response.text()
     ctx.set("Content-Type", response.headers.get("Content-Type"))
@@ -213,7 +231,14 @@ exports.serveComponentLibrary = async function(ctx) {
       componentLib += `-${COMP_LIB_BASE_APP_VERSION}`
     }
     const S3_URL = encodeURI(
-      `https://${appId}.app.budi.live/assets/${componentLib}/${ctx.query.library}/dist/index.js`
+      join(
+        appServerUrl(appId),
+        "assets",
+        componentLib,
+        ctx.query.library,
+        "dist",
+        "index.js"
+      )
     )
     const response = await fetch(S3_URL)
     const body = await response.text()
@@ -222,5 +247,5 @@ exports.serveComponentLibrary = async function(ctx) {
     return
   }
 
-  await send(ctx, "/index.js", { root: componentLibraryPath })
+  await send(ctx, "/awsDeploy.js", { root: componentLibraryPath })
 }
