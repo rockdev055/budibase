@@ -1,10 +1,11 @@
 <script>
-  import { store, backendUiStore, currentAsset } from "builderStore"
+  import { store, backendUiStore } from "builderStore"
   import { onMount } from "svelte"
   import { FrontendTypes } from "constants"
   import CurrentItemPreview from "components/userInterface/AppPreview"
   import ComponentPropertiesPanel from "components/userInterface/ComponentPropertiesPanel.svelte"
   import ComponentSelectionList from "components/userInterface/ComponentSelectionList.svelte"
+  import { last } from "lodash/fp"
   import FrontendNavigatePane from "components/userInterface/FrontendNavigatePane.svelte"
 
   $: instance = $store.appInstance
@@ -35,7 +36,7 @@
   </div>
 
   <div class="preview-pane">
-    {#if $currentAsset}
+    {#if $store.currentAssetId && $store.currentAssetId.length > 0}
       <ComponentSelectionList />
       <div class="preview-content">
         <CurrentItemPreview />

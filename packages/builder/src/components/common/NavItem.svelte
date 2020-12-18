@@ -61,7 +61,7 @@
   }
   .nav-item:hover,
   .nav-item.selected {
-    border-radius: var(--border-radius-s);
+    border-radius: var(--border-radius-m);
   }
 
   .content {

@@ -1,6 +1,6 @@
 <script>
   import { goto } from "@sveltech/routify"
-  import { store, currentAssetId } from "builderStore"
+  import { store, currentAsset } from "builderStore"
   import { getComponentDefinition } from "builderStore/storeUtils"
   import { DropEffect, DropPosition } from "./dragDropStore"
   import ComponentDropdownMenu from "../ComponentDropdownMenu.svelte"
@@ -22,7 +22,7 @@
     const path = store.actions.components.findRoute(component)
 
     // Go to correct URL
-    $goto(`./${$currentAssetId}/${path}`)
+    $goto(`./${$store.currentAssetId}/${path}`)
   }
 
   const dragstart = component => e => {

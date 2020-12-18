@@ -82,7 +82,7 @@
       if (!allowEditing) {
         return false
       }
-      return !(isUsersTable && ["email", "roleId"].includes(key))
+      return !(isUsersTable && ["email", "roleId"].indexOf(key) !== -1)
     }
 
     Object.entries(schema || {}).forEach(([key, value]) => {

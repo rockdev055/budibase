@@ -10,7 +10,6 @@
   import { writable } from "svelte/store"
 
   export let layout
-  export let border
 
   let confirmDeleteDialog
   let componentToDelete = ""
@@ -24,17 +23,17 @@
 </script>
 
 <NavItem
-  {border}
+  border={false}
   icon="ri-layout-3-line"
   text={layout.name}
   withArrow
-  selected={$store.selectedLayoutId === layout._id}
-  opened={$store.selectedLayoutId === layout._id}
+  selected={$store.currentAssetId === layout._id}
+  opened={$store.currentAssetId === layout._id}
   on:click={selectLayout}>
   <LayoutDropdownMenu {layout} />
 </NavItem>
 
-{#if $store.selectedLayoutId === layout._id && layout.props?._children}
+{#if $store.currentAssetId === layout._id && layout.props?._children}
   <ComponentTree
     components={layout.props._children}
     currentComponent={$selectedComponent}

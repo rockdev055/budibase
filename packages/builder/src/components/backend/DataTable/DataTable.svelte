@@ -44,7 +44,6 @@
   <CreateColumnButton />
   {#if schema && Object.keys(schema).length > 0}
     <CreateRowButton
-      title={isUsersTable ? 'Create New User' : 'Create New Row'}
       modalContentComponent={isUsersTable ? CreateEditUser : CreateEditRow} />
     <CreateViewButton />
     <ExportButton view={tableView} />

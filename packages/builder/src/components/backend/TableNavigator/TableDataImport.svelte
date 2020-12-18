@@ -82,7 +82,7 @@
       files = fileArray
       validateCSV()
     })
-    reader.readAsText(fileArray[0])
+    reader.readAsBinaryString(fileArray[0])
   }
 
   async function omitColumn(columnName) {
