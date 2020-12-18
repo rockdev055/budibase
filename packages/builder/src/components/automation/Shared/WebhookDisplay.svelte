@@ -1,17 +1,16 @@
 <script>
   import { notifier } from "builderStore/store/notifications"
   import { Input } from "@budibase/bbui"
-  import { store, hostingStore } from "builderStore"
+  import { store } from "builderStore"
 
   export let value
   export let production = false
 
   $: appId = $store.appId
-  $: appUrl = $hostingStore.appUrl
 
   function fullWebhookURL(uri) {
     if (production) {
-      return `${appUrl}/${uri}`
+      return `https://${appId}.app.budi.live/${uri}`
     } else {
       return `http://localhost:4001/${uri}`
     }
