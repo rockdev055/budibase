@@ -1,5 +1,5 @@
 <script>
-  import { TextArea, DetailSummary } from "@budibase/bbui"
+  import { onMount } from "svelte"
   import PropertyGroup from "./PropertyGroup.svelte"
   import FlatButtonGroup from "./FlatButtonGroup.svelte"
 
@@ -7,7 +7,6 @@
   export let componentInstance = {}
   export let componentDefinition = {}
   export let onStyleChanged = () => {}
-  export let onCustomStyleChanged = () => {}
 
   let selectedCategory = "normal"
   let propGroup = null
@@ -45,17 +44,6 @@
             open={currentGroup === groupName}
             on:open={() => (currentGroup = groupName)} />
         {/each}
-        <DetailSummary
-          name="Custom Styles"
-          on:open={() => (currentGroup = 'custom')}
-          show={currentGroup === 'custom'}
-          thin>
-          <div class="custom-styles">
-            <TextArea
-              value={componentInstance._styles.custom}
-              on:change={event => onCustomStyleChanged(event.target.value)} />
-          </div>
-        </DetailSummary>
       {:else}
         <div class="no-design">
           This component doesn't have any design properties.
@@ -96,11 +84,5 @@
   .no-design {
     font-size: var(--font-size-xs);
     color: var(--grey-5);
-  }
-
-  .custom-styles :global(textarea) {
-    font-family: monospace;
-    min-height: 120px;
-    font-size: var(--font-size-xs);
   }
 </style>
