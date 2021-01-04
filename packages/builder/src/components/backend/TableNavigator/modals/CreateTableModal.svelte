@@ -2,7 +2,7 @@
   import { goto, params } from "@sveltech/routify"
   import { backendUiStore, store } from "builderStore"
   import { notifier } from "builderStore/store/notifications"
-  import { Input, Label, ModalContent, Button, Spacer } from "@budibase/bbui"
+  import { Input, Label, ModalContent } from "@budibase/bbui"
   import TableDataImport from "../TableDataImport.svelte"
   import analytics from "analytics"
   import screenTemplates from "builderStore/store/screenTemplates"
@@ -19,9 +19,7 @@
   let modal
   let name
   let dataImport
-  let integration
   let error = ""
-  let externalDataSource = false
 
   function checkValid(evt) {
     const tableName = evt.target.value
@@ -36,7 +34,7 @@
     let newTable = {
       name,
       schema: dataImport.schema || {},
-      dataImport
+      dataImport,
     }
 
     // Only set primary display if defined
@@ -86,6 +84,7 @@
     bind:value={name}
     {error} />
   <div>
-  <Label grey extraSmall>Create Table from CSV (Optional)</Label>
-  <TableDataImport bind:dataImport />
+    <Label grey extraSmall>Create Table from CSV (Optional)</Label>
+    <TableDataImport bind:dataImport />
+  </div>
 </ModalContent>

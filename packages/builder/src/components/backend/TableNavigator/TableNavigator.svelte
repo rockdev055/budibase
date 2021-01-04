@@ -5,11 +5,10 @@
   import CreateTableModal from "./modals/CreateTableModal.svelte"
   import EditTablePopover from "./popovers/EditTablePopover.svelte"
   import EditViewPopover from "./popovers/EditViewPopover.svelte"
-  import { Modal, Switcher } from "@budibase/bbui"
+  import { Modal } from "@budibase/bbui"
   import NavItem from "components/common/NavItem.svelte"
 
   let modal
-
   $: selectedView =
     $backendUiStore.selectedView && $backendUiStore.selectedView.name
 
@@ -36,13 +35,14 @@
 
 {#if $backendUiStore.selectedDatabase && $backendUiStore.selectedDatabase._id}
   <div class="title">
+    <h1>Tables</h1>
     <i data-cy="new-table" on:click={modal.show} class="ri-add-circle-fill" />
   </div>
   <div class="hierarchy-items-container">
     {#each $backendUiStore.tables as table, idx}
       <NavItem
         border={idx > 0}
-        icon={table.integration?.type ? 'ri-database-2-line' : `ri-${table._id === TableNames.USERS ? 'user' : 'table'}-line`}
+        icon={`ri-${table._id === TableNames.USERS ? 'user' : 'table'}-line`}
         text={table.name}
         selected={selectedView === `all_${table._id}`}
         on:click={() => selectTable(table)}>

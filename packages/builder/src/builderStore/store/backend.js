@@ -1,14 +1,12 @@
 import { writable, get } from "svelte/store"
 import { cloneDeep } from "lodash/fp"
 import api from "../api"
-import { backendUiStore } from ".."
 
 const INITIAL_BACKEND_UI_STATE = {
   tables: [],
   views: [],
   users: [],
   roles: [],
-  datasources: [],
   selectedDatabase: {},
   selectedTable: {},
   draftTable: {},
@@ -23,12 +21,9 @@ export const getBackendUiStore = () => {
       select: async db => {
         const tablesResponse = await api.get(`/api/tables`)
         const tables = await tablesResponse.json()
-        const datasourcesResponse = await api.get(`/api/datasources`)
-        const datasources = await datasourcesResponse.json()
         store.update(state => {
           state.selectedDatabase = db
           state.tables = tables
-          state.datasources = datasources
           return state
         })
       },
@@ -47,83 +42,6 @@ export const getBackendUiStore = () => {
       select: row =>
         store.update(state => {
           state.selectedRow = row
-          return state
-        }),
-    },
-    datasources: {
-      fetch: async () => {
-        const response = await api.get(`/api/datasources`)
-        const json = await response.json()
-        store.update(state => {
-          state.datasources = json
-          return state
-        })
-        return json
-      },
-      select: async datasourceId => {
-        store.update(state => {
-          state.selectedDatasourceId = datasourceId
-          return state
-        })
-      },
-      save: async datasource => {
-        const response = await api.post("/api/datasources", datasource)
-        const json = await response.json()
-        store.update(state => {
-          const currentIdx = state.datasources.findIndex(
-            ds => ds._id === json._id
-          )
-
-          if (currentIdx >= 0) {
-            state.datasources.splice(currentIdx, 1, json)
-          } else {
-            state.datasources.push(json)
-          }
-
-          state.datasources = state.datasources
-          state.selectedDatasourceId = json._id
-          return state
-        })
-        return json
-      },
-      delete: async datasource => {
-        await api.delete(
-          `/api/datasources/${datasource._id}/${datasource._rev}`
-        )
-        store.update(state => {
-          state.datasources = state.datasources.filter(
-            existing => existing._id !== datasource._id
-          )
-          state.selectedDatasourceId = null
-          return state
-        })
-      },
-      saveQuery: async (datasourceId, query) => {
-        const response = await api.post(
-          `/api/datasources/${datasourceId}/queries`,
-          query
-        )
-        const json = await response.json()
-        store.update(state => {
-          const currentIdx = state.datasources.findIndex(
-            ds => ds._id === json._id
-          )
-
-          if (currentIdx >= 0) {
-            state.datasources.splice(currentIdx, 1, json)
-          } else {
-            state.datasources.push(json)
-          }
-
-          state.datasources = state.datasources
-          return state
-        })
-      },
-    },
-    queries: {
-      select: queryId =>
-        store.update(state => {
-          state.selectedQueryId = queryId
           return state
         }),
     },
