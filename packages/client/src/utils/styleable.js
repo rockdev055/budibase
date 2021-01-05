@@ -1,17 +1,16 @@
 /**
  * Helper to build a CSS string from a style object
  */
-const buildStyleString = (styleObject, customStyles, selected) => {
+const buildStyleString = (styles, selected) => {
   let str = ""
-  Object.entries(styleObject).forEach(([style, value]) => {
+  if (selected) {
+    styles.border = "2px solid #0055ff !important"
+  }
+  Object.entries(styles).forEach(([style, value]) => {
     if (style && value != null) {
       str += `${style}: ${value}; `
     }
   })
-  str += customStyles || ""
-  if (selected) {
-    str += ";border: 2px solid #0055ff !important;"
-  }
   return str
 }
 
@@ -25,7 +24,6 @@ export const styleable = (node, styles = {}) => {
   // Creates event listeners and applies initial styles
   const setupStyles = newStyles => {
     const selected = newStyles.selected
-    const customStyles = newStyles.custom
     const normalStyles = newStyles.normal || {}
     const hoverStyles = {
       ...normalStyles,
@@ -33,11 +31,11 @@ export const styleable = (node, styles = {}) => {
     }
 
     applyNormalStyles = () => {
-      node.style = buildStyleString(normalStyles, customStyles, selected)
+      node.style = buildStyleString(normalStyles, selected)
     }
 
     applyHoverStyles = () => {
-      node.style = buildStyleString(hoverStyles, customStyles, selected)
+      node.style = buildStyleString(hoverStyles, selected)
     }
 
     // Add listeners to toggle hover styles

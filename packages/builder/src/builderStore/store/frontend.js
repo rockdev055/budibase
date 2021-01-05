@@ -7,6 +7,7 @@ import {
 import {
   allScreens,
   backendUiStore,
+  hostingStore,
   currentAsset,
   mainLayout,
   selectedComponent,
@@ -23,7 +24,6 @@ import {
   getComponentDefinition,
   findParent,
 } from "../storeUtils"
-import { defaults } from "../../components/userInterface/propertyCategories"
 
 const INITIAL_FRONTEND_STATE = {
   apps: [],
@@ -71,6 +71,7 @@ export const getFrontendStore = () => {
         appInstance: pkg.application.instance,
       }))
 
+      await hostingStore.actions.fetch()
       await backendUiStore.actions.database.select(pkg.application.instance)
     },
     routing: {
@@ -367,27 +368,20 @@ export const getFrontendStore = () => {
         await Promise.all(promises)
       },
       updateStyle: async (type, name, value) => {
+        let promises = []
         const selected = get(selectedComponent)
-        if (value == null || value === "") {
-          delete selected._styles[type][name]
-        } else {
+
+        store.update(state => {
+          if (!selected._styles) {
+            selected._styles = {}
+          }
           selected._styles[type][name] = value
-        }
-        await store.actions.preview.saveSelected()
-      },
-      updateCustomStyle: async style => {
-        const selected = get(selectedComponent)
-        selected._styles.custom = style
-        await store.actions.preview.saveSelected()
-      },
-      resetStyles: async () => {
-        const selected = get(selectedComponent)
-        selected._styles = {
-          normal: defaults,
-          hover: defaults,
-          active: defaults,
-        }
-        await store.actions.preview.saveSelected()
+
+          // save without messing with the store
+          promises.push(store.actions.preview.saveSelected())
+          return state
+        })
+        await Promise.all(promises)
       },
       updateProp: (name, value) => {
         store.update(state => {
