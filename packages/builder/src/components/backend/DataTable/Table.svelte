@@ -236,7 +236,6 @@
   }
 
   :global(.ag-filter) {
-    background: var(--background);
     padding: var(--spacing-s);
     outline: none;
     box-sizing: border-box;
