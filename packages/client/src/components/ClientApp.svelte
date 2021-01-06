@@ -9,7 +9,6 @@
   setContext("sdk", SDK)
   setContext("component", writable({}))
   setContext("data", createDataStore())
-  setContext("screenslot", false)
 
   let loaded = false
 

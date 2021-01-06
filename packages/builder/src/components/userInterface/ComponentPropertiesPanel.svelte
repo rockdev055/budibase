@@ -31,8 +31,6 @@
     componentPropDefinition.properties[selectedCategory.value]
 
   const onStyleChanged = store.actions.components.updateStyle
-  const onCustomStyleChanged = store.actions.components.updateCustomStyle
-  const onResetStyles = store.actions.components.resetStyles
 
   $: isComponentOrScreen =
     $store.currentView === "component" ||
@@ -95,12 +93,7 @@
 
 <div class="component-props-container">
   {#if selectedCategory.value === 'design'}
-    <DesignView
-      {panelDefinition}
-      {componentInstance}
-      {onStyleChanged}
-      {onCustomStyleChanged}
-      {onResetStyles} />
+    <DesignView {panelDefinition} {componentInstance} {onStyleChanged} />
   {:else if selectedCategory.value === 'settings'}
     <SettingsView
       {componentInstance}
