@@ -9,8 +9,7 @@ let cache = {}
  * Makes a fully formatted URL based on the SDK configuration.
  */
 const makeFullURL = path => {
-  const isProxy = window.location.pathname.startsWith("/app/")
-  return `${isProxy ? "/app/" : "/"}${path}`.replace("//", "/")
+  return `/${path}`.replace("//", "/")
 }
 
 /**

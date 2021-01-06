@@ -1,5 +1,3 @@
-const { getLogoUrl } = require("../utilities")
-
 const BASE_LAYOUT_PROP_IDS = {
   PRIVATE: "layout_private_master",
   PUBLIC: "layout_public_master",
@@ -18,7 +16,17 @@ const EMPTY_LAYOUT = {
         _id: "7fcf11e4-6f5b-4085-8e0d-9f3d44c98967",
         _component: "##builtin/screenslot",
         _styles: {
-          normal: {},
+          normal: {
+            flex: "1 1 auto",
+            display: "flex",
+            "flex-direction": "column",
+            "justify-content": "flex-start",
+            "align-items": "stretch",
+            "max-width": "100%",
+            "margin-left": "20px",
+            "margin-right": "20px",
+            width: "1400px",
+          },
           hover: {},
           active: {},
           selected: {},
@@ -30,7 +38,16 @@ const EMPTY_LAYOUT = {
     _styles: {
       active: {},
       hover: {},
-      normal: {},
+      normal: {
+        display: "flex",
+        "flex-direction": "column",
+        "align-items": "center",
+        "justify-content": "flex-start",
+        "margin-right": "auto",
+        "margin-left": "auto",
+        "min-height": "100%",
+        "background-image": "#f5f5f5",
+      },
       selected: {},
     },
     className: "",
@@ -90,7 +107,8 @@ const BASE_LAYOUTS = [
                 active: {},
                 selected: {},
               },
-              logoUrl: getLogoUrl(),
+              logoUrl:
+                "https://d33wubrfki0l68.cloudfront.net/aac32159d7207b5085e74a7ef67afbb7027786c5/2b1fd/img/logo/bb-emblem.svg",
               title: "",
               backgroundColor: "",
               color: "",
