@@ -1,11 +1,7 @@
 <script>
-  import {
-    store,
-    backendUiStore,
-    currentAsset,
-    selectedComponent,
-  } from "builderStore"
+  import { store, backendUiStore, currentAsset } from "builderStore"
   import { onMount } from "svelte"
+  import { FrontendTypes } from "constants"
   import CurrentItemPreview from "components/userInterface/AppPreview"
   import ComponentPropertiesPanel from "components/userInterface/ComponentPropertiesPanel.svelte"
   import ComponentSelectionList from "components/userInterface/ComponentSelectionList.svelte"
@@ -47,7 +43,7 @@
     {/if}
   </div>
 
-  {#if $selectedComponent != null}
+  {#if $store.currentFrontEndType === FrontendTypes.SCREEN || $store.currentFrontEndType === FrontendTypes.LAYOUT}
     <div class="components-pane">
       <ComponentPropertiesPanel />
     </div>
