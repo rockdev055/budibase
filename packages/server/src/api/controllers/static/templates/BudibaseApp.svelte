@@ -4,11 +4,12 @@
 
   export let appId
   export let production
-  export let objectStoreUrl
+
+  export const PRODUCTION_ASSETS_URL = `https://${appId}.app.budi.live`
 
   function publicPath(path) {
     if (production) {
-      return `${objectStoreUrl}/${appId}/${path}`
+      return `${PRODUCTION_ASSETS_URL}/assets/${appId}/${path}`
     }
 
     return `/assets/${path}`
