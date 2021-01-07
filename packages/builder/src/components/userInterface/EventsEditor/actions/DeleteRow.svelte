@@ -42,6 +42,8 @@
             typeof tableInfo === "string" ? tableInfo : tableInfo.tableId
         }
       }
+
+      console.log(parameters)
     }
   }
 </script>

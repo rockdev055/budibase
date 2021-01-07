@@ -1,6 +1,6 @@
-import { enrichDataBinding, enrichDataBindings } from "./enrichDataBinding"
+import { enrichDataBinding } from "./enrichDataBinding"
 import { routeStore } from "../store"
-import { saveRow, deleteRow, executeQuery } from "../api"
+import { saveRow, deleteRow } from "../api"
 
 const saveRowHandler = async (action, context) => {
   let draft = context[`${action.parameters.contextPath}_draft`]
@@ -25,27 +25,10 @@ const navigationHandler = action => {
   routeStore.actions.navigate(action.parameters.url)
 }
 
-const queryExecutionHandler = async (action, context) => {
-  const { datasourceId, queryId, params } = action.parameters
-  console.log(context)
-  // TODO: allow context based bindings for query params
-  // const enrichedQueryParameters = enrichDataBindings(params, context)
-
-  // console.log({
-  //   action,
-  //   context,
-  //   // enrichedQueryParameters,
-  //   datasourceId,
-  //   // queryId
-  // })
-  await executeQuery({ datasourceId, queryId })
-}
-
 const handlerMap = {
   ["Save Row"]: saveRowHandler,
   ["Delete Row"]: deleteRowHandler,
   ["Navigate To"]: navigationHandler,
-  ["Execute Query"]: queryExecutionHandler,
 }
 
 /**

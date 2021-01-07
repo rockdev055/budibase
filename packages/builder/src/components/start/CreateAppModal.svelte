@@ -1,6 +1,11 @@
 <script>
   import { writable } from "svelte/store"
-  import { store, automationStore, backendUiStore } from "builderStore"
+  import {
+    store,
+    automationStore,
+    backendUiStore,
+    hostingStore,
+  } from "builderStore"
   import { string, object } from "yup"
   import api, { get } from "builderStore/api"
   import Form from "@svelteschool/svelte-forms"
@@ -12,6 +17,7 @@
   import { fade } from "svelte/transition"
   import { post } from "builderStore/api"
   import analytics from "analytics"
+  import { onMount } from "svelte"
 
   //Move this to context="module" once svelte-forms is updated so that it can bind to stores correctly
   const createAppStore = writable({ currentStep: 0, values: {} })
@@ -62,20 +68,25 @@
     },
   ]
 
-  let steps = [
-    {
-      component: API,
+  function buildStep(component) {
+    return {
+      component,
       errors,
-    },
-    {
-      component: Info,
-      errors,
-    },
-    {
-      component: User,
-      errors,
-    },
-  ]
+    }
+  }
+
+  // steps need to be initialized for cypress from the get go
+  let steps = [buildStep(API), buildStep(Info), buildStep(User)]
+
+  onMount(async () => {
+    let hostingInfo = await hostingStore.actions.fetch()
+    // re-init the steps based on whether self hosting or cloud hosted
+    if (hostingInfo.type === "self") {
+      steps = [buildStep(Info), buildStep(User)]
+    } else {
+      steps = [buildStep(API), buildStep(Info), buildStep(User)]
+    }
+  })
 
   if (hasKey) {
     validationSchemas.shift()
