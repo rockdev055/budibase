@@ -1,6 +1,7 @@
 import { fetchTableData } from "./tables"
 import { fetchViewData } from "./views"
 import { fetchRelationshipData } from "./relationships"
+import { fetchQueryData } from "./queries"
 import { enrichRows } from "./rows"
 
 /**
@@ -18,6 +19,9 @@ export const fetchDatasource = async (datasource, dataContext) => {
     rows = await fetchTableData(tableId)
   } else if (type === "view") {
     rows = await fetchViewData(datasource)
+  } else if (type === "query") {
+    // TODO: map to schema
+    return await fetchQueryData(datasource)
   } else if (type === "link") {
     const row = dataContext[datasource.providerId]
     rows = await fetchRelationshipData({
@@ -26,7 +30,6 @@ export const fetchDatasource = async (datasource, dataContext) => {
       fieldName,
     })
   }
-
   // Enrich rows
   return await enrichRows(rows, tableId)
 }
