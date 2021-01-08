@@ -1,8 +1,8 @@
 <script>
-  import { goto } from "@sveltech/routify"
+  import { goto, params } from "@sveltech/routify"
   import { backendUiStore, store } from "builderStore"
   import { notifier } from "builderStore/store/notifications"
-  import { Input, Label, ModalContent, Toggle } from "@budibase/bbui"
+  import { Input, Label, ModalContent, Button, Spacer } from "@budibase/bbui"
   import TableDataImport from "../TableDataImport.svelte"
   import analytics from "analytics"
   import screenTemplates from "builderStore/store/screenTemplates"
@@ -19,8 +19,9 @@
   let modal
   let name
   let dataImport
+  let integration
   let error = ""
-  let createAutoscreens = true
+  let externalDataSource = false
 
   function checkValid(evt) {
     const tableName = evt.target.value
@@ -35,7 +36,7 @@
     let newTable = {
       name,
       schema: dataImport.schema || {},
-      dataImport,
+      dataImport
     }
 
     // Only set primary display if defined
@@ -49,25 +50,23 @@
     analytics.captureEvent("Table Created", { name })
 
     // Create auto screens
-    if (createAutoscreens) {
-      const screens = screenTemplates($store, [table])
-        .filter(template => defaultScreens.includes(template.id))
-        .map(template => template.create())
-      for (let screen of screens) {
-        // Record the table that created this screen so we can link it later
-        screen.autoTableId = table._id
-        await store.actions.screens.create(screen)
-      }
-
-      // Create autolink to newly created list screen
-      const listScreen = screens.find(screen =>
-        screen.props._instanceName.endsWith("List")
-      )
-      await store.actions.components.links.save(
-        listScreen.routing.route,
-        table.name
-      )
+    const screens = screenTemplates($store, [table])
+      .filter(template => defaultScreens.includes(template.id))
+      .map(template => template.create())
+    for (let screen of screens) {
+      // Record the table that created this screen so we can link it later
+      screen.autoTableId = table._id
+      await store.actions.screens.create(screen)
     }
+
+    // Create autolink to newly created list screen
+    const listScreen = screens.find(screen =>
+      screen.props._instanceName.endsWith("List")
+    )
+    await store.actions.components.links.save(
+      listScreen.routing.route,
+      table.name
+    )
 
     // Navigate to new table
     $goto(`./table/${table._id}`)
@@ -86,11 +85,7 @@
     on:input={checkValid}
     bind:value={name}
     {error} />
-  <Toggle
-    text="Generate screens in the design section"
-    bind:checked={createAutoscreens} />
   <div>
-    <Label grey extraSmall>Create Table from CSV (Optional)</Label>
-    <TableDataImport bind:dataImport />
-  </div>
+  <Label grey extraSmall>Create Table from CSV (Optional)</Label>
+  <TableDataImport bind:dataImport />
 </ModalContent>

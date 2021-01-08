@@ -1,3 +1,5 @@
+import { getAppId } from "../utils/getAppId"
+
 /**
  * API cache for cached request responses.
  */
@@ -7,8 +9,7 @@ let cache = {}
  * Makes a fully formatted URL based on the SDK configuration.
  */
 const makeFullURL = path => {
-  const isProxy = window.location.pathname.startsWith("/app/")
-  return `${isProxy ? "/app/" : "/"}${path}`.replace("//", "/")
+  return `/${path}`.replace("//", "/")
 }
 
 /**
@@ -28,7 +29,7 @@ const makeApiCall = async ({ method, url, body, json = true }) => {
     let headers = {
       Accept: "application/json",
       "Content-Type": "application/json",
-      "x-budibase-app-id": window["##BUDIBASE_APP_ID##"],
+      "x-budibase-app-id": getAppId(),
     }
     if (!window["##BUDIBASE_IN_BUILDER##"]) {
       headers["x-budibase-type"] = "client"
