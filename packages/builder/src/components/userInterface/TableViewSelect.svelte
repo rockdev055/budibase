@@ -14,17 +14,6 @@
     dropdownRight.hide()
   }
 
-  function openBindingDrawer() {
-    backendUiStore.update(state => {
-      state.selectedQueryId = value._id
-      return state
-    })
-    store.update(state => {
-      state.bottomDrawerVisible = true
-      return state
-    })
-  }
-
   $: tables = $backendUiStore.tables.map(m => ({
     label: m.name,
     name: `all_${m._id}`,
@@ -41,14 +30,6 @@
     }))
     return [...acc, ...viewsArr]
   }, [])
-
-  $: queries = $backendUiStore.queries.map(query => ({
-      label: query.name,
-      name: query.name,
-      ...query,
-      schema: query.schema,
-      type: "query",
-  }))
 
   $: bindableProperties = fetchBindableProperties({
     componentInstanceId: $store.selectedComponentId,
@@ -75,12 +56,9 @@
   class="dropdownbutton"
   bind:this={anchorRight}
   on:click={dropdownRight.show}>
-  <span>{value.label ? value.label : 'Table / View / Query'}</span>
+  <span>{value.label ? value.label : 'Table / View'}</span>
   <Icon name="arrowdown" />
 </div>
-{#if value.type === "query"}
-  <i class="ri-settings-3-line" on:click={openBindingDrawer} />
-{/if}
 <DropdownMenu bind:this={dropdownRight} anchor={anchorRight}>
   <div class="dropdown">
     <div class="title">
@@ -118,20 +96,6 @@
           class:selected={value === link}
           on:click={() => handleSelected(link)}>
           {link.label}
-        </li>
-      {/each}
-    </ul>
-
-    <hr />
-    <div class="title">
-      <Heading extraSmall>Queries</Heading>
-    </div>
-    <ul>
-      {#each queries as query}
-        <li
-          class:selected={value === query}
-          on:click={() => handleSelected(query)}>
-          {query.label}
         </li>
       {/each}
     </ul>
