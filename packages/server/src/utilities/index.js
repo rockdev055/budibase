@@ -145,23 +145,6 @@ exports.walkDir = (dirPath, callback) => {
 }
 
 /**
- * This will coerce a value to the correct types based on the type transform map
- * @param {object} row The value to coerce
- * @param {object} type The type fo coerce to
- * @returns {object} The coerced value
- */
-exports.coerceValue = (value, type) => {
-  // eslint-disable-next-line no-prototype-builtins
-  if (TYPE_TRANSFORM_MAP[type].hasOwnProperty(value)) {
-    return TYPE_TRANSFORM_MAP[type][value]
-  } else if (TYPE_TRANSFORM_MAP[type].parse) {
-    return TYPE_TRANSFORM_MAP[type].parse(value)
-  }
-
-  return value
-}
-
-/**
  * This will coerce the values in a row to the correct types based on the type transform map and the
  * table schema.
  * @param {object} row The row which is to be coerced to correct values based on schema, this input
@@ -176,7 +159,12 @@ exports.coerceRowValues = (row, table) => {
     const field = table.schema[key]
     if (!field) continue
 
-    clonedRow[key] = exports.coerceValue(value, field.type)
+    // eslint-disable-next-line no-prototype-builtins
+    if (TYPE_TRANSFORM_MAP[field.type].hasOwnProperty(value)) {
+      clonedRow[key] = TYPE_TRANSFORM_MAP[field.type][value]
+    } else if (TYPE_TRANSFORM_MAP[field.type].parse) {
+      clonedRow[key] = TYPE_TRANSFORM_MAP[field.type].parse(value)
+    }
   }
   return clonedRow
 }

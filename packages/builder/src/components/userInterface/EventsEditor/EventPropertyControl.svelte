@@ -1,17 +1,31 @@
 <script>
   import { Button, Modal } from "@budibase/bbui"
-  import EventEditorModal from "./EventEditorModal.svelte"
   import { createEventDispatcher } from "svelte"
+  import { store } from "builderStore"
+  import EventEditor from "./EventEditor.svelte"
+  import BottomDrawer from "components/common/BottomDrawer.svelte"
+
   const dispatch = createEventDispatcher()
 
   export let value
   export let name
 
-  let modal
+  let drawerVisible
+
+  function showDrawer() {
+    drawerVisible = true
+  }
 </script>
 
-<Button secondary small on:click={modal.show}>Define Actions</Button>
+<Button secondary small on:click={showDrawer}>Define Actions</Button>
 
-<Modal bind:this={modal} width="600px">
-  <EventEditorModal event={value} eventType={name} on:change />
-</Modal>
+{#if drawerVisible}
+  <BottomDrawer title={'Actions'} onClose={() => (drawerVisible = false)}>
+    <heading slot="buttons">
+      <Button thin blue>Save</Button>
+    </heading>
+    <div slot="body">
+      <EventEditor event={value} eventType={name} on:change />
+    </div>
+  </BottomDrawer>
+{/if}
