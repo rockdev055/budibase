@@ -1,11 +1,5 @@
 <script>
-  import {
-    Button,
-    TextButton,
-    Body,
-    DropdownMenu,
-    ModalContent,
-  } from "@budibase/bbui"
+  import { TextButton, Body, DropdownMenu, ModalContent } from "@budibase/bbui"
   import { AddIcon, ArrowDownIcon } from "components/common/Icons/"
   import actionTypes from "./actions"
   import { createEventDispatcher } from "svelte"
@@ -55,44 +49,41 @@
   }
 </script>
 
-<div class="actions-container">
-  <div class="actions-list">
-    <div>
-      <div bind:this={addActionButton}>
-        <TextButton text small blue on:click={addActionDropdown.show}>
-          <div style="height: 20px; width: 20px;">
-            <AddIcon />
-          </div>
-          Add Action
-        </TextButton>
-      </div>
-      <DropdownMenu
-        bind:this={addActionDropdown}
-        anchor={addActionButton}
-        align="right">
-        <div class="available-actions-container">
-          {#each actionTypes as actionType}
-            <div class="available-action" on:click={addAction(actionType)}>
-              <span>{actionType.name}</span>
-            </div>
-          {/each}
+<ModalContent title="Actions" confirmText="Save" onConfirm={saveEventData}>
+  <div slot="header">
+    <div bind:this={addActionButton}>
+      <TextButton text small blue on:click={addActionDropdown.show}>
+        <div style="height: 20px; width: 20px;">
+          <AddIcon />
         </div>
-      </DropdownMenu>
+        Add Action
+      </TextButton>
     </div>
+    <DropdownMenu
+      bind:this={addActionDropdown}
+      anchor={addActionButton}
+      align="right">
+      <div class="available-actions-container">
+        {#each actionTypes as actionType}
+          <div class="available-action" on:click={addAction(actionType)}>
+            <span>{actionType.name}</span>
+          </div>
+        {/each}
+      </div>
+    </DropdownMenu>
+  </div>
 
+  <div class="actions-container">
     {#if actions && actions.length > 0}
       {#each actions as action, index}
         <div class="action-container">
           <div class="action-header" on:click={selectAction(action)}>
-            <span class:selected={action === selectedAction}>
-              {index + 1}. {action[eventTypeKey]}
-            </span>
-            <!-- <Body small lh>{index + 1}. {action[eventTypeKey]}</Body> -->
-            <!-- <div class="row-expander" class:rotate={action !== selectedAction}>
+            <Body small lh>{index + 1}. {action[eventTypeKey]}</Body>
+            <div class="row-expander" class:rotate={action !== selectedAction}>
               <ArrowDownIcon />
-            </div> -->
+            </div>
           </div>
-          <!-- {#if action === selectedAction}
+          {#if action === selectedAction}
             <div class="selected-action-container">
               <svelte:component
                 this={selectedActionComponent}
@@ -103,29 +94,16 @@
                 </TextButton>
               </div>
             </div>
-          {/if} -->
+          {/if}
         </div>
       {/each}
     {/if}
   </div>
-  <div class="action-config">
-    {#if selectedAction}
-      <div class="selected-action-container">
-        <svelte:component
-          this={selectedActionComponent}
-          parameters={selectedAction.parameters} />
-        <div class="delete-action-button">
-          <!-- <TextButton text medium on:click={() => deleteAction(index)}>
-            Delete
-          </TextButton> -->
-        </div>
-      </div>
-    {/if}
-    <Button thin blue on:click={saveEventData}>Save</Button>
-  </div>
-</div>
 
-<a href="https://docs.budibase.com">Learn more about Actions</a>
+  <div slot="footer">
+    <a href="https://docs.budibase.com">Learn more about Actions</a>
+  </div>
+</ModalContent>
 
 <style>
   .action-header {
@@ -134,18 +112,13 @@
     align-items: center;
   }
 
-  .action-header > span {
-    margin-bottom: var(--spacing-m);
+  .action-header > p {
+    flex: 1;
   }
 
-  .action-header > span:hover,
-  .selected {
-    cursor: pointer;
-    font-weight: 500;
-  }
-
-  .actions-list {
-    border: var(--border-light);
+  .row-expander {
+    height: 30px;
+    width: 30px;
   }
 
   .available-action {
@@ -159,10 +132,7 @@
   }
 
   .actions-container {
-    display: grid;
-    grid-gap: var(--spacing-m);
-    grid-template-columns: 15% 1fr;
-    grid-auto-flow: column;
+    flex: 1;
     min-height: 0;
     padding-top: 0;
     border: var(--border-light);
@@ -193,8 +163,11 @@
     font-size: var(--font-size-s);
     text-decoration: none;
   }
-
   a:hover {
     color: var(--blue);
+  }
+
+  .rotate :global(svg) {
+    transform: rotate(90deg);
   }
 </style>
