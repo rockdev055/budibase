@@ -150,9 +150,6 @@ exports.create = async function(ctx) {
     name: ctx.request.body.name,
     template: ctx.request.body.template,
     instance: instance,
-    deployment: {
-      type: "cloud",
-    },
   }
   const instanceDb = new CouchDB(appId)
   await instanceDb.put(newApplication)
