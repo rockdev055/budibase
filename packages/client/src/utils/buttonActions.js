@@ -1,6 +1,6 @@
 import { enrichDataBinding } from "./enrichDataBinding"
 import { routeStore } from "../store"
-import { saveRow, deleteRow, triggerAutomation } from "../api"
+import { saveRow, deleteRow } from "../api"
 
 const saveRowHandler = async (action, context) => {
   let draft = context[`${action.parameters.contextPath}_draft`]
@@ -21,17 +21,6 @@ const deleteRowHandler = async (action, context) => {
   })
 }
 
-const triggerAutomationHandler = async (action, context) => {
-  const params = {}
-  for (let field in action.parameters.fields) {
-    params[field] = enrichDataBinding(
-      action.parameters.fields[field].value,
-      context
-    )
-  }
-  await triggerAutomation(action.parameters.automationId, params)
-}
-
 const navigationHandler = action => {
   routeStore.actions.navigate(action.parameters.url)
 }
@@ -40,7 +29,6 @@ const handlerMap = {
   ["Save Row"]: saveRowHandler,
   ["Delete Row"]: deleteRowHandler,
   ["Navigate To"]: navigationHandler,
-  ["Trigger Automation"]: triggerAutomationHandler,
 }
 
 /**
