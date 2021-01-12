@@ -14,7 +14,7 @@
   const screenPlaceholder = new Screen()
     .name("Screen Placeholder")
     .route("*")
-    .component("@budibase/standard-components/screenslotplaceholder")
+    .component("@budibase/standard-components/screenslot")
     .instanceName("Content Placeholder")
     .json()
 
@@ -30,7 +30,6 @@
   }
   $: selectedComponentId = $store.selectedComponentId ?? ""
   $: previewData = {
-    appId: $store.appId,
     layout,
     screen,
     selectedComponentId,
