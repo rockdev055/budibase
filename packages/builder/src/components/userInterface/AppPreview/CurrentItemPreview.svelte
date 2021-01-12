@@ -30,7 +30,6 @@
   }
   $: selectedComponentId = $store.selectedComponentId ?? ""
   $: previewData = {
-    appId: $store.appId,
     layout,
     screen,
     selectedComponentId,

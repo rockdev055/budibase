@@ -7,7 +7,6 @@ import {
 import {
   allScreens,
   backendUiStore,
-  hostingStore,
   currentAsset,
   mainLayout,
   selectedComponent,
@@ -41,7 +40,6 @@ const INITIAL_FRONTEND_STATE = {
   libraries: null,
   appId: "",
   routes: {},
-  bottomDrawerVisible: false,
 }
 
 export const getFrontendStore = () => {
@@ -72,7 +70,6 @@ export const getFrontendStore = () => {
         appInstance: pkg.application.instance,
       }))
 
-      await hostingStore.actions.fetch()
       await backendUiStore.actions.database.select(pkg.application.instance)
     },
     routing: {

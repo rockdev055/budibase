@@ -10,7 +10,7 @@ export default {
   output: [
     {
       sourcemap: true,
-      format: "iife",
+      format: "esm",
       file: `./dist/budibase-client.js`,
     },
   ],

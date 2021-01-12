@@ -120,7 +120,6 @@
     flex-flow: row;
     align-items: center;
   }
-
   .label {
     display: flex;
     align-items: center;

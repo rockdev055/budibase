@@ -9,7 +9,6 @@ const env = require("./environment")
 const eventEmitter = require("./events")
 const automations = require("./automations/index")
 const Sentry = require("@sentry/node")
-const selfhost = require("./selfhost")
 
 const app = new Koa()
 
@@ -50,12 +49,9 @@ destroyable(server)
 
 server.on("close", () => console.log("Server Closed"))
 
-module.exports = server.listen(env.PORT || 4001, async () => {
+module.exports = server.listen(env.PORT || 4001, () => {
   console.log(`Budibase running on ${JSON.stringify(server.address())}`)
   automations.init()
-  if (env.SELF_HOSTED) {
-    await selfhost.init()
-  }
 })
 
 process.on("uncaughtException", err => {
