@@ -2,16 +2,28 @@
   import { Button, Icon, DropdownMenu, Spacer, Heading } from "@budibase/bbui"
   import { createEventDispatcher } from "svelte"
   import { store, backendUiStore, currentAsset } from "builderStore"
+  import { notifier } from "builderStore/store/notifications"
+  import BottomDrawer from "components/common/BottomDrawer.svelte"
+  import ParameterBuilder from "components/integration/QueryParameterBuilder.svelte"
   import fetchBindableProperties from "../../builderStore/fetchBindableProperties"
 
   const dispatch = createEventDispatcher()
   let anchorRight, dropdownRight
+  let bindingDrawerOpen
 
   export let value = {}
 
   function handleSelected(selected) {
     dispatch("change", selected)
     dropdownRight.hide()
+  }
+
+  function openBindingDrawer() {
+    bindingDrawerOpen = true
+  }
+
+  function closeDatabindingDrawer() {
+    bindingDrawerOpen = false
   }
 
   $: tables = $backendUiStore.tables.map(m => ({
@@ -31,12 +43,28 @@
     return [...acc, ...viewsArr]
   }, [])
 
+  $: queries = $backendUiStore.queries.map(query => ({
+      label: query.name,
+      name: query.name,
+      ...query,
+      schema: query.schema,
+      parameters: query.parameters,
+      type: "query",
+  }))
+
   $: bindableProperties = fetchBindableProperties({
     componentInstanceId: $store.selectedComponentId,
     components: $store.components,
     screen: $currentAsset,
     tables: $backendUiStore.tables,
   })
+
+  $: queryBindableProperties = bindableProperties.map(property => ({
+    ...property,
+    category: property.type === "instance" ? "Component" : "Table",
+    label: property.readableBinding,
+    path: property.readableBinding,
+  }))
 
   $: links = bindableProperties
     .filter(x => x.fieldSchema?.type === "link")
@@ -56,9 +84,29 @@
   class="dropdownbutton"
   bind:this={anchorRight}
   on:click={dropdownRight.show}>
-  <span>{value.label ? value.label : 'Table / View'}</span>
+  <span>{value.label ? value.label : 'Table / View / Query'}</span>
   <Icon name="arrowdown" />
 </div>
+{#if value.type === "query"}
+  <i class="ri-settings-5-line" on:click={openBindingDrawer}/>
+  {#if bindingDrawerOpen}
+    <BottomDrawer title={'Query'} onClose={closeDatabindingDrawer}>
+      <div slot="buttons">
+        <Button blue thin on:click={() => { 
+          notifier.success("Query parameters saved.")
+          handleSelected(value)
+        }}>Save</Button>
+      </div>
+      <div class="drawer-contents" slot="body">
+        <pre>{value.queryString}</pre>
+        <ParameterBuilder
+          bind:customParams={value.queryParams}
+          parameters={value.parameters || []}
+          bindings={queryBindableProperties} />
+      </div>
+    </BottomDrawer>
+  {/if}
+{/if}
 <DropdownMenu bind:this={dropdownRight} anchor={anchorRight}>
   <div class="dropdown">
     <div class="title">
@@ -99,8 +147,23 @@
         </li>
       {/each}
     </ul>
+
+    <hr />
+    <div class="title">
+      <Heading extraSmall>Queries</Heading>
+    </div>
+    <ul>
+      {#each queries as query}
+        <li
+          class:selected={value === query}
+          on:click={() => handleSelected(query)}>
+          {query.label}
+        </li>
+      {/each}
+    </ul>
   </div>
 </DropdownMenu>
+
 
 <style>
   .dropdownbutton {
@@ -162,5 +225,22 @@
 
   li:hover {
     background-color: var(--grey-4);
+  }
+
+  .drawer-contents {
+    padding: var(--spacing-xl);
+  }
+
+  i {
+    margin-left: 5px;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s;
+  }
+
+  i:hover {
+    transform: scale(1.1);
+    font-weight: 500;
+    cursor: pointer;
   }
 </style>
