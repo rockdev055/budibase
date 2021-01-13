@@ -1,6 +1,5 @@
-import { writable, get } from "svelte/store"
+import { writable } from "svelte/store"
 import { store as frontendStore } from "builderStore"
-import { findComponentPath } from "builderStore/storeUtils"
 
 export const DropEffect = {
   MOVE: "move",
@@ -73,32 +72,19 @@ export default function() {
       })
     },
     drop: () => {
-      const state = get(store)
+      store.update(state => {
+        if (state.targetComponent !== state.dragged) {
+          frontendStore.actions.components.copy(state.dragged, true)
+          frontendStore.actions.components.paste(
+            state.targetComponent,
+            state.dropPosition
+          )
+        }
 
-      // Stop if the target and source are the same
-      if (state.targetComponent === state.dragged) {
-        console.log("same component")
-        return
-      }
-      // Stop if the target or source are null
-      if (!state.targetComponent || !state.dragged) {
-        console.log("null component")
-        return
-      }
-      // Stop if the target is a child of source
-      const path = findComponentPath(state.dragged, state.targetComponent._id)
-      if (path?.includes(state.targetComponent._id)) {
-        console.log("target is child of course")
-        return
-      }
+        store.actions.reset()
 
-      // Cut and paste the component
-      frontendStore.actions.components.copy(state.dragged, true)
-      frontendStore.actions.components.paste(
-        state.targetComponent,
-        state.dropPosition
-      )
-      store.actions.reset()
+        return state
+      })
     },
   }
 

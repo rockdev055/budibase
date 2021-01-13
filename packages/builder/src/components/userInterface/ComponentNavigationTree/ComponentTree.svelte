@@ -1,6 +1,7 @@
 <script>
   import { goto } from "@sveltech/routify"
   import { store, currentAssetId } from "builderStore"
+  import { getComponentDefinition } from "builderStore/storeUtils"
   import { DropEffect, DropPosition } from "./dragDropStore"
   import ComponentDropdownMenu from "../ComponentDropdownMenu.svelte"
   import NavItem from "components/common/NavItem.svelte"
@@ -11,11 +12,16 @@
   export let level = 0
   export let dragDropStore
 
-  const isScreenslot = name => name?.endsWith("screenslot")
+  const isScreenslot = name => name === "##builtin/screenslot"
 
   const selectComponent = component => {
+    // Set current component
     store.actions.components.select(component)
+
+    // Get ID path
     const path = store.actions.components.findRoute(component)
+
+    // Go to correct URL
     $goto(`./${$currentAssetId}/${path}`)
   }
 
@@ -25,11 +31,9 @@
   }
 
   const dragover = (component, index) => e => {
-    const definition = store.actions.components.getDefinition(
-      component._component
-    )
     const canHaveChildrenButIsEmpty =
-      definition?.hasChildren && !component._children?.length
+      getComponentDefinition($store, component._component).children &&
+      component._children.length === 0
 
     e.dataTransfer.dropEffect = DropEffect.COPY
 

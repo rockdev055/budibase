@@ -14,7 +14,7 @@
   const screenPlaceholder = new Screen()
     .name("Screen Placeholder")
     .route("*")
-    .component("@budibase/standard-components/screenslot")
+    .component("@budibase/standard-components/screenslotplaceholder")
     .instanceName("Content Placeholder")
     .json()
 
