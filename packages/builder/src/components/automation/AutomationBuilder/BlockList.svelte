@@ -49,9 +49,16 @@
   }
 
   function addBlockToAutomation(stepId, blockDefinition) {
-    const newBlock = $automationStore.selectedAutomation.constructBlock(
-      selectedTab, stepId, blockDefinition)
+    const newBlock = {
+      ...blockDefinition,
+      inputs: blockDefinition.inputs || {},
+      stepId,
+      type: selectedTab,
+    }
     automationStore.actions.addBlockToAutomation(newBlock)
+    analytics.captureEvent("Added Automation Block", {
+      name: blockDefinition.name,
+    })
     closePopover()
     if (stepId === "WEBHOOK") {
       webhookModal.show()
