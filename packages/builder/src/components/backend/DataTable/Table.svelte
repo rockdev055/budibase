@@ -199,6 +199,7 @@
     align-items: stretch;
   }
   .grid-wrapper :global(> *) {
+    height: auto;
     flex: 1 1 auto;
   }
   :global(.grid-wrapper) {
@@ -235,7 +236,6 @@
   }
 
   :global(.ag-filter) {
-    background: var(--background);
     padding: var(--spacing-s);
     outline: none;
     box-sizing: border-box;

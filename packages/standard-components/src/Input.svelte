@@ -4,11 +4,9 @@
   const { styleable, setBindableValue } = getContext("sdk")
   const component = getContext("component")
 
+  // Keep bindable value up to date
   let value
-
-  function onBlur() {
-    setBindableValue(value, $component.id)
-  }
+  $: setBindableValue(value, $component.id)
 </script>
 
-<input bind:value on:blur={onBlur} use:styleable={$component.styles} />
+<input bind:value on:change={onchange} use:styleable={$component.styles} />

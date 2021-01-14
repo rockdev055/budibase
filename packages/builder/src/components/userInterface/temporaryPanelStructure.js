@@ -1,14 +1,14 @@
 import Input from "./PropertyPanelControls/Input.svelte"
-import OptionSelect from "./OptionSelect.svelte"
+import OptionSelect from "./PropertyPanelControls/OptionSelect.svelte"
 import MultiTableViewFieldSelect from "./MultiTableViewFieldSelect.svelte"
 import Checkbox from "../common/Checkbox.svelte"
-import TableSelect from "components/userInterface/TableSelect.svelte"
-import TableViewSelect from "components/userInterface/TableViewSelect.svelte"
-import TableViewFieldSelect from "components/userInterface/TableViewFieldSelect.svelte"
-import Event from "components/userInterface/EventsEditor/EventPropertyControl.svelte"
-import ScreenSelect from "components/userInterface/ScreenSelect.svelte"
+import TableSelect from "components/userInterface/PropertyPanelControls/TableSelect.svelte"
+import TableViewSelect from "components/userInterface/PropertyPanelControls/TableViewSelect.svelte"
+import TableViewFieldSelect from "components/userInterface/PropertyPanelControls/TableViewFieldSelect.svelte"
+import Event from "components/userInterface/PropertyPanelControls/EventsEditor/EventPropertyControl.svelte"
+import ScreenSelect from "components/userInterface/PropertyPanelControls/ScreenSelect.svelte"
 import DetailScreenSelect from "components/userInterface/DetailScreenSelect.svelte"
-import { IconSelect } from "components/userInterface/IconSelect"
+import { IconSelect } from "components/userInterface/PropertyPanelControls/IconSelect"
 import Colorpicker from "@budibase/colorpicker"
 
 import { all } from "./propertyCategories.js"
@@ -20,93 +20,6 @@ import { all } from "./propertyCategories.js"
 
 export default {
   categories: [
-    {
-      _component: "@budibase/standard-components/container",
-      name: "Container",
-      description: "This component contains things within itself",
-      icon: "ri-layout-column-line",
-      commonProps: {},
-      children: [],
-      properties: {
-        design: { ...all },
-        settings: [
-          {
-            key: "type",
-            label: "Type",
-            control: OptionSelect,
-            options: [
-              "article",
-              "aside",
-              "details",
-              "div",
-              "figure",
-              "figcaption",
-              "footer",
-              "header",
-              "main",
-              "mark",
-              "nav",
-              "paragraph",
-              "summary",
-            ],
-          },
-        ],
-      },
-    },
-    {
-      name: "Grid",
-      _component: "@budibase/standard-components/datagrid",
-      description:
-        "a datagrid component with functionality to add, remove and edit rows.",
-      icon: "ri-grid-line",
-      properties: {
-        design: { ...all },
-        settings: [
-          {
-            label: "Source",
-            key: "datasource",
-            control: TableViewSelect,
-          },
-          {
-            label: "Detail URL",
-            key: "detailUrl",
-            control: DetailScreenSelect,
-          },
-          {
-            label: "Editable",
-            key: "editable",
-            valueKey: "checked",
-            control: Checkbox,
-          },
-          {
-            label: "Theme",
-            key: "theme",
-            control: OptionSelect,
-            options: [
-              "alpine",
-              "alpine-dark",
-              "balham",
-              "balham-dark",
-              "material",
-            ],
-            placeholder: "alpine",
-          },
-          {
-            label: "Height",
-            key: "height",
-            defaultValue: "500",
-            control: Input,
-          },
-          {
-            label: "Pagination",
-            key: "pagination",
-            valueKey: "checked",
-            control: Checkbox,
-          },
-        ],
-      },
-      children: [],
-    },
     {
       name: "Repeater",
       _component: "@budibase/standard-components/list",
@@ -152,8 +65,8 @@ export default {
       isCategory: true,
       children: [
         {
-          _component: "@budibase/standard-components/dataform",
-          name: "Form Basic",
+          _component: "@budibase/standard-components/form",
+          name: "Form",
           icon: "ri-file-edit-line",
           properties: {
             design: { ...all },
@@ -161,17 +74,8 @@ export default {
           },
         },
         {
-          _component: "@budibase/standard-components/dataformwide",
-          name: "Form Wide",
-          icon: "ri-file-edit-line",
-          properties: {
-            design: { ...all },
-            settings: [],
-          },
-        },
-        {
-          _component: "@budibase/standard-components/input",
-          name: "Textfield",
+          _component: "@budibase/standard-components/textfield",
+          name: "Text Field",
           description:
             "A textfield component that allows the user to input text.",
           icon: "ri-edit-box-line",
@@ -199,19 +103,19 @@ export default {
         //     settings: [],
         //   },
         // },
-        {
-          _component: "@budibase/standard-components/datepicker",
-          name: "Date Picker",
-          description: "A basic date picker component",
-          icon: "ri-calendar-line",
-          children: [],
-          properties: {
-            design: { ...all },
-            settings: [
-              { label: "Placeholder", key: "placeholder", control: Input },
-            ],
-          },
-        },
+        // {
+        //   _component: "@budibase/standard-components/datepicker",
+        //   name: "Date Picker",
+        //   description: "A basic date picker component",
+        //   icon: "ri-calendar-line",
+        //   children: [],
+        //   properties: {
+        //     design: { ...all },
+        //     settings: [
+        //       { label: "Placeholder", key: "placeholder", control: Input },
+        //     ],
+        //   },
+        // },
       ],
     },
     {
