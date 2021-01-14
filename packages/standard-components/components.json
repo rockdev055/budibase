@@ -21,39 +21,6 @@
 			"logoUrl": "string"
 		}
 	},
-	"button": {
-		"name": "Button",
-		"description": "an html <button />",
-		"props": {
-			"text": "string",
-			"disabled": "bool",
-			"onClick": "event"
-		},
-		"tags": [
-			"layout"
-		],
-		"presets": {
-			"primary": {
-				"contentText": "Primary Button Preset",
-				"color": "papayawhip",
-				"padding": "20px",
-				"background": "blue"
-			},
-			"secondary": {
-				"contentText": "Secondary Button Preset",
-				"color": "rebeccapurple",
-				"padding": "10px",
-				"background": "#fff",
-				"border": "1px solid red"
-			},
-			"error": {
-				"contentText": "ERROR",
-				"color": "red",
-				"padding": "10px",
-				"border": "1px solid red"
-			}
-		}
-	},
 	"login": {
 		"name": "Login Control",
 		"description": "A control that accepts email, password an also handles password resets",
@@ -67,57 +34,6 @@
 			"credentials",
 			"password",
 			"logon"
-		]
-	},
-	"input": {
-		"name": "Textfield",
-		"bindable": "value",
-		"description": "An HTML input",
-		"props": {
-			"type": {
-				"type": "options",
-				"options": [
-					"text",
-					"password",
-					"checkbox",
-					"color",
-					"date",
-					"datetime-local",
-					"email",
-					"file",
-					"hidden",
-					"image",
-					"month",
-					"number",
-					"radio",
-					"range",
-					"reset",
-					"search",
-					"submit",
-					"tel",
-					"time",
-					"week"
-				],
-				"default": "text"
-			}
-		},
-		"tags": [
-			"form"
-		]
-	},
-	"text": {
-		"name": "Text",
-		"description": "stylable block of text",
-		"props": {
-			"text": "string",
-			"type": {
-				"type": "string",
-				"default": "none"
-			}
-		},
-		"tags": [
-			"div",
-			"container"
 		]
 	},
 	"richtext": {
@@ -141,69 +57,8 @@
 			}
 		}
 	},
-	"datagrid": {
-		"name": "Grid",
-		"description": "a datagrid component with functionality to add, remove and edit rows.",
-		"data": true,
-		"props": {
-			"datasource": "tables",
-			"editable": "bool",
-			"theme": {
-				"type": "options",
-				"default": "alpine",
-				"options": [
-					"alpine",
-					"alpine-dark",
-					"balham",
-					"balham-dark",
-					"material"
-				]
-			},
-			"height": {
-				"type": "number",
-				"default": "540"
-			},
-			"pagination": {
-				"type": "bool",
-				"default": true
-			},
-			"detailUrl": "string"
-		}
-	},
-	"dataform": {
-		"name": "Form",
-		"description": "an HTML table that fetches data from a table or view and displays it.",
-		"data": true,
-		"props": {}
-	},
-	"dataformwide": {
-		"name": "Form Wide",
-		"description": "an HTML table that fetches data from a table or view and displays it.",
-		"data": true,
-		"props": {}
-	},
-	"list": {
-		"name": "Repeater",
-		"description": "A configurable data list that attaches to your backend tables.",
-		"context": "datasource",
-		"children": true,
-		"data": true,
-		"props": {
-			"datasource": "tables"
-		}
-	},
-	"stackedlist": {
-		"name": "Stacked List",
-		"description": "A stacked list component for displaying information",
-		"props": {
-			"imageUrl": "string",
-			"heading": "string",
-			"text1": "string",
-			"text2": "string",
-			"text3": "string",
-			"destinationUrl": "string"
-		}
-	},
+
+
 	"rowdetail": {
 		"name": "Row Detail",
 		"description": "Loads a row, using an ID in the url",
@@ -224,43 +79,6 @@
 		"baseComponent": true,
 		"props": {
 			"table": "tables"
-		}
-	},
-	"card": {
-		"name": "Card",
-		"props": {
-			"imageUrl": "string",
-			"heading": "string",
-			"description": "string",
-			"linkText": "string",
-			"linkUrl": "string",
-			"linkColor": {
-				"type": "string",
-				"default": "#000"
-			},
-			"linkHoverColor": {
-				"type": "string",
-				"default": "#000"
-			},
-			"imageHeight": {
-				"type": "options",
-				"default": "20rem",
-				"options": [
-					"12rem",
-					"16rem",
-					"20rem",
-					"24rem"
-				]
-			},
-			"cardWidth": {
-				"type": "options",
-				"default": "20rem",
-				"options": [
-					"16rem",
-					"20rem",
-					"24rem"
-				]
-			}
 		}
 	},
 	"cardstat": {
@@ -623,38 +441,7 @@
 			"url": "string"
 		}
 	},
-	"container": {
-		"name": "Container",
-		"children": true,
-		"description": "An element that contains and lays out other elements. e.g. <div>, <header> etc",
-		"props": {
-			"type": {
-				"type": "options",
-				"options": [
-					"article",
-					"aside",
-					"details",
-					"div",
-					"firgure",
-					"figcaption",
-					"footer",
-					"header",
-					"main",
-					"mark",
-					"nav",
-					"paragraph",
-					"summary"
-				],
-				"default": "div"
-			}
-		},
-		"baseComponent": true,
-		"tags": [
-			"div",
-			"container",
-			"layout"
-		]
-	},
+
 	"heading": {
 		"name": "Heading",
 		"description": "An HTML H1 - H6 tag",
