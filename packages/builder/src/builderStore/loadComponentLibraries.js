@@ -21,9 +21,12 @@ export const fetchComponentLibDefinitions = async appId => {
  */
 export const fetchComponentLibModules = async application => {
   const allLibraries = {}
+
   for (let libraryName of application.componentLibraries) {
     const LIBRARY_URL = `/${application._id}/componentlibrary?library=${libraryName}`
-    allLibraries[libraryName] = await import(LIBRARY_URL)
+    const libraryModule = await import(LIBRARY_URL)
+    allLibraries[libraryName] = libraryModule
   }
+
   return allLibraries
 }
