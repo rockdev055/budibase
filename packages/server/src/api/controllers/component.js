@@ -21,7 +21,7 @@ exports.fetchAppComponentDefinitions = async function(ctx) {
       appDirectory,
       componentLibrary,
       ctx.isDev ? "" : "package",
-      "manifest.json"
+      "components.json"
     ))
 
     const result = {}
@@ -29,9 +29,9 @@ exports.fetchAppComponentDefinitions = async function(ctx) {
     // map over the components.json and add the library identifier as a key
     // button -> @budibase/standard-components/button
     for (let key of Object.keys(componentJson)) {
-      const fullComponentName = `${componentLibrary}/${key}`.toLowerCase()
+      const fullComponentName = `${componentLibrary}/${key}`
       result[fullComponentName] = {
-        component: fullComponentName,
+        _component: fullComponentName,
         ...componentJson[key],
       }
     }

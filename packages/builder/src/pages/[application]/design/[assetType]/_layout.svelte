@@ -6,10 +6,10 @@
     selectedComponent,
   } from "builderStore"
   import { onMount } from "svelte"
-  import CurrentItemPreview from "components/design/AppPreview"
-  import PropertiesPanel from "components/design/PropertiesPanel/PropertiesPanel.svelte"
-  import ComponentSelectionList from "components/design/AppPreview/ComponentSelectionList.svelte"
-  import FrontendNavigatePane from "components/design/NavigationPanel/FrontendNavigatePane.svelte"
+  import CurrentItemPreview from "components/userInterface/AppPreview"
+  import ComponentPropertiesPanel from "components/userInterface/ComponentPropertiesPanel.svelte"
+  import ComponentSelectionList from "components/userInterface/ComponentSelectionList.svelte"
+  import FrontendNavigatePane from "components/userInterface/FrontendNavigatePane.svelte"
 
   $: instance = $store.appInstance
 
@@ -49,7 +49,7 @@
 
   {#if $selectedComponent != null}
     <div class="components-pane">
-      <PropertiesPanel />
+      <ComponentPropertiesPanel />
     </div>
   {/if}
 </div>
