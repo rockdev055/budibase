@@ -1,5 +1,5 @@
 <script>
-  import { writable, get as svelteGet } from "svelte/store"
+  import { writable } from "svelte/store"
   import {
     store,
     automationStore,
@@ -28,7 +28,6 @@
   let isApiKeyValid
   let lastApiKey
   let fetchApiKeyPromise
-
   const validateApiKey = async apiKey => {
     if (isApiKeyValid) return true
     if (!apiKey) return false
@@ -82,11 +81,6 @@
     let hostingInfo = await hostingStore.actions.fetch()
     // re-init the steps based on whether self hosting or cloud hosted
     if (hostingInfo.type === "self") {
-      await hostingStore.actions.fetchDeployedApps()
-      const existingAppNames = svelteGet(hostingStore).deployedAppNames
-      infoValidation.applicationName = string()
-        .required("Your application must have a name.")
-        .notOneOf(existingAppNames)
       isApiKeyValid = true
       steps = [buildStep(Info), buildStep(User)]
       validationSchemas = [infoValidation, userValidation]

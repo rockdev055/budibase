@@ -1,7 +1,6 @@
 <script>
   import TableSelector from "./TableSelector.svelte"
   import RowSelector from "./RowSelector.svelte"
-  import SchemaSetup from "./SchemaSetup.svelte"
   import { Button, Input, Select, Label } from "@budibase/bbui"
   import { automationStore } from "builderStore"
   import WebhookDisplay from "../Shared/WebhookDisplay.svelte"
@@ -71,8 +70,6 @@
       <RowSelector bind:value={block.inputs[key]} {bindings} />
     {:else if value.customType === 'webhookUrl'}
       <WebhookDisplay value={block.inputs[key]} />
-    {:else if value.customType === 'triggerSchema'}
-      <SchemaSetup bind:value={block.inputs[key]} />
     {:else if value.type === 'string' || value.type === 'number'}
       <BindableInput
         type="string"

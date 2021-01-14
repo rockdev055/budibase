@@ -2,7 +2,6 @@ const env = require("../environment")
 const { DocumentTypes, SEPARATOR } = require("../db/utils")
 const fs = require("fs")
 const { cloneDeep } = require("lodash/fp")
-const CouchDB = require("../db")
 
 const APP_PREFIX = DocumentTypes.APP + SEPARATOR
 
@@ -146,23 +145,6 @@ exports.walkDir = (dirPath, callback) => {
 }
 
 /**
- * This will coerce a value to the correct types based on the type transform map
- * @param {object} row The value to coerce
- * @param {object} type The type fo coerce to
- * @returns {object} The coerced value
- */
-exports.coerceValue = (value, type) => {
-  // eslint-disable-next-line no-prototype-builtins
-  if (TYPE_TRANSFORM_MAP[type].hasOwnProperty(value)) {
-    return TYPE_TRANSFORM_MAP[type][value]
-  } else if (TYPE_TRANSFORM_MAP[type].parse) {
-    return TYPE_TRANSFORM_MAP[type].parse(value)
-  }
-
-  return value
-}
-
-/**
  * This will coerce the values in a row to the correct types based on the type transform map and the
  * table schema.
  * @param {object} row The row which is to be coerced to correct values based on schema, this input
@@ -177,25 +159,25 @@ exports.coerceRowValues = (row, table) => {
     const field = table.schema[key]
     if (!field) continue
 
-    clonedRow[key] = exports.coerceValue(value, field.type)
+    // eslint-disable-next-line no-prototype-builtins
+    if (TYPE_TRANSFORM_MAP[field.type].hasOwnProperty(value)) {
+      clonedRow[key] = TYPE_TRANSFORM_MAP[field.type][value]
+    } else if (TYPE_TRANSFORM_MAP[field.type].parse) {
+      clonedRow[key] = TYPE_TRANSFORM_MAP[field.type].parse(value)
+    }
   }
   return clonedRow
 }
 
+/**
+ * Gets the correct link to the logo URL depending on if running in Cloud or if running in self hosting.
+ * @returns {string} A URL which links to the correct default logo for new apps.
+ */
 exports.getLogoUrl = () => {
-  return "https://d33wubrfki0l68.cloudfront.net/aac32159d7207b5085e74a7ef67afbb7027786c5/2b1fd/img/logo/bb-emblem.svg"
-}
-
-exports.getAllApps = async () => {
-  let allDbs = await CouchDB.allDbs()
-  const appDbNames = allDbs.filter(dbName => dbName.startsWith(APP_PREFIX))
-  const appPromises = appDbNames.map(db => new CouchDB(db).get(db))
-  if (appPromises.length === 0) {
-    return []
-  } else {
-    const response = await Promise.allSettled(appPromises)
-    return response
-      .filter(result => result.status === "fulfilled")
-      .map(({ value }) => value)
+  const BB_LOGO_URL =
+    "https://d33wubrfki0l68.cloudfront.net/aac32159d7207b5085e74a7ef67afbb7027786c5/2b1fd/img/logo/bb-emblem.svg"
+  if (env.SELF_HOSTED) {
+    return env.LOGO_URL || BB_LOGO_URL
   }
+  return BB_LOGO_URL
 }

@@ -28,7 +28,6 @@ import {
 const INITIAL_FRONTEND_STATE = {
   apps: [],
   name: "",
-  url: "",
   description: "",
   layouts: [],
   screens: [],
@@ -42,6 +41,7 @@ const INITIAL_FRONTEND_STATE = {
   libraries: null,
   appId: "",
   routes: {},
+  bottomDrawerVisible: false,
 }
 
 export const getFrontendStore = () => {
@@ -63,7 +63,6 @@ export const getFrontendStore = () => {
         libraries: pkg.application.componentLibraries,
         components,
         name: pkg.application.name,
-        url: pkg.application.url,
         description: pkg.application.description,
         appId: pkg.application._id,
         layouts,
