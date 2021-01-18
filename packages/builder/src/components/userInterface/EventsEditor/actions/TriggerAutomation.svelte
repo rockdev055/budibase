@@ -3,9 +3,16 @@
   import { automationStore } from "builderStore"
   import SaveFields from "./SaveFields.svelte"
 
+  const AUTOMATION_STATUS = {
+    NEW: "new",
+    EXISTING: "existing",
+  }
+
   export let parameters = {}
 
-  let newOrExisting = parameters.automationId ? "existing" : "new"
+  let automationStatus = parameters.automationId
+    ? AUTOMATION_STATUS.EXISTING
+    : AUTOMATION_STATUS.NEW
 
   $: automations = $automationStore.automations
     .filter(a => a.definition.trigger?.stepId === "APP")
@@ -33,61 +40,61 @@
   }
 
   const setNew = () => {
-    newOrExisting = "new"
+    automationStatus = AUTOMATION_STATUS.NEW
     parameters.automationId = undefined
   }
 
   const setExisting = () => {
-    newOrExisting = "existing"
+    automationStatus = AUTOMATION_STATUS.EXISTING
     parameters.newAutomationName = ""
   }
-
 </script>
 
 <div class="root">
-
   <div class="radio-container" on:click={setNew}>
-    <input 
-      type="radio" 
-      value="new" 
-      bind:group={newOrExisting}
-      disabled={!hasAutomations}> 
-      
-    <Label disabled={!hasAutomations}>Create a new automation </Label>
+    <input
+      type="radio"
+      value={AUTOMATION_STATUS.NEW}
+      bind:group={automationStatus}
+      disabled={!hasAutomations} />
 
+    <Label disabled={!hasAutomations}>Create a new automation</Label>
   </div>
 
   <div class="radio-container" on:click={setExisting}>
+    <input
+      type="radio"
+      value={AUTOMATION_STATUS.EXISTING}
+      bind:group={automationStatus}
+      disabled={!hasAutomations} />
 
-    <input 
-      type="radio" 
-      value="existing" 
-      bind:group={newOrExisting}
-      disabled={!hasAutomations}> 
-      
-    <Label disabled={!hasAutomations}>Use an existing automation </Label>
-
+    <Label disabled={!hasAutomations}>Use an existing automation</Label>
   </div>
 
   <Label size="m" color="dark">Automation</Label>
 
-  {#if newOrExisting=== "existing"}
-    <Select secondary bind:value={parameters.automationId} placeholder="Choose automation">
+  {#if automationStatus === AUTOMATION_STATUS.EXISTING}
+    <Select
+      secondary
+      bind:value={parameters.automationId}
+      placeholder="Choose automation">
       <option value="" />
       {#each automations as automation}
         <option value={automation._id}>{automation.name}</option>
       {/each}
     </Select>
   {:else}
-    <Input secondary bind:value={parameters.newAutomationName} placeholder="Enter automation name" />
+    <Input
+      secondary
+      bind:value={parameters.newAutomationName}
+      placeholder="Enter automation name" />
   {/if}
 
   <SaveFields
     parameterFields={parameters.fields}
-    schemaFields={newOrExisting === "existing" && selectedAutomation && selectedAutomation.schema}
+    schemaFields={automationStatus === AUTOMATION_STATUS.EXISTING && selectedAutomation && selectedAutomation.schema}
     fieldLabel="Field"
     on:fieldschanged={onFieldsChanged} />
-
 </div>
 
 <style>
@@ -127,5 +134,4 @@
   .radio-container > input:focus {
     outline: none;
   }
-
 </style>

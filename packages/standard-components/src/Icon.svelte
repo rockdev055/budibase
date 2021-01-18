@@ -1,4 +1,5 @@
 <script>
+  import "@fortawesome/fontawesome-free/js/all.js"
   import { getContext } from "svelte"
 
   const { styleable } = getContext("sdk")
