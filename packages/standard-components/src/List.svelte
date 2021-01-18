@@ -10,15 +10,9 @@
 
   let rows = []
 
-  $: datasource && fetchData()
-
-  async function fetchData() {
-    rows = await API.fetchDatasource(datasource, $dataContext)
-  }
-
   onMount(async () => {
     if (!isEmpty(datasource)) {
-      fetchData()
+      rows = await API.fetchDatasource(datasource, $dataContext)
     }
   })
 </script>
