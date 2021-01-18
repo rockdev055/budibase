@@ -50,10 +50,7 @@
 
   function addBlockToAutomation(stepId, blockDefinition) {
     const newBlock = $automationStore.selectedAutomation.constructBlock(
-      selectedTab,
-      stepId,
-      blockDefinition
-    )
+      selectedTab, stepId, blockDefinition)
     automationStore.actions.addBlockToAutomation(newBlock)
     closePopover()
     if (stepId === "WEBHOOK") {
