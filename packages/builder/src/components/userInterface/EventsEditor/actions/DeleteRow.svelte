@@ -12,7 +12,6 @@
     components: $store.components,
     screen: $currentAsset,
     tables: $backendUiStore.tables,
-    queries: $backendUiStore.queries,
   })
 
   $: idFields = bindableProperties.filter(
@@ -43,6 +42,8 @@
             typeof tableInfo === "string" ? tableInfo : tableInfo.tableId
         }
       }
+
+      console.log(parameters)
     }
   }
 </script>
