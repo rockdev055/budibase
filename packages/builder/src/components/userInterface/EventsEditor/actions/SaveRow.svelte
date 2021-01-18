@@ -20,7 +20,6 @@
     components: $store.components,
     screen: $currentAsset,
     tables: $backendUiStore.tables,
-    queries: $backendUiStore.queries,
   })
 
   $: {

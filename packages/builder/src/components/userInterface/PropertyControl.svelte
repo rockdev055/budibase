@@ -35,7 +35,6 @@
       components: $store.components,
       screen: $currentAsset,
       tables: $backendUiStore.tables,
-      queries: $backendUiStore.queries,
     })
   }
 
@@ -121,7 +120,6 @@
     flex-flow: row;
     align-items: center;
   }
-
   .label {
     display: flex;
     align-items: center;
