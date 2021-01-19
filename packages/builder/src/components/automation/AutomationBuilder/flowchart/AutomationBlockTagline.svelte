@@ -54,7 +54,7 @@
       }
     })
 
-    // Fill in bindings with handlebars
+    // Fill in bindings with mustache
     return mustache.render(formattedTagline, { inputs })
   }
 </script>
