@@ -23,20 +23,13 @@ import { cloneDeep, difference } from "lodash/fp"
  * @param {fetchBindablePropertiesParameter} param
  * @returns {Array.<BindableProperty>}
  */
-export default function({
-  componentInstanceId,
-  screen,
-  components,
-  tables,
-  queries,
-}) {
+export default function({ componentInstanceId, screen, components, tables }) {
   const result = walk({
     // cloning so we are free to mutate props (e.g. by adding _contexts)
     instance: cloneDeep(screen.props),
     targetId: componentInstanceId,
     components,
     tables,
-    queries,
   })
 
   return [
@@ -44,9 +37,6 @@ export default function({
       .filter(isInstanceInSharedContext(result))
       .map(componentInstanceToBindable),
     ...(result.target?._contexts.map(contextToBindables(tables)).flat() ?? []),
-    ...(result.target?._contexts
-      .map(context => queriesToBindables(queries, context))
-      .flat() ?? []),
   ]
 }
 
@@ -71,36 +61,9 @@ const componentInstanceToBindable = i => {
   }
 }
 
-const queriesToBindables = (queries, context) => {
-  let queryId = context.table._id
-
-  const query = queries.find(query => query._id === queryId)
-  let schema = query?.schema
-
-  // Avoid crashing whenever no data source has been selected
-  if (!schema) {
-    return []
-  }
-
-  const queryBindings = Object.entries(schema).map(([key, value]) => ({
-    type: "context",
-    fieldSchema: value,
-    instance: context.instance,
-    // how the binding expression persists, and is used in the app at runtime
-    runtimeBinding: `${context.instance._id}.${key}`,
-    // how the binding expressions looks to the user of the builder
-    readableBinding: `${context.instance._instanceName}.${query.name}.${key}`,
-    // table / view info
-    table: context.table,
-  }))
-
-  return queryBindings
-}
-
 const contextToBindables = tables => context => {
-  let tableId = context.table?.tableId ?? context.table
-
-  const table = tables.find(table => table._id === tableId || context.table._id)
+  const tableId = context.table?.tableId ?? context.table
+  const table = tables.find(table => table._id === tableId)
   let schema =
     context.table?.type === "view"
       ? table?.views?.[context.table.name]?.schema
@@ -189,8 +152,8 @@ const walk = ({ instance, targetId, components, tables, result }) => {
 
   const currentContexts = [...result.currentContexts]
   for (let child of instance._children || []) {
-    // attaching _contexts of components, for easy comparison later
-    // these have been deep cloned above, so shouldn't modify the
+    // attaching _contexts of components, for eas comparison later
+    // these have been deep cloned above, so shouln't modify the
     // original component instances
     child._contexts = currentContexts
     walk({ instance: child, targetId, components, tables, result })
