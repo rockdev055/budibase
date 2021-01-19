@@ -1,45 +1,37 @@
 <script>
-  import { onMount } from "svelte"
-  import { goto } from "@sveltech/routify"
   import { store, allScreens } from "builderStore"
   import { FrontendTypes } from "constants"
-  import { params } from "@sveltech/routify"
+  import { goto, params } from "@sveltech/routify"
 
-  onMount(() => {
+  // Go to first layout
+  if ($params.assetType === FrontendTypes.LAYOUT) {
+    // Try to use previously selected layout first
     let id
-
-    // Get valid asset type
-    let assetType = $params.assetType
-    if (![FrontendTypes.LAYOUT, FrontendTypes.SCREEN].includes(assetType)) {
-      assetType = FrontendTypes.SCREEN
+    if (
+      $store.selectedLayoutId &&
+      $store.layouts.find(layout => layout._id === $store.selectedLayoutId)
+    ) {
+      id = $store.selectedLayoutId
+    } else {
+      id = $store.layouts[0]?._id
     }
+    $goto(`../${id}`)
+  }
 
-    // Get ID or first correct asset type
-    if (assetType === FrontendTypes.LAYOUT) {
-      if (
-        $store.selectedLayoutId &&
-        $store.layouts.find(layout => layout._id === $store.selectedLayoutId)
-      ) {
-        id = $store.selectedLayoutId
-      } else {
-        id = $store.layouts[0]?._id
-      }
-    } else if (assetType === FrontendTypes.SCREEN) {
-      if (
-        $store.selectedScreenId &&
-        $allScreens.find(screen => screen._id === $store.selectedScreenId)
-      ) {
-        id = $store.selectedScreenId
-      } else {
-        id = $allScreens[0]?._id
-      }
+  // Go to first screen
+  if ($params.assetType === FrontendTypes.SCREEN) {
+    // Try to use previously selected layout first
+    let id
+    if (
+      $store.selectedScreenId &&
+      $allScreens.find(screen => screen._id === $store.selectedScreenId)
+    ) {
+      id = $store.selectedScreenId
+    } else {
+      id = $allScreens[0]?._id
     }
-
-    // Send correct URL which will then update state
-    if (id) {
-      $goto(`../../${assetType}/${id}`)
-    }
-  })
+    $goto(`../${id}`)
+  }
 </script>
 
 <!-- routify:options index=false -->
