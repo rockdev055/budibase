@@ -6,30 +6,16 @@
     selectedComponent,
   } from "builderStore"
   import { onMount } from "svelte"
-  import CurrentItemPreview from "components/userInterface/AppPreview"
-  import ComponentPropertiesPanel from "components/userInterface/ComponentPropertiesPanel.svelte"
-  import ComponentSelectionList from "components/userInterface/ComponentSelectionList.svelte"
-  import FrontendNavigatePane from "components/userInterface/FrontendNavigatePane.svelte"
-
-  $: instance = $store.appInstance
-
-  async function selectDatabase(database) {
-    backendUiStore.actions.database.select(database)
-  }
+  import CurrentItemPreview from "components/design/AppPreview"
+  import PropertiesPanel from "components/design/PropertiesPanel/PropertiesPanel.svelte"
+  import ComponentSelectionList from "components/design/AppPreview/ComponentSelectionList.svelte"
+  import FrontendNavigatePane from "components/design/NavigationPanel/FrontendNavigatePane.svelte"
 
   onMount(async () => {
     if ($store.appInstance && !$backendUiStore.database) {
-      await selectDatabase($store.appInstance)
+      backendUiStore.actions.database.select($store.appInstance)
     }
   })
-
-  let confirmDeleteDialog
-  let componentToDelete = ""
-
-  let settingsView
-  const settings = () => {
-    settingsView.show()
-  }
 </script>
 
 <!-- routify:options index=1 -->
@@ -49,7 +35,7 @@
 
   {#if $selectedComponent != null}
     <div class="components-pane">
-      <ComponentPropertiesPanel />
+      <PropertiesPanel />
     </div>
   {/if}
 </div>
@@ -101,15 +87,6 @@
     align-items: stretch;
     gap: var(--spacing-l);
     padding: var(--spacing-l) var(--spacing-xl);
-  }
-
-  .binding-drawer-container {
-    height: 50vh;
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    background: var(--background);
-    padding: var(--spacing-xl);
   }
 
   .nav-group-header > div:nth-child(1) {
