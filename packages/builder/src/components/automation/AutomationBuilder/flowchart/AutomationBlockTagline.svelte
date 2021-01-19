@@ -1,5 +1,5 @@
 <script>
-  import { processString } from "@budibase/string-templates"
+  import mustache from "mustache"
   import { get } from "lodash/fp"
   import { backendUiStore } from "builderStore"
 
@@ -54,8 +54,8 @@
       }
     })
 
-    // Fill in bindings with templating library
-    return processString(formattedTagline, { inputs })
+    // Fill in bindings with mustache
+    return mustache.render(formattedTagline, { inputs })
   }
 </script>
 
