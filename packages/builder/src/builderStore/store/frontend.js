@@ -1,6 +1,10 @@
 import { get, writable } from "svelte/store"
 import { cloneDeep } from "lodash/fp"
 import {
+  createProps,
+  getBuiltin,
+} from "components/userInterface/assetParsing/createProps"
+import {
   allScreens,
   backendUiStore,
   hostingStore,
@@ -11,14 +15,20 @@ import {
 } from "builderStore"
 import { fetchComponentLibDefinitions } from "../loadComponentLibraries"
 import api from "../api"
-import { FrontendTypes } from "constants"
+import { FrontendTypes } from "../../constants"
+import getNewComponentName from "../getNewComponentName"
 import analytics from "analytics"
-import { findComponentType, findComponentParent } from "../storeUtils"
-import { uuid } from "../uuid"
+import {
+  findChildComponentType,
+  generateNewIdsForComponent,
+  getComponentDefinition,
+  findParent,
+} from "../storeUtils"
 
 const INITIAL_FRONTEND_STATE = {
   apps: [],
   name: "",
+  url: "",
   description: "",
   layouts: [],
   screens: [],
@@ -32,6 +42,7 @@ const INITIAL_FRONTEND_STATE = {
   libraries: null,
   appId: "",
   routes: {},
+  bottomDrawerVisible: false,
 }
 
 export const getFrontendStore = () => {
@@ -40,26 +51,37 @@ export const getFrontendStore = () => {
   store.actions = {
     initialise: async pkg => {
       const { layouts, screens, application } = pkg
-      const components = await fetchComponentLibDefinitions(application._id)
+
+      store.update(state => {
+        state.appId = application._id
+        return state
+      })
+
+      const components = await fetchComponentLibDefinitions(pkg.application._id)
+
       store.update(state => ({
         ...state,
-        libraries: application.componentLibraries,
+        libraries: pkg.application.componentLibraries,
         components,
-        name: application.name,
-        description: application.description,
-        appId: application._id,
+        name: pkg.application.name,
+        url: pkg.application.url,
+        description: pkg.application.description,
+        appId: pkg.application._id,
         layouts,
         screens,
         hasAppPackage: true,
-        appInstance: application.instance,
+        builtins: [getBuiltin("##builtin/screenslot")],
+        appInstance: pkg.application.instance,
       }))
+
       await hostingStore.actions.fetch()
-      await backendUiStore.actions.database.select(application.instance)
+      await backendUiStore.actions.database.select(pkg.application.instance)
     },
     routing: {
       fetch: async () => {
         const response = await api.get("/api/routing")
         const json = await response.json()
+
         store.update(state => {
           state.routes = json.routes
           return state
@@ -222,231 +244,128 @@ export const getFrontendStore = () => {
     },
     components: {
       select: component => {
-        if (!component) {
-          return
-        }
-
-        // If this is the root component, select the asset instead
-        const asset = get(currentAsset)
-        const parent = findComponentParent(asset.props, component._id)
-        if (parent == null) {
-          const state = get(store)
-          const isLayout = state.currentFrontEndType === FrontendTypes.LAYOUT
-          if (isLayout) {
-            store.actions.layouts.select(asset._id)
-          } else {
-            store.actions.screens.select(asset._id)
-          }
-          return
-        }
-
-        // Otherwise select the component
         store.update(state => {
           state.selectedComponentId = component._id
           state.currentView = "component"
           return state
         })
       },
-      getDefinition: componentName => {
-        if (!componentName) {
-          return null
-        }
-        if (!componentName.startsWith("@budibase")) {
-          componentName = `@budibase/standard-components/${componentName}`
-        }
-        return get(store).components[componentName]
-      },
-      createInstance: (componentName, presetProps) => {
-        const definition = store.actions.components.getDefinition(componentName)
-        if (!definition) {
-          return null
-        }
+      create: (componentToAdd, presetProps) => {
+        const selectedAsset = get(currentAsset)
 
-        // Generate default props
-        let props = { ...presetProps }
-        if (definition.settings) {
-          definition.settings.forEach(setting => {
-            if (setting.defaultValue !== undefined) {
-              props[setting.key] = setting.defaultValue
-            }
-          })
-        }
-
-        // Add any extra properties the component needs
-        let extras = {}
-        if (definition.hasChildren) {
-          extras._children = []
-        }
-
-        return {
-          _id: uuid(),
-          _component: definition.component,
-          _styles: { normal: {}, hover: {}, active: {} },
-          _instanceName: `New ${definition.name}`,
-          ...cloneDeep(props),
-          ...extras,
-        }
-      },
-      create: (componentName, presetProps) => {
-        const selected = get(selectedComponent)
-        const asset = get(currentAsset)
-        const state = get(store)
-
-        // Only allow one screen slot, and in the layout
-        if (componentName.endsWith("screenslot")) {
-          const isLayout = state.currentFrontEndType === FrontendTypes.LAYOUT
-          const slot = findComponentType(asset.props, componentName)
-          if (!isLayout || slot != null) {
-            return
-          }
-        }
-
-        // Create new component
-        const componentInstance = store.actions.components.createInstance(
-          componentName,
-          presetProps
-        )
-        if (!componentInstance) {
-          return
-        }
-
-        // Find parent node to attach this component to
-        let parentComponent
-
-        if (!asset) {
-          return
-        }
-        if (selected) {
-          // Use current screen or layout as parent if no component is selected
-          const definition = store.actions.components.getDefinition(
-            selected._component
-          )
-          if (definition?.hasChildren) {
-            // Use selected component if it allows children
-            parentComponent = selected
-          } else {
-            // Otherwise we need to use the parent of this component
-            parentComponent = findComponentParent(asset.props, selected._id)
-          }
-        } else {
-          // Use screen or layout if no component is selected
-          parentComponent = asset.props
-        }
-
-        // Attach component
-        if (!parentComponent) {
-          return
-        }
-        if (!parentComponent._children) {
-          parentComponent._children = []
-        }
-        parentComponent._children.push(componentInstance)
-
-        // Save components and update UI
-        store.actions.preview.saveSelected()
         store.update(state => {
+          function findSlot(component_array) {
+            if (!component_array) {
+              return false
+            }
+            for (let component of component_array) {
+              if (component._component === "##builtin/screenslot") {
+                return true
+              }
+
+              if (component._children) findSlot(component)
+            }
+            return false
+          }
+
+          if (
+            componentToAdd.startsWith("##") &&
+            findSlot(selectedAsset?.props._children)
+          ) {
+            return state
+          }
+
+          const component = getComponentDefinition(state, componentToAdd)
+
+          const instanceId = get(backendUiStore).selectedDatabase._id
+          const instanceName = getNewComponentName(component, state)
+
+          const newComponent = createProps(component, {
+            ...presetProps,
+            _instanceId: instanceId,
+            _instanceName: instanceName,
+          })
+
+          const selected = get(selectedComponent)
+
+          const currentComponentDefinition =
+            state.components[selected._component]
+
+          const allowsChildren = currentComponentDefinition.children
+
+          // Determine where to put the new component.
+          let targetParent
+          if (allowsChildren) {
+            // Child of the selected component
+            targetParent = selected
+          } else {
+            // Sibling of selected component
+            targetParent = findParent(selectedAsset.props, selected)
+          }
+
+          // Don't continue if there's no parent
+          if (!targetParent) return state
+
+          // Push the new component
+          targetParent._children.push(newComponent.props)
+
+          store.actions.preview.saveSelected()
+
           state.currentView = "component"
-          state.selectedComponentId = componentInstance._id
+          state.selectedComponentId = newComponent.props._id
+
+          analytics.captureEvent("Added Component", {
+            name: newComponent.props._component,
+          })
           return state
         })
-
-        // Log event
-        analytics.captureEvent("Added Component", {
-          name: componentInstance._component,
-        })
-
-        return componentInstance
-      },
-      delete: component => {
-        if (!component) {
-          return
-        }
-        const asset = get(currentAsset)
-        if (!asset) {
-          return
-        }
-        const parent = findComponentParent(asset.props, component._id)
-        if (parent) {
-          parent._children = parent._children.filter(
-            child => child._id !== component._id
-          )
-          store.actions.components.select(parent)
-        }
-        store.actions.preview.saveSelected()
       },
       copy: (component, cut = false) => {
         const selectedAsset = get(currentAsset)
-        if (!selectedAsset) {
-          return null
-        }
-
-        // Update store with copied component
         store.update(state => {
           state.componentToPaste = cloneDeep(component)
           state.componentToPaste.isCut = cut
-          return state
-        })
-
-        // Remove the component from its parent if we're cutting
-        if (cut) {
-          const parent = findComponentParent(selectedAsset.props, component._id)
-          if (parent) {
+          if (cut) {
+            const parent = findParent(selectedAsset.props, component._id)
             parent._children = parent._children.filter(
               child => child._id !== component._id
             )
             store.actions.components.select(parent)
           }
-        }
+
+          return state
+        })
       },
       paste: async (targetComponent, mode) => {
+        const selectedAsset = get(currentAsset)
         let promises = []
         store.update(state => {
-          // Stop if we have nothing to paste
-          if (!state.componentToPaste) {
+          if (!state.componentToPaste) return state
+
+          const componentToPaste = cloneDeep(state.componentToPaste)
+          // retain the same ids as things may be referencing this component
+          if (componentToPaste.isCut) {
+            // in case we paste a second time
+            state.componentToPaste.isCut = false
+          } else {
+            generateNewIdsForComponent(componentToPaste, state)
+          }
+          delete componentToPaste.isCut
+
+          if (mode === "inside") {
+            targetComponent._children.push(componentToPaste)
             return state
           }
 
-          // Clone the component to paste
-          // Retain the same ID if cutting as things may be referencing this component
-          const cut = state.componentToPaste.isCut
-          delete state.componentToPaste.isCut
-          let componentToPaste = cloneDeep(state.componentToPaste)
-          if (cut) {
-            state.componentToPaste = null
-          } else {
-            componentToPaste._id = uuid()
-          }
+          const parent = findParent(selectedAsset.props, targetComponent)
 
-          if (mode === "inside") {
-            // Paste inside target component if chosen
-            if (!targetComponent._children) {
-              targetComponent._children = []
-            }
-            targetComponent._children.push(componentToPaste)
-          } else {
-            // Otherwise find the parent so we can paste in the correct order
-            // in the parents child components
-            const selectedAsset = get(currentAsset)
-            if (!selectedAsset) {
-              return state
-            }
-            const parent = findComponentParent(
-              selectedAsset.props,
-              targetComponent._id
-            )
-            if (!parent) {
-              return state
-            }
+          const targetIndex = parent._children.indexOf(targetComponent)
+          const index = mode === "above" ? targetIndex : targetIndex + 1
+          parent._children.splice(index, 0, cloneDeep(componentToPaste))
 
-            // Insert the component in the correct position
-            const targetIndex = parent._children.indexOf(targetComponent)
-            const index = mode === "above" ? targetIndex : targetIndex + 1
-            parent._children.splice(index, 0, cloneDeep(componentToPaste))
-          }
-
-          // Save and select the new component
           promises.push(store.actions.preview.saveSelected())
           store.actions.components.select(componentToPaste)
+
           return state
         })
         await Promise.all(promises)
@@ -471,56 +390,90 @@ export const getFrontendStore = () => {
         await store.actions.preview.saveSelected()
       },
       updateProp: (name, value) => {
-        let component = get(selectedComponent)
-        if (!name || !component) {
-          return
-        }
-        component[name] = value
         store.update(state => {
-          state.selectedComponentId = component._id
+          let current_component = get(selectedComponent)
+          current_component[name] = value
+
+          state.selectedComponentId = current_component._id
+          store.actions.preview.saveSelected()
           return state
         })
-        store.actions.preview.saveSelected()
+      },
+      findRoute: component => {
+        // Gets all the components to needed to construct a path.
+        const selectedAsset = get(currentAsset)
+        let pathComponents = []
+        let parent = component
+        let root = false
+        while (!root) {
+          parent = findParent(selectedAsset.props, parent)
+          if (!parent) {
+            root = true
+          } else {
+            pathComponents.push(parent)
+          }
+        }
+
+        // Remove root entry since it's the screen or layout.
+        // Reverse array since we need the correct order of the IDs
+        const reversedComponents = pathComponents.reverse().slice(1)
+
+        // Add component
+        const allComponents = [...reversedComponents, component]
+
+        // Map IDs
+        const IdList = allComponents.map(c => c._id)
+
+        // Construct ID Path:
+        return IdList.join("/")
       },
       links: {
         save: async (url, title) => {
+          let promises = []
           const layout = get(mainLayout)
-          if (!layout) {
-            return
-          }
+          store.update(state => {
+            // Try to extract a nav component from the master layout
+            const nav = findChildComponentType(
+              layout,
+              "@budibase/standard-components/navigation"
+            )
+            if (nav) {
+              let newLink
 
-          // Find a nav bar in the main layout
-          const nav = findComponentType(
-            layout.props,
-            "@budibase/standard-components/navigation"
-          )
-          if (!nav) {
-            return
-          }
+              // Clone an existing link if one exists
+              if (nav._children && nav._children.length) {
+                // Clone existing link style
+                newLink = cloneDeep(nav._children[0])
 
-          let newLink
-          if (nav._children && nav._children.length) {
-            // Clone an existing link if one exists
-            newLink = cloneDeep(nav._children[0])
+                // Manipulate IDs to ensure uniqueness
+                generateNewIdsForComponent(newLink, state, false)
 
-            // Set our new props
-            newLink._id = uuid()
-            newLink._instanceName = `${title} Link`
-            newLink.url = url
-            newLink.text = title
-          } else {
-            // Otherwise create vanilla new link
-            newLink = {
-              ...store.actions.components.createInstance("link"),
-              url,
-              text: title,
-              _instanceName: `${title} Link`,
+                // Set our new props
+                newLink._instanceName = `${title} Link`
+                newLink.url = url
+                newLink.text = title
+              } else {
+                // Otherwise create vanilla new link
+                const component = getComponentDefinition(
+                  state,
+                  "@budibase/standard-components/link"
+                )
+                const instanceId = get(backendUiStore).selectedDatabase._id
+                newLink = createProps(component, {
+                  url,
+                  text: title,
+                  _instanceName: `${title} Link`,
+                  _instanceId: instanceId,
+                }).props
+              }
+
+              // Save layout
+              nav._children = [...nav._children, newLink]
+              promises.push(store.actions.layouts.save(layout))
             }
-          }
-
-          // Save layout
-          nav._children = [...nav._children, newLink]
-          await store.actions.layouts.save(layout)
+            return state
+          })
+          await Promise.all(promises)
         },
       },
     },
