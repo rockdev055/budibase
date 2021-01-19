@@ -133,7 +133,7 @@
 			"icon": "string",
 			"size": {
 				"type": "string",
-				"default": "md"
+				"default": "fa-lg"
 			},
 			"color": {
 				"type": "string",

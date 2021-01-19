@@ -34,5 +34,8 @@
     "test:e2e": "lerna run cy:test",
     "test:e2e:ci": "lerna run cy:ci",
     "build:docker": "cd hosting/scripts/linux/ && ./release-to-docker-hub.sh && cd -"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome": "^1.1.8"
   }
 }
