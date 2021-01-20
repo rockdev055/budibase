@@ -81,6 +81,3 @@ typings/
 
 # Mac files
 .DS_Store
-
-# Nova Editor
-.nova
