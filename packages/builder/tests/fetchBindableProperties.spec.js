@@ -224,8 +224,6 @@ const testData = () => {
     },
   ]
 
-  const queries = []
-
   const components = {
     "@budibase/standard-components/container": {
       props: {},
@@ -249,5 +247,5 @@ const testData = () => {
     },
   }
 
-  return { screen, tables, components, queries }
+  return { screen, tables, components }
 }

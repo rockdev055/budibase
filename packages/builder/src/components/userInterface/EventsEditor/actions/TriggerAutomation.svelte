@@ -3,16 +3,9 @@
   import { automationStore } from "builderStore"
   import SaveFields from "./SaveFields.svelte"
 
-  const AUTOMATION_STATUS = {
-    NEW: "new",
-    EXISTING: "existing",
-  }
-
   export let parameters = {}
 
-  let automationStatus = parameters.automationId
-    ? AUTOMATION_STATUS.EXISTING
-    : AUTOMATION_STATUS.NEW
+  let newOrExisting = parameters.automationId ? "existing" : "new"
 
   $: automations = $automationStore.automations
     .filter(a => a.definition.trigger?.stepId === "APP")
@@ -40,12 +33,12 @@
   }
 
   const setNew = () => {
-    automationStatus = AUTOMATION_STATUS.NEW
+    newOrExisting = "new"
     parameters.automationId = undefined
   }
 
   const setExisting = () => {
-    automationStatus = AUTOMATION_STATUS.EXISTING
+    newOrExisting = "existing"
     parameters.newAutomationName = ""
   }
 </script>
@@ -54,8 +47,8 @@
   <div class="radio-container" on:click={setNew}>
     <input
       type="radio"
-      value={AUTOMATION_STATUS.NEW}
-      bind:group={automationStatus}
+      value="new"
+      bind:group={newOrExisting}
       disabled={!hasAutomations} />
 
     <Label disabled={!hasAutomations}>Create a new automation</Label>
@@ -64,8 +57,8 @@
   <div class="radio-container" on:click={setExisting}>
     <input
       type="radio"
-      value={AUTOMATION_STATUS.EXISTING}
-      bind:group={automationStatus}
+      value="existing"
+      bind:group={newOrExisting}
       disabled={!hasAutomations} />
 
     <Label disabled={!hasAutomations}>Use an existing automation</Label>
@@ -73,7 +66,7 @@
 
   <Label size="m" color="dark">Automation</Label>
 
-  {#if automationStatus === AUTOMATION_STATUS.EXISTING}
+  {#if newOrExisting === 'existing'}
     <Select
       secondary
       bind:value={parameters.automationId}
@@ -92,7 +85,7 @@
 
   <SaveFields
     parameterFields={parameters.fields}
-    schemaFields={automationStatus === AUTOMATION_STATUS.EXISTING && selectedAutomation && selectedAutomation.schema}
+    schemaFields={newOrExisting === 'existing' && selectedAutomation && selectedAutomation.schema}
     fieldLabel="Field"
     on:fieldschanged={onFieldsChanged} />
 </div>

@@ -6,7 +6,7 @@
   import api from "builderStore/api"
   import { notifier } from "builderStore/store/notifications"
   import CreateWebhookDeploymentModal from "./CreateWebhookDeploymentModal.svelte"
-  import { store, hostingStore } from "builderStore"
+  import { hostingStore } from "builderStore"
 
   const DeploymentStatus = {
     SUCCESS: "SUCCESS",
@@ -36,9 +36,7 @@
   let errorReason
   let poll
   let deployments = []
-  let urlComponent =
-    $hostingStore.hostingInfo.type === "self" ? $store.url : `/${appId}`
-  let deploymentUrl = `${$hostingStore.appUrl}${urlComponent}`
+  let deploymentUrl = `${$hostingStore.appUrl}/${appId}`
 
   const formatDate = (date, format) =>
     Intl.DateTimeFormat("en-GB", DATE_OPTIONS[format]).format(date)

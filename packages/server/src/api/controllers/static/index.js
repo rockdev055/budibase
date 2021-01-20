@@ -7,12 +7,11 @@ const fs = require("fs-extra")
 const uuid = require("uuid")
 const AWS = require("aws-sdk")
 const { prepareUpload } = require("../deploy/utils")
-const handlebars = require("handlebars")
+const { processString } = require("@budibase/string-templates")
 const {
   budibaseAppsDir,
   budibaseTempDir,
 } = require("../../../utilities/budibaseDir")
-const { getDeployedApps } = require("../../../utilities/builder/hosting")
 const CouchDB = require("../../../db")
 const setBuilderToken = require("../../../utilities/builder/setBuilderToken")
 const fileProcessor = require("../../../utilities/fileProcessor")
@@ -24,17 +23,6 @@ function objectStoreUrl() {
     return `/app-assets/assets`
   } else {
     return "https://cdn.app.budi.live/assets"
-  }
-}
-
-async function checkForSelfHostedURL(ctx) {
-  // the "appId" component of the URL may actually be a specific self hosted URL
-  let possibleAppUrl = `/${encodeURI(ctx.params.appId).toLowerCase()}`
-  const apps = await getDeployedApps()
-  if (apps[possibleAppUrl] && apps[possibleAppUrl].appId) {
-    return apps[possibleAppUrl].appId
-  } else {
-    return ctx.params.appId
   }
 }
 
@@ -161,30 +149,23 @@ exports.performLocalFileProcessing = async function(ctx) {
 }
 
 exports.serveApp = async function(ctx) {
-  let appId = ctx.params.appId
-  if (env.SELF_HOSTED) {
-    appId = await checkForSelfHostedURL(ctx)
-  }
   const App = require("./templates/BudibaseApp.svelte").default
-  const db = new CouchDB(appId, { skip_setup: true })
-  const appInfo = await db.get(appId)
+  const db = new CouchDB(ctx.params.appId)
+  const appInfo = await db.get(ctx.params.appId)
 
   const { head, html, css } = App.render({
     title: appInfo.name,
     production: env.CLOUD,
-    appId,
+    appId: ctx.params.appId,
     objectStoreUrl: objectStoreUrl(),
   })
 
-  const template = handlebars.compile(
-    fs.readFileSync(`${__dirname}/templates/app.hbs`, "utf8")
-  )
-
-  ctx.body = template({
+  const appHbs = fs.readFileSync(`${__dirname}/templates/app.hbs`, "utf8")
+  ctx.body = await processString(appHbs, {
     head,
     body: html,
     style: css.code,
-    appId,
+    appId: ctx.params.appId,
   })
 }
 
@@ -192,7 +173,8 @@ exports.serveAttachment = async function(ctx) {
   const appId = ctx.user.appId
   const attachmentsPath = resolve(budibaseAppsDir(), appId, "attachments")
 
-  // Serve from object store
+  // Serve from CloudFront
+  // TODO: need to replace this with link to self hosted object store
   if (env.CLOUD) {
     const S3_URL = join(objectStoreUrl(), appId, "attachments", ctx.file)
     const response = await fetch(S3_URL)
