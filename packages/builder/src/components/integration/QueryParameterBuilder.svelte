@@ -1,10 +1,10 @@
 <script>
-  import { Button, Label, Input, Heading } from "@budibase/bbui"
-  import BindableInput from "components/common/BindableInput.svelte"
+  import { Button, TextArea, Label, Input, Heading } from "@budibase/bbui"
+  import BindableInput from "components/userInterface/BindableInput.svelte"
   import {
     readableToRuntimeBinding,
     runtimeToReadableBinding,
-  } from "builderStore/dataBinding"
+  } from "builderStore/replaceBindings"
 
   export let bindable = true
   export let parameters = []
@@ -47,7 +47,7 @@
           type="string"
           thin
           on:change={evt => onBindingChange(parameter.name, evt.detail)}
-          value={runtimeToReadableBinding(bindings, customParams?.[parameter.name])}
+          value={runtimeToReadableBinding(bindings, customParams[parameter.name])}
           {bindings} />
       {:else}
         <i

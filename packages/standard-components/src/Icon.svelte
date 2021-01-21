@@ -10,4 +10,6 @@
   export let color = "#000"
 </script>
 
-<i style={`color: ${color};`} class={`${icon} ${size}`} />
+<i
+  style={`color: ${color};`}
+  class={`${icon} ${size}`} />

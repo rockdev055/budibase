@@ -25,9 +25,9 @@ export default function(tables) {
 export const ROW_DETAIL_TEMPLATE = "ROW_DETAIL_TEMPLATE"
 export const rowDetailUrl = table => sanitizeUrl(`/${table.name}/:id`)
 
-function generateTitleContainer(table, title, providerId) {
+function generateTitleContainer(table, title) {
   // have to override style for this, its missing margin
-  const saveButton = makeSaveButton(table, providerId).normalStyle({
+  const saveButton = makeSaveButton(table).normalStyle({
     background: "#000000",
     "border-width": "0",
     "border-style": "None",
@@ -60,8 +60,8 @@ function generateTitleContainer(table, title, providerId) {
       onClick: [
         {
           parameters: {
-            rowId: `{{ ${providerId}._id }}`,
-            revId: `{{ ${providerId}._rev }}`,
+            rowId: "{{ data._id }}",
+            revId: "{{ data._rev }}",
             tableId: table._id,
           },
           "##eventHandlerType": "Delete Row",
@@ -82,22 +82,21 @@ function generateTitleContainer(table, title, providerId) {
 }
 
 const createScreen = (table, heading) => {
-  const screen = new Screen()
+  const dataform = new Component(
+    "@budibase/standard-components/dataformwide"
+  ).instanceName("Form")
+
+  const container = makeMainContainer()
+    .addChild(makeBreadcrumbContainer(table.name, heading || "Edit"))
+    .addChild(generateTitleContainer(table, heading || "Edit Row"))
+    .addChild(dataform)
+
+  return new Screen()
     .component("@budibase/standard-components/rowdetail")
     .table(table._id)
     .instanceName(`${table.name} - Detail`)
     .route(rowDetailUrl(table))
     .name("")
-
-  const dataform = new Component(
-    "@budibase/standard-components/dataformwide"
-  ).instanceName("Form")
-
-  const providerId = screen._json.props._id
-  const container = makeMainContainer()
-    .addChild(makeBreadcrumbContainer(table.name, heading || "Edit"))
-    .addChild(generateTitleContainer(table, heading || "Edit Row", providerId))
-    .addChild(dataform)
-
-  return screen.addChild(container).json()
+    .addChild(container)
+    .json()
 }
