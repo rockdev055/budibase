@@ -3,7 +3,7 @@
   import { number } from "./valueSetters"
   import { getRenderer } from "./customRenderer"
   import { isEmpty } from "lodash/fp"
-  import { getContext } from "svelte"
+  import { getContext, onMount } from "svelte"
   import AgGrid from "@budibase/svelte-ag-grid"
   import {
     TextButton as DeleteButton,
@@ -34,7 +34,6 @@
       ["--grid-height"]: `${height}px`,
     },
   }
-  $: fetchData(datasource)
 
   // These can never change at runtime so don't need to be reactive
   let canEdit = editable && datasource && datasource.type !== "view"
@@ -58,11 +57,8 @@
     pagination,
   }
 
-  async function fetchData(datasource) {
-    if (isEmpty(datasource)) {
-      return
-    }
-    data = await API.fetchDatasource(datasource)
+  async function fetchData() {
+    data = await API.fetchDatasource(datasource, $dataContext)
 
     let schema
 
@@ -118,6 +114,12 @@
 
     dataLoaded = true
   }
+
+  $: datasource && fetchData()
+
+  onMount(() => {
+    if (!isEmpty(datasource)) fetchData()
+  })
 
   const shouldHideField = name => {
     if (name.startsWith("_")) return true
