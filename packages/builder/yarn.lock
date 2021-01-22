@@ -842,10 +842,10 @@
     lodash "^4.17.19"
     to-fast-properties "^2.0.0"
 
-"@budibase/bbui@^1.54.0":
-  version "1.54.0"
-  resolved "https://registry.yarnpkg.com/@budibase/bbui/-/bbui-1.54.0.tgz#60e6c0faa3d8f1781c503e74f8b8990f75ba2c40"
-  integrity sha512-98koXkueqda6oQT6q0NPNvdL878ETRevtmmm34aSz9C6B4Oz68VVCsiFzRWuHvP/7wiNaAxMgY1nsEsCwP3LpQ==
+"@budibase/bbui@^1.54.1":
+  version "1.54.1"
+  resolved "https://registry.yarnpkg.com/@budibase/bbui/-/bbui-1.54.1.tgz#ad0439c0be6a4dc818cd9dacda00f053b0daa9d5"
+  integrity sha512-ZY2OP/tF+ReMSyzZIGZV6wpQ4eIEzYGxZV3n+C+oNjzK5u3rwWPCDEVDlZgJSqJ61z+sEf2zuIyAh88lq9RTaA==
   dependencies:
     markdown-it "^12.0.2"
     quill "^1.3.7"
@@ -5323,6 +5323,11 @@ ms@2.1.2, ms@^2.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
   integrity sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
+
+mustache@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/mustache/-/mustache-4.0.1.tgz#d99beb031701ad433338e7ea65e0489416c854a2"
+  integrity sha512-yL5VE97+OXn4+Er3THSmTdCFCtx5hHWzrolvH+JObZnUYwuaG7XV+Ch4fR2cIrcYI0tFHxS7iyFYl14bW8y2sA==
 
 nan@^2.12.1:
   version "2.14.2"
