@@ -10,7 +10,6 @@
 
   // Get contexts
   const dataContext = getContext("data")
-  const errorContext = getContext("error")
   const screenslotContext = getContext("screenslot")
 
   // Create component context
@@ -30,7 +29,7 @@
     $builderStore.previewType === "layout" || screenslotContext
 
   // Update component context
-  $: componentStore.set({ id, children: children.length, styles: { ...styles, id, allowSelection } })
+  $: componentStore.set({ id, styles: { ...styles, id, allowSelection } })
 
   // Gets the component constructor for the specified component
   const getComponentConstructor = component => {
