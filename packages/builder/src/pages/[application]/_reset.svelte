@@ -3,7 +3,7 @@
   import { Button } from "@budibase/bbui"
   import SettingsLink from "components/settings/Link.svelte"
   import ThemeEditorDropdown from "components/settings/ThemeEditorDropdown.svelte"
-  import FeedbackNavLink from "components/userInterface/Feedback/FeedbackNavLink.svelte"
+  import FeedbackNavLink from "components/feedback/FeedbackNavLink.svelte"
   import { get } from "builderStore/api"
   import { isActive, goto, layout } from "@sveltech/routify"
 
@@ -73,7 +73,7 @@
         <a
           target="_blank"
           href="https://github.com/Budibase/budibase/discussions">
-          <i class="ri-github-fill" />
+          <i class="ri-question-line" />
         </a>
       </div>
       <SettingsLink />
@@ -89,8 +89,8 @@
   <div class="beta">
     <Button
       secondary
-      href="https://github.com/Budibase/budibase/discussions/categories/ideas">
-      Request feature
+      href="https://www.budibase.com/blog/budibase-public-beta/">
+      Budibase is in Beta
     </Button>
   </div>
 
