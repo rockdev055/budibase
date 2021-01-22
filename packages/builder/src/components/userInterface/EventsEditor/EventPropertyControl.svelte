@@ -1,8 +1,10 @@
 <script>
-  import { Button, Drawer } from "@budibase/bbui"
+  import { Button, Modal } from "@budibase/bbui"
   import { createEventDispatcher } from "svelte"
+  import { store } from "builderStore"
   import { notifier } from "builderStore/store/notifications"
   import EventEditor from "./EventEditor.svelte"
+  import BottomDrawer from "components/common/BottomDrawer.svelte"
   import { automationStore } from "builderStore"
 
   const dispatch = createEventDispatcher()
@@ -10,7 +12,11 @@
   export let value
   export let name
 
-  let drawer
+  let drawerVisible
+
+  function showDrawer() {
+    drawerVisible = true
+  }
 
   const saveEventData = async () => {
     // any automations that need created from event triggers
@@ -21,7 +27,6 @@
 
     dispatch("change", value)
     notifier.success("Component actions saved.")
-    drawer.hide()
   }
 
   // called by the parent modal when actions are saved
@@ -57,12 +62,15 @@
   }
 </script>
 
-<Button secondary small on:click={drawer.show}>Define Actions</Button>
-<Drawer bind:this={drawer} title={'Actions'}>
-  <heading slot="buttons">
-    <Button thin blue on:click={saveEventData}>Save</Button>
-  </heading>
-  <div slot="body">
-    <EventEditor event={value} eventType={name} />
-  </div>
-</Drawer>
+<Button secondary small on:click={showDrawer}>Define Actions</Button>
+
+{#if drawerVisible}
+  <BottomDrawer title={'Actions'} onClose={() => (drawerVisible = false)}>
+    <heading slot="buttons">
+      <Button thin blue on:click={saveEventData}>Save</Button>
+    </heading>
+    <div slot="body">
+      <EventEditor event={value} eventType={name} />
+    </div>
+  </BottomDrawer>
+{/if}

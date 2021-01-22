@@ -1,5 +1,5 @@
 <script>
-  import { Button, Icon, Drawer, Body } from "@budibase/bbui"
+  import { Icon } from "@budibase/bbui"
   import Input from "./PropertyPanelControls/Input.svelte"
   import { store, backendUiStore, currentAsset } from "builderStore"
   import fetchBindableProperties from "builderStore/fetchBindableProperties"
@@ -7,7 +7,8 @@
     readableToRuntimeBinding,
     runtimeToReadableBinding,
   } from "builderStore/replaceBindings"
-  import BindingPanel from "components/userInterface/BindingPanel.svelte"
+  import { DropdownMenu } from "@budibase/bbui"
+  import BindingDropdown from "components/userInterface/BindingDropdown.svelte"
 
   export let label = ""
   export let bindable = true
@@ -18,15 +19,13 @@
   export let props = {}
   export let onChange = () => {}
 
-  let bindingDrawer
-
   let temporaryBindableValue = value
   let bindableProperties = []
   let anchor
+  let dropdown
 
   function handleClose() {
     handleChange(key, temporaryBindableValue)
-    bindingDrawer.hide()
   }
 
   function getBindableProperties() {
@@ -96,29 +95,24 @@
     <div
       class="icon"
       data-cy={`${key}-binding-button`}
-      on:click={bindingDrawer.show}>
+      on:click={dropdown.show}>
       <Icon name="edit" />
     </div>
   {/if}
 </div>
-
-<Drawer bind:this={bindingDrawer} title="Bindings">
-  <div slot="description">
-    <Body extraSmall grey>
-      Add the objects on the left to enrich your text.
-    </Body>
-  </div>
-  <heading slot="buttons">
-    <Button thin blue on:click={handleClose}>Save</Button>
-  </heading>
-  <div slot="body">
-    <BindingPanel
+{#if control == Input}
+  <DropdownMenu
+    on:close={handleClose}
+    bind:this={dropdown}
+    {anchor}
+    align="right">
+    <BindingDropdown
       {...handlevalueKey(value)}
-      close={handleClose}
+      close={dropdown.hide}
       on:update={e => (temporaryBindableValue = e.detail)}
       {bindableProperties} />
-  </div>
-</Drawer>
+  </DropdownMenu>
+{/if}
 
 <style>
   .property-control {
