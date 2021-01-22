@@ -20,48 +20,56 @@ const SCHEMA = {
   },
   query: {
     create: {
-      type: QUERY_TYPES.FIELDS,
-      fields: {
-        table: {
-          type: FIELD_TYPES.STRING,
-          required: true,
+      DynamoConfig: {
+        type: QUERY_TYPES.FIELDS,
+        fields: {
+          table: {
+            type: FIELD_TYPES.STRING,
+            required: true,
+          },
+          customisable: true,
         },
-        customisable: true,
       },
     },
     read: {
-      type: QUERY_TYPES.FIELDS,
-      fields: {
-        table: {
-          type: FIELD_TYPES.STRING,
-          required: true,
+      DynamoConfig: {
+        type: QUERY_TYPES.FIELDS,
+        fields: {
+          table: {
+            type: FIELD_TYPES.STRING,
+            required: true,
+          },
+          index: {
+            type: FIELD_TYPES.STRING,
+          },
+          customisable: true,
         },
-        index: {
-          type: FIELD_TYPES.STRING,
-        },
-        customisable: true,
       },
     },
     update: {
-      type: QUERY_TYPES.FIELDS,
-      fields: {
-        table: {
-          type: FIELD_TYPES.STRING,
-          required: true,
+      DynamoConfig: {
+        type: QUERY_TYPES.FIELDS,
+        fields: {
+          table: {
+            type: FIELD_TYPES.STRING,
+            required: true,
+          },
+          customisable: true,
         },
-        customisable: true,
       },
     },
     delete: {
-      type: QUERY_TYPES.FIELDS,
-      fields: {
-        table: {
-          type: FIELD_TYPES.STRING,
-          required: true,
-        },
-        key: {
-          type: FIELD_TYPES.STRING,
-          required: true,
+      "Dynamo Partition Key": {
+        type: QUERY_TYPES.FIELDS,
+        fields: {
+          table: {
+            type: FIELD_TYPES.STRING,
+            required: true,
+          },
+          key: {
+            type: FIELD_TYPES.STRING,
+            required: true,
+          },
         },
       },
     },

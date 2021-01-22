@@ -17,40 +17,48 @@ const SCHEMA = {
   },
   query: {
     create: {
-      type: QUERY_TYPES.FIELDS,
-      customisable: true,
-      fields: {
-        table: {
-          type: FIELD_TYPES.STRING,
-          required: true,
+      "Airtable Record": {
+        type: QUERY_TYPES.FIELDS,
+        customisable: true,
+        fields: {
+          table: {
+            type: FIELD_TYPES.STRING,
+            required: true,
+          },
         },
       },
     },
     read: {
-      type: QUERY_TYPES.FIELDS,
-      fields: {
-        table: {
-          type: FIELD_TYPES.STRING,
-          required: true,
-        },
-        view: {
-          type: FIELD_TYPES.STRING,
-          required: true,
+      Table: {
+        type: QUERY_TYPES.FIELDS,
+        fields: {
+          table: {
+            type: FIELD_TYPES.STRING,
+            required: true,
+          },
+          view: {
+            type: FIELD_TYPES.STRING,
+            required: true,
+          },
         },
       },
     },
     update: {
-      type: QUERY_TYPES.FIELDS,
-      customisable: true,
-      fields: {
-        id: {
-          type: FIELD_TYPES.STRING,
-          required: true,
+      Fields: {
+        type: QUERY_TYPES.FIELDS,
+        customisable: true,
+        fields: {
+          id: {
+            type: FIELD_TYPES.STRING,
+            required: true,
+          },
         },
       },
     },
     delete: {
-      type: FIELD_TYPES.JSON,
+      "Airtable Ids": {
+        type: FIELD_TYPES.JSON,
+      },
     },
   },
 }

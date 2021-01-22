@@ -24,10 +24,14 @@ const SCHEMA = {
   },
   query: {
     create: {
-      type: "sql",
+      SQL: {
+        type: "sql",
+      },
     },
     read: {
-      type: "sql",
+      SQL: {
+        type: "sql",
+      },
     },
   },
 }

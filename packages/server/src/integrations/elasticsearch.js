@@ -13,49 +13,57 @@ const SCHEMA = {
   },
   query: {
     create: {
-      type: QUERY_TYPES.FIELDS,
-      customisable: true,
-      fields: {
-        index: {
-          type: FIELD_TYPES.STRING,
-          required: true,
+      "ES Query DSL": {
+        type: QUERY_TYPES.FIELDS,
+        customisable: true,
+        fields: {
+          index: {
+            type: FIELD_TYPES.STRING,
+            required: true,
+          },
         },
       },
     },
     read: {
-      type: QUERY_TYPES.FIELDS,
-      customisable: true,
-      fields: {
-        index: {
-          type: FIELD_TYPES.STRING,
-          required: true,
+      "ES Query DSL": {
+        type: QUERY_TYPES.FIELDS,
+        customisable: true,
+        fields: {
+          index: {
+            type: FIELD_TYPES.STRING,
+            required: true,
+          },
         },
       },
     },
     update: {
-      type: QUERY_TYPES.FIELDS,
-      customisable: true,
-      fields: {
-        id: {
-          type: FIELD_TYPES.STRING,
-          required: true,
-        },
-        index: {
-          type: FIELD_TYPES.STRING,
-          required: true,
+      "ES Query DSL": {
+        type: QUERY_TYPES.FIELDS,
+        customisable: true,
+        fields: {
+          id: {
+            type: FIELD_TYPES.STRING,
+            required: true,
+          },
+          index: {
+            type: FIELD_TYPES.STRING,
+            required: true,
+          },
         },
       },
     },
     delete: {
-      type: QUERY_TYPES.FIELDS,
-      fields: {
-        index: {
-          type: FIELD_TYPES.STRING,
-          required: true,
-        },
-        id: {
-          type: FIELD_TYPES.STRING,
-          required: true,
+      "Document ID": {
+        type: QUERY_TYPES.FIELDS,
+        fields: {
+          index: {
+            type: FIELD_TYPES.STRING,
+            required: true,
+          },
+          id: {
+            type: FIELD_TYPES.STRING,
+            required: true,
+          },
         },
       },
     },

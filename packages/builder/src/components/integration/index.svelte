@@ -20,6 +20,13 @@
   }
 </script>
 
+{#if editable}
+  <ParameterBuilder bind:parameters={query.parameters} bindable={false} />
+  <Spacer large />
+{/if}
+
+<Heading extraSmall black>Query</Heading>
+<Spacer medium />
 
 {#if schema}
   {#key query._id}
@@ -31,6 +38,7 @@
         readOnly={!editable}
         value={query.fields.sql} />
     {:else if schema.type === QueryTypes.JSON}
+      <Spacer large />
       <Editor
         label="Query"
         mode="json"
