@@ -31,8 +31,7 @@ module.exports.processors = [
         statement = swapStrings(statement, startBraceIdx + lastIdx, 1, ".[")
       }
       lastIdx = startBraceIdx + 1
-      const nextBraceIdx = statement.substring(lastIdx + 1).indexOf("[")
-      startBraceIdx = nextBraceIdx > 0 ? lastIdx + 1 + nextBraceIdx : -1
+      startBraceIdx = statement.substring(lastIdx + 1).indexOf("[")
     }
     return statement
   }),
