@@ -56,7 +56,7 @@
   }
 
   .title {
-    font-weight: 500;
+    font-weight: 400;
   }
 
   .subtitle {
@@ -65,10 +65,6 @@
   }
 
   i {
-    padding: 0.5rem;
-    background-color: var(--grey-2);
-    font-size: 24px;
-    border-radius: var(--border-radius-s);
-    color: var(--ink);
+    font-size: 16px;
   }
 </style>
