@@ -1,6 +1,12 @@
 <script>
   import groupBy from "lodash/fp/groupBy"
-  import { Button, TextArea, Drawer, Heading, Spacer } from "@budibase/bbui"
+  import {
+    Button,
+    TextArea,
+    Drawer,
+    Heading,
+    Spacer,
+  } from "@budibase/bbui"
   import { createEventDispatcher } from "svelte"
 
   const dispatch = createEventDispatcher()
@@ -32,9 +38,7 @@
         <Heading extraSmall>Tables</Heading>
         <ul>
           {#each context as { readableBinding }}
-            <li on:click={() => addToText(readableBinding)}>
-              {readableBinding}
-            </li>
+            <li on:click={() => addToText(readableBinding)}>{readableBinding}</li>
           {/each}
         </ul>
       {/if}
@@ -42,9 +46,7 @@
         <Heading extraSmall>Components</Heading>
         <ul>
           {#each instance as { readableBinding }}
-            <li on:click={() => addToText(readableBinding)}>
-              {readableBinding}
-            </li>
+            <li on:click={() => addToText(readableBinding)}>{readableBinding}</li>
           {/each}
         </ul>
       {/if}

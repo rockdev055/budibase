@@ -24,6 +24,8 @@
     name: "New Query",
     parameters: [],
     fields: {},
+    queryVerb: "read",
+    queryType: "",
   }
 </script>
 
