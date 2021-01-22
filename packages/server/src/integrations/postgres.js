@@ -18,7 +18,7 @@ const SCHEMA = {
       default: "postgres",
       required: true,
     },
-    username: {
+    user: {
       type: "string",
       default: "root",
       required: true,
@@ -31,16 +31,24 @@ const SCHEMA = {
   },
   query: {
     create: {
-      type: "sql",
+      SQL: {
+        type: "sql",
+      },
     },
     read: {
-      type: "sql",
+      SQL: {
+        type: "sql",
+      },
     },
     update: {
-      type: "sql",
+      SQL: {
+        type: "sql",
+      },
     },
     delete: {
-      type: "sql",
+      SQL: {
+        type: "sql",
+      },
     },
   },
 }

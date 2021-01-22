@@ -73,7 +73,7 @@
         <a
           target="_blank"
           href="https://github.com/Budibase/budibase/discussions">
-          <i class="ri-github-fill" />
+          <i class="ri-question-line" />
         </a>
       </div>
       <SettingsLink />
@@ -89,8 +89,8 @@
   <div class="beta">
     <Button
       secondary
-      href="https://github.com/Budibase/budibase/discussions/categories/ideas">
-      Request feature
+      href="https://www.budibase.com/blog/budibase-public-beta/">
+      Budibase is in Beta
     </Button>
   </div>
 

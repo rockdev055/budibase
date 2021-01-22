@@ -16,20 +16,28 @@ const SCHEMA = {
   },
   query: {
     create: {
-      type: QUERY_TYPES.JSON,
+      "CouchDB DSL": {
+        type: QUERY_TYPES.JSON,
+      },
     },
     read: {
-      type: QUERY_TYPES.JSON,
+      "CouchDB DSL": {
+        type: QUERY_TYPES.JSON,
+      },
     },
     update: {
-      type: QUERY_TYPES.JSON,
+      "CouchDB Document": {
+        type: QUERY_TYPES.JSON,
+      },
     },
     delete: {
-      type: QUERY_TYPES.FIELDS,
-      fields: {
-        id: {
-          type: FIELD_TYPES.STRING,
-          required: true,
+      "Document ID": {
+        type: QUERY_TYPES.FIELDS,
+        fields: {
+          id: {
+            type: FIELD_TYPES.STRING,
+            required: true,
+          },
         },
       },
     },
