@@ -1,6 +1,6 @@
 <script>
   import { notificationStore } from "builderStore/store/notifications"
-  import { flip } from 'svelte/animate';
+  import { onMount, onDestroy } from "svelte"
   import { fly } from "svelte/transition"
 
   export let themes = {
@@ -27,7 +27,6 @@
 <div class="notifications">
   {#each $notificationStore.notifications as notification (notification.id)}
     <div
-      animate:flip
       class="toast"
       style="background: {themes[notification.type]};"
       transition:fly={{ y: -30 }}>
