@@ -1,7 +1,6 @@
 /**
  * API cache for cached request responses.
  */
-import { notificationStore } from "../store/notification"
 let cache = {}
 
 /**
@@ -36,12 +35,10 @@ const makeApiCall = async ({ method, url, body, json = true }) => {
       case 200:
         return response.json()
       case 404:
-        notificationStore.danger("Not found")
         return handleError(`${url}: Not Found`)
       case 400:
         return handleError(`${url}: Bad Request`)
       case 403:
-        notificationStore.danger("Forbidden")
         return handleError(`${url}: Forbidden`)
       default:
         if (response.status >= 200 && response.status < 400) {
